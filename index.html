@@ -1,0 +1,2585 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Diagram Builder (Nodes/Links/Country Boxes) → CSV + NDG</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin: 0; background:#0b0c10; color:#eaeaea; }
+    header {
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      padding:10px 12px; border-bottom:1px solid #222;
+      position: sticky; top: 0; background:#0b0c10; z-index: 10;
+    }
+    .btn {
+      background:#16181f; border:1px solid #2a2d38; color:#eaeaea;
+      padding:8px 10px; border-radius:10px; cursor:pointer; font-weight:650;
+    }
+    .btn:hover { border-color:#4a5166; }
+    .btn.primary { background:#2b59ff; border-color:#2b59ff; color:#fff; }
+    .btn.primary:hover { filter: brightness(1.05); }
+    .hint { opacity:.85; font-size: 13px; }
+    input[type="file"]{ display:none; }
+
+    #layout { display:grid; grid-template-columns: 1fr 410px; height: calc(100vh - 58px); }
+    #wrap { position: relative; }
+    #inspector {
+      border-left:1px solid #222;
+      padding:12px;
+      background:#0b0c10;
+      overflow:auto;
+    }
+    #inspector h3 { margin:0 0 10px; font-size:15px; }
+    #inspector .muted { opacity:.8; font-size:12px; line-height:1.35; margin-bottom:10px; }
+    #inspector .row { margin:10px 0; }
+    #inspector label { display:block; font-size:12px; opacity:.85; margin:0 0 6px; }
+    #inspector input, #inspector textarea, #inspector select {
+      width:100%; box-sizing:border-box;
+      padding:10px; border-radius:10px; border:1px solid #2a2d38;
+      background:#0b0c10; color:#eaeaea; font-size: 14px;
+    }
+    #inspector textarea { min-height: 70px; resize: vertical; }
+    #inspector .inline { display:flex; gap:8px; }
+    #inspector .inline > * { flex:1; }
+
+    svg { width: 100%; height: 100%; display:block; user-select:none; }
+    .grid { stroke:#14161d; stroke-width:1; }
+
+    .group-rect { rx:14; ry:14; }
+    .group-selected .group-rect { stroke:#ffffff !important; }
+    .group-label { font-weight:650; user-select:none; cursor: default; }
+    .group-handle { fill:#eaeaea; opacity:.9; cursor:nwse-resize; }
+
+    .edge { fill:none; }
+    .edge.selected { stroke-width: 4; opacity: 0.8; filter: brightness(1.5)}
+    .edge-label {
+      fill:#eaeaea;
+      paint-order: stroke; stroke:#0b0c10; stroke-width:4px;
+      cursor: default; user-select:none;
+    }
+
+    .node { cursor: grab; }
+    .node:active { cursor: grabbing; }
+    .node-circle { }
+    .node.selected .node-circle { stroke:#ffffff !important; }
+    .node-text, .tag-text { text-anchor: middle; user-select:none; cursor: default; }
+    .node-text { dominant-baseline: middle; }
+    .tag-text { dominant-baseline: hanging; opacity:.9; }
+
+    .toast {
+      position:absolute; right:14px; bottom:14px; background:#14161d; border:1px solid #2a2d38;
+      padding:10px 12px; border-radius:12px; max-width: 520px; font-size: 13px; opacity:0;
+      transform: translateY(8px); transition: all .2s ease; z-index: 20;
+    }
+    .toast.show { opacity:1; transform: translateY(0); }
+    kbd{ padding:1px 6px; border:1px solid #2a2d38; border-bottom-width:2px; border-radius:6px; background:#0f1118; font-size:12px; }
+
+    header { position: sticky; top: 0; }
+    .menu {
+      position:absolute;
+      top: 52px;
+      left: 12px;
+      background:#14161d;
+      border:1px solid #2a2d38;
+      border-radius:12px;
+      padding:6px;
+      min-width: 220px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+      z-index: 30;
+    }
+    .menu[hidden]{ display:none; }
+    .menu .item{
+      display:flex; align-items:center; gap:10px;
+      padding:8px 10px;
+      border-radius:10px;
+      cursor:pointer;
+      user-select:none;
+      font-size: 13px;
+      opacity:.95;
+    }
+    .menu .item:hover{ background:#0f1118; }
+    .menu .sep{ height:1px; background:#2a2d38; margin:6px 4px; }
+
+    .toggle{ display:inline-flex; align-items:center; gap:6px; padding:6px 8px; border:1px solid #2a2d38; border-radius:10px; background:#0b0c10; font-size:13px; opacity:.95; }
+    .toggle input{ accent-color:#2b59ff; }
+    .mini-btn{
+      background:#16181f; border:1px solid #2a2d38; color:#eaeaea;
+      padding:7px 9px; border-radius:10px; cursor:pointer; font-weight:650; font-size:12px;
+    }
+    .mini-btn:hover { border-color:#4a5166; }
+
+
+    .toggle {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid #2a2d38; background:#0f1118;
+      font-size:12px; opacity:.95; user-select:none;
+    }
+    .toggle input { accent-color:#2b59ff; }
+    .marquee { fill: rgba(43,89,255,0.12); stroke:#2b59ff; stroke-width:2; stroke-dasharray:6 4; }
+  
+    .ribbon{ display:flex; flex-direction:column; gap:10px; width:100%; }
+    .ribbon-tabs{ display:flex; gap:18px; align-items:flex-end; }
+    .rib-tab{
+      background:transparent; border:none; color:#eaeaea;
+      padding:6px 2px; cursor:pointer; font-weight:750; font-size:14px;
+      opacity:.9;
+    }
+    .rib-tab:hover{ opacity:1; }
+    .rib-tab.active{
+      opacity:1;
+      border-bottom:3px solid #2b59ff;
+      padding-bottom:3px;
+    }
+    .ribbon-panels{ display:flex; flex-direction:column; gap:8px; }
+    .rib-panel{ display:none; flex-wrap:wrap; gap:10px; align-items:center; }
+    .rib-panel.active{ display:flex; }
+    .rib-hint{ margin-left:auto; }
+
+  
+    .shape-bar{ display:flex; gap:6px; align-items:center; padding:4px 6px; border:1px solid #2a2d38; border-radius:12px; background:#0f1118; }
+    .shape-btn{ background:transparent; border:1px solid #2a2d38; color:#eaeaea; padding:6px 8px; border-radius:10px; cursor:pointer; font-weight:650; font-size:12px; }
+    .shape-btn:hover{ border-color:#4a5166; }
+    .shape-btn.active{ background:#16181f; border-color:#4a5166; }
+
+  
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      header, .toast{ display:none !important; }
+      svg{ background:#ffffff !important; }
+      .edge{ stroke:#000000 !important; }
+      .edge-label, .node-label, .group-title{ fill:#000000 !important; }
+      .node-circle{ stroke:#000000 !important; fill:#ffffff !important; }
+      .group-rect{ stroke:#000000 !important; fill:rgba(0,0,0,0.04) !important; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="ribbon">
+    <div class="ribbon-tabs">
+      <button class="rib-tab" id="tabFile" type="button">File</button>
+      <button class="rib-tab active" id="tabHome" type="button">Home</button>
+    </div>
+
+    <div class="ribbon-panels">
+      <div class="rib-panel" id="panelFile">
+        <button class="btn" id="btnFile" type="button">File ▾</button>
+        <div class="menu" id="fileMenu" hidden>
+          <div class="item" id="miSave">Save</div>
+          <div class="item" id="miSaveAs">Save As…</div>
+          <div class="sep"></div>
+          <div class="item" id="miOpen">Open…</div>
+          <div class="sep"></div>
+          <div class="item" id="miRecover">Recover Autosave</div>
+          <div class="item" id="miClearAutosave">Clear Autosave</div>
+          <div class="sep"></div>
+          <div class="item" id="miClearDiagram">Clear Diagram</div>
+          <div class="sep"></div>
+          <div class="item" id="miExportSVG">Export SVG…</div>
+          <div class="item" id="miExportPNG">Export PNG…</div>
+          <div class="item" id="miExportJPG">Export JPG…</div>
+        </div>
+        <span class="hint">Use the menu to save/open/recover/clear.</span>
+      </div>
+
+      <div class="rib-panel active" id="panelHome">
+        <button class="btn primary" id="btnAddGroup" type="button">Add Country Box</button>
+        <button class="btn" id="btnAddRegion" type="button">Add Region Box</button>
+        <button class="btn" id="btnExportLinks" type="button">Export Links CSV</button>
+        <button class="btn" id="btnExportNodes" type="button">Export Nodes CSV</button>
+        <div class="shape-bar" id="shapeBar">
+          <button class="shape-btn active" data-shape="circle" type="button">Circle</button>
+          <button class="shape-btn" data-shape="square" type="button">Square</button>
+          <button class="shape-btn" data-shape="triangle" type="button">Triangle</button>
+          <button class="shape-btn" data-shape="rectangle" type="button">Rectangle</button>
+          <button class="shape-btn" data-shape="ellipse" type="button">Elipse</button>
+          <button class="shape-btn" data-shape="hexagon" type="button">Hexagon</button>
+        </div>
+
+
+        <button class="btn" id="btnBrush" type="button" title="Copy and apply formatting (Esc to cancel)">🖌️ Format Painter</button>
+
+        <input type="file" id="fileLoad" accept=".ndg,application/json" />
+
+        <label class="toggle"><input type="checkbox" id="tglShowLatency" checked />Show Latency</label>
+        <label class="toggle"><input type="checkbox" id="tglShowNodeCode" checked />Show Node Codes</label>
+        <label class="toggle"><input type="checkbox" id="tglShowLinkCode" checked />Show Link Codes</label>
+
+        <span class="hint rib-hint">
+          Double-click empty space: node • Shift+click A then B: link • Drag empty space: select • Ctrl+C/X/V: copy/cut/paste • Undo: Ctrl+Z
+        </span>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+<div id="layout">
+  <div id="wrap">
+    <svg id="svg" viewBox="0 0 1600 900" preserveAspectRatio="none"></svg>
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <aside id="inspector">
+    <h3>Inspector</h3>
+    <div class="muted" id="inspectorHelp">
+      Select a node, link, or country box to edit it. Use Delete/Backspace to remove selected.
+      <br/>Move any label only with <kbd>Ctrl</kbd>+drag (so normal dragging moves nodes/boxes).
+    </div>
+
+    <div id="noSelection" class="muted">Nothing selected.</div>
+
+<div id="nodeInspector" style="display:none;">
+  <div class="row">
+    <label>Node Style Preset</label>
+    <div class="inline">
+      <select id="nodePreset"></select>
+      <button class="mini-btn" id="btnNodePresetSave">Save</button>
+      <button class="mini-btn" id="btnNodePresetApply">Apply</button>
+      <button class="mini-btn" id="btnNodePresetDelete">Delete</button>
+    </div>
+  </div>
+
+  <div class="row">
+    <label>Node Name (label)</label>
+    <input id="nodeName" />
+  </div>
+  <div class="row">
+    <label>Node Tag(s) (comma-separated)</label>
+    <textarea id="nodeTags"></textarea>
+  </div>
+  <div class="row">
+    <label>Additional Tags (free text)</label>
+    <input id="nodeExtraTags" placeholder="e.g. role=core, owner=teamA" />
+  </div>
+
+  <div class="row inline">
+    <div>
+      <label>Node Code</label>
+      <input id="nodeCode" placeholder="e.g. N-001" />
+    </div>
+    <div>
+      <label>Show Code</label>
+      <select id="nodeShowCode">
+        <option value="1">Yes</option>
+        <option value="0">No</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row">
+    <label>Address</label>
+    <input id="nodeAddress" placeholder="e.g. 123 Main Street" />
+  </div>
+
+  <div class="row inline">
+    <div>
+      <label>City</label>
+      <input id="nodeCity" placeholder="e.g. New York" />
+    </div>
+    <div>
+      <label>Country</label>
+      <input id="nodeCountry" placeholder="e.g. USA" />
+    </div>
+  </div>
+
+  <div class="row inline">
+    <div>
+      <label>Name Font</label>
+      <input id="nodeNameFont" type="number" min="6" max="72" step="1" />
+    </div>
+    <div>
+      <label>Tags Font</label>
+      <input id="nodeTagFont" type="number" min="6" max="72" step="1" />
+    </div>
+  </div>
+
+  <div class="row inline">
+    <div>
+      <label>Name Color</label>
+      <input id="nodeNameColor" type="color" />
+    </div>
+    <div>
+      <label>Tags Color</label>
+      <input id="nodeTagColor" type="color" />
+    </div>
+  </div>
+
+  <div class="row inline">
+    <div>
+      <label>Node Fill</label>
+      <input id="nodeFill" type="color" />
+    </div>
+    <div>
+      <label>Node Stroke</label>
+      <input id="nodeStroke" type="color" />
+    </div>
+  </div>
+
+  <div class="row">
+    <label>Line Width</label>
+    <input id="nodeStrokeW" type="number" min="0.5" max="12" step="0.5" />
+  </div>
+
+  <div class="row">
+    <label>Node Size</label>
+    <input id="nodeSize" type="number" min="10" max="80" step="1" />
+  </div>
+
+  <div class="row">
+    <label>Assigned Country Box (auto if inside)</label>
+    <input id="nodeGroup" disabled />
+  </div>
+</div>
+
+    <div id="edgeInspector" style="display:none;">
+      <div class="row">
+        <label>Link Style Preset</label>
+        <div class="inline">
+          <select id="edgePreset"></select>
+          <button class="mini-btn" id="btnEdgePresetSave">Save</button>
+          <button class="mini-btn" id="btnEdgePresetApply">Apply</button>
+          <button class="mini-btn" id="btnEdgePresetDelete">Delete</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <label>Link Tag</label>
+        <input id="edgeTag" />
+      </div>
+
+      <div class="row">
+        <label>Latency value (ms)</label>
+        <input id="edgeLatency" type="number" step="0.01" min="0" placeholder="e.g. 1.23" />
+        <div class="muted">This field only accepts a number. The diagram shows it as “X ms”.</div>
+      </div>
+      
+      <div class="row">
+        <label>Capacity Options</label>
+        <input id="edgeCapacity" placeholder="e.g. Up to 100G" />
+      </div>
+      
+      <div class="row">
+        <label>Additional Tags (free text)</label>
+        <input id="edgeExtraTags" placeholder="e.g. provider=ISP1, circuit=ABC123" />
+      </div>
+
+      <div class="row inline">
+        <div>
+          <label>Link Code</label>
+          <input id="edgeCode" placeholder="e.g. L-010" />
+        </div>
+        <div>
+          <label>Show Code</label>
+          <select id="edgeShowCode">
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row inline">
+        <div>
+          <label>Label Font</label>
+          <input id="edgeLabelFont" type="number" min="6" max="72" step="1" />
+        </div>
+        <div>
+          <label>Label Color</label>
+          <input id="edgeLabelColor" type="color" />
+        </div>
+      </div>
+
+      <div class="row inline">
+        <div>
+          <label>Style</label>
+          <select id="edgeStyle">
+            <option value="straight">Straight</option>
+            <option value="orthogonal">90° Orthogonal</option>
+          </select>
+        </div>
+        <div>
+          <label>Routing</label>
+          <select id="edgeRoute">
+            <option value="hv">Horizontal then Vertical</option>
+            <option value="vh">Vertical then Horizontal</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+         <label>Line Width</label>
+  	 <input id="edgeStrokeW" type="number" min="0.5" max="12" step="0.5" />
+      </div>
+
+      <div class="row">
+         <label>Line Color</label>
+         <input id="edgeStrokeColor" type="color" />
+      </div>
+    </div>
+     
+    <div id="groupInspector" style="display:none;">
+      <div class="row">
+        <label>Box Style Preset</label>
+        <div class="inline">
+          <select id="groupPreset"></select>
+          <button class="mini-btn" id="btnGroupPresetSave">Save</button>
+          <button class="mini-btn" id="btnGroupPresetApply">Apply</button>
+          <button class="mini-btn" id="btnGroupPresetDelete">Delete</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <label>Box Title</label>
+        <input id="groupTitle" />
+      </div>
+
+      <div class="row inline">
+        <div>
+          <label>Box Type</label>
+          <select id="groupType">
+            <option value="country">Country</option>
+            <option value="region">Region</option>
+          </select>
+        </div>
+        <div>
+          <label>Parent Region</label>
+          <select id="groupParent"></select>
+        </div>
+      </div>
+
+      <div class="row">
+        <label>Additional Tags (free text)</label>
+        <input id="groupExtraTags" placeholder="e.g. region=APAC" />
+      </div>
+
+      <div class="row inline">
+        <div>
+          <label>Title Font</label>
+          <input id="groupTitleFont" type="number" min="6" max="72" step="1" />
+        </div>
+        <div>
+          <label>Title Color</label>
+          <input id="groupTitleColor" type="color" />
+        </div>
+      </div>
+
+      <div class="row inline">
+        <div>
+          <label>Box Fill (CSS color)</label>
+          <input id="groupFill" type="text" placeholder="e.g. rgba(54,76,140,0.12) or #112233" />
+        </div>
+        <div>
+          <label>Box Stroke</label>
+          <input id="groupStroke" type="color" />
+        </div>
+      </div>
+
+      <div class="row inline">
+        <div>
+          <label>Width</label>
+          <input id="groupW" type="number" min="120" />
+        </div>
+        <div>
+          <label>Height</label>
+          <input id="groupH" type="number" min="90" />
+        </div>
+      </div>
+
+      <div class="row">
+  	 <label>Border Width</label>
+  	 <input id="groupStrokeW" type="number" min="0.5" max="12" step="0.5" />
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+(() => {
+  const svg = document.getElementById('svg');
+  const toastEl = document.getElementById('toast');
+
+
+  // Global visibility toggles
+  const tglShowLatency = document.getElementById('tglShowLatency');
+  const tglShowNodeCode = document.getElementById('tglShowNodeCode');
+  const tglShowLinkCode = document.getElementById('tglShowLinkCode');
+
+  function syncGlobalToggles() {
+    if (tglShowLatency) tglShowLatency.checked = !!state.ui.showLatency;
+    if (tglShowNodeCode) tglShowNodeCode.checked = !!state.ui.showNodeCode;
+    if (tglShowLinkCode) tglShowLinkCode.checked = !!state.ui.showLinkCode;
+  }
+
+  [tglShowLatency, tglShowNodeCode, tglShowLinkCode].forEach(el => {
+    if (!el) return;
+    el.addEventListener('change', () => {
+      state.ui.showLatency = !!tglShowLatency?.checked;
+      state.ui.showNodeCode = !!tglShowNodeCode?.checked;
+      state.ui.showLinkCode = !!tglShowLinkCode?.checked;
+      render();
+    });
+  });
+
+
+
+  const state = {
+    nodes: [],
+    edges: [],
+    groups: [],
+    nextNode: 1,
+    nextEdge: 1,
+    nextGroup: 1,
+    selected: null,
+    connectFrom: null,
+    dragging: null,
+    resizingGroup: null,
+    placingGroup: false,
+    defaultNodeShape: 'circle',
+    placingGroupType: 'country',
+
+    // UI/global toggles
+    ui: { showLatency: true, showNodeCode: true, showLinkCode: true },
+
+    // Named style presets (saved inside .ndg)
+    stylePresets: { node: {}, edge: {}, group: {} },
+
+    // Format painter (session-only)
+    styleBrush: null,
+
+    // Multi-selection (ids)
+    selection: { nodes: new Set(), edges: new Set(), groups: new Set() },
+    marquee: null,
+    lastMouse: { x: 0, y: 0 }
+  };
+
+  const history = { stack: [], index: -1, max: 120 };
+  let dirty = false;
+
+  // In-app clipboard (for copy/paste)
+  let clipboard = null; // { nodes:[], groups:[], edges:[], bbox:{minX,minY} }
+
+  function selectionToClipboard() {
+    const nodeIds = new Set(state.selection.nodes);
+    const groupIds = new Set(state.selection.groups);
+
+    // Include edges where both endpoints are selected (plus any explicitly selected)
+    const edgeIds = new Set(state.selection.edges);
+    state.edges.forEach(e => { if (nodeIds.has(e.a) && nodeIds.has(e.b)) edgeIds.add(e.id); });
+
+    const nodes = state.nodes.filter(n => nodeIds.has(n.id)).map(n => ({...n}));
+    const groups = state.groups.filter(g => groupIds.has(g.id)).map(g => ({...g}));
+    const edges = state.edges.filter(e => edgeIds.has(e.id)).map(e => ({...e}));
+
+    if (nodes.length===0 && groups.length===0 && edges.length===0) return null;
+
+    // bbox of nodes + groups (for paste offset)
+    const xs = [], ys = [];
+    nodes.forEach(n => { xs.push(n.x); ys.push(n.y); });
+    groups.forEach(g => { xs.push(g.x, g.x+g.w); ys.push(g.y, g.y+g.h); });
+    const minX = xs.length ? Math.min(...xs) : 0;
+    const minY = ys.length ? Math.min(...ys) : 0;
+
+    return { nodes, groups, edges, bbox: { minX, minY } };
+  }
+
+  function copySelection() {
+    const clip = selectionToClipboard();
+    if (!clip) { showToast('Nothing selected to copy.'); return; }
+    clipboard = clip;
+    showToast(`Copied ${clip.nodes.length} node(s), ${clip.edges.length} link(s), ${clip.groups.length} box(es).`);
+  }
+
+  function cutSelection() {
+    copySelection();
+    // If nothing copied, don't delete.
+    if (!clipboard) return;
+    deleteSelection();
+  }
+
+  function pasteSelection() {
+    if (!clipboard) { showToast('Clipboard is empty.'); return; }
+
+    const offset = 24;
+    const targetX = state.lastMouse?.x ?? 200;
+    const targetY = state.lastMouse?.y ?? 200;
+
+    // Paste near last mouse position (or just offset)
+    const dx = (targetX - clipboard.bbox.minX) + offset;
+    const dy = (targetY - clipboard.bbox.minY) + offset;
+
+    const nodeIdMap = new Map();
+    const groupIdMap = new Map();
+
+    // Duplicate groups first (so nodes can reference them)
+    const newGroupIds = [];
+    for (const g of clipboard.groups) {
+      const id = state.nextGroup++;
+      const ng = { ...g, id, x: g.x + dx, y: g.y + dy };
+      // remap parentId if parent was also copied
+      if (ng.parentId && groupIdMap.has(ng.parentId)) ng.parentId = groupIdMap.get(ng.parentId);
+      state.groups.push(ng);
+      groupIdMap.set(g.id, id);
+      newGroupIds.push(id);
+    }
+
+    const newNodeIds = [];
+    for (const n of clipboard.nodes) {
+      const id = state.nextNode++;
+      const nn = { ...n, id, x: n.x + dx, y: n.y + dy };
+      if (nn.groupId && groupIdMap.has(nn.groupId)) nn.groupId = groupIdMap.get(nn.groupId);
+      state.nodes.push(nn);
+      nodeIdMap.set(n.id, id);
+      newNodeIds.push(id);
+    }
+
+    const newEdgeIds = [];
+    for (const e of clipboard.edges) {
+      // only recreate edges whose endpoints were included in clipboard (typical copy behavior)
+      if (!nodeIdMap.has(e.a) || !nodeIdMap.has(e.b)) continue;
+      const id = state.nextEdge++;
+      const ne = { ...e, id, a: nodeIdMap.get(e.a), b: nodeIdMap.get(e.b) };
+      state.edges.push(ne);
+      newEdgeIds.push(id);
+    }
+
+    refreshAllMemberships();
+    commit();
+
+    setMultiSelection({ nodes: newNodeIds, edges: newEdgeIds, groups: newGroupIds });
+    render();
+    showToast('Pasted selection.');
+  }
+
+  function cloneSelectionForDrag() {
+    const clip = selectionToClipboard();
+    if (!clip) return false;
+    clipboard = clip;
+    pasteSelection();
+    return true;
+  }
+
+
+
+  const showToast = (msg) => {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toastEl.classList.remove('show'), 2400);
+  };
+
+  // Ribbon tabs (File/Home). This does not change any existing handlers.
+  const tabFile = document.getElementById('tabFile');
+  const tabHome = document.getElementById('tabHome');
+  const panelFile = document.getElementById('panelFile');
+  const panelHome = document.getElementById('panelHome');
+
+  function setRibbon(which){
+    const isHome = which === 'home';
+    tabHome.classList.toggle('active', isHome);
+    tabFile.classList.toggle('active', !isHome);
+    panelHome.classList.toggle('active', isHome);
+    panelFile.classList.toggle('active', !isHome);
+  }
+  tabHome.addEventListener('click', () => setRibbon('home'));
+  tabFile.addEventListener('click', () => setRibbon('file'));
+  setRibbon('home');
+
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+  // Node shape tool (sets default for NEW nodes only)
+  const shapeBar = document.getElementById('shapeBar');
+  function setActiveShape(shape){
+    state.defaultNodeShape = shape;
+    if (!shapeBar) return;
+    [...shapeBar.querySelectorAll('.shape-btn')].forEach(b=>{
+      b.classList.toggle('active', b.dataset.shape === shape);
+    });
+  }
+  if (shapeBar){
+    shapeBar.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('.shape-btn');
+      if (!btn) return;
+      const shape = btn.dataset.shape;
+      setActiveShape(shape);
+
+      // If a node is selected, update ONLY that node
+      if (state.selected?.type === 'node'){
+        const n = findNode(state.selected.id);
+        if (n){
+          n.shape = shape;
+          commit(); render();
+          showToast('Changed node shape to ' + shape + '.');
+          return;
+        }
+      }
+      showToast('New nodes will be ' + shape + '.');
+    });
+  }
+
+  // --- File menu UI ---
+  const fileBtn = document.getElementById('btnFile');
+  const fileMenu = document.getElementById('fileMenu');
+  function closeFileMenu(){ fileMenu.hidden = true; }
+  function toggleFileMenu(){
+    fileMenu.hidden = !fileMenu.hidden;
+    // position menu under the File button
+    const r = fileBtn.getBoundingClientRect();
+    fileMenu.style.left = Math.max(12, r.left) + "px";
+  }
+  fileBtn.addEventListener('click', (ev) => { ev.stopPropagation(); toggleFileMenu(); });
+  document.addEventListener('click', () => closeFileMenu());
+  window.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') closeFileMenu(); });
+
+  
+  // --- Export helpers (SVG/PNG/JPG) ---
+  function downloadBlob(blob, filename){
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    a.href = url; a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 800);
+  }
+
+  function getSvgCloneForExport(){
+    const svg = document.getElementById('svg');
+    const clone = svg.cloneNode(true);
+
+    clone.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+    clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    clone.setAttribute('xmlns:xlink','http://www.w3.org/1999/xlink');
+
+    const style = document.createElementNS('http://www.w3.org/2000/svg','style');
+    style.textContent = `
+      .edge{ fill:none; stroke-linecap:round; }
+      .edge-label{ font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+      .node-label{ font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+      .group-title{ font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    `;
+    clone.insertBefore(style, clone.firstChild);
+
+    const vb = clone.getAttribute('viewBox');
+    let w=1600,h=900;
+    if (vb){
+      const p = vb.split(/\s+/).map(Number);
+      if (p.length===4 && p.every(n=>isFinite(n))) { w=p[2]; h=p[3]; }
+    }
+    const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    bg.setAttribute('x','0'); bg.setAttribute('y','0');
+    bg.setAttribute('width', String(w)); bg.setAttribute('height', String(h));
+    bg.setAttribute('fill', '#ffffff');
+    clone.insertBefore(bg, style.nextSibling);
+
+    clone.querySelectorAll('.edge-label').forEach(el => el.setAttribute('fill', '#000000'));
+    clone.querySelectorAll('.node-label').forEach(el => el.setAttribute('fill', '#000000'));
+    clone.querySelectorAll('.group-title').forEach(el => el.setAttribute('fill', '#000000'));
+
+    return clone;
+  }
+
+  function exportSVG(){
+    const clone = getSvgCloneForExport();
+    const text = new XMLSerializer().serializeToString(clone);
+    const blob = new Blob([text], {type:'image/svg+xml;charset=utf-8'});
+    const name = (sanitizeBaseName(state.projectName || 'diagram') || 'diagram') + '.svg';
+    downloadBlob(blob, name);
+  }
+
+  async function exportRaster(kind){
+    const clone = getSvgCloneForExport();
+    // Use viewBox for sizing if present
+    const vb = clone.getAttribute('viewBox');
+    let w = 1600, h = 900;
+    if (vb){
+      const p = vb.split(/\s+/).map(Number);
+      if (p.length===4 && p.every(n=>isFinite(n))) { w = p[2]; h = p[3]; }
+    } else {
+      const ww = Number(clone.getAttribute('width')); const hh = Number(clone.getAttribute('height'));
+      if (isFinite(ww)) w = ww;
+      if (isFinite(hh)) h = hh;
+    }
+
+    const svgText = new XMLSerializer().serializeToString(clone);
+    const svgBlob = new Blob([svgText], {type:'image/svg+xml;charset=utf-8'});
+    const url = URL.createObjectURL(svgBlob);
+
+    const img = new Image();
+    await new Promise((res, rej)=>{ img.onload=res; img.onerror=rej; img.src=url; });
+
+    const scale = 2; // sharper output
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(w*scale);
+    canvas.height = Math.round(h*scale);
+    const ctx = canvas.getContext('2d');
+
+    // Background (match page background)
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.scale(scale, scale);
+    ctx.drawImage(img, 0, 0, w, h);
+    URL.revokeObjectURL(url);
+
+    const mime = (kind==='png') ? 'image/png' : 'image/jpeg';
+    const ext = (kind==='png') ? '.png' : '.jpg';
+    const quality = (kind==='png') ? undefined : 0.92;
+    const dataUrl = canvas.toDataURL(mime, quality);
+
+    const bin = atob(dataUrl.split(',')[1]);
+    const bytes = new Uint8Array(bin.length);
+    for (let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+    const outBlob = new Blob([bytes], {type:mime});
+    const name = (sanitizeBaseName(state.projectName || 'diagram') || 'diagram') + ext;
+    downloadBlob(outBlob, name);
+  }
+
+document.getElementById('miSave').addEventListener('click', () => { closeFileMenu(); saveProject(false); });
+  document.getElementById('miSaveAs').addEventListener('click', () => { closeFileMenu(); saveProject(true); });
+  document.getElementById('miOpen').addEventListener('click', () => { closeFileMenu(); document.getElementById('fileLoad').click(); });
+  document.getElementById('miRecover').addEventListener('click', () => { closeFileMenu(); recoverAutosave(); });
+  document.getElementById('miClearAutosave').addEventListener('click', () => { closeFileMenu(); clearAutosave(); });
+  document.getElementById('miClearDiagram').addEventListener('click', () => { closeFileMenu(); clearDiagram(); });
+
+  document.getElementById('miExportSVG').addEventListener('click', () => { closeFileMenu(); exportSVG(); showToast('Exported SVG.'); });
+  document.getElementById('miExportPNG').addEventListener('click', () => { closeFileMenu(); exportRaster('png'); showToast('Exported PNG.'); });
+  document.getElementById('miExportJPG').addEventListener('click', () => { closeFileMenu(); exportRaster('jpg'); showToast('Exported JPG.'); });
+
+  // --- Style presets helpers ---
+  const STYLE_FIELDS = {
+    node: ["fill","stroke","nameColor","tagColor","nameFont","tagFont","showCode","nameDx","nameDy","tagDx","tagDy"],
+    edge: ["labelFont","labelColor","style","route","showCode","labelDx","labelDy","strokeW","strokeColor"],
+    group:["fill","stroke","titleColor","titleFont","titleDx","titleDy"]
+  };
+  function pickStyle(type, obj){
+    const s = {};
+    (STYLE_FIELDS[type]||[]).forEach(k => { if (k in obj) s[k] = obj[k]; });
+    return s;
+  }
+  function applyStyle(type, obj, style){
+    if (!style) return;
+    (STYLE_FIELDS[type]||[]).forEach(k => { if (k in style) obj[k] = style[k]; });
+  }
+
+  // Preset UI elements
+  const nodePresetSel = document.getElementById('nodePreset');
+  const edgePresetSel = document.getElementById('edgePreset');
+  const groupPresetSel = document.getElementById('groupPreset');
+
+  function refreshPresetSelects(){
+    const fill = (sel, map) => {
+      if (!sel) return;
+      const cur = sel.value;
+      sel.innerHTML = "";
+      const opt0 = document.createElement('option');
+      opt0.value = ""; opt0.textContent = "(none)";
+      sel.appendChild(opt0);
+      Object.keys(map||{}).sort((a,b)=>a.localeCompare(b)).forEach(name=>{
+        const o = document.createElement('option');
+        o.value = name; o.textContent = name;
+        sel.appendChild(o);
+      });
+      sel.value = cur && (map||{})[cur] ? cur : "";
+    };
+    fill(nodePresetSel, state.stylePresets.node);
+    fill(edgePresetSel, state.stylePresets.edge);
+    fill(groupPresetSel, state.stylePresets.group);
+  }
+
+  function savePreset(type, obj){
+    const name = sanitizeBaseName(prompt(`Save ${type} style as:`, "")) || "";
+    if (!name) { showToast("Preset save cancelled."); return; }
+    state.stylePresets[type][name] = pickStyle(type, obj);
+    commit(); // persist in history and autosave
+    refreshPresetSelects();
+    showToast(`Saved preset: ${name}`);
+  }
+  function applyPreset(type, obj, name){
+    const style = state.stylePresets[type][name];
+    if (!style) { showToast("No preset selected."); return; }
+    applyStyle(type, obj, style);
+    commit(); render();
+    showToast(`Applied preset: ${name}`);
+  }
+  function deletePreset(type, name){
+    if (!name) { showToast("No preset selected."); return; }
+    if (!confirm(`Delete preset "${name}"?`)) return;
+    delete state.stylePresets[type][name];
+    commit();
+    refreshPresetSelects();
+    showToast("Preset deleted.");
+  }
+
+  // --- Format painter (brush) ---
+  const btnBrush = document.getElementById('btnBrush');
+  function setBrushFromSelected(){
+    const sel = state.selected;
+    if (!sel) { showToast("Select an object first."); return; }
+    if (sel.type === 'node') {
+      const n = findNode(sel.id); if (!n) return;
+      state.styleBrush = { type:'node', style: pickStyle('node', n) };
+    } else if (sel.type === 'edge') {
+      const e = findEdge(sel.id); if (!e) return;
+      state.styleBrush = { type:'edge', style: pickStyle('edge', e) };
+    } else if (sel.type === 'group') {
+      const g = findGroup(sel.id); if (!g) return;
+      state.styleBrush = { type:'group', style: pickStyle('group', g) };
+    } else return;
+    btnBrush.classList.add('primary');
+    showToast("Format painter armed — click targets to apply (Esc cancels).");
+  }
+  function clearBrush(){
+    state.styleBrush = null;
+    btnBrush.classList.remove('primary');
+  }
+  btnBrush.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    if (state.styleBrush) { clearBrush(); showToast("Format painter off."); return; }
+    setBrushFromSelected();
+  });
+
+
+  const downloadText = (filename, text, mime="text/plain") => {
+    const blob = new Blob([text], {type: mime});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 500);
+  };
+
+  const escapeCSV = (v) => {
+    const s = String(v ?? "");
+    if (/[,"\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+    return s;
+  };
+
+  function getMouse(ev) {
+    const pt = svg.createSVGPoint();
+    pt.x = ev.clientX; pt.y = ev.clientY;
+    const m = pt.matrixTransform(svg.getScreenCTM().inverse());
+    return { x: m.x, y: m.y };
+  }
+
+  const findNode = (id) => state.nodes.find(n => n.id === id);
+  const findEdge = (id) => state.edges.find(e => e.id === id);
+  const findGroup = (id) => state.groups.find(g => g.id === id);
+
+  function pointInGroup(x,y,g){
+    return x >= g.x && x <= g.x+g.w && y >= g.y && y <= g.y+g.h;
+  }
+  function updateNodeGroupMembership(node) {
+    let gid = null;
+    // Nodes belong to the top-most *country* box they are inside (regions don't directly own nodes)
+    for (let i = state.groups.length - 1; i >= 0; i--) {
+      const g = state.groups[i];
+      if (g.type !== 'country') continue;
+      if (pointInGroup(node.x, node.y, g)) { gid = g.id; break; }
+    }
+    node.groupId = gid;
+  }
+  function updateCountryRegionMembership(country) {
+    if (!country || country.type !== 'country') return;
+    let rid = null;
+    const cx = country.x + country.w / 2;
+    const cy = country.y + country.h / 2;
+    for (let i = state.groups.length - 1; i >= 0; i--) {
+      const g = state.groups[i];
+      if (g.type !== 'region') continue;
+      if (pointInGroup(cx, cy, g)) { rid = g.id; break; }
+    }
+    country.parentId = rid;
+  }
+
+  function refreshAllMemberships() {
+    state.groups.forEach(g => { if (g.type === 'country') updateCountryRegionMembership(g); });
+    state.nodes.forEach(updateNodeGroupMembership);
+  }
+
+  function projectSnapshot() {
+    return JSON.parse(JSON.stringify({
+      nodes: state.nodes, edges: state.edges, groups: state.groups,
+      nextNode: state.nextNode, nextEdge: state.nextEdge, nextGroup: state.nextGroup,
+      stylePresets: state.stylePresets
+    }));
+  }
+  function applySnapshot(snap) {
+    state.nodes = snap.nodes || [];
+    state.edges = snap.edges || [];
+    state.groups = snap.groups || [];
+    state.nextNode = snap.nextNode || (Math.max(0, ...state.nodes.map(n=>n.id)) + 1);
+    state.nextEdge = snap.nextEdge || (Math.max(0, ...state.edges.map(e=>e.id)) + 1);
+    state.nextGroup = snap.nextGroup || (Math.max(0, ...state.groups.map(g=>g.id)) + 1);
+
+    // Restore presets if snapshot carries them; otherwise keep current
+    state.stylePresets = snap.stylePresets || state.stylePresets || { node: {}, edge: {}, group: {} };
+    state.styleBrush = null;
+
+    // Clear transient UI state
+    state.selected = null;
+    state.connectFrom = null;
+    state.dragging = null;
+    state.resizingGroup = null;
+    state.placingGroup = false;
+    state.placingGroupType = 'country';
+
+    refreshAllMemberships();
+    render();
+    updateInspector();
+  }
+  function pushHistory() {
+    const snap = projectSnapshot();
+    if (history.index < history.stack.length - 1) {
+      history.stack = history.stack.slice(0, history.index + 1);
+    }
+    history.stack.push(snap);
+    if (history.stack.length > history.max) history.stack.shift();
+    else history.index++;
+  }
+  function commit() { dirty = true; pushHistory(); }
+  function undo() {
+    if (history.index <= 0) { showToast("Nothing to undo."); return; }
+    history.index--;
+    applySnapshot(history.stack[history.index]);
+    dirty = true;
+    showToast("Undo");
+  }
+  function redo() {
+    if (history.index >= history.stack.length - 1) { showToast("Nothing to redo."); return; }
+    history.index++;
+    applySnapshot(history.stack[history.index]);
+    dirty = true;
+    showToast("Redo");
+  }
+
+  function svgLine(x1,y1,x2,y2,cls){
+    const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1', x1); l.setAttribute('y1', y1);
+    l.setAttribute('x2', x2); l.setAttribute('y2', y2);
+    l.setAttribute('class', cls);
+    return l;
+  }
+  function drawGrid() {
+    const w = 1600, h = 900, step = 80;
+    for (let x=0; x<=w; x+=step) svg.appendChild(svgLine(x,0,x,h,'grid'));
+    for (let y=0; y<=h; y+=step) svg.appendChild(svgLine(0,y,w,y,'grid'));
+  }
+
+
+  function polygonPoints(cx, cy, r, sides, rotationRad=0){
+    const pts = [];
+    for (let i=0;i<sides;i++){
+      const a = rotationRad + (i * 2*Math.PI / sides);
+      pts.push([cx + r*Math.cos(a), cy + r*Math.sin(a)]);
+    }
+    return pts.map(p=>p[0].toFixed(2)+","+p[1].toFixed(2)).join(" ");
+  }
+  function setMultilineText(textEl, lines, fontSizePx) {
+    while (textEl.firstChild) textEl.removeChild(textEl.firstChild);
+    const fs = fontSizePx ?? 12;
+    lines.forEach((line, i) => {
+      const tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+      tspan.setAttribute('x', textEl.getAttribute('x'));
+      if (i === 0) tspan.setAttribute('dy', '0');
+      else tspan.setAttribute('dy', (fs * 1.2).toString());
+      tspan.textContent = line;
+      textEl.appendChild(tspan);
+    });
+  }
+
+  function render() {
+    svg.innerHTML = '';
+    drawGrid();
+    state.groups.filter(g=>g.type==='region').forEach(g => drawGroup(g));
+    state.groups.filter(g=>g.type!=='region').forEach(g => drawGroup(g));
+    state.edges.forEach(e => drawEdge(e));
+    state.nodes.forEach(n => drawNode(n));
+
+    if (state.connectFrom) {
+      const n = findNode(state.connectFrom);
+      if (n) {
+        const hint = document.createElementNS('http://www.w3.org/2000/svg','text');
+        hint.setAttribute('x', n.x);
+        hint.setAttribute('y', n.y - 40);
+        hint.setAttribute('class', 'edge-label');
+        hint.style.fontSize = "12px";
+        hint.textContent = "Select target node…";
+        svg.appendChild(hint);
+      }
+    }
+    if (state.marquee) {
+      const r = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      r.setAttribute('class','marquee');
+      r.setAttribute('x', state.marquee.x);
+      r.setAttribute('y', state.marquee.y);
+      r.setAttribute('width', state.marquee.w);
+      r.setAttribute('height', state.marquee.h);
+      svg.appendChild(r);
+    }
+    updateInspector();
+  }
+
+  function drawGroup(g) {
+    const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
+    const isSel = (state.selected?.type==='group' && state.selected?.id===g.id) || state.selection.groups.has(g.id);
+    if (isSel) grp.classList.add('group-selected');
+
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x', g.x);
+    rect.setAttribute('y', g.y);
+    rect.setAttribute('width', g.w);
+    rect.setAttribute('height', g.h);
+    rect.setAttribute('class', 'group-rect');
+    rect.setAttribute('fill', g.fill || "rgba(54, 76, 140, 0.12)");
+    rect.setAttribute('stroke', g.stroke || "#6073b8");
+    rect.setAttribute('stroke-width', (g.strokeW ?? 2));
+
+    const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+    label.setAttribute('x', g.x + 14 + (g.titleDx || 0));
+    label.setAttribute('y', g.y + 22 + (g.titleDy || 0));
+    label.setAttribute('class', 'group-label');
+    label.setAttribute('fill', g.titleColor || "#eaeaea");
+    label.style.fontSize = (g.titleFont || 14) + "px";
+    label.textContent = g.title || (g.type==='region' ? `Region${g.id}` : `Country${g.id}`);
+    label.style.pointerEvents = "auto";
+
+    const handle = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    handle.setAttribute('x', g.x + g.w - 10);
+    handle.setAttribute('y', g.y + g.h - 10);
+    handle.setAttribute('width', 10);
+    handle.setAttribute('height', 10);
+    handle.setAttribute('class', 'group-handle');
+
+    rect.addEventListener('mousedown', (ev) => {
+      ev.stopPropagation();
+      const m = getMouse(ev);
+      select({type:'group', id:g.id});
+      state.dragging = { type:'group', id:g.id, dx: g.x - m.x, dy: g.y - m.y };
+      state.connectFrom = null;
+      render();
+    });
+
+    label.addEventListener('mousedown', (ev) => {
+      if (!(ev.ctrlKey || ev.metaKey)) return;
+      ev.stopPropagation();
+      const m = getMouse(ev);
+      state.dragging = { type:'groupTitleLabel', id:g.id,
+        dx: (g.x + 14 + (g.titleDx||0)) - m.x,
+        dy: (g.y + 22 + (g.titleDy||0)) - m.y
+      };
+      select({type:'group', id:g.id});
+      state.connectFrom = null;
+      render();
+    });
+
+    handle.addEventListener('mousedown', (ev) => {
+      ev.stopPropagation();
+      const m = getMouse(ev);
+      select({type:'group', id:g.id});
+      state.resizingGroup = { id: g.id, startW: g.w, startH: g.h, mx0: m.x, my0: m.y };
+      state.connectFrom = null;
+      render();
+    });
+
+    rect.addEventListener('click', (ev) => { ev.stopPropagation(); select({type:'group', id:g.id}); state.connectFrom=null; render(); });
+    label.addEventListener('click', (ev) => { ev.stopPropagation(); select({type:'group', id:g.id}); state.connectFrom=null; render(); });
+
+    grp.appendChild(rect);
+    grp.appendChild(label);
+    grp.appendChild(handle);
+    svg.appendChild(grp);
+  }
+
+  function orthogonalPath(x1,y1,x2,y2, route){
+    if (route === 'vh') return `M ${x1} ${y1} L ${x1} ${y2} L ${x2} ${y2}`;
+    return `M ${x1} ${y1} L ${x2} ${y1} L ${x2} ${y2}`;
+  }
+  function orthogonalBaseLabelPoint(x1,y1,x2,y2, route){
+    if (route === 'vh') return { x: x1 + 8, y: y2 - 8 };
+    return { x: x2 + 8, y: y1 - 8 };
+  }
+  function getEdgeLabelLines(e) {
+    const lines = [];
+    if (state.ui.showLinkCode && e.showCode && e.code && e.code.trim()) lines.push(e.code.trim());
+    lines.push((e.tag && e.tag.trim()) ? e.tag.trim() : "—");
+    if (state.ui.showLatency && typeof e.latencyMs === "number" && isFinite(e.latencyMs)) lines.push(`${e.latencyMs} ms`);
+    if (e.extraTags && e.extraTags.trim()) lines.push(e.extraTags.trim());
+    return lines;
+  }
+
+  function drawEdge(e) {
+    const a = findNode(e.a), b = findNode(e.b);
+    if (!a || !b) return;
+    const isSel = (state.selected?.type==='edge' && state.selected?.id===e.id) || state.selection.edges.has(e.id);
+
+    let baseLabel = null;
+    if (e.style === 'orthogonal') {
+      const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+      p.setAttribute('d', orthogonalPath(a.x,a.y,b.x,b.y, e.route || 'hv'));
+      p.setAttribute('class', 'edge' + (isSel ? ' selected' : ''));
+      p.setAttribute('stroke-width', (e.strokeW ?? 2));
+      p.setAttribute('stroke', e.strokeColor || "#7f8aa6");
+      p.addEventListener('click', (ev) => { ev.stopPropagation(); select({type:'edge', id:e.id}); state.connectFrom=null; render(); });
+      svg.appendChild(p);
+      baseLabel = orthogonalBaseLabelPoint(a.x,a.y,b.x,b.y, e.route || 'hv');
+    } else {
+      const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+      line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+      line.setAttribute('class', 'edge' + (isSel ? ' selected' : ''));
+      line.setAttribute('stroke-width', (e.strokeW ?? 2));
+      line.setAttribute('stroke', e.strokeColor || "#7f8aa6");
+      line.addEventListener('click', (ev) => { ev.stopPropagation(); select({type:'edge', id:e.id}); state.connectFrom=null; render(); });
+      svg.appendChild(line);
+      baseLabel = { x:(a.x+b.x)/2, y:(a.y+b.y)/2 };
+    }
+
+    const lx = baseLabel.x + (e.labelDx || 0);
+    const ly = baseLabel.y + (e.labelDy || 0);
+
+    const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+    label.setAttribute('x', lx);
+    label.setAttribute('y', ly);
+    label.setAttribute('class', 'edge-label');
+    label.setAttribute('fill', e.labelColor || "#eaeaea");
+    label.style.fontSize = (e.labelFont || 12) + "px";
+    label.style.pointerEvents = "auto";
+    setMultilineText(label, getEdgeLabelLines(e), (e.labelFont || 12));
+
+    label.addEventListener('click', (ev) => { ev.stopPropagation(); select({type:'edge', id:e.id}); state.connectFrom=null; render(); });
+    label.addEventListener('mousedown', (ev) => {
+      if (!(ev.ctrlKey || ev.metaKey)) return;
+      ev.stopPropagation();
+      const m = getMouse(ev);
+      state.dragging = { type:'edgeLabel', id:e.id, dx: lx - m.x, dy: ly - m.y };
+      select({type:'edge', id:e.id});
+      state.connectFrom = null;
+      render();
+    });
+
+    svg.appendChild(label);
+  }
+
+  function drawNode(n) {
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class', 'node' + (((state.selected?.type==='node' && state.selected.id===n.id) || state.selection.nodes.has(n.id)) ? ' selected' : ''));
+
+    const r = (n.r ?? 24);
+    const sw = (n.strokeW ?? 2);
+    let c = null;
+    const shape = (n.shape || 'circle');
+    if (shape === 'square') {
+      c = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      c.setAttribute('x', n.x - r);
+      c.setAttribute('y', n.y - r);
+      c.setAttribute('width', r*2);
+      c.setAttribute('height', r*2);
+      c.setAttribute('rx', 4);
+      c.setAttribute('ry', 4);
+    } else if (shape === 'rectangle') {
+      c = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      c.setAttribute('x', n.x - r*1.35);
+      c.setAttribute('y', n.y - r*0.85);
+      c.setAttribute('width', r*2.7);
+      c.setAttribute('height', r*1.7);
+      c.setAttribute('rx', 6);
+      c.setAttribute('ry', 6);
+    } else if (shape === 'ellipse') {
+      c = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+      c.setAttribute('cx', n.x);
+      c.setAttribute('cy', n.y);
+      c.setAttribute('rx', r*1.35);
+      c.setAttribute('ry', r*0.9);
+    } else if (shape === 'triangle') {
+      c = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      c.setAttribute('points', polygonPoints(n.x, n.y, r*1.25, 3, -Math.PI/2));
+    } else if (shape === 'hexagon') {
+      c = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      c.setAttribute('points', polygonPoints(n.x, n.y, r*1.2, 6, Math.PI/6));
+    } else {
+      c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx', n.x);
+      c.setAttribute('cy', n.y);
+      c.setAttribute('r', r);
+    }
+    c.setAttribute('class', 'node-circle');
+    c.setAttribute('fill', n.fill || "#1b2030");
+    c.setAttribute('stroke', n.stroke || "#9fb3ff");
+    c.setAttribute('stroke-width', sw);
+
+    const nameX = n.x + (n.nameDx || 0);
+    const nameY = n.y + (n.nameDy || 0);
+
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', nameX);
+    t.setAttribute('y', nameY);
+    t.setAttribute('class', 'node-text');
+    t.setAttribute('fill', n.nameColor || "#eaeaea");
+    t.style.fontSize = (n.nameFont || 13) + "px";
+    const nameLines = [];
+    if (state.ui.showNodeCode && n.showCode && n.code && n.code.trim()) nameLines.push(n.code.trim());
+    nameLines.push(n.name || `N${n.id}`);
+    setMultilineText(t, nameLines, (n.nameFont || 13));
+    t.style.pointerEvents = "auto";
+
+    const tagX = n.x + (n.tagDx || 0);
+    const tagY = n.y + 26 + (n.tagDy || 0);
+
+    const tags = document.createElementNS('http://www.w3.org/2000/svg','text');
+    tags.setAttribute('x', tagX);
+    tags.setAttribute('y', tagY);
+    tags.setAttribute('class', 'tag-text');
+    tags.setAttribute('fill', n.tagColor || "#b7c0df");
+    tags.style.fontSize = (n.tagFont || 11) + "px";
+    tags.textContent = (n.tags?.length) ? n.tags.join(', ') : '';
+    tags.style.pointerEvents = "auto";
+
+    g.appendChild(c); g.appendChild(t); g.appendChild(tags);
+
+    g.addEventListener('mousedown', (ev) => {
+      ev.stopPropagation();
+      if (ev.shiftKey) return;
+      const m = getMouse(ev);
+      state.lastMouse = { x: m.x, y: m.y };
+
+      // Ctrl+Shift+drag duplicates current selection and drags the copy
+      if ((ev.ctrlKey || ev.metaKey) && ev.shiftKey) {
+        if (!state.selection.nodes.has(n.id) && !state.selection.groups.size && !state.selection.edges.size) {
+          setSingleSelection({type:'node', id:n.id});
+        }
+        copySelection();
+        pasteSelection();
+        // start dragging the pasted selection as a block
+        const origNodes = [...state.selection.nodes].map(id => {
+          const nn = findNode(id); return nn ? {id, x: nn.x, y: nn.y} : null;
+        }).filter(Boolean);
+        const origGroups = [...state.selection.groups].map(id => {
+          const gg = findGroup(id); return gg ? {id, x: gg.x, y: gg.y} : null;
+        }).filter(Boolean);
+        state.dragging = { type:'selection', mx0: m.x, my0: m.y, origNodes, origGroups };
+        state.connectFrom = null;
+        render();
+        return;
+      }
+
+      select({type:'node', id:n.id});
+      state.dragging = { type:'node', id:n.id, dx: n.x - m.x, dy: n.y - m.y };
+      state.connectFrom = null;
+      render();
+    });
+
+    g.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      if (ev.shiftKey) {
+        if (!state.connectFrom) {
+          state.connectFrom = n.id;
+          select({type:'node', id:n.id});
+          showToast(`Connecting: source ${n.name || `N${n.id}`}. Shift+click target.`);
+        } else if (state.connectFrom === n.id) {
+          state.connectFrom = null;
+          showToast('Cancelled connect.');
+        } else {
+          createEdge(state.connectFrom, n.id);
+          state.connectFrom = null;
+        }
+        render();
+        return;
+      }
+      select({type:'node', id:n.id});
+      state.connectFrom = null;
+      render();
+    });
+
+    t.addEventListener('mousedown', (ev) => {
+      if (!(ev.ctrlKey || ev.metaKey)) return;
+      ev.stopPropagation();
+      const m = getMouse(ev);
+      state.dragging = { type:'nodeNameLabel', id:n.id, dx: nameX - m.x, dy: nameY - m.y };
+      select({type:'node', id:n.id});
+      state.connectFrom = null;
+      render();
+    });
+    tags.addEventListener('mousedown', (ev) => {
+      if (!(ev.ctrlKey || ev.metaKey)) return;
+      ev.stopPropagation();
+      const m = getMouse(ev);
+      state.dragging = { type:'nodeTagLabel', id:n.id, dx: tagX - m.x, dy: tagY - m.y };
+      select({type:'node', id:n.id});
+      state.connectFrom = null;
+      render();
+    });
+
+    svg.appendChild(g);
+  }
+
+  const noSel = document.getElementById('noSelection');
+  const nodeIns = document.getElementById('nodeInspector');
+  const edgeIns = document.getElementById('edgeInspector');
+  const groupIns = document.getElementById('groupInspector');
+
+  const nodeName = document.getElementById('nodeName');
+  const nodeTags = document.getElementById('nodeTags');
+  const nodeGroup = document.getElementById('nodeGroup');
+  const nodeExtraTags = document.getElementById('nodeExtraTags');
+  const nodeCode = document.getElementById('nodeCode');
+  const nodeShowCode = document.getElementById('nodeShowCode');
+  const nodeNameFont = document.getElementById('nodeNameFont');
+  const nodeTagFont = document.getElementById('nodeTagFont');
+  const nodeNameColor = document.getElementById('nodeNameColor');
+  const nodeTagColor = document.getElementById('nodeTagColor');
+  const nodeFill = document.getElementById('nodeFill');
+  const nodeStroke = document.getElementById('nodeStroke');
+  const nodeStrokeW = document.getElementById('nodeStrokeW');
+  const nodeAddress = document.getElementById('nodeAddress');
+const nodeCity = document.getElementById('nodeCity');
+const nodeCountry = document.getElementById('nodeCountry');
+  const nodeSize = document.getElementById('nodeSize');
+const edgeTag = document.getElementById('edgeTag');
+  const edgeLatency = document.getElementById('edgeLatency');
+  const edgeExtraTags = document.getElementById('edgeExtraTags');
+  const edgeCode = document.getElementById('edgeCode');
+  const edgeShowCode = document.getElementById('edgeShowCode');
+  const edgeStyle = document.getElementById('edgeStyle');
+  const edgeRoute = document.getElementById('edgeRoute');
+  const edgeLabelFont = document.getElementById('edgeLabelFont');
+  const edgeLabelColor = document.getElementById('edgeLabelColor');
+  const edgeStrokeW = document.getElementById('edgeStrokeW');
+  const edgeCapacity = document.getElementById('edgeCapacity');
+  const edgeStrokeColor = document.getElementById('edgeStrokeColor');
+const groupTitle = document.getElementById('groupTitle');
+  const groupType = document.getElementById('groupType');
+  const groupParent = document.getElementById('groupParent');
+  const groupExtraTags = document.getElementById('groupExtraTags');
+  const groupW = document.getElementById('groupW');
+  const groupH = document.getElementById('groupH');
+  const groupTitleFont = document.getElementById('groupTitleFont');
+  const groupTitleColor = document.getElementById('groupTitleColor');
+  const groupFill = document.getElementById('groupFill');
+  const groupStroke = document.getElementById('groupStroke');
+  const groupStrokeW = document.getElementById('groupStrokeW');
+
+  // Preset controls
+  const btnNodePresetSave = document.getElementById('btnNodePresetSave');
+  const btnNodePresetApply = document.getElementById('btnNodePresetApply');
+  const btnNodePresetDelete = document.getElementById('btnNodePresetDelete');
+
+  const btnEdgePresetSave = document.getElementById('btnEdgePresetSave');
+  const btnEdgePresetApply = document.getElementById('btnEdgePresetApply');
+  const btnEdgePresetDelete = document.getElementById('btnEdgePresetDelete');
+
+  const btnGroupPresetSave = document.getElementById('btnGroupPresetSave');
+  const btnGroupPresetApply = document.getElementById('btnGroupPresetApply');
+  const btnGroupPresetDelete = document.getElementById('btnGroupPresetDelete');
+
+
+  
+  function clearSelection(keepSingle=false) {
+    state.selection.nodes.clear();
+    state.selection.edges.clear();
+    state.selection.groups.clear();
+    if (!keepSingle) state.selected = null;
+  }
+
+  function setSingleSelection(sel) {
+    clearSelection(true);
+    state.selected = sel;
+    if (!sel) return;
+
+    // Apply format painter if armed (single-click targets)
+    if (state.styleBrush && state.styleBrush.type === sel.type) {
+      if (sel.type === 'node') {
+        const n = findNode(sel.id); if (n) applyStyle('node', n, state.styleBrush.style);
+      } else if (sel.type === 'edge') {
+        const e = findEdge(sel.id); if (e) applyStyle('edge', e, state.styleBrush.style);
+      } else if (sel.type === 'group') {
+        const g = findGroup(sel.id); if (g) applyStyle('group', g, state.styleBrush.style);
+      }
+      commit();
+    }
+
+    if (sel.type === 'node') state.selection.nodes.add(sel.id);
+    if (sel.type === 'edge') state.selection.edges.add(sel.id);
+    if (sel.type === 'group') state.selection.groups.add(sel.id);
+  }
+
+  function setMultiSelection({nodes=[], edges=[], groups=[]}) {
+    state.selected = null;
+    state.selection.nodes = new Set(nodes);
+    state.selection.edges = new Set(edges);
+    state.selection.groups = new Set(groups);
+  }
+
+  function deleteSelection() {
+    const nIds = new Set(state.selection.nodes);
+    const eIds = new Set(state.selection.edges);
+    const gIds = new Set(state.selection.groups);
+    if (nIds.size===0 && eIds.size===0 && gIds.size===0) return;
+
+    // Delete edges explicitly selected
+    if (eIds.size) state.edges = state.edges.filter(e => !eIds.has(e.id));
+
+    // Delete nodes and any edges attached to them
+    if (nIds.size) {
+      state.nodes = state.nodes.filter(n => !nIds.has(n.id));
+      state.edges = state.edges.filter(e => !nIds.has(e.a) && !nIds.has(e.b));
+    }
+
+    // Delete groups (country/region)
+    if (gIds.size) {
+      state.groups = state.groups.filter(g => !gIds.has(g.id));
+      // Clear node membership to deleted groups
+      state.nodes.forEach(n => { if (n.groupId && gIds.has(n.groupId)) n.groupId = null; });
+      // Clear parentId links pointing to deleted regions
+      state.groups.forEach(g => { if (g.parentId && gIds.has(g.parentId)) g.parentId = null; });
+    }
+
+    clearSelection();
+    state.connectFrom = null;
+    refreshAllMemberships();
+    commit();
+    render();
+    showToast('Deleted selection.');
+  }
+
+  function select(sel) { setSingleSelection(sel); }
+
+
+  function updateInspector() {
+    refreshPresetSelects();
+    noSel.style.display='none'; nodeIns.style.display='none'; edgeIns.style.display='none'; groupIns.style.display='none';
+    noSel.textContent = 'Nothing selected.';
+    if (!state.selected) {
+      const c = state.selection.nodes.size + state.selection.edges.size + state.selection.groups.size;
+      if (c === 0) { noSel.style.display='block'; return; }
+      noSel.style.display='block';
+      noSel.textContent = `Multiple selected: ${c} item(s). (Ctrl+C to copy, Ctrl+V to paste)`;
+      return;
+    }
+
+    if (state.selected.type === 'node') {
+      const n = findNode(state.selected.id); if (!n) return;
+      nodeIns.style.display='block';
+      nodeName.value = n.name || '';
+      nodeTags.value = (n.tags||[]).join(', ');
+      nodeExtraTags.value = n.extraTags || '';
+      nodeCode.value = n.code || '';
+      nodeShowCode.value = (n.showCode !== false) ? '1' : '0';
+      nodeNameFont.value = n.nameFont ?? 13;
+      nodeTagFont.value = n.tagFont ?? 11;
+      nodeNameColor.value = n.nameColor || "#eaeaea";
+      nodeTagColor.value = n.tagColor || "#b7c0df";
+      nodeFill.value = n.fill || "#1b2030";
+      nodeStroke.value = n.stroke || "#9fb3ff";
+      if (nodeStrokeW) nodeStrokeW.value = n.strokeW ?? 2;
+      if (nodeSize) nodeSize.value = n.r ?? 24;
+      if (nodeStrokeW) nodeStrokeW.value = n.strokeW ?? 2;
+      const g = n.groupId ? findGroup(n.groupId) : null;
+      nodeGroup.value = g ? g.title : '(none)';
+      return;
+    }
+
+    if (state.selected.type === 'edge') {
+      const e = findEdge(state.selected.id); if (!e) return;
+      edgeIns.style.display='block';
+      edgeTag.value = e.tag || '';
+      edgeLatency.value = (typeof e.latencyMs === "number" && isFinite(e.latencyMs)) ? e.latencyMs : '';
+      edgeExtraTags.value = e.extraTags || '';
+      edgeCode.value = e.code || '';
+      edgeShowCode.value = (e.showCode !== false) ? '1' : '0';
+      edgeStyle.value = e.style || 'straight';
+      edgeRoute.value = e.route || 'hv';
+      edgeLabelFont.value = e.labelFont ?? 12;
+      edgeLabelColor.value = e.labelColor || "#eaeaea";
+      if (edgeStrokeW) edgeStrokeW.value = e.strokeW ?? 2;
+      if (edgeStrokeColor) edgeStrokeColor.value = e.strokeColor || "#7f8aa6";
+      return;
+    }
+
+    if (state.selected.type === 'group') {
+      const g = findGroup(state.selected.id); if (!g) return;
+      groupIns.style.display='block';
+      groupTitle.value = g.title || '';
+      groupType.value = g.type || 'country';
+      // Parent Region dropdown
+      while (groupParent.firstChild) groupParent.removeChild(groupParent.firstChild);
+      const optNone = document.createElement('option');
+      optNone.value = '';
+      optNone.textContent = '(none)';
+      groupParent.appendChild(optNone);
+      state.groups.filter(r => r.type === 'region').forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = String(r.id);
+        opt.textContent = r.title || `Region${r.id}`;
+        groupParent.appendChild(opt);
+      });
+      groupParent.value = g.parentId ? String(g.parentId) : '';
+      groupParent.disabled = (g.type !== 'country');
+
+      groupExtraTags.value = g.extraTags || '';
+      groupW.value = Math.round(g.w);
+      groupH.value = Math.round(g.h);
+      groupTitleFont.value = g.titleFont ?? 14;
+      groupTitleColor.value = g.titleColor || "#eaeaea";
+      groupFill.value = g.fill || "rgba(54, 76, 140, 0.12)";
+      groupStroke.value = g.stroke || "#6073b8";
+      if (groupStrokeW) groupStrokeW.value = g.strokeW ?? 2;
+    }
+  }
+
+  nodeName.addEventListener('input', () => {
+    if (state.selected?.type!=='node') return;
+    const n = findNode(state.selected.id); if (!n) return;
+    n.name = nodeName.value; commit(); render();
+  });
+  nodeTags.addEventListener('input', () => {
+    if (state.selected?.type!=='node') return;
+    const n = findNode(state.selected.id); if (!n) return;
+    n.tags = nodeTags.value.split(',').map(s=>s.trim()).filter(Boolean); commit(); render();
+  });
+  nodeExtraTags.addEventListener('input', () => {
+    if (state.selected?.type!=='node') return;
+    const n = findNode(state.selected.id); if (!n) return;
+    n.extraTags = nodeExtraTags.value; commit(); render();
+  });
+  nodeCode.addEventListener('input', () => {
+    if (state.selected?.type!=='node') return;
+    const n = findNode(state.selected.id); if (!n) return;
+    n.code = nodeCode.value; commit(); render();
+  });
+  nodeShowCode.addEventListener('change', () => {
+    if (state.selected?.type!=='node') return;
+    const n = findNode(state.selected.id); if (!n) return;
+    n.showCode = nodeShowCode.value === '1'; commit(); render();
+  });
+
+  nodeNameFont.addEventListener('input', () => {
+    if (state.selected?.type!=='node') return;
+    const n = findNode(state.selected.id); if (!n) return;
+    n.nameFont = clamp(Number(nodeNameFont.value||13),6,72); commit(); render();
+  });
+  nodeTagFont.addEventListener('input', () => {
+    if (state.selected?.type!=='node') return;
+    const n = findNode(state.selected.id); if (!n) return;
+    n.tagFont = clamp(Number(nodeTagFont.value||11),6,72); commit(); render();
+  });
+  nodeNameColor.addEventListener('input', () => {
+    if (state.selected?.type!=='node') return;
+    const n = findNode(state.selected.id); if (!n) return;
+    n.nameColor = nodeNameColor.value; commit(); render();
+  });
+  nodeTagColor.addEventListener('input', () => {
+    if (state.selected?.type!=='node') return;
+    const n = findNode(state.selected.id); if (!n) return;
+    n.tagColor = nodeTagColor.value; commit(); render();
+  });
+  nodeFill.addEventListener('input', () => {
+    if (state.selected?.type!=='node') return;
+    const n = findNode(state.selected.id); if (!n) return;
+    n.fill = nodeFill.value; commit(); render();
+  });
+  nodeStroke.addEventListener('input', () => {
+    if (state.selected?.type!=='node') return;
+    const n = findNode(state.selected.id); if (!n) return;
+    n.stroke = nodeStroke.value; commit(); render();
+  });
+  if (nodeStrokeW) nodeStrokeW.addEventListener('input', () => {
+    if (state.selected?.type!=='node') return;
+    const n = findNode(state.selected.id); if (!n) return;
+    n.strokeW = clamp(Number(nodeStrokeW.value||2),0.5,12);
+    commit(); render();
+  });
+
+if (edgeStrokeColor) edgeStrokeColor.addEventListener('input', () => {
+  if (state.selected?.type!=='edge') return;
+  const e = findEdge(state.selected.id); if (!e) return;
+  e.strokeColor = edgeStrokeColor.value;
+  commit(); render();
+});
+
+  if (nodeSize) nodeSize.addEventListener('input', () => {
+    if (state.selected?.type!=='node') return;
+    const n = findNode(state.selected.id); if (!n) return;
+    n.r = clamp(Number(nodeSize.value||24),10,80);
+    commit(); render();
+  });
+
+// Node address/city/country listeners
+if (nodeAddress) nodeAddress.addEventListener('input', () => {
+  if (state.selected?.type!=='node') return;
+  const n = findNode(state.selected.id); if (!n) return;
+  n.address = nodeAddress.value; commit(); render();
+});
+
+if (nodeCity) nodeCity.addEventListener('input', () => {
+  if (state.selected?.type!=='node') return;
+  const n = findNode(state.selected.id); if (!n) return;
+  n.city = nodeCity.value; commit(); render();
+});
+
+if (nodeCountry) nodeCountry.addEventListener('input', () => {
+  if (state.selected?.type!=='node') return;
+  const n = findNode(state.selected.id); if (!n) return;
+  n.country = nodeCountry.value; commit(); render();
+});
+
+// Edge capacity listener
+if (edgeCapacity) edgeCapacity.addEventListener('input', () => {
+  if (state.selected?.type!=='edge') return;
+  const e = findEdge(state.selected.id); if (!e) return;
+  e.capacity = edgeCapacity.value; commit(); render();
+});
+
+  edgeTag.addEventListener('input', () => {
+    if (state.selected?.type!=='edge') return;
+    const e = findEdge(state.selected.id); if (!e) return;
+    e.tag = edgeTag.value; commit(); render();
+  });
+  edgeLatency.addEventListener('input', () => {
+    if (state.selected?.type!=='edge') return;
+    const e = findEdge(state.selected.id); if (!e) return;
+    const raw = String(edgeLatency.value ?? '').trim();
+    if (raw === '' || raw === '.' || raw === '-' ) { e.latencyMs = null; commit(); render(); return; }
+    const v = parseFloat(raw.replace(',', '.'));
+    if (Number.isFinite(v)) { e.latencyMs = v; commit(); render(); }
+  });
+  edgeExtraTags.addEventListener('input', () => {
+    if (state.selected?.type!=='edge') return;
+    const e = findEdge(state.selected.id); if (!e) return;
+    e.extraTags = edgeExtraTags.value; commit(); render();
+  });
+  edgeCode.addEventListener('input', () => {
+    if (state.selected?.type!=='edge') return;
+    const e = findEdge(state.selected.id); if (!e) return;
+    e.code = edgeCode.value; commit(); render();
+  });
+  edgeShowCode.addEventListener('change', () => {
+    if (state.selected?.type!=='edge') return;
+    const e = findEdge(state.selected.id); if (!e) return;
+    e.showCode = edgeShowCode.value === '1'; commit(); render();
+  });
+
+  edgeStyle.addEventListener('change', () => {
+    if (state.selected?.type!=='edge') return;
+    const e = findEdge(state.selected.id); if (!e) return;
+    e.style = edgeStyle.value; commit(); render();
+  });
+  edgeRoute.addEventListener('change', () => {
+    if (state.selected?.type!=='edge') return;
+    const e = findEdge(state.selected.id); if (!e) return;
+    e.route = edgeRoute.value; commit(); render();
+  });
+  edgeLabelFont.addEventListener('input', () => {
+    if (state.selected?.type!=='edge') return;
+    const e = findEdge(state.selected.id); if (!e) return;
+    e.labelFont = clamp(Number(edgeLabelFont.value||12),6,72); commit(); render();
+  });
+  edgeLabelColor.addEventListener('input', () => {
+    if (state.selected?.type!=='edge') return;
+    const e = findEdge(state.selected.id); if (!e) return;
+    e.labelColor = edgeLabelColor.value; commit(); render();
+  });
+  if (edgeStrokeW) edgeStrokeW.addEventListener('input', () => {
+    if (state.selected?.type!=='edge') return;
+    const e = findEdge(state.selected.id); if (!e) return;
+    e.strokeW = clamp(Number(edgeStrokeW.value||2),0.5,12);
+    commit(); render();
+  });
+
+  groupTitle.addEventListener('input', () => {
+    if (state.selected?.type!=='group') return;
+    const g = findGroup(state.selected.id); if (!g) return;
+    g.title = groupTitle.value; commit(); render();
+  });
+  groupType.addEventListener('change', () => {
+    if (state.selected?.type!=='group') return;
+    const g = findGroup(state.selected.id); if (!g) return;
+    g.type = groupType.value;
+    // If switching away from country, clear parent + node memberships will recompute
+    if (g.type !== 'country') g.parentId = null;
+    refreshAllMemberships();
+    commit(); render();
+  });
+
+  groupParent.addEventListener('change', () => {
+    if (state.selected?.type!=='group') return;
+    const g = findGroup(state.selected.id); if (!g || g.type !== 'country') return;
+    g.parentId = groupParent.value ? Number(groupParent.value) : null;
+    commit(); render();
+  });
+
+  groupExtraTags.addEventListener('input', () => {
+    if (state.selected?.type!=='group') return;
+    const g = findGroup(state.selected.id); if (!g) return;
+    g.extraTags = groupExtraTags.value; commit(); render();
+  });
+  groupW.addEventListener('input', () => {
+    if (state.selected?.type!=='group') return;
+    const g = findGroup(state.selected.id); if (!g) return;
+    g.w = clamp(Number(groupW.value||g.w),120,1600); refreshAllMemberships(); commit(); render();
+  });
+  groupH.addEventListener('input', () => {
+    if (state.selected?.type!=='group') return;
+    const g = findGroup(state.selected.id); if (!g) return;
+    g.h = clamp(Number(groupH.value||g.h),90,900); refreshAllMemberships(); commit(); render();
+  });
+  groupTitleFont.addEventListener('input', () => {
+    if (state.selected?.type!=='group') return;
+    const g = findGroup(state.selected.id); if (!g) return;
+    g.titleFont = clamp(Number(groupTitleFont.value||14),6,72); commit(); render();
+  });
+  groupTitleColor.addEventListener('input', () => {
+    if (state.selected?.type!=='group') return;
+    const g = findGroup(state.selected.id); if (!g) return;
+    g.titleColor = groupTitleColor.value; commit(); render();
+  });
+  groupFill.addEventListener('input', () => {
+    if (state.selected?.type!=='group') return;
+    const g = findGroup(state.selected.id); if (!g) return;
+    g.fill = groupFill.value; commit(); render();
+  });
+  groupStroke.addEventListener('input', () => {
+    if (state.selected?.type!=='group') return;
+    const g = findGroup(state.selected.id); if (!g) return;
+    g.stroke = groupStroke.value; commit(); render();
+  });
+  if (groupStrokeW) groupStrokeW.addEventListener('input', () => {
+    if (state.selected?.type!=='group') return;
+    const g = findGroup(state.selected.id); if (!g) return;
+    g.strokeW = clamp(Number(groupStrokeW.value||2),0.5,12);
+    commit(); render();
+  });
+
+
+  // Preset buttons
+  btnNodePresetSave.addEventListener('click', () => {
+    if (state.selected?.type!=='node') { showToast("Select a node first."); return; }
+    const n = findNode(state.selected.id); if (!n) return;
+    savePreset('node', n);
+  });
+  btnNodePresetApply.addEventListener('click', () => {
+    if (state.selected?.type!=='node') { showToast("Select a node first."); return; }
+    const n = findNode(state.selected.id); if (!n) return;
+    applyPreset('node', n, nodePresetSel.value);
+  });
+  btnNodePresetDelete.addEventListener('click', () => deletePreset('node', nodePresetSel.value));
+
+  btnEdgePresetSave.addEventListener('click', () => {
+    if (state.selected?.type!=='edge') { showToast("Select a link first."); return; }
+    const e = findEdge(state.selected.id); if (!e) return;
+    savePreset('edge', e);
+  });
+  btnEdgePresetApply.addEventListener('click', () => {
+    if (state.selected?.type!=='edge') { showToast("Select a link first."); return; }
+    const e = findEdge(state.selected.id); if (!e) return;
+    applyPreset('edge', e, edgePresetSel.value);
+  });
+  btnEdgePresetDelete.addEventListener('click', () => deletePreset('edge', edgePresetSel.value));
+
+  btnGroupPresetSave.addEventListener('click', () => {
+    if (state.selected?.type!=='group') { showToast("Select a box first."); return; }
+    const g = findGroup(state.selected.id); if (!g) return;
+    savePreset('group', g);
+  });
+  btnGroupPresetApply.addEventListener('click', () => {
+    if (state.selected?.type!=='group') { showToast("Select a box first."); return; }
+    const g = findGroup(state.selected.id); if (!g) return;
+    applyPreset('group', g, groupPresetSel.value);
+  });
+  btnGroupPresetDelete.addEventListener('click', () => deletePreset('group', groupPresetSel.value));
+
+  function makeNode(id, x, y) {
+    return {
+      id,
+      x: clamp(x,30,1570), y: clamp(y,30,870),
+      shape: state.defaultNodeShape || 'circle', r:24, strokeW:2,
+      address:'', city:'', country:'',
+      name: `Node${id}`,
+      code: `N-${id}`,
+      showCode: true,
+      tags: [],
+      extraTags:"",
+      groupId:null,
+      fill:"#1b2030", stroke:"#9fb3ff",
+      nameColor:"#eaeaea", tagColor:"#b7c0df",
+      nameFont:13, tagFont:11,
+      nameDx:0, nameDy:0, tagDx:0, tagDy:0
+    };
+  }
+
+  function makeEdge(id, a, b) {
+    return {
+      id, a, b,
+      tag:'',
+      latencyMs:null,
+      strokeW:2,
+      strokeColor:"#7f8aa6",
+      capacity:'Up to 10G WL',
+      code: `L-${id}`,
+      showCode: true,
+      extraTags:"",
+      style:'straight',
+      route:'hv',
+      labelDx:0, labelDy:0, labelFont:12, labelColor:"#eaeaea"
+    };
+  }
+
+  function makeGroup(id, x, y, type) {
+    const isRegion = type === 'region';
+    return {
+      id,
+      type: isRegion ? 'region' : 'country',
+      parentId: null,
+      x: clamp(x,20,1400),
+      y: clamp(y,20,760),
+      w: isRegion ? 520 : 320,
+      h: isRegion ? 320 : 220,
+      title: isRegion ? `Region${id}` : "Country",
+      extraTags:"",
+      fill: isRegion ? "rgba(120, 140, 180, 0.10)" : "rgba(54, 76, 140, 0.12)",
+      stroke: isRegion ? "#7f8aa6" : "#6073b8",
+      titleColor:"#eaeaea",
+      titleFont: isRegion ? 15 : 14,
+      titleDx:0, titleDy:0
+    };
+  }
+
+  function createNode(x, y) {
+    const id = state.nextNode++;
+    const node = makeNode(id, x, y);
+    state.nodes.push(node);
+    updateNodeGroupMembership(node);
+    select({type:'node', id});
+    commit(); render();
+    showToast(`Created node ${node.name}.`);
+  }
+
+  function createEdge(a, b) {
+    const exists = state.edges.some(e => (e.a===a && e.b===b) || (e.a===b && e.b===a));
+    if (exists) { showToast('Link already exists.'); return; }
+    const id = state.nextEdge++;
+    state.edges.push(makeEdge(id, a, b));
+    select({type:'edge', id});
+    commit(); render();
+    showToast('Created link. Edit fields in Inspector.');
+  }
+
+  function createGroup(x, y, type='country') {
+    const id = state.nextGroup++;
+    const g = makeGroup(id, x, y, type);
+    state.groups.push(g);
+
+    if (g.type === 'country') updateCountryRegionMembership(g);
+    refreshAllMemberships();
+
+    select({type:'group', id});
+    commit(); render();
+    showToast(g.type === 'region' ? 'Created region box. Rename in Inspector.' : 'Created country box. Rename in Inspector.');
+  }
+
+    function deleteSelected() {
+    const hasMulti = (state.selection.nodes.size + state.selection.edges.size + state.selection.groups.size) > 0;
+    if (!state.selected && !hasMulti) return;
+
+    // If single selection exists, ensure it's in sets
+    if (state.selected) {
+      if (state.selected.type==='node') state.selection.nodes.add(state.selected.id);
+      if (state.selected.type==='edge') state.selection.edges.add(state.selected.id);
+      if (state.selected.type==='group') state.selection.groups.add(state.selected.id);
+      state.selected = null;
+    }
+
+    const nodeIds = new Set(state.selection.nodes);
+    const edgeIds = new Set(state.selection.edges);
+    const groupIds = new Set(state.selection.groups);
+
+    // If deleting groups: remove them and clear node memberships
+    if (groupIds.size) {
+      state.groups = state.groups.filter(g => !groupIds.has(g.id));
+      state.nodes.forEach(n => { if (groupIds.has(n.groupId)) n.groupId = null; });
+    }
+
+    // Delete nodes and any edges connected to them
+    if (nodeIds.size) {
+      state.nodes = state.nodes.filter(n => !nodeIds.has(n.id));
+      state.edges = state.edges.filter(e => !nodeIds.has(e.a) && !nodeIds.has(e.b));
+    }
+
+    // Delete explicitly selected edges (if still present)
+    if (edgeIds.size) {
+      state.edges = state.edges.filter(e => !edgeIds.has(e.id));
+    }
+
+    refreshAllMemberships();
+    clearSelection();
+    commit();
+    render();
+    showToast('Deleted selected item(s).');
+  }
+
+
+  svg.addEventListener('mousedown', (ev) => {
+    // Marquee selection on empty canvas
+    if (ev.button !== 0) return;
+    if (state.placingGroup) return;
+    if (ev.target !== svg) return; // only empty space
+    const m = getMouse(ev);
+    state.lastMouse = { x: m.x, y: m.y };
+    state.marquee = { x0: m.x, y0: m.y, x: m.x, y: m.y, w: 0, h: 0, additive: ev.shiftKey };
+    if (!state.marquee.additive) clearSelection();
+    state.connectFrom = null;
+    render();
+  });
+
+  svg.addEventListener('dblclick', (ev) => {
+    const m = getMouse(ev);
+    if (state.placingGroup) return;
+    createNode(m.x, m.y);
+  });
+
+  // Debug: Alt+click on canvas shows coordinates (helps confirm handlers are active)
+  svg.addEventListener('click', (ev) => {
+    if (ev.altKey) {
+      const m = getMouse(ev);
+      showToast(`Canvas click @ ${Math.round(m.x)}, ${Math.round(m.y)}`);
+    }
+  });
+
+
+  svg.addEventListener('click', (ev) => {
+    if (state.placingGroup) {
+      const m = getMouse(ev);
+      createGroup(m.x, m.y, state.placingGroupType || 'country');
+      state.placingGroup = false;
+    state.placingGroupType = 'country';
+    state.stylePresets = state.stylePresets || { node: {}, edge: {}, group: {} };
+    state.styleBrush = null;
+      document.getElementById('btnAddGroup').classList.remove('primary');
+      document.getElementById('btnAddRegion').classList.remove('primary');
+      document.getElementById('btnAddRegion').classList.remove('primary');
+      return;
+    }
+    clearSelection(); state.connectFrom=null; render();
+  });
+
+  svg.addEventListener('mousemove', (ev) => {
+    const m = getMouse(ev);
+    state.lastMouse = { x: m.x, y: m.y };
+
+    if (state.marquee) {
+      const x1 = state.marquee.x0, y1 = state.marquee.y0;
+      const x2 = m.x, y2 = m.y;
+      const x = Math.min(x1, x2);
+      const y = Math.min(y1, y2);
+      const w = Math.abs(x2 - x1);
+      const h = Math.abs(y2 - y1);
+      state.marquee.x = x; state.marquee.y = y; state.marquee.w = w; state.marquee.h = h;
+      render();
+      return;
+    }
+
+
+    if (state.resizingGroup) {
+      const g = findGroup(state.resizingGroup.id);
+      if (!g) return;
+      const dx = m.x - state.resizingGroup.mx0;
+      const dy = m.y - state.resizingGroup.my0;
+      g.w = clamp(state.resizingGroup.startW + dx, 120, 1600 - g.x);
+      g.h = clamp(state.resizingGroup.startH + dy, 90, 900 - g.y);
+      refreshAllMemberships();
+      render();
+      return;
+    }
+
+    if (!state.dragging) return;
+
+    if (state.dragging.type === 'selection') {
+      const dx = m.x - state.dragging.mx0;
+      const dy = m.y - state.dragging.my0;
+      state.dragging.origGroups.forEach(o => {
+        const g = findGroup(o.id); if (!g) return;
+        g.x = clamp(o.x + dx, 10, 1600 - g.w - 10);
+        g.y = clamp(o.y + dy, 10, 900 - g.h - 10);
+      });
+      state.dragging.origNodes.forEach(o => {
+        const n = findNode(o.id); if (!n) return;
+        n.x = clamp(o.x + dx, 30, 1570);
+        n.y = clamp(o.y + dy, 30, 870);
+      });
+      refreshAllMemberships();
+      render();
+      return;
+    }
+
+    if (state.dragging.type === 'edgeLabel') {
+      const e = findEdge(state.dragging.id); if (!e) return;
+      const a = findNode(e.a), b = findNode(e.b); if (!a || !b) return;
+      let base = (e.style==='orthogonal') ? orthogonalBaseLabelPoint(a.x,a.y,b.x,b.y,e.route||'hv') : {x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+      const targetX = m.x + state.dragging.dx;
+      const targetY = m.y + state.dragging.dy;
+      e.labelDx = targetX - base.x;
+      e.labelDy = targetY - base.y;
+      render();
+      return;
+    }
+
+    if (state.dragging.type === 'nodeNameLabel') {
+      const n = findNode(state.dragging.id); if (!n) return;
+      const targetX = m.x + state.dragging.dx;
+      const targetY = m.y + state.dragging.dy;
+      n.nameDx = targetX - n.x;
+      n.nameDy = targetY - n.y;
+      render();
+      return;
+    }
+
+    if (state.dragging.type === 'nodeTagLabel') {
+      const n = findNode(state.dragging.id); if (!n) return;
+      const targetX = m.x + state.dragging.dx;
+      const targetY = m.y + state.dragging.dy;
+      n.tagDx = targetX - n.x;
+      n.tagDy = targetY - (n.y + 26);
+      render();
+      return;
+    }
+
+    if (state.dragging.type === 'groupTitleLabel') {
+      const g = findGroup(state.dragging.id); if (!g) return;
+      const targetX = m.x + state.dragging.dx;
+      const targetY = m.y + state.dragging.dy;
+      g.titleDx = targetX - (g.x + 14);
+      g.titleDy = targetY - (g.y + 22);
+      render();
+      return;
+    }
+
+    if (state.dragging.type === 'node') {
+      const n = findNode(state.dragging.id); if (!n) return;
+      n.x = clamp(m.x + state.dragging.dx, 30, 1570);
+      n.y = clamp(m.y + state.dragging.dy, 30, 870);
+      updateNodeGroupMembership(n);
+      render();
+      return;
+    }
+
+    if (state.dragging.type === 'group') {
+      const g = findGroup(state.dragging.id); if (!g) return;
+      const oldX = g.x, oldY = g.y;
+      g.x = clamp(m.x + state.dragging.dx, 10, 1600 - g.w - 10);
+      g.y = clamp(m.y + state.dragging.dy, 10, 900 - g.h - 10);
+      const dx = g.x - oldX;
+      const dy = g.y - oldY;
+
+      if (g.type === 'region') {
+        // Move all child countries (and their nodes) along with the region
+        state.groups.forEach(c => {
+          if (c.type === 'country' && c.parentId === g.id) {
+            c.x = clamp(c.x + dx, 10, 1600 - c.w - 10);
+            c.y = clamp(c.y + dy, 10, 900 - c.h - 10);
+          }
+        });
+        state.nodes.forEach(n => {
+          const country = n.groupId ? findGroup(n.groupId) : null;
+          if (country && country.type === 'country' && country.parentId === g.id) {
+            n.x = clamp(n.x + dx, 30, 1570);
+            n.y = clamp(n.y + dy, 30, 870);
+          }
+        });
+      } else {
+        // Move nodes inside the country box along with it
+        state.nodes.forEach(n => {
+          if (n.groupId === g.id) {
+            n.x = clamp(n.x + dx, 30, 1570);
+            n.y = clamp(n.y + dy, 30, 870);
+          }
+        });
+      }
+
+      refreshAllMemberships();
+      render();
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    // finalize marquee selection
+    if (state.marquee) {
+      const box = { x: state.marquee.x, y: state.marquee.y, w: state.marquee.w, h: state.marquee.h };
+      const insideNode = (n) => n.x >= box.x && n.x <= box.x + box.w && n.y >= box.y && n.y <= box.y + box.h;
+      const rectsIntersect = (a, b) => !(a.x+a.w < b.x || b.x+b.w < a.x || a.y+a.h < b.y || b.y+b.h < a.y);
+
+      const nodes = state.nodes.filter(insideNode).map(n=>n.id);
+      const groups = state.groups.filter(g => rectsIntersect({x:g.x,y:g.y,w:g.w,h:g.h}, box)).map(g=>g.id);
+
+      // edges where both endpoints are selected (node selection)
+      const nodeSet = new Set([...state.selection.nodes, ...nodes]);
+      const edges = state.edges.filter(e => nodeSet.has(e.a) && nodeSet.has(e.b)).map(e=>e.id);
+
+      // apply selection (additive if shift held at start)
+      if (state.marquee.additive) {
+        nodes.forEach(id => state.selection.nodes.add(id));
+        groups.forEach(id => state.selection.groups.add(id));
+        edges.forEach(id => state.selection.edges.add(id));
+      } else {
+        setMultiSelection({ nodes, groups, edges });
+      }
+
+      state.marquee = null;
+      state.dragging = null;
+      state.resizingGroup = null;
+      render();
+      return;
+    }
+
+    state.dragging=null;
+    state.resizingGroup=null;
+  });
+
+  window.addEventListener('keydown', (ev) => {
+    if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z') {
+      ev.preventDefault();
+      if (ev.shiftKey) redo(); else undo();
+      return;
+    }
+    if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'y') {
+      ev.preventDefault(); redo(); return;
+    }
+
+    if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'c') {
+      ev.preventDefault();
+      copySelection();
+      return;
+    }
+    if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'x') {
+      ev.preventDefault();
+      copySelection();
+      deleteSelected();
+      return;
+    }
+    if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'v') {
+      ev.preventDefault();
+      pasteSelection();
+      return;
+    }
+
+    if ((ev.key === 'Backspace' || ev.key === 'Delete') && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
+      ev.preventDefault(); deleteSelected();
+    }
+    if (ev.key === 'Escape') {
+      clearBrush();
+      state.connectFrom=null; state.placingGroup=false;
+      document.getElementById('btnAddGroup').classList.remove('primary');
+      document.getElementById('btnAddRegion').classList.remove('primary');
+      render();
+    }
+    if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 's') {
+      ev.preventDefault(); saveProject(false);
+    }
+  });
+
+  document.getElementById('btnAddGroup').addEventListener('click', (ev) => {
+    state.placingGroupType = 'country';
+    state.placingGroup = !state.placingGroup;
+    document.getElementById('btnAddGroup').classList.toggle('primary', state.placingGroup && state.placingGroupType==='country');
+    document.getElementById('btnAddRegion').classList.toggle('primary', state.placingGroup && state.placingGroupType==='region');
+    showToast(state.placingGroup ? 'Click the canvas to place a country box.' : 'Placement cancelled.');
+  });
+
+  document.getElementById('btnAddRegion').addEventListener('click', (ev) => {
+    state.placingGroupType = 'region';
+    state.placingGroup = !state.placingGroup;
+    document.getElementById('btnAddRegion').classList.toggle('primary', state.placingGroup && state.placingGroupType==='region');
+    document.getElementById('btnAddGroup').classList.remove('primary');
+    showToast(state.placingGroup ? 'Click the canvas to place a region box.' : 'Placement cancelled.');
+  });
+
+document.getElementById('btnExportLinks').addEventListener('click', () => {
+  // Create header row
+  const headers = [
+    'A-End Node tag',
+    'A-End node code',
+    'B-End Node tag',
+    'B-End Node code',
+    'Link tag',
+    'Link latency',
+    'Link Capacity Options',
+    'Link Additional tags/Notes'
+  ];
+  
+  let csv = headers.join(',') + '\r\n';
+  
+  // Add data rows
+  for (const e of state.edges) {
+    const a = findNode(e.a);
+    const b = findNode(e.b);
+    
+    if (!a || !b) continue; // Skip if nodes don't exist
+    
+    const row = [
+      escapeCSV(a.name || ''),
+      escapeCSV(a.code || ''),
+      escapeCSV(b.name || ''),
+      escapeCSV(b.code || ''),
+      escapeCSV(e.tag || ''),
+      escapeCSV((typeof e.latencyMs === "number" && isFinite(e.latencyMs)) ? e.latencyMs : ''),
+      escapeCSV(e.capacity || ''),
+      escapeCSV(e.extraTags || '')
+    ];
+    
+    csv += row.join(',') + '\r\n';
+  }
+  
+  downloadText('links.csv', csv, 'text/csv;charset=utf-8');
+  showToast('Exported links.csv');
+});
+
+  document.getElementById('btnExportNodes').addEventListener('click', () => {
+  const headers = [
+    'Node Name',
+    'Node Code',
+    'Tags',
+    'Additional Tags',
+    'Address',
+    'City',
+    'Country Box',
+    'X',
+    'Y'
+  ];
+  
+  let csv = headers.join(',') + '\r\n';
+  
+  for (const n of state.nodes) {
+    const g = n.groupId ? findGroup(n.groupId) : null;
+    const row = [
+      escapeCSV(n.name || ''),
+      escapeCSV(n.code || ''),
+      escapeCSV((n.tags||[]).join('|')),
+      escapeCSV(n.extraTags || ''),
+      escapeCSV(n.address || ''),
+      escapeCSV(n.city || ''),
+      escapeCSV(g?.title || ''),
+      escapeCSV(Math.round(n.x)),
+      escapeCSV(Math.round(n.y))
+    ];
+    
+    csv += row.join(',') + '\r\n';
+  }
+  
+  downloadText('nodes.csv', csv, 'text/csv;charset=utf-8');
+  showToast('Exported nodes.csv');
+});
+
+  const NDG_FILETYPE = "NDG_PROJECT";
+  const NDG_VERSION = 2;
+  const LS_AUTOSAVE_KEY = "ndg_autosave_v2";
+  const LS_LASTNAME_KEY = "ndg_last_filename_v2";
+  const AUTOSAVE_INTERVAL_MS = 5000;
+
+  function buildProjectObject() {
+    return {
+      fileType: NDG_FILETYPE,
+      version: NDG_VERSION,
+      savedAt: new Date().toISOString(),
+      nodes: state.nodes,
+      edges: state.edges,
+      groups: state.groups,
+      nextNode: state.nextNode,
+      nextEdge: state.nextEdge,
+      nextGroup: state.nextGroup,
+      stylePresets: state.stylePresets
+    };
+  }
+
+  function sanitizeBaseName(name) {
+    let trimmed = (name || "").trim();
+    if (!trimmed) return null;
+
+    // Remove leading dots (".", "..") to avoid browser/OS normalization to underscores
+    trimmed = trimmed.replace(/^\.+/, "");
+
+    // Replace invalid filename characters
+    trimmed = trimmed.replace(/[<>:"/\\|?*\x00-\x1F]/g, "_");
+
+    // Avoid empty or underscore-only names
+    if (!trimmed || /^_+$/.test(trimmed)) return "project";
+
+    return trimmed.slice(0, 80);
+  }
+  function getLastFilename() { return localStorage.getItem(LS_LASTNAME_KEY) || ""; }
+  function setLastFilename(filename) { localStorage.setItem(LS_LASTNAME_KEY, filename); }
+
+  function saveProject(forcePrompt) {
+    let filename = getLastFilename();
+    if (forcePrompt || !filename) {
+      const base = sanitizeBaseName(prompt("Save project as (without extension):", filename.replace(/\\.ndg$/i, "") || "project"));
+      if (!base) { showToast("Save cancelled."); return; }
+      filename = base.toLowerCase().endsWith(".ndg") ? base : `${base}.ndg`;
+      setLastFilename(filename);
+    }
+    const project = buildProjectObject();
+    downloadText(filename, JSON.stringify(project, null, 2), "application/x-ndg+json");
+    dirty = false;
+    showToast(`Saved ${filename}`);
+  }
+
+  
+function loadProjectObject(obj) {
+  if (!obj) throw new Error('Empty project');
+  if (obj.fileType && obj.fileType !== 'NDG_PROJECT') throw new Error('Not an NDG project');
+
+  const nn = Array.isArray(obj.nodes) ? obj.nodes : [];
+  const ee = Array.isArray(obj.edges) ? obj.edges : [];
+  const gg = Array.isArray(obj.groups) ? obj.groups : [];
+
+  state.nodes = nn.map(n => ({
+    id: n.id,
+    x: n.x, y: n.y,
+    shape: n.shape || 'circle',
+    r: (typeof n.r === 'number') ? n.r : 24,
+    strokeW: (typeof n.strokeW === 'number') ? n.strokeW : 2,
+    address: n.address || '',
+    city: n.city || '',
+    country: n.country || '',
+    name: n.name || ('Node' + n.id),
+    code: n.code || ('N-' + n.id),
+    showCode: (n.showCode !== false),
+    tags: Array.isArray(n.tags) ? n.tags : [],
+    extraTags: n.extraTags || '',
+    groupId: (typeof n.groupId === 'number') ? n.groupId : null,
+    fill: n.fill || '#1b2030',
+    stroke: n.stroke || '#9fb3ff',
+    nameColor: n.nameColor || '#eaeaea',
+    tagColor: n.tagColor || '#b7c0df',
+    nameFont: (typeof n.nameFont === 'number') ? n.nameFont : 13,
+    tagFont: (typeof n.tagFont === 'number') ? n.tagFont : 11,
+    nameDx: (typeof n.nameDx === 'number') ? n.nameDx : 0,
+    nameDy: (typeof n.nameDy === 'number') ? n.nameDy : 0,
+    tagDx: (typeof n.tagDx === 'number') ? n.tagDx : 0,
+    tagDy: (typeof n.tagDy === 'number') ? n.tagDy : 0
+  }));
+
+  state.edges = ee.map(e => ({
+    id: e.id,
+    a: e.a, b: e.b,
+    tag: e.tag || '',
+    latencyMs: (typeof e.latencyMs === 'number') ? e.latencyMs : null,
+    code: e.code || ('L-' + e.id),
+    showCode: (e.showCode !== false),
+    extraTags: e.extraTags || '',
+    style: e.style || 'straight',
+    route: e.route || 'hv',
+    labelDx: (typeof e.labelDx === 'number') ? e.labelDx : 0,
+    labelDy: (typeof e.labelDy === 'number') ? e.labelDy : 0,
+    labelFont: (typeof e.labelFont === 'number') ? e.labelFont : 12,
+    labelColor: e.labelColor || '#eaeaea',
+    strokeW: (typeof e.strokeW === 'number') ? e.strokeW : 2,
+    capacity: e.capacity || 'Up to 10G WL'
+  }));
+
+  state.groups = gg.map(g => ({
+    id: g.id,
+    type: g.type || 'country',
+    parentId: g.parentId ?? null,
+    x: g.x, y: g.y, w: g.w, h: g.h,
+    title: g.title || ((g.type==='region') ? ('Region' + g.id) : 'Country'),
+    extraTags: g.extraTags || '',
+    fill: g.fill || (g.type==='region' ? 'rgba(120, 140, 180, 0.10)' : 'rgba(54, 76, 140, 0.12)'),
+    stroke: g.stroke || (g.type==='region' ? '#7f8aa6' : '#6073b8'),
+    strokeW: (typeof g.strokeW === 'number') ? g.strokeW : 2,
+    titleColor: g.titleColor || '#eaeaea',
+    titleFont: (typeof g.titleFont === 'number') ? g.titleFont : (g.type==='region' ? 15 : 14),
+    titleDx: (typeof g.titleDx === 'number') ? g.titleDx : 0,
+    titleDy: (typeof g.titleDy === 'number') ? g.titleDy : 0
+  }));
+
+  state.nextNode = (typeof obj.nextNode === 'number') ? obj.nextNode : (Math.max(0, ...state.nodes.map(n=>n.id)) + 1);
+  state.nextEdge = (typeof obj.nextEdge === 'number') ? obj.nextEdge : (Math.max(0, ...state.edges.map(e=>e.id)) + 1);
+  state.nextGroup = (typeof obj.nextGroup === 'number') ? obj.nextGroup : (Math.max(0, ...state.groups.map(g=>g.id)) + 1);
+  
+  // Restore style presets
+  state.stylePresets = obj.stylePresets || { node:{}, edge:{}, group:{} };
+  
+  // Clear transient state
+  state.selected = null;
+  state.connectFrom = null;
+  state.dragging = null;
+  state.resizingGroup = null;
+  state.placingGroup = false;
+  state.placingGroupType = 'country';
+  state.styleBrush = null;
+  clearSelection();
+  
+  // CRITICAL: Refresh all memberships
+  refreshAllMemberships();
+  
+  // Reset history
+  history.stack = [];
+  history.index = -1;
+  pushHistory();
+  
+  // Render and update UI
+  render();
+  dirty = false;
+}
+
+
+  function autosaveNow() {
+    try {
+      localStorage.setItem(LS_AUTOSAVE_KEY, JSON.stringify(buildProjectObject()));
+      dirty = false;
+    } catch (e) { console.warn("Autosave failed:", e); }
+  }
+  setInterval(() => { if (dirty) autosaveNow(); }, AUTOSAVE_INTERVAL_MS);
+
+  function recoverAutosave() {
+    const raw = localStorage.getItem(LS_AUTOSAVE_KEY);
+    if (!raw) { showToast("No autosave found."); return; }
+    try { loadProjectObject(JSON.parse(raw)); showToast("Recovered autosave."); }
+    catch (e) { showToast("Autosave recovery failed: " + e.message); }
+  }
+  function clearAutosave() { localStorage.removeItem(LS_AUTOSAVE_KEY); showToast("Autosave cleared."); }
+
+  document.getElementById('fileLoad').addEventListener('change', async (ev) => {
+    const f = ev.target.files?.[0];
+    if (!f) return;
+    try {
+      const text = await f.text();
+      loadProjectObject(JSON.parse(text));
+      setLastFilename(f.name);
+      showToast(`Opened ${f.name}`);
+    } catch (e) {
+      showToast('Open failed: ' + e.message);
+    } finally {
+      ev.target.value = '';
+    }
+  });
+
+  function clearDiagram() {
+    state.nodes=[]; state.edges=[]; state.groups=[];
+    state.nextNode=1; state.nextEdge=1; state.nextGroup=1;
+    state.selected=null; state.connectFrom=null; state.placingGroup=false; state.placingGroupType='country';
+    state.selection.nodes.clear(); state.selection.edges.clear(); state.selection.groups.clear();
+    history.stack=[]; history.index=-1; pushHistory();
+    commit(); render();
+    showToast('Cleared.');
+  }
+
+  // (legacy button) 
+  document.getElementById('btnClear')?.addEventListener('click', () => { clearDiagram(); });
+  (function autosaveStartupHint(){
+    const raw = localStorage.getItem(LS_AUTOSAVE_KEY);
+    if (raw) showToast("Autosave available — click “Recover Autosave” if needed.");
+  })();
+
+  refreshPresetSelects();
+  pushHistory();
+  render();
+
+  showToast('Ready — double-click to create a node.');
+})();
+</script>
+</body>
+</html>
