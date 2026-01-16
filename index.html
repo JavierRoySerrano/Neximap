@@ -409,6 +409,8 @@
       <label class="item toggle-item"><input type="checkbox" id="tglShowLatency" checked /> Show Latency</label>
       <label class="item toggle-item"><input type="checkbox" id="tglShowNodeCode" checked /> Show Node Codes</label>
       <label class="item toggle-item"><input type="checkbox" id="tglShowLinkCode" checked /> Show Link Codes</label>
+      <label class="item toggle-item"><input type="checkbox" id="tglShowNodeTags" /> Show Node Tags</label>
+      <label class="item toggle-item"><input type="checkbox" id="tglShowExtraTags" /> Show Additional Tags</label>
     </div>
     <input type="file" id="fileLoad" accept=".ndg,application/json" style="display:none;" />
   </div>
@@ -1008,6 +1010,8 @@
   const tglShowLatency = document.getElementById('tglShowLatency');
   const tglShowNodeCode = document.getElementById('tglShowNodeCode');
   const tglShowLinkCode = document.getElementById('tglShowLinkCode');
+  const tglShowNodeTags = document.getElementById('tglShowNodeTags');
+  const tglShowExtraTags = document.getElementById('tglShowExtraTags');
   const canvasWidth = document.getElementById('canvasWidth');
   const canvasHeight = document.getElementById('canvasHeight');
   const tglCanvasBorder = document.getElementById('tglCanvasBorder');
@@ -1016,17 +1020,21 @@
     if (tglShowLatency) tglShowLatency.checked = !!state.ui.showLatency;
     if (tglShowNodeCode) tglShowNodeCode.checked = !!state.ui.showNodeCode;
     if (tglShowLinkCode) tglShowLinkCode.checked = !!state.ui.showLinkCode;
+    if (tglShowNodeTags) tglShowNodeTags.checked = !!state.ui.showNodeTags;
+    if (tglShowExtraTags) tglShowExtraTags.checked = !!state.ui.showExtraTags;
     if (canvasWidth) canvasWidth.value = state.canvasWidth;
     if (canvasHeight) canvasHeight.value = state.canvasHeight;
     if (tglCanvasBorder) tglCanvasBorder.checked = !!state.showCanvasBorder;
   }
 
-  [tglShowLatency, tglShowNodeCode, tglShowLinkCode].forEach(el => {
+  [tglShowLatency, tglShowNodeCode, tglShowLinkCode, tglShowNodeTags, tglShowExtraTags].forEach(el => {
     if (!el) return;
     el.addEventListener('change', () => {
       state.ui.showLatency = !!tglShowLatency?.checked;
       state.ui.showNodeCode = !!tglShowNodeCode?.checked;
       state.ui.showLinkCode = !!tglShowLinkCode?.checked;
+      state.ui.showNodeTags = !!tglShowNodeTags?.checked;
+      state.ui.showExtraTags = !!tglShowExtraTags?.checked;
       render();
     });
   });
@@ -1097,7 +1105,7 @@
     zoom: 1,
 
     // UI/global toggles
-    ui: { showLatency: true, showNodeCode: true, showLinkCode: true },
+    ui: { showLatency: true, showNodeCode: true, showLinkCode: true, showNodeTags: false, showExtraTags: false },
 
     // Named style presets (saved inside .ndg)
     stylePresets: { node: {}, edge: {}, group: {} },
@@ -2179,7 +2187,8 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
 
   // View menu - Tag Filter option
   if (miTagFilter) {
-    miTagFilter.addEventListener('click', () => {
+    miTagFilter.addEventListener('click', (ev) => {
+      ev.stopPropagation();
       // Close other menus but not tagFilterMenu
       fileMenu.hidden = true;
       if (editMenu) editMenu.hidden = true;
@@ -2189,14 +2198,18 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       const gridMenu = document.getElementById('gridMenu');
       if (gridMenu) gridMenu.hidden = true;
       
-      if (btnTagFilter && tagFilterMenu) {
+      // Get elements directly to ensure they're found
+      const tagFilterBtn = document.getElementById('btnTagFilter');
+      const tagFilterPanel = document.getElementById('tagFilterMenu');
+      
+      if (tagFilterBtn && tagFilterPanel) {
         updateTagFilterList();
-        tagFilterMenu.hidden = false;
+        tagFilterPanel.hidden = false;
         // Position near the button
-        const rect = btnTagFilter.getBoundingClientRect();
-        tagFilterMenu.style.position = 'fixed';
-        tagFilterMenu.style.left = rect.left + 'px';
-        tagFilterMenu.style.top = rect.bottom + 'px';
+        const rect = tagFilterBtn.getBoundingClientRect();
+        tagFilterPanel.style.position = 'fixed';
+        tagFilterPanel.style.left = rect.left + 'px';
+        tagFilterPanel.style.top = rect.bottom + 'px';
       }
     });
   }
@@ -2994,7 +3007,17 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     tags.setAttribute('class', 'tag-text');
     tags.setAttribute('fill', n.tagColor || "#b7c0df");
     tags.style.fontSize = (n.tagFont || 11) + "px";
-    tags.textContent = (n.tags?.length) ? n.tags.join(', ') : '';
+    
+    // Build tag text based on visibility settings
+    const tagParts = [];
+    if (state.ui.showNodeTags && n.tags?.length) {
+      tagParts.push(n.tags.join(', '));
+    }
+    if (state.ui.showExtraTags && n.extraTags?.trim()) {
+      tagParts.push(n.extraTags.trim());
+    }
+    tags.textContent = tagParts.join(' | ');
+    
     tags.style.pointerEvents = "auto";  // Enable pointer events for Ctrl+drag
     tags.style.cursor = "default";
 
@@ -4426,7 +4449,8 @@ document.getElementById('btnExportLinks').addEventListener('click', () => {
       tagFilter: {
         mode: state.tagFilter.mode,
         selectedTags: Array.from(state.tagFilter.selectedTags)
-      }
+      },
+      ui: state.ui
     };
   }
 
@@ -4577,6 +4601,22 @@ function loadProjectObject(obj) {
     const isFiltering = state.tagFilter.mode !== 'all' && state.tagFilter.selectedTags.size > 0;
     btnTagFilter.classList.toggle('filtering', isFiltering);
   }
+  
+  // Restore UI settings
+  if (obj.ui) {
+    state.ui = { ...state.ui, ...obj.ui };
+  }
+  // Sync UI toggles
+  const tglShowNodeTags = document.getElementById('tglShowNodeTags');
+  const tglShowExtraTags = document.getElementById('tglShowExtraTags');
+  const tglShowLatency = document.getElementById('tglShowLatency');
+  const tglShowNodeCode = document.getElementById('tglShowNodeCode');
+  const tglShowLinkCode = document.getElementById('tglShowLinkCode');
+  if (tglShowLatency) tglShowLatency.checked = !!state.ui.showLatency;
+  if (tglShowNodeCode) tglShowNodeCode.checked = !!state.ui.showNodeCode;
+  if (tglShowLinkCode) tglShowLinkCode.checked = !!state.ui.showLinkCode;
+  if (tglShowNodeTags) tglShowNodeTags.checked = !!state.ui.showNodeTags;
+  if (tglShowExtraTags) tglShowExtraTags.checked = !!state.ui.showExtraTags;
   
   svg.setAttribute('viewBox', `0 0 ${state.canvasWidth} ${state.canvasHeight}`);
   
