@@ -524,6 +524,202 @@
     .node-text { dominant-baseline: middle; }
     .tag-text { dominant-baseline: hanging; opacity:.8; }
 
+    /* Route Finder Highlighting */
+    .node.route-origin .node-circle {
+      stroke: #22c55e !important;
+      stroke-width: 4 !important;
+      filter: drop-shadow(0 0 8px rgba(34,197,94,0.7));
+    }
+    .node.route-dest .node-circle {
+      stroke: #ef4444 !important;
+      stroke-width: 4 !important;
+      filter: drop-shadow(0 0 8px rgba(239,68,68,0.7));
+    }
+    .edge.route-path-1 {
+      stroke: #22c55e !important;
+      stroke-width: 5 !important;
+      filter: drop-shadow(0 0 8px rgba(34,197,94,0.8));
+    }
+    .edge.route-path-2 {
+      stroke: #f59e0b !important;
+      stroke-width: 5 !important;
+      filter: drop-shadow(0 0 8px rgba(245,158,11,0.8));
+    }
+    .edge.route-path-3 {
+      stroke: #f97316 !important;
+      stroke-width: 5 !important;
+      filter: drop-shadow(0 0 8px rgba(249,115,22,0.8));
+    }
+    .node.route-path-node .node-circle {
+      stroke: #0ea5e9 !important;
+      stroke-width: 3 !important;
+      filter: drop-shadow(0 0 6px rgba(14,165,233,0.6));
+    }
+    /* Implicit route segments (dashed) */
+    .route-implicit-segment {
+      stroke-dasharray: 8,4;
+      opacity: 0.85;
+    }
+
+    /* Route Finder Panel - Inspector Style */
+    #routeFinderPanel {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      width: 320px;
+      max-height: calc(100vh - 160px);
+      background: #ffffff;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      z-index: 99;
+      flex-direction: column;
+      overflow: hidden;
+      resize: horizontal;
+      min-width: 280px;
+      max-width: 450px;
+    }
+    #routeFinderPanel.visible {
+      display: flex !important;
+    }
+    #routeFinderPanel:not(.visible) {
+      display: none !important;
+    }
+    #routeFinderPanel.minimized {
+      height: 40px !important;
+      max-height: 40px;
+      resize: none;
+    }
+    #routeFinderHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      border-bottom: 1px solid #16a34a;
+      cursor: move;
+      user-select: none;
+    }
+    #routeFinderHeader h3 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+    #routeFinderControls {
+      display: flex;
+      gap: 4px;
+    }
+    #routeFinderControls button {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #routeFinderControls button:hover { background: rgba(255,255,255,0.3); }
+    #routeFinderContent {
+      flex: 1;
+      overflow-y: auto;
+    }
+    #routeFinderPanel.minimized #routeFinderContent {
+      display: none;
+    }
+    
+    /* Route option cards */
+    .route-option {
+      padding: 10px 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: #fff;
+    }
+    .route-option:last-child {
+      margin-bottom: 0;
+    }
+    .route-option:hover {
+      border-color: #0096D6;
+      background: #f8fbfd;
+    }
+    .route-option.active {
+      border-color: #22c55e;
+      background: #f0fdf4;
+      box-shadow: 0 0 0 2px rgba(34,197,94,0.2);
+    }
+    .route-option.active.route-2 {
+      border-color: #f59e0b;
+      background: #fffbeb;
+      box-shadow: 0 0 0 2px rgba(245,158,11,0.2);
+    }
+    .route-option.active.route-3 {
+      border-color: #f97316;
+      background: #fff7ed;
+      box-shadow: 0 0 0 2px rgba(249,115,22,0.2);
+    }
+    .route-option-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .route-option-rank {
+      font-size: 16px;
+    }
+    .route-option-title {
+      font-weight: 600;
+      font-size: 12px;
+      color: #333;
+    }
+    .route-option-cost {
+      font-size: 13px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #f0f0f0;
+    }
+    .route-option.active .route-option-cost {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .route-option.active.route-2 .route-option-cost {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .route-option.active.route-3 .route-option-cost {
+      background: #ffedd5;
+      color: #9a3412;
+    }
+    .route-option-path {
+      font-size: 11px;
+      color: #666;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+    .route-option-stats {
+      display: flex;
+      gap: 12px;
+      margin-top: 6px;
+      font-size: 10px;
+      color: #888;
+    }
+    .route-no-path {
+      padding: 20px;
+      text-align: center;
+      color: #666;
+    }
+    .route-no-path-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
     .toast {
       position:absolute; right:14px; bottom:14px; background:#333; border:1px solid #222;
       color:#fff; padding:10px 16px; border-radius:8px; max-width: 520px; font-size: 13px; opacity:0;
@@ -1821,6 +2017,19 @@
     </div>
     
     <div style="flex:1;"></div>
+    
+    <!-- Route Finder Button -->
+    <button class="tool-btn" id="btnRouteFinder" type="button" title="Route Finder - Find optimal paths between nodes">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Path/route icon -->
+        <circle cx="5" cy="5" r="3" fill="#22c55e" stroke="#22c55e"/>
+        <circle cx="19" cy="19" r="3" fill="#ef4444" stroke="#ef4444"/>
+        <path d="M7 7 L12 12 L17 17" stroke-dasharray="3,2"/>
+        <path d="M5 8 L5 16 L8 19" stroke-width="1.5"/>
+        <path d="M8 5 L16 5 L19 8" stroke-width="1.5"/>
+      </svg>
+      <span style="font-size:11px; margin-left:4px;">Routes</span>
+    </button>
   </div>
 </header>
 
@@ -2182,8 +2391,9 @@
               <input id="edgeCapacity" placeholder="e.g. 100G" />
             </div>
             <div>
-              <label>Priority</label>
-              <input id="edgePriority" type="number" min="0" max="9999" step="0.01" placeholder="100" />
+              <label>Priority (-100 to +100)</label>
+              <input id="edgePriority" type="number" min="-100" max="100" step="1" placeholder="0" />
+              <div class="hint">+100 = half cost (preferred), -100 = 1.5× cost (avoided)</div>
             </div>
           </div>
         </div>
@@ -2601,6 +2811,103 @@
       <div style="padding:8px 12px; border-top:1px solid #e0e0e0; display:flex; gap:8px;">
         <button class="btn primary" id="btnNewCableSystem" style="flex:1;">+ New</button>
         <button class="btn" id="btnDeleteCableSystem" style="flex:1;">Delete</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Route Finder Panel (Inspector Style) -->
+  <aside id="routeFinderPanel">
+    <div id="routeFinderHeader">
+      <h3>🛤️ Route Finder</h3>
+      <div id="routeFinderControls">
+        <button id="btnCloseRouteFinder" title="Exit Route Finder">✕</button>
+      </div>
+    </div>
+    <div id="routeFinderContent">
+      <!-- Mode Indicator -->
+      <div style="padding:10px 12px; background:linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-bottom:1px solid #93c5fd;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:16px;">🧭</span>
+          <div>
+            <div style="font-weight:600; font-size:12px; color:#1e40af;">Calculation Mode Active</div>
+            <div style="font-size:11px; color:#3b82f6;">Click nodes or use dropdowns to select endpoints</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Endpoint Selection Section -->
+      <div class="inspector-section" data-section="route-endpoints">
+        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>Endpoints</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content">
+          <div class="row">
+            <label style="color:#166534; font-weight:600;">🟢 Origin (A-Node)</label>
+            <select id="routeOriginSelect" style="width:100%; padding:8px; border:2px solid #86efac; border-radius:4px; background:#f0fff4; font-size:12px;">
+              <option value="">-- Click a node or select from list --</option>
+            </select>
+          </div>
+          <div class="row">
+            <label style="color:#991b1b; font-weight:600;">🔴 Destination (B-Node)</label>
+            <select id="routeDestSelect" style="width:100%; padding:8px; border:2px solid #fca5a5; border-radius:4px; background:#fef2f2; font-size:12px;">
+              <option value="">-- Click a node or select from list --</option>
+            </select>
+          </div>
+          <div class="row" style="display:flex; gap:8px; margin-top:12px;">
+            <button class="btn" id="btnSwapEndpoints" style="flex:1;">⇄ Swap</button>
+            <button class="btn primary" id="btnCalculateRoutes" style="flex:1;" disabled>🔍 Calculate</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Routes Results Section -->
+      <div class="inspector-section" data-section="route-results" id="routeResultsSection" style="display:none;">
+        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>Routes Found</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content" id="routeResultsContent">
+          <!-- Route options will be dynamically inserted here -->
+        </div>
+      </div>
+
+      <!-- Route Details Section -->
+      <div class="inspector-section collapsed" data-section="route-details" id="routeDetailsSection" style="display:none;">
+        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>Route Details</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content" id="routeDetailsContent">
+          <!-- Selected route details will be shown here -->
+        </div>
+      </div>
+
+      <!-- Settings Section -->
+      <div class="inspector-section collapsed" data-section="route-settings">
+        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>Settings</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content">
+          <div class="row">
+            <label>Container Latency (ms)</label>
+            <input id="routeContainerLatency" type="number" value="1" min="0.000001" step="0.1" style="width:100%;" />
+            <div class="hint">Implicit connection within same container</div>
+          </div>
+          <div class="row">
+            <label>Region Latency (ms)</label>
+            <input id="routeRegionLatency" type="number" value="10" min="0.000001" step="1" style="width:100%;" />
+            <div class="hint">Implicit connection between sibling containers</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Exit Button -->
+      <div style="padding:12px; border-top:1px solid #e0e0e0;">
+        <button class="btn" id="btnExitRouteFinder" style="width:100%; background:#f3f4f6; border-color:#d1d5db;">
+          ← Exit Route Finder (Return to Edit Mode)
+        </button>
       </div>
     </div>
   </aside>
@@ -6550,6 +6857,11 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       ev.stopPropagation();
       const m = getMouse(ev);
       
+      // In calculation mode, don't allow group dragging/selection
+      if (window.routeFinderState && window.routeFinderState.active) {
+        return;
+      }
+      
       // In link mode, don't allow group dragging
       if (linkMode) {
         return;
@@ -6813,6 +7125,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       const p = document.createElementNS('http://www.w3.org/2000/svg','path');
       p.setAttribute('d', orthogonalPath(ax,ay,bx,by, e.route || 'hv'));
       p.setAttribute('class', 'edge' + (isSel ? ' selected' : ''));
+      p.setAttribute('data-edge-id', e.id);
       p.setAttribute('stroke-width', (e.strokeW ?? 2));
       p.setAttribute('stroke', e.strokeColor || "#7f8aa6");
       // Apply line style
@@ -6831,6 +7144,8 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       hitArea.style.cursor = 'pointer';
       hitArea.addEventListener('click', (ev) => { 
         ev.stopPropagation(); 
+        // Ignore clicks in calculation mode
+        if (window.routeFinderState && window.routeFinderState.active) return;
         // Handle cable system add mode
         if (typeof handleAddModeClick === 'function' && handleAddModeClick('edge', e.id)) {
           return;
@@ -6858,6 +7173,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       const p = document.createElementNS('http://www.w3.org/2000/svg','path');
       p.setAttribute('d', quadraticCurvePath(ax, ay, bx, by, e.curveArch || 0.3));
       p.setAttribute('class', 'edge' + (isSel ? ' selected' : ''));
+      p.setAttribute('data-edge-id', e.id);
       p.setAttribute('stroke-width', (e.strokeW ?? 2));
       p.setAttribute('stroke', e.strokeColor || "#7f8aa6");
       p.setAttribute('fill', 'none');
@@ -6877,6 +7193,8 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       hitArea.style.cursor = 'pointer';
       hitArea.addEventListener('click', (ev) => { 
         ev.stopPropagation(); 
+        // Ignore clicks in calculation mode
+        if (window.routeFinderState && window.routeFinderState.active) return;
         // Handle cable system add mode
         if (typeof handleAddModeClick === 'function' && handleAddModeClick('edge', e.id)) {
           return;
@@ -6926,6 +7244,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       line.setAttribute('x1', ax); line.setAttribute('y1', ay);
       line.setAttribute('x2', bx); line.setAttribute('y2', by);
       line.setAttribute('class', 'edge' + (isSel ? ' selected' : ''));
+      line.setAttribute('data-edge-id', e.id);
       line.setAttribute('stroke-width', (e.strokeW ?? 2));
       line.setAttribute('stroke', e.strokeColor || "#7f8aa6");
       // Apply line style
@@ -6945,6 +7264,8 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       hitArea.style.cursor = 'pointer';
       hitArea.addEventListener('click', (ev) => { 
         ev.stopPropagation(); 
+        // Ignore clicks in calculation mode
+        if (window.routeFinderState && window.routeFinderState.active) return;
         // Handle cable system add mode
         if (typeof handleAddModeClick === 'function' && handleAddModeClick('edge', e.id)) {
           return;
@@ -7302,6 +7623,15 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
           return;
         }
         
+        // Handle calculation mode (Route Finder) - intercept clicks to set origin/destination
+        if (window.routeFinderState && window.routeFinderState.active) {
+          ev.stopPropagation();
+          if (typeof handleCalculationModeNodeClick === 'function') {
+            handleCalculationModeNodeClick(n.id);
+          }
+          return;
+        }
+        
         // Check if this was actually a drag operation (only matters outside link mode)
         if (state.dragging) {
           console.log(`[NODE CLICK] Node ${n.id} - Was dragging, letting global handler clear state`);
@@ -7337,6 +7667,12 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       if (linkMode) {
         ev.stopPropagation();
         console.log(`[NODE MOUSEDOWN] Node ${n.id} - in link mode, skipping drag setup`);
+        return;
+      }
+      
+      // In calculation mode (Route Finder), don't drag - let mouseup handle selection
+      if (window.routeFinderState && window.routeFinderState.active) {
+        ev.stopPropagation();
         return;
       }
 
@@ -7729,7 +8065,7 @@ const groupTitle = document.getElementById('groupTitle');
       }
       if (edgeFilterTags) edgeFilterTags.value = edgeTagsArray.join(', ');
       edgeLatency.value = (typeof e.latencyMs === "number" && isFinite(e.latencyMs)) ? e.latencyMs : '';
-      if (edgePriority) edgePriority.value = (typeof e.priority === "number" && isFinite(e.priority)) ? e.priority : 100;
+      if (edgePriority) edgePriority.value = (typeof e.priority === "number" && isFinite(e.priority)) ? e.priority : 0;
       edgeExtraTags.value = e.extraTags || '';
       edgeCode.value = e.code || '';
       edgeStyle.value = e.style || 'straight';
@@ -7976,7 +8312,7 @@ if (edgePriority) edgePriority.addEventListener('input', () => {
   if (state.selected?.type!=='edge') return;
   const e = findEdge(state.selected.id); if (!e) return;
   const val = parseFloat(edgePriority.value);
-  e.priority = isNaN(val) ? 100 : val;
+  e.priority = isNaN(val) ? 0 : val;
   commit(); render();
 });
 
@@ -8485,7 +8821,7 @@ if (groupTitleFontInline) {
       strokeW:2,
       strokeColor:"#666666",
       capacity:'Up to 10G WL',
-      priority: 100,
+      priority: 0,
       cableSystemId: null,  // ID of associated cable system (null = unmapped)
       code: `L-${id}`,
       showCode: true,
@@ -8712,8 +9048,8 @@ if (groupTitleFontInline) {
     const m = getMouse(ev);
     state.lastMouse = { x: m.x, y: m.y };
 
-    // Alt+drag for marquee selection
-    if (ev.altKey) {
+    // Alt+drag for marquee selection (disabled in calculation mode)
+    if (ev.altKey && !(window.routeFinderState && window.routeFinderState.active)) {
       state.marquee = { x0: m.x, y0: m.y, x: m.x, y: m.y, w: 0, h: 0, additive: ev.shiftKey };
       if (!state.marquee.additive) clearSelection();
       state.connectFrom = null;
@@ -9113,7 +9449,7 @@ document.getElementById('btnExportLinks').addEventListener('click', () => {
       escapeCSV(e.code || ''),
       escapeCSV((typeof e.latencyMs === "number" && isFinite(e.latencyMs)) ? e.latencyMs : ''),
       escapeCSV(e.capacity || ''),
-      escapeCSV((typeof e.priority === "number" && isFinite(e.priority)) ? e.priority : 100),
+      escapeCSV((typeof e.priority === "number" && isFinite(e.priority)) ? e.priority : 0),
       escapeCSV(e.extraTags || '')
     ];
     
@@ -9382,7 +9718,7 @@ function loadProjectObject(obj) {
     strokeW: (typeof e.strokeW === 'number') ? e.strokeW : 2,
     strokeColor: e.strokeColor || '#7f8aa6',
     capacity: e.capacity || 'Up to 10G WL',
-    priority: (typeof e.priority === 'number') ? e.priority : 100,
+    priority: (typeof e.priority === 'number') ? e.priority : 0,
     cableSystemId: (e.cableSystemId !== undefined) ? e.cableSystemId : null,  // Backward compatible
     curveArch: (typeof e.curveArch === 'number') ? e.curveArch : 0.3,
     uuid: e.uuid || generateUUID(),
@@ -11210,6 +11546,882 @@ function loadProjectObject(obj) {
   loadShapeLibrary();
 
   // ============== END SHAPE LIBRARY SYSTEM ==============
+
+  // ============== ROUTE FINDER / PATHFINDING SYSTEM ==============
+  
+  // Route finder state - includes calculation mode
+  const routeFinderState = {
+    active: false,            // Whether route finder (calculation mode) is active
+    originNodeId: null,
+    destNodeId: null,
+    routes: [],               // Array of route objects
+    activeRouteIndex: 0,      // Which route is currently highlighted
+    
+    // Default latencies for implicit connections (ms)
+    containerLatency: 1,      // Nodes in same container
+    regionLatency: 10,        // Containers in same region
+    minLatency: 0.000001      // Floor for zero/undefined latency
+  };
+  
+  // Expose globally for checking in event handlers
+  window.routeFinderState = routeFinderState;
+
+  // Cost calculation: latency × (1 - priority/200)
+  // Priority ranges from -100 to +100
+  // At priority 0: cost = latency (neutral)
+  // At priority +100: cost = latency × 0.5 (half cost, preferred)
+  // At priority -100: cost = latency × 1.5 (50% more cost, avoided)
+  // Note: We divide by 200 instead of 100 to ensure cost never reaches zero
+  function calculateEdgeCost(latency, priority) {
+    const lat = (latency && latency > 0) ? latency : routeFinderState.minLatency;
+    const pri = (typeof priority === 'number') ? Math.max(-100, Math.min(100, priority)) : 0;
+    const cost = lat * (1 - pri / 200);  // Changed from /100 to /200
+    return cost;
+  }
+
+  // Build pathfinding graph from current state
+  function buildPathfindingGraph() {
+    const adjacency = new Map();
+    const nodeIds = new Set(state.nodes.map(n => n.id));
+    
+    // Initialize adjacency lists
+    nodeIds.forEach(id => adjacency.set(id, []));
+    
+    // 1. Add explicit edges (bidirectional)
+    state.edges.forEach(edge => {
+      const nodeA = findNode(edge.a);
+      const nodeB = findNode(edge.b);
+      if (!nodeA || !nodeB) return;
+      
+      const cost = calculateEdgeCost(edge.latencyMs, edge.priority);
+      const latencyDisplay = edge.latencyMs || routeFinderState.minLatency;
+      
+      adjacency.get(edge.a).push({
+        to: edge.b,
+        cost,
+        edgeId: edge.id,
+        implicit: false,
+        latency: latencyDisplay,
+        description: `${nodeA.name || 'N'+nodeA.id} → ${nodeB.name || 'N'+nodeB.id}`
+      });
+      adjacency.get(edge.b).push({
+        to: edge.a,
+        cost,
+        edgeId: edge.id,
+        implicit: false,
+        latency: latencyDisplay,
+        description: `${nodeB.name || 'N'+nodeB.id} → ${nodeA.name || 'N'+nodeA.id}`
+      });
+    });
+    
+    // 2. Add implicit edges within same container
+    const containerNodes = new Map();
+    state.nodes.forEach(n => {
+      if (n.groupId) {
+        if (!containerNodes.has(n.groupId)) containerNodes.set(n.groupId, []);
+        containerNodes.get(n.groupId).push(n.id);
+      }
+    });
+    
+    containerNodes.forEach((nodeIdsInContainer, groupId) => {
+      const group = findGroup(groupId);
+      const containerName = group?.title || 'Container';
+      const latency = routeFinderState.containerLatency;
+      const cost = calculateEdgeCost(latency, 0);
+      
+      for (let i = 0; i < nodeIdsInContainer.length; i++) {
+        for (let j = i + 1; j < nodeIdsInContainer.length; j++) {
+          const a = nodeIdsInContainer[i];
+          const b = nodeIdsInContainer[j];
+          
+          const hasExplicit = state.edges.some(e => 
+            (e.a === a && e.b === b) || (e.a === b && e.b === a)
+          );
+          
+          if (!hasExplicit) {
+            adjacency.get(a).push({
+              to: b, cost, edgeId: null, implicit: true, containerId: groupId,
+              latency, description: `via ${containerName}`
+            });
+            adjacency.get(b).push({
+              to: a, cost, edgeId: null, implicit: true, containerId: groupId,
+              latency, description: `via ${containerName}`
+            });
+          }
+        }
+      }
+    });
+    
+    // 3. Add implicit edges between sibling containers (same parent region)
+    const regionContainers = new Map();
+    state.groups.forEach(g => {
+      if (g.type === 'country' && g.parentId) {
+        if (!regionContainers.has(g.parentId)) regionContainers.set(g.parentId, []);
+        regionContainers.get(g.parentId).push(g.id);
+      }
+    });
+    
+    regionContainers.forEach((containerIds, regionId) => {
+      const region = findGroup(regionId);
+      const regionName = region?.title || 'Region';
+      const latency = routeFinderState.regionLatency;
+      const cost = calculateEdgeCost(latency, 0);
+      
+      for (let i = 0; i < containerIds.length; i++) {
+        for (let j = i + 1; j < containerIds.length; j++) {
+          const containerA = containerIds[i];
+          const containerB = containerIds[j];
+          const nodesA = containerNodes.get(containerA) || [];
+          const nodesB = containerNodes.get(containerB) || [];
+          
+          nodesA.forEach(a => {
+            nodesB.forEach(b => {
+              const hasExplicit = state.edges.some(e => 
+                (e.a === a && e.b === b) || (e.a === b && e.b === a)
+              );
+              
+              if (!hasExplicit) {
+                adjacency.get(a).push({
+                  to: b, cost, edgeId: null, implicit: true, regionId,
+                  latency, description: `via ${regionName}`
+                });
+                adjacency.get(b).push({
+                  to: a, cost, edgeId: null, implicit: true, regionId,
+                  latency, description: `via ${regionName}`
+                });
+              }
+            });
+          });
+        }
+      }
+    });
+    
+    return { adjacency, nodeIds };
+  }
+
+  // Dijkstra's algorithm
+  function dijkstra(adjacency, source, excludeEdges = new Set()) {
+    const dist = new Map();
+    const prev = new Map();
+    const visited = new Set();
+    const pq = [];
+    
+    adjacency.forEach((_, node) => {
+      dist.set(node, Infinity);
+      prev.set(node, null);
+    });
+    dist.set(source, 0);
+    pq.push({ node: source, cost: 0 });
+    
+    while (pq.length > 0) {
+      pq.sort((a, b) => a.cost - b.cost);
+      const { node: u } = pq.shift();
+      
+      if (visited.has(u)) continue;
+      visited.add(u);
+      
+      const neighbors = adjacency.get(u) || [];
+      for (const edge of neighbors) {
+        const edgeKey = `${Math.min(u, edge.to)}-${Math.max(u, edge.to)}-${edge.edgeId || 'implicit'}`;
+        if (excludeEdges.has(edgeKey)) continue;
+        
+        const v = edge.to;
+        const alt = dist.get(u) + edge.cost;
+        
+        if (alt < dist.get(v)) {
+          dist.set(v, alt);
+          prev.set(v, { from: u, edge });
+          pq.push({ node: v, cost: alt });
+        }
+      }
+    }
+    
+    return { dist, prev };
+  }
+
+  // Reconstruct path
+  function reconstructPath(prev, source, target) {
+    if (prev.get(target) === null && target !== source) return null;
+    
+    const path = [];
+    const segments = [];
+    let current = target;
+    
+    while (current !== null && current !== source) {
+      const prevInfo = prev.get(current);
+      if (!prevInfo) break;
+      path.unshift(current);
+      segments.unshift(prevInfo.edge);
+      current = prevInfo.from;
+    }
+    
+    if (current === source) {
+      path.unshift(source);
+      return { path, segments };
+    }
+    return null;
+  }
+
+  // Yen's K-Shortest Paths Algorithm
+  function findKShortestPaths(source, target, k = 3) {
+    const graph = buildPathfindingGraph();
+    const { adjacency } = graph;
+    
+    if (!adjacency.has(source) || !adjacency.has(target)) return [];
+    
+    const A = [];
+    const B = [];
+    
+    const { dist, prev } = dijkstra(adjacency, source);
+    const firstPath = reconstructPath(prev, source, target);
+    
+    if (!firstPath) return [];
+    
+    A.push({ path: firstPath.path, segments: firstPath.segments, totalCost: dist.get(target) });
+    
+    for (let i = 1; i < k; i++) {
+      const prevPath = A[i - 1];
+      
+      for (let j = 0; j < prevPath.path.length - 1; j++) {
+        const spurNode = prevPath.path[j];
+        const rootPath = prevPath.path.slice(0, j + 1);
+        const rootSegments = prevPath.segments.slice(0, j);
+        
+        let rootCost = 0;
+        rootSegments.forEach(seg => rootCost += seg.cost);
+        
+        const excludeEdges = new Set();
+        
+        A.forEach(path => {
+          if (arraysEqual(path.path.slice(0, j + 1), rootPath)) {
+            if (j < path.segments.length) {
+              const seg = path.segments[j];
+              const edgeKey = `${Math.min(spurNode, seg.to)}-${Math.max(spurNode, seg.to)}-${seg.edgeId || 'implicit'}`;
+              excludeEdges.add(edgeKey);
+            }
+          }
+        });
+        
+        rootPath.slice(0, -1).forEach(nodeInRoot => {
+          adjacency.get(spurNode)?.forEach(edge => {
+            if (edge.to === nodeInRoot) {
+              const edgeKey = `${Math.min(spurNode, edge.to)}-${Math.max(spurNode, edge.to)}-${edge.edgeId || 'implicit'}`;
+              excludeEdges.add(edgeKey);
+            }
+          });
+        });
+        
+        const spurResult = dijkstra(adjacency, spurNode, excludeEdges);
+        const spurPath = reconstructPath(spurResult.prev, spurNode, target);
+        
+        if (spurPath && spurPath.path.length > 1) {
+          const totalPath = [...rootPath.slice(0, -1), ...spurPath.path];
+          const totalSegments = [...rootSegments, ...spurPath.segments];
+          const totalCost = rootCost + spurResult.dist.get(target);
+          
+          const pathStr = totalPath.join('-');
+          const isDuplicate = B.some(p => p.path.join('-') === pathStr);
+          
+          if (!isDuplicate) {
+            B.push({ path: totalPath, segments: totalSegments, totalCost });
+          }
+        }
+      }
+      
+      if (B.length === 0) break;
+      
+      B.sort((a, b) => a.totalCost - b.totalCost);
+      const best = B.shift();
+      
+      const bestPathStr = best.path.join('-');
+      if (!A.some(p => p.path.join('-') === bestPathStr)) {
+        A.push(best);
+      }
+    }
+    
+    return A;
+  }
+  
+  function arraysEqual(a, b) {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
+  }
+
+  // ============== ROUTE FINDER UI ==============
+  
+  const routeFinderPanel = document.getElementById('routeFinderPanel');
+  const routeOriginSelect = document.getElementById('routeOriginSelect');
+  const routeDestSelect = document.getElementById('routeDestSelect');
+  const btnCalculateRoutes = document.getElementById('btnCalculateRoutes');
+  const btnSwapEndpoints = document.getElementById('btnSwapEndpoints');
+  const btnCloseRouteFinder = document.getElementById('btnCloseRouteFinder');
+  const btnExitRouteFinder = document.getElementById('btnExitRouteFinder');
+  const routeResultsSection = document.getElementById('routeResultsSection');
+  const routeResultsContent = document.getElementById('routeResultsContent');
+  const routeDetailsSection = document.getElementById('routeDetailsSection');
+  const routeDetailsContent = document.getElementById('routeDetailsContent');
+  const routeContainerLatency = document.getElementById('routeContainerLatency');
+  const routeRegionLatency = document.getElementById('routeRegionLatency');
+
+  // Enter calculation mode (Route Finder)
+  function enterCalculationMode() {
+    console.log('[ROUTE FINDER] === ENTERING CALCULATION MODE ===');
+    routeFinderState.active = true;
+    routeFinderState.originNodeId = null;
+    routeFinderState.destNodeId = null;
+    routeFinderState.routes = [];
+    routeFinderState.activeRouteIndex = 0;
+    
+    // Show panel
+    const panel = document.getElementById('routeFinderPanel');
+    console.log('[ROUTE FINDER] Panel element found:', !!panel);
+    if (panel) {
+      panel.classList.add('visible');
+      console.log('[ROUTE FINDER] Panel should now be visible');
+    } else {
+      console.error('[ROUTE FINDER] ERROR: Panel element not found!');
+      showToast('Error: Route Finder panel not found');
+      return;
+    }
+    
+    // Update button state
+    const btn = document.getElementById('btnRouteFinder');
+    if (btn) btn.classList.add('primary');
+    
+    // Clear any current selection
+    clearSelection();
+    render();
+    
+    // Populate node dropdowns
+    populateNodeDropdowns();
+    
+    // Update UI
+    updateRouteFinderUI();
+    
+    console.log('[ROUTE FINDER] Calculation mode active, showing toast');
+    showToast('🧭 CALCULATION MODE - Select Origin and Destination nodes');
+  }
+
+  // Exit calculation mode
+  function exitCalculationMode() {
+    console.log('[ROUTE FINDER] Exiting calculation mode');
+    routeFinderState.active = false;
+    
+    // Hide panel
+    const panel = document.getElementById('routeFinderPanel');
+    if (panel) {
+      panel.classList.remove('visible');
+    }
+    
+    // Update button state
+    const btn = document.getElementById('btnRouteFinder');
+    if (btn) btn.classList.remove('primary');
+    
+    // Clear highlights
+    clearRouteHighlights();
+    
+    showToast('✏️ Edit Mode: Normal editing restored');
+  }
+
+  // Toggle Route Finder (calculation mode)
+  function toggleRouteFinder() {
+    console.log('[ROUTE FINDER] Toggle called');
+    console.log('[ROUTE FINDER] Current state.active =', routeFinderState.active);
+    console.log('[ROUTE FINDER] Panel element:', routeFinderPanel);
+    console.log('[ROUTE FINDER] Panel has visible class:', routeFinderPanel?.classList.contains('visible'));
+    
+    if (routeFinderState.active) {
+      console.log('[ROUTE FINDER] -> Calling exitCalculationMode');
+      exitCalculationMode();
+    } else {
+      console.log('[ROUTE FINDER] -> Calling enterCalculationMode');
+      enterCalculationMode();
+    }
+  }
+  
+  // Expose globally
+  window.toggleRouteFinder = toggleRouteFinder;
+
+  // Populate node dropdowns with all nodes
+  function populateNodeDropdowns() {
+    if (!routeOriginSelect || !routeDestSelect) return;
+    
+    // Sort nodes by name
+    const sortedNodes = [...state.nodes].sort((a, b) => {
+      const nameA = (a.name || '').toLowerCase();
+      const nameB = (b.name || '').toLowerCase();
+      return nameA.localeCompare(nameB);
+    });
+    
+    // Build options HTML
+    let optionsHtml = '<option value="">-- Click a node or select --</option>';
+    sortedNodes.forEach(node => {
+      const displayName = node.name || `Node ${node.id}`;
+      const code = node.code ? ` [${node.code}]` : '';
+      optionsHtml += `<option value="${node.id}">${displayName}${code}</option>`;
+    });
+    
+    routeOriginSelect.innerHTML = optionsHtml;
+    routeDestSelect.innerHTML = optionsHtml;
+  }
+
+  // Handle node click in calculation mode
+  function handleCalculationModeNodeClick(nodeId) {
+    if (!routeFinderState.active) return false;
+    
+    const node = findNode(nodeId);
+    if (!node) return false;
+    
+    // If no origin set, set this as origin
+    if (!routeFinderState.originNodeId) {
+      routeFinderState.originNodeId = nodeId;
+      showToast(`🟢 Origin: ${node.name || 'Node ' + nodeId}`);
+    }
+    // If origin set but no destination, set this as destination
+    else if (!routeFinderState.destNodeId) {
+      if (nodeId === routeFinderState.originNodeId) {
+        showToast('⚠️ Destination cannot be same as origin');
+        return true;
+      }
+      routeFinderState.destNodeId = nodeId;
+      showToast(`🔴 Destination: ${node.name || 'Node ' + nodeId}`);
+    }
+    // If both set, replace destination
+    else {
+      if (nodeId === routeFinderState.originNodeId) {
+        showToast('⚠️ Cannot select origin as destination');
+        return true;
+      }
+      routeFinderState.destNodeId = nodeId;
+      showToast(`🔴 New Destination: ${node.name || 'Node ' + nodeId}`);
+    }
+    
+    // Clear previous routes
+    routeFinderState.routes = [];
+    routeFinderState.activeRouteIndex = 0;
+    
+    updateRouteFinderUI();
+    highlightEndpoints();
+    
+    return true; // Handled
+  }
+
+  // Update Route Finder UI
+  function updateRouteFinderUI() {
+    // Update dropdowns
+    if (routeOriginSelect) {
+      routeOriginSelect.value = routeFinderState.originNodeId || '';
+    }
+    if (routeDestSelect) {
+      routeDestSelect.value = routeFinderState.destNodeId || '';
+    }
+    
+    // Update calculate button
+    const canCalculate = routeFinderState.originNodeId && routeFinderState.destNodeId;
+    if (btnCalculateRoutes) btnCalculateRoutes.disabled = !canCalculate;
+    
+    // Update routes section
+    if (routeFinderState.routes.length > 0) {
+      if (routeResultsSection) routeResultsSection.style.display = 'block';
+      displayRouteResults();
+    } else {
+      if (routeResultsSection) routeResultsSection.style.display = 'none';
+      if (routeDetailsSection) routeDetailsSection.style.display = 'none';
+    }
+  }
+
+  // Calculate routes
+  function calculateRoutes() {
+    if (!routeFinderState.originNodeId || !routeFinderState.destNodeId) {
+      showToast('Please select both origin and destination');
+      return;
+    }
+    
+    // Update latency settings from inputs
+    if (routeContainerLatency) {
+      routeFinderState.containerLatency = parseFloat(routeContainerLatency.value) || 1;
+    }
+    if (routeRegionLatency) {
+      routeFinderState.regionLatency = parseFloat(routeRegionLatency.value) || 10;
+    }
+    
+    const routes = findKShortestPaths(
+      routeFinderState.originNodeId,
+      routeFinderState.destNodeId,
+      3
+    );
+    
+    routeFinderState.routes = routes;
+    routeFinderState.activeRouteIndex = 0;
+    
+    updateRouteFinderUI();
+    
+    if (routes.length > 0) {
+      highlightActiveRoute();
+      showToast(`✅ Found ${routes.length} route${routes.length > 1 ? 's' : ''}`);
+    } else {
+      clearRouteHighlights();
+      highlightEndpoints();
+      showToast('❌ No path found between selected nodes');
+    }
+  }
+
+  // Display route results
+  function displayRouteResults() {
+    if (!routeResultsContent) return;
+    
+    routeResultsContent.innerHTML = '';
+    
+    if (routeFinderState.routes.length === 0) {
+      routeResultsContent.innerHTML = `
+        <div style="padding:20px; text-align:center; color:#666;">
+          <div style="font-size:32px; margin-bottom:8px;">🚫</div>
+          <div><strong>No path found</strong></div>
+          <div style="font-size:11px; margin-top:4px;">Nodes are not connected</div>
+        </div>
+      `;
+      return;
+    }
+    
+    const routeLabels = ['Best Route', 'Alternative 1', 'Alternative 2'];
+    const routeIcons = ['🥇', '🥈', '🥉'];
+    const routeColors = ['#22c55e', '#f59e0b', '#f97316'];
+    
+    routeFinderState.routes.forEach((route, index) => {
+      const nodeNames = route.path.map(id => {
+        const n = findNode(id);
+        return n?.name || 'N' + id;
+      });
+      
+      const hops = route.path.length - 1;
+      const implicitCount = route.segments.filter(s => s.implicit).length;
+      const isActive = index === routeFinderState.activeRouteIndex;
+      
+      const option = document.createElement('div');
+      option.className = 'route-option' + (isActive ? ' active' : '');
+      option.style.borderLeftColor = routeColors[index];
+      option.style.borderLeftWidth = '4px';
+      if (isActive) {
+        option.style.background = index === 0 ? '#f0fdf4' : (index === 1 ? '#fffbeb' : '#fff7ed');
+      }
+      option.dataset.routeIndex = index;
+      option.innerHTML = `
+        <div class="route-option-header">
+          <span class="route-option-title">
+            <span style="font-size:16px;">${routeIcons[index]}</span> ${routeLabels[index]}
+          </span>
+          <span class="route-option-cost" style="background:${isActive ? routeColors[index] : '#e5e7eb'}; color:${isActive ? 'white' : '#374151'}; padding:3px 8px; border-radius:4px; font-weight:600;">
+            ${route.totalCost.toFixed(3)} ms
+          </span>
+        </div>
+        <div class="route-option-path" style="margin:6px 0; font-size:11px; color:#555; word-break:break-word;">
+          ${nodeNames.join(' → ')}
+        </div>
+        <div class="route-option-stats" style="display:flex; gap:12px; font-size:10px; color:#888;">
+          <span>📍 ${hops} hop${hops !== 1 ? 's' : ''}</span>
+          ${implicitCount > 0 ? `<span>⋯ ${implicitCount} implicit</span>` : ''}
+        </div>
+      `;
+      
+      option.addEventListener('click', () => selectRoute(index));
+      routeResultsContent.appendChild(option);
+    });
+  }
+
+  // Select and highlight a route
+  function selectRoute(index) {
+    routeFinderState.activeRouteIndex = index;
+    
+    // Update UI
+    displayRouteResults();
+    
+    // Show route details
+    showRouteDetails(routeFinderState.routes[index]);
+    
+    // Highlight on canvas
+    highlightActiveRoute();
+  }
+
+  // Show detailed route info
+  function showRouteDetails(route) {
+    if (!routeDetailsSection || !routeDetailsContent) return;
+    
+    routeDetailsSection.style.display = 'block';
+    routeDetailsSection.classList.remove('collapsed');
+    
+    let html = '<div style="font-size:11px;">';
+    
+    route.segments.forEach((seg, i) => {
+      const fromNode = findNode(route.path[i]);
+      const toNode = findNode(route.path[i + 1]);
+      const fromName = fromNode?.name || 'N' + route.path[i];
+      const toName = toNode?.name || 'N' + route.path[i + 1];
+      
+      const isImplicit = seg.implicit;
+      const latency = seg.latency || routeFinderState.minLatency;
+      
+      html += `
+        <div style="padding:6px 0; border-bottom:1px solid #f0f0f0; display:flex; align-items:center; gap:8px;">
+          <span style="color:#888; font-size:10px; width:20px;">${i + 1}.</span>
+          <span style="flex:1;">
+            <strong>${fromName}</strong> → <strong>${toName}</strong>
+            ${isImplicit ? '<span style="color:#f59e0b; font-size:10px;"> (implicit)</span>' : ''}
+          </span>
+          <span style="color:#666; font-size:10px;">${latency.toFixed(3)} ms</span>
+        </div>
+      `;
+    });
+    
+    html += `
+      <div style="padding:8px 0; margin-top:4px; font-weight:600; display:flex; justify-content:space-between;">
+        <span>Total Cost:</span>
+        <span>${route.totalCost.toFixed(3)} ms</span>
+      </div>
+    </div>`;
+    
+    routeDetailsContent.innerHTML = html;
+  }
+
+  // Clear route highlights from SVG
+  function clearRouteHighlights() {
+    svg.querySelectorAll('.node.route-origin, .node.route-dest, .node.route-path-node').forEach(el => {
+      el.classList.remove('route-origin', 'route-dest', 'route-path-node');
+    });
+    svg.querySelectorAll('.edge.route-path-1, .edge.route-path-2, .edge.route-path-3').forEach(el => {
+      el.classList.remove('route-path-1', 'route-path-2', 'route-path-3');
+    });
+    svg.querySelectorAll('.route-implicit-segment').forEach(el => el.remove());
+  }
+
+  // Highlight just the endpoints
+  function highlightEndpoints() {
+    clearRouteHighlights();
+    
+    if (routeFinderState.originNodeId) {
+      const el = svg.querySelector(`g.node[data-node-id="${routeFinderState.originNodeId}"]`);
+      if (el) el.classList.add('route-origin');
+    }
+    
+    if (routeFinderState.destNodeId) {
+      const el = svg.querySelector(`g.node[data-node-id="${routeFinderState.destNodeId}"]`);
+      if (el) el.classList.add('route-dest');
+    }
+  }
+
+  // Highlight active route on SVG
+  function highlightActiveRoute() {
+    clearRouteHighlights();
+    highlightEndpoints();
+    
+    if (routeFinderState.routes.length === 0) return;
+    
+    const route = routeFinderState.routes[routeFinderState.activeRouteIndex];
+    const routeClass = `route-path-${routeFinderState.activeRouteIndex + 1}`;
+    const routeColors = ['#22c55e', '#f59e0b', '#f97316'];
+    const color = routeColors[routeFinderState.activeRouteIndex];
+    
+    // Highlight intermediate nodes
+    route.path.slice(1, -1).forEach(nodeId => {
+      const el = svg.querySelector(`g.node[data-node-id="${nodeId}"]`);
+      if (el) el.classList.add('route-path-node');
+    });
+    
+    // Highlight edges
+    route.segments.forEach((segment, i) => {
+      if (segment.edgeId) {
+        const edgeEl = svg.querySelector(`.edge[data-edge-id="${segment.edgeId}"]`);
+        if (edgeEl) {
+          edgeEl.classList.add(routeClass);
+        }
+      } else if (segment.implicit) {
+        // Draw implicit edge
+        const fromId = route.path[i];
+        const toId = route.path[i + 1];
+        const from = findNode(fromId);
+        const to = findNode(toId);
+        
+        if (from && to) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          line.setAttribute('d', `M${from.x},${from.y} L${to.x},${to.y}`);
+          line.setAttribute('stroke', color);
+          line.setAttribute('stroke-width', '5');
+          line.setAttribute('stroke-dasharray', '10,5');
+          line.setAttribute('fill', 'none');
+          line.setAttribute('opacity', '0.9');
+          line.classList.add('route-implicit-segment');
+          line.style.filter = `drop-shadow(0 0 6px ${color})`;
+          
+          const gridEl = svg.querySelector('.grid');
+          if (gridEl && gridEl.nextSibling) {
+            svg.insertBefore(line, gridEl.nextSibling);
+          } else {
+            svg.appendChild(line);
+          }
+        }
+      }
+    });
+  }
+
+  // Swap endpoints
+  function swapEndpoints() {
+    const temp = routeFinderState.originNodeId;
+    routeFinderState.originNodeId = routeFinderState.destNodeId;
+    routeFinderState.destNodeId = temp;
+    
+    routeFinderState.routes = [];
+    routeFinderState.activeRouteIndex = 0;
+    
+    updateRouteFinderUI();
+    highlightEndpoints();
+    showToast('⇄ Endpoints swapped');
+  }
+
+  // Event listeners
+  const rfBtn = document.getElementById('btnRouteFinder');
+  let rfBtnClickInProgress = false;
+  if (rfBtn) {
+    rfBtn.addEventListener('click', function(ev) {
+      ev.stopPropagation();
+      ev.preventDefault();
+      
+      // Prevent double-firing
+      if (rfBtnClickInProgress) {
+        console.log('[ROUTE FINDER] Click already in progress, ignoring');
+        return;
+      }
+      rfBtnClickInProgress = true;
+      
+      console.log('[ROUTE FINDER] Button clicked');
+      toggleRouteFinder();
+      
+      // Reset flag after a short delay
+      setTimeout(() => { rfBtnClickInProgress = false; }, 100);
+    });
+  } else {
+    console.error('[ROUTE FINDER] Button not found!');
+  }
+
+  if (btnCloseRouteFinder) {
+    btnCloseRouteFinder.addEventListener('click', exitCalculationMode);
+  }
+  
+  if (btnExitRouteFinder) {
+    btnExitRouteFinder.addEventListener('click', exitCalculationMode);
+  }
+
+  if (routeOriginSelect) {
+    routeOriginSelect.addEventListener('change', () => {
+      const val = parseInt(routeOriginSelect.value, 10);
+      if (!isNaN(val)) {
+        if (val === routeFinderState.destNodeId) {
+          showToast('⚠️ Origin cannot be same as destination');
+          routeOriginSelect.value = routeFinderState.originNodeId || '';
+          return;
+        }
+        routeFinderState.originNodeId = val;
+        routeFinderState.routes = [];
+        updateRouteFinderUI();
+        highlightEndpoints();
+      } else {
+        routeFinderState.originNodeId = null;
+        routeFinderState.routes = [];
+        updateRouteFinderUI();
+        highlightEndpoints();
+      }
+    });
+  }
+  
+  if (routeDestSelect) {
+    routeDestSelect.addEventListener('change', () => {
+      const val = parseInt(routeDestSelect.value, 10);
+      if (!isNaN(val)) {
+        if (val === routeFinderState.originNodeId) {
+          showToast('⚠️ Destination cannot be same as origin');
+          routeDestSelect.value = routeFinderState.destNodeId || '';
+          return;
+        }
+        routeFinderState.destNodeId = val;
+        routeFinderState.routes = [];
+        updateRouteFinderUI();
+        highlightEndpoints();
+      } else {
+        routeFinderState.destNodeId = null;
+        routeFinderState.routes = [];
+        updateRouteFinderUI();
+        highlightEndpoints();
+      }
+    });
+  }
+
+  if (btnCalculateRoutes) btnCalculateRoutes.addEventListener('click', calculateRoutes);
+  if (btnSwapEndpoints) btnSwapEndpoints.addEventListener('click', swapEndpoints);
+
+  // Make Route Finder panel draggable
+  const routeFinderHeader = document.getElementById('routeFinderHeader');
+  let rfPanelDragging = false;
+  let rfPanelDragOffset = { x: 0, y: 0 };
+  
+  if (routeFinderHeader && routeFinderPanel) {
+    routeFinderHeader.style.cursor = 'move';
+    
+    routeFinderHeader.addEventListener('mousedown', (ev) => {
+      // Don't drag if clicking on buttons
+      if (ev.target.tagName === 'BUTTON' || ev.target.closest('button')) return;
+      
+      rfPanelDragging = true;
+      const rect = routeFinderPanel.getBoundingClientRect();
+      rfPanelDragOffset.x = ev.clientX - rect.left;
+      rfPanelDragOffset.y = ev.clientY - rect.top;
+      routeFinderPanel.style.cursor = 'grabbing';
+      ev.preventDefault();
+    });
+    
+    window.addEventListener('mousemove', (ev) => {
+      if (!rfPanelDragging) return;
+      
+      const layout = document.getElementById('layout');
+      const layoutRect = layout.getBoundingClientRect();
+      
+      let newLeft = ev.clientX - layoutRect.left - rfPanelDragOffset.x;
+      let newTop = ev.clientY - layoutRect.top - rfPanelDragOffset.y;
+      
+      // Constrain to layout bounds
+      newLeft = Math.max(0, Math.min(newLeft, layoutRect.width - routeFinderPanel.offsetWidth));
+      newTop = Math.max(0, Math.min(newTop, layoutRect.height - 50));
+      
+      routeFinderPanel.style.left = newLeft + 'px';
+      routeFinderPanel.style.top = newTop + 'px';
+      routeFinderPanel.style.right = 'auto';
+    });
+    
+    window.addEventListener('mouseup', () => {
+      if (rfPanelDragging) {
+        rfPanelDragging = false;
+        routeFinderPanel.style.cursor = '';
+      }
+    });
+  }
+
+  // Keyboard shortcuts
+  window.addEventListener('keydown', (ev) => {
+    // Escape to exit calculation mode
+    if (ev.key === 'Escape' && routeFinderState.active) {
+      exitCalculationMode();
+      return;
+    }
+    
+    // R to toggle route finder
+    if (ev.key.toLowerCase() === 'r' && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) {
+      toggleRouteFinder();
+    }
+  });
+
+  // ============== END ROUTE FINDER / PATHFINDING SYSTEM ==============
+
+
 
   showToast('Welcome to NetMap Studio — double-click to create a node.');
 })();
