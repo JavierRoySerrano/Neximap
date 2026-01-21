@@ -492,7 +492,51 @@
       filter: drop-shadow(0 0 3px rgba(0,150,214,0.4));
     }
     .group-label { font-weight:600; user-select:none; cursor: default; }
-    .group-handle { fill:#888; opacity:.7; cursor:nwse-resize; }
+    /* Container resize handles - invisible but functional (same as nodes) */
+    .group-handle { 
+      fill: transparent; 
+      stroke: none;
+      cursor: nwse-resize; 
+      pointer-events: auto;
+    }
+    .group-handle.handle-nw { cursor: nwse-resize; }
+    .group-handle.handle-ne { cursor: nesw-resize; }
+    .group-handle.handle-sw { cursor: nesw-resize; }
+    .group-handle.handle-se { cursor: nwse-resize; }
+    .group-selected .group-handle,
+    .group:hover .group-handle { 
+      fill: rgba(0, 150, 214, 0.15); 
+      stroke: rgba(0, 150, 214, 0.4);
+      stroke-width: 1;
+    }
+    .group-handle:hover { 
+      fill: rgba(0, 150, 214, 0.3) !important; 
+      stroke: #0096D6 !important;
+      stroke-width: 1.5 !important;
+    }
+    
+    /* Node resize handles - invisible but functional */
+    .node-resize-handle { 
+      fill: transparent; 
+      stroke: none;
+      cursor: nwse-resize; 
+      pointer-events: auto;
+    }
+    .node-resize-handle.handle-nw { cursor: nwse-resize; }
+    .node-resize-handle.handle-ne { cursor: nesw-resize; }
+    .node-resize-handle.handle-sw { cursor: nesw-resize; }
+    .node-resize-handle.handle-se { cursor: nwse-resize; }
+    .node.selected .node-resize-handle,
+    .node:hover .node-resize-handle { 
+      fill: rgba(0, 150, 214, 0.15); 
+      stroke: rgba(0, 150, 214, 0.4);
+      stroke-width: 1;
+    }
+    .node-resize-handle:hover { 
+      fill: rgba(0, 150, 214, 0.3) !important; 
+      stroke: #0096D6 !important;
+      stroke-width: 1.5 !important;
+    }
 
     .edge { fill:none; }
     .edge.selected { stroke:#0096D6 !important; stroke-width: 3 !important; filter: drop-shadow(0 0 3px rgba(0,150,214,0.5)); }
@@ -1127,6 +1171,8 @@
         max-width: 100%;
       }
       .grid { display: none !important; }
+      .group-handle { display: none !important; }
+      .node-resize-handle { display: none !important; }
     }
 
     /* Shape Library Panel */
@@ -3230,6 +3276,7 @@
     connectFrom: null,
     dragging: null,
     resizingGroup: null,
+    resizingNode: null,
     placingGroup: false,
     defaultNodeShape: 'circle',
     placingGroupType: 'country',
@@ -3755,6 +3802,9 @@
     const clone = svg.cloneNode(true);
 
     clone.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+    // Remove resize handles - they are editing aids, not part of the diagram
+    clone.querySelectorAll('.group-handle').forEach(el => el.remove());
+    clone.querySelectorAll('.node-resize-handle').forEach(el => el.remove());
     clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
     clone.setAttribute('xmlns:xlink','http://www.w3.org/1999/xlink');
 
@@ -6681,6 +6731,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     state.connectFrom = null;
     state.dragging = null;
     state.resizingGroup = null;
+    state.resizingNode = null;
     state.placingGroup = false;
     state.placingGroupType = 'country';
 
@@ -6939,6 +6990,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
 
   function drawGroup(g) {
     const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
+    grp.classList.add('group'); // Base class for hover effects
     const isSel = (state.selected?.type==='group' && state.selected?.id===g.id) || state.selection.groups.has(g.id);
     if (isSel) grp.classList.add('group-selected');
 
@@ -7072,12 +7124,46 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     }
     label.style.pointerEvents = "auto";
 
-    const handle = document.createElementNS('http://www.w3.org/2000/svg','rect');
-    handle.setAttribute('x', g.x + g.w - 10);
-    handle.setAttribute('y', g.y + g.h - 10);
-    handle.setAttribute('width', 10);
-    handle.setAttribute('height', 10);
-    handle.setAttribute('class', 'group-handle');
+    // Create 4 resize handles (one for each corner)
+    const handleSize = 10;
+    const handlePositions = [
+      { corner: 'nw', x: g.x, y: g.y },
+      { corner: 'ne', x: g.x + g.w - handleSize, y: g.y },
+      { corner: 'sw', x: g.x, y: g.y + g.h - handleSize },
+      { corner: 'se', x: g.x + g.w - handleSize, y: g.y + g.h - handleSize }
+    ];
+    
+    const handles = handlePositions.map(pos => {
+      const handle = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      handle.setAttribute('x', pos.x);
+      handle.setAttribute('y', pos.y);
+      handle.setAttribute('width', handleSize);
+      handle.setAttribute('height', handleSize);
+      handle.setAttribute('rx', 2);
+      handle.setAttribute('ry', 2);
+      handle.setAttribute('class', `group-handle handle-${pos.corner}`);
+      handle.setAttribute('data-corner', pos.corner);
+      
+      handle.addEventListener('mousedown', (ev) => {
+        ev.stopPropagation();
+        const m = getMouse(ev);
+        select({type:'group', id:g.id});
+        state.resizingGroup = { 
+          id: g.id, 
+          corner: pos.corner,
+          startX: g.x, 
+          startY: g.y, 
+          startW: g.w, 
+          startH: g.h, 
+          mx0: m.x, 
+          my0: m.y 
+        };
+        state.connectFrom = null;
+        render();
+      });
+      
+      return handle;
+    });
 
     rect.addEventListener('mousedown', (ev) => {
       ev.stopPropagation();
@@ -7137,15 +7223,6 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       render();
     });
 
-    handle.addEventListener('mousedown', (ev) => {
-      ev.stopPropagation();
-      const m = getMouse(ev);
-      select({type:'group', id:g.id});
-      state.resizingGroup = { id: g.id, startW: g.w, startH: g.h, mx0: m.x, my0: m.y };
-      state.connectFrom = null;
-      render();
-    });
-
     rect.addEventListener('mouseup', (ev) => {
       // Don't stop propagation - let global handler clear dragging state
       // Just restore cursor
@@ -7192,7 +7269,8 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     grp.appendChild(rect);
     if (shapeEl) grp.appendChild(shapeEl);
     grp.appendChild(label);
-    grp.appendChild(handle);
+    // Append all 4 corner handles
+    handles.forEach(h => grp.appendChild(h));
     svg.appendChild(grp);
   }
 
@@ -7582,6 +7660,54 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     svg.appendChild(label);
   }
 
+  // Calculate node bounding box based on shape and size
+  function getNodeBounds(n) {
+    const r = n.r ?? 24;
+    const shape = n.shape || 'circle';
+    
+    let x, y, w, h;
+    
+    switch (shape) {
+      case 'square':
+        x = n.x - r;
+        y = n.y - r;
+        w = r * 2;
+        h = r * 2;
+        break;
+      case 'rectangle':
+        x = n.x - r * 1.35;
+        y = n.y - r * 0.85;
+        w = r * 2.7;
+        h = r * 1.7;
+        break;
+      case 'ellipse':
+        x = n.x - r * 1.35;
+        y = n.y - r * 0.9;
+        w = r * 2.7;
+        h = r * 1.8;
+        break;
+      case 'triangle':
+        x = n.x - r * 1.25;
+        y = n.y - r * 1.25;
+        w = r * 2.5;
+        h = r * 2.5;
+        break;
+      case 'hexagon':
+        x = n.x - r * 1.2;
+        y = n.y - r * 1.2;
+        w = r * 2.4;
+        h = r * 2.4;
+        break;
+      default: // circle
+        x = n.x - r;
+        y = n.y - r;
+        w = r * 2;
+        h = r * 2;
+    }
+    
+    return { x, y, w, h };
+  }
+
   function drawNode(n) {
     // console.log(`[DRAW] Creating node ${n.id} at (${n.x}, ${n.y})`);
     const g = document.createElementNS('http://www.w3.org/2000/svg','g');
@@ -7822,6 +7948,47 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       hitArea.style.cursor = 'pointer';
       g.appendChild(hitArea);
     }
+
+    // Add resize handles at corners (invisible but functional)
+    const handleSize = 8;
+    const nodeBounds = getNodeBounds(n);
+    const nodeHandlePositions = [
+      { corner: 'nw', x: nodeBounds.x, y: nodeBounds.y },
+      { corner: 'ne', x: nodeBounds.x + nodeBounds.w - handleSize, y: nodeBounds.y },
+      { corner: 'sw', x: nodeBounds.x, y: nodeBounds.y + nodeBounds.h - handleSize },
+      { corner: 'se', x: nodeBounds.x + nodeBounds.w - handleSize, y: nodeBounds.y + nodeBounds.h - handleSize }
+    ];
+    
+    nodeHandlePositions.forEach(pos => {
+      const resizeHandle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      resizeHandle.setAttribute('x', pos.x);
+      resizeHandle.setAttribute('y', pos.y);
+      resizeHandle.setAttribute('width', handleSize);
+      resizeHandle.setAttribute('height', handleSize);
+      resizeHandle.setAttribute('rx', 2);
+      resizeHandle.setAttribute('ry', 2);
+      resizeHandle.setAttribute('class', `node-resize-handle handle-${pos.corner}`);
+      resizeHandle.setAttribute('data-corner', pos.corner);
+      
+      resizeHandle.addEventListener('mousedown', (ev) => {
+        ev.stopPropagation();
+        const m = getMouse(ev);
+        select({type:'node', id:n.id});
+        state.resizingNode = {
+          id: n.id,
+          corner: pos.corner,
+          startR: r,
+          startX: n.x,
+          startY: n.y,
+          mx0: m.x,
+          my0: m.y
+        };
+        state.connectFrom = null;
+        render();
+      });
+      
+      g.appendChild(resizeHandle);
+    });
 
     // Handle clicks on the node group (for link mode and regular selection)
     // Use mouseup instead of click to ensure it fires even after mousedown's stopPropagation
@@ -9476,9 +9643,82 @@ if (groupTitleFontInline) {
       if (!g) return;
       const dx = m.x - state.resizingGroup.mx0;
       const dy = m.y - state.resizingGroup.my0;
-      g.w = Math.max(120, state.resizingGroup.startW + dx);
-      g.h = Math.max(90, state.resizingGroup.startH + dy);
+      const corner = state.resizingGroup.corner || 'se';
+      const minW = 120;
+      const minH = 90;
+      
+      switch (corner) {
+        case 'se': // Bottom-right: just resize width and height
+          g.w = Math.max(minW, state.resizingGroup.startW + dx);
+          g.h = Math.max(minH, state.resizingGroup.startH + dy);
+          break;
+        case 'sw': // Bottom-left: move x, resize width inversely, resize height
+          {
+            const newW = Math.max(minW, state.resizingGroup.startW - dx);
+            const newX = state.resizingGroup.startX + state.resizingGroup.startW - newW;
+            g.x = newX;
+            g.w = newW;
+            g.h = Math.max(minH, state.resizingGroup.startH + dy);
+          }
+          break;
+        case 'ne': // Top-right: move y, resize width, resize height inversely
+          {
+            const newH = Math.max(minH, state.resizingGroup.startH - dy);
+            const newY = state.resizingGroup.startY + state.resizingGroup.startH - newH;
+            g.y = newY;
+            g.h = newH;
+            g.w = Math.max(minW, state.resizingGroup.startW + dx);
+          }
+          break;
+        case 'nw': // Top-left: move both x and y, resize both inversely
+          {
+            const newW = Math.max(minW, state.resizingGroup.startW - dx);
+            const newH = Math.max(minH, state.resizingGroup.startH - dy);
+            const newX = state.resizingGroup.startX + state.resizingGroup.startW - newW;
+            const newY = state.resizingGroup.startY + state.resizingGroup.startH - newH;
+            g.x = newX;
+            g.y = newY;
+            g.w = newW;
+            g.h = newH;
+          }
+          break;
+      }
       refreshAllMemberships();
+      render();
+      return;
+    }
+
+    // Handle node resizing
+    if (state.resizingNode) {
+      const n = findNode(state.resizingNode.id);
+      if (!n) return;
+      const dx = m.x - state.resizingNode.mx0;
+      const dy = m.y - state.resizingNode.my0;
+      const corner = state.resizingNode.corner || 'se';
+      const minR = 10;
+      const maxR = 80;
+      
+      // Calculate the distance moved (use the larger of dx or dy for uniform scaling)
+      let delta;
+      switch (corner) {
+        case 'se':
+          delta = Math.max(dx, dy);
+          break;
+        case 'sw':
+          delta = Math.max(-dx, dy);
+          break;
+        case 'ne':
+          delta = Math.max(dx, -dy);
+          break;
+        case 'nw':
+          delta = Math.max(-dx, -dy);
+          break;
+      }
+      
+      // Scale the radius based on the drag distance
+      const newR = Math.min(maxR, Math.max(minR, state.resizingNode.startR + delta / 2));
+      n.r = newR;
+      
       render();
       return;
     }
@@ -9641,6 +9881,7 @@ if (groupTitleFontInline) {
       state.marquee = null;
       state.dragging = null;
       state.resizingGroup = null;
+      state.resizingNode = null;
       render();
       return;
     }
@@ -9658,8 +9899,14 @@ if (groupTitleFontInline) {
       commit();
     }
     
+    // Commit changes if we were resizing a node
+    if (state.resizingNode) {
+      commit();
+    }
+    
     state.dragging = null;
     state.resizingGroup = null;
+    state.resizingNode = null;
     
     // Render if we were dragging to update cursor/state
     if (wasDragging) {
@@ -10163,6 +10410,7 @@ function loadProjectObject(obj) {
   state.connectFrom = null;
   state.dragging = null;
   state.resizingGroup = null;
+  state.resizingNode = null;
   state.placingGroup = false;
   state.placingGroupType = 'country';
   state.styleBrush = null;
@@ -13743,6 +13991,10 @@ function loadProjectObject(obj) {
     clone.querySelectorAll('.node-selected, .edge.selected, .group-selected').forEach(el => {
       el.classList.remove('node-selected', 'selected', 'group-selected');
     });
+    
+    // Remove resize handles - they are editing aids, not part of the printed output
+    clone.querySelectorAll('.group-handle').forEach(el => el.remove());
+    clone.querySelectorAll('.node-resize-handle').forEach(el => el.remove());
     
     // Remove marquee if any
     const marquee = clone.querySelector('.marquee');
