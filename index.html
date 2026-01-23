@@ -10491,7 +10491,14 @@ function loadProjectObject(obj) {
     nameDy: (typeof n.nameDy === 'number') ? n.nameDy : 0,
     tagDx: (typeof n.tagDx === 'number') ? n.tagDx : 0,
     tagDy: (typeof n.tagDy === 'number') ? n.tagDy : 0,
-    uuid: n.uuid || generateUUID()
+    uuid: n.uuid || generateUUID(),
+    // Custom SVG shape data - embedded for library independence
+    customSvg: n.customSvg || null,
+    libraryShapeId: n.libraryShapeId || null,
+    // Additional properties
+    lineStyle: n.lineStyle || 'solid',
+    showName: n.showName !== false,
+    showTag: n.showTag !== false
   }));
 
   state.edges = ee.map(e => ({
@@ -10515,7 +10522,14 @@ function loadProjectObject(obj) {
     cableSystemId: (e.cableSystemId !== undefined) ? e.cableSystemId : null,  // Backward compatible
     curveArch: (typeof e.curveArch === 'number') ? e.curveArch : 0.3,
     uuid: e.uuid || generateUUID(),
-    filterTags: Array.isArray(e.filterTags) ? e.filterTags : ['default']
+    filterTags: Array.isArray(e.filterTags) ? e.filterTags : ['default'],
+    lineStyle: e.lineStyle || 'solid',
+    // Additional label properties
+    tagColor: e.tagColor || '#eaeaea',
+    tagSize: (typeof e.tagSize === 'number') ? e.tagSize : 12,
+    tagFont: e.tagFont || 'Arial',
+    showLatency: e.showLatency !== false,
+    showTag: e.showTag !== false
   }));
 
   // Load cable systems (backward compatible - empty array if not present)
@@ -10548,7 +10562,22 @@ function loadProjectObject(obj) {
     titleColor: g.titleColor || '#eaeaea',
     titleFont: (typeof g.titleFont === 'number') ? g.titleFont : (g.type==='region' ? 15 : 14),
     titleDx: (typeof g.titleDx === 'number') ? g.titleDx : 0,
-    titleDy: (typeof g.titleDy === 'number') ? g.titleDy : 0
+    titleDy: (typeof g.titleDy === 'number') ? g.titleDy : 0,
+    // Shape container properties - embedded shape data for library independence
+    shapeContainer: g.shapeContainer || false,
+    decorativeShape: g.decorativeShape ? {
+      id: g.decorativeShape.id,
+      svgData: g.decorativeShape.svgData,
+      pathData: g.decorativeShape.pathData,
+      viewBox: g.decorativeShape.viewBox,
+      name: g.decorativeShape.name,
+      aspectRatio: g.decorativeShape.aspectRatio
+    } : null,
+    // Additional properties
+    filterTags: Array.isArray(g.filterTags) ? g.filterTags : ['default'],
+    showTitle: g.showTitle !== false,
+    lineStyle: g.lineStyle || 'solid',
+    transitLatency: (typeof g.transitLatency === 'number') ? g.transitLatency : null
   }));
 
   state.nextNode = (typeof obj.nextNode === 'number') ? obj.nextNode : (Math.max(0, ...state.nodes.map(n=>n.id)) + 1);
