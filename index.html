@@ -492,28 +492,12 @@
       filter: drop-shadow(0 0 3px rgba(0,150,214,0.4));
     }
     .group-label { font-weight:600; user-select:none; cursor: default; }
-    /* Container resize handles - invisible but functional (same as nodes) */
-    .group-handle { 
-      fill: transparent; 
-      stroke: none;
-      cursor: nwse-resize; 
-      pointer-events: auto;
-    }
-    .group-handle.handle-nw { cursor: nwse-resize; }
-    .group-handle.handle-ne { cursor: nesw-resize; }
-    .group-handle.handle-sw { cursor: nesw-resize; }
-    .group-handle.handle-se { cursor: nwse-resize; }
-    .group-selected .group-handle,
-    .group:hover .group-handle { 
-      fill: rgba(0, 150, 214, 0.15); 
-      stroke: rgba(0, 150, 214, 0.4);
-      stroke-width: 1;
-    }
-    .group-handle:hover { 
-      fill: rgba(0, 150, 214, 0.3) !important; 
-      stroke: #0096D6 !important;
-      stroke-width: 1.5 !important;
-    }
+    .group-handle { fill:#888; opacity:.7; cursor:nwse-resize; }
+    .group-handle.handle-nw { cursor:nwse-resize; }
+    .group-handle.handle-ne { cursor:nesw-resize; }
+    .group-handle.handle-sw { cursor:nesw-resize; }
+    .group-handle.handle-se { cursor:nwse-resize; }
+    .group-handle:hover { fill:#555; opacity:1; }
     
     /* Node resize handles - invisible but functional */
     .node-resize-handle { 
@@ -2661,6 +2645,21 @@
         </div>
       </div>
 
+      <!-- Routing Section -->
+      <div class="inspector-section" data-section="group-routing">
+        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>⚡ Routing</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content">
+          <div class="row">
+            <label>Transit Latency (ms)</label>
+            <input id="groupTransitLatency" type="number" min="0" step="0.1" placeholder="Default: use global setting" />
+            <div class="hint" style="margin-top:4px;">Latency added when routing through this container. Leave empty to use global default.</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Appearance Section -->
       <div class="inspector-section" data-section="group-appearance">
         <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
@@ -2745,21 +2744,6 @@
               <label>Height</label>
               <input id="groupH" type="number" min="90" />
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Routing Section -->
-      <div class="inspector-section" data-section="group-routing">
-        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
-          <span>🔀 Routing</span>
-          <span class="section-icon">▼</span>
-        </div>
-        <div class="inspector-section-content">
-          <div class="row">
-            <label>Internal Transit Time (ms)</label>
-            <input id="groupInternalLatency" type="number" min="0" step="0.1" placeholder="Default: 1ms / 10ms" />
-            <div class="hint" style="margin-top:4px;">Implicit latency between nodes inside this container. Used by Route Finder for paths without explicit links.</div>
           </div>
         </div>
       </div>
@@ -3034,10 +3018,60 @@
             </div>
           </div>
 
-          <!-- Clear All -->
+          <!-- Clear All Exclusions -->
           <div class="row" style="margin-top:12px;">
             <button class="btn" id="btnClearAllRestrictions" style="width:100%; font-size:11px; padding:6px; background:#fef2f2; border-color:#fecaca; color:#991b1b;">
-              🗑️ Clear All Restrictions
+              🗑️ Clear All Exclusions
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Must-Use Constraints Section -->
+      <div class="inspector-section collapsed" data-section="route-must-use">
+        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>✅ Must-Use Constraints</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content">
+          <div class="hint" style="margin-bottom:10px; padding:6px; background:#f0fdf4; border-radius:4px; color:#166534;">
+            Force routes to pass through specific nodes or links.
+          </div>
+          
+          <!-- Must-Use Nodes -->
+          <div class="row">
+            <label style="font-weight:600; color:#16a34a; font-size:11px;">Must-Use Nodes</label>
+            <div style="display:flex; gap:4px; margin-top:4px;">
+              <select id="routeMustUseNodeSelect" style="flex:1; padding:6px; font-size:11px; border-radius:4px; border:1px solid #ddd;">
+                <option value="">-- Select node (must pass through) --</option>
+              </select>
+              <button class="btn" id="btnAddMustUseNode" style="padding:6px 10px; font-size:11px; background:#f0fdf4; border-color:#86efac;" title="Add must-use node">+</button>
+              <button class="btn" id="btnPickMustUseNode" style="padding:6px 10px; font-size:11px; background:#f0fdf4; border-color:#86efac;" title="Click on canvas to pick">⊕</button>
+            </div>
+            <div id="mustUseNodesList" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:4px;">
+              <!-- Must-use nodes will appear here as tags -->
+            </div>
+          </div>
+
+          <!-- Must-Use Links -->
+          <div class="row" style="margin-top:12px;">
+            <label style="font-weight:600; color:#16a34a; font-size:11px;">Must-Use Links</label>
+            <div style="display:flex; gap:4px; margin-top:4px;">
+              <select id="routeMustUseLinkSelect" style="flex:1; padding:6px; font-size:11px; border-radius:4px; border:1px solid #ddd;">
+                <option value="">-- Select link (must use) --</option>
+              </select>
+              <button class="btn" id="btnAddMustUseLink" style="padding:6px 10px; font-size:11px; background:#f0fdf4; border-color:#86efac;" title="Add must-use link">+</button>
+              <button class="btn" id="btnPickMustUseLink" style="padding:6px 10px; font-size:11px; background:#f0fdf4; border-color:#86efac;" title="Click on canvas to pick">⊕</button>
+            </div>
+            <div id="mustUseLinksList" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:4px;">
+              <!-- Must-use links will appear here as tags -->
+            </div>
+          </div>
+
+          <!-- Clear All Must-Use -->
+          <div class="row" style="margin-top:12px;">
+            <button class="btn" id="btnClearAllMustUse" style="width:100%; font-size:11px; padding:6px; background:#f0fdf4; border-color:#86efac; color:#166534;">
+              🗑️ Clear All Must-Use Constraints
             </button>
           </div>
         </div>
@@ -3073,14 +3107,28 @@
         </div>
         <div class="inspector-section-content">
           <div class="row">
-            <label>Container Latency (ms)</label>
-            <input id="routeContainerLatency" type="number" value="1" min="0.000001" step="0.1" style="width:100%;" />
-            <div class="hint">Implicit connection within same container</div>
+            <label class="toggle-item" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="routeEnableContainerTransit" checked style="accent-color:#0096D6;" />
+              <span style="font-weight:600;">Enable Container Transit</span>
+            </label>
+            <div class="hint">When enabled, nodes within the same container can connect implicitly. Disable to only use explicit links.</div>
           </div>
           <div class="row">
-            <label>Region Latency (ms)</label>
+            <label class="toggle-item" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="routeEnableRegionTransit" checked style="accent-color:#0096D6;" />
+              <span style="font-weight:600;">Enable Region Transit</span>
+            </label>
+            <div class="hint">When enabled, nodes in sibling containers (same region) can connect implicitly.</div>
+          </div>
+          <div class="row" id="containerLatencyRow">
+            <label>Default Container Latency (ms)</label>
+            <input id="routeContainerLatency" type="number" value="1" min="0.000001" step="0.1" style="width:100%;" />
+            <div class="hint">Implicit connection within same container. Can be overridden per-container in Inspector → Routing.</div>
+          </div>
+          <div class="row" id="regionLatencyRow">
+            <label>Default Region Latency (ms)</label>
             <input id="routeRegionLatency" type="number" value="10" min="0.000001" step="1" style="width:100%;" />
-            <div class="hint">Implicit connection between sibling containers</div>
+            <div class="hint">Implicit connection between sibling containers. Can be overridden per-group in Inspector → Routing.</div>
           </div>
         </div>
       </div>
@@ -4661,7 +4709,74 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
 
   // Check if a node should be visible based on current filter
   function isNodeVisible(node) {
-    // Check Container Filter first (if exclusive, this is the only filter that matters)
+    // ========== CHECK EXCLUSIVE MODES FIRST ==========
+    // If Tag Filter is exclusive, ONLY apply tag filter (bypass all other filters)
+    if (state.tagFilter.exclusive && state.tagFilter.mode !== 'all') {
+      const nodeTags = getNodeTags(node);
+      const selectedTags = state.tagFilter.selectedTags;
+      if (selectedTags.size === 0) return true;
+      
+      let hasSelectedTag = false;
+      for (const tag of nodeTags) {
+        if (selectedTags.has(tag)) {
+          hasSelectedTag = true;
+          break;
+        }
+      }
+      
+      if (state.tagFilter.mode === 'include') {
+        // Node is visible if it has a selected tag
+        if (hasSelectedTag) return true;
+        
+        // OR if any connected edge has a selected tag
+        const connectedEdges = state.edges.filter(e => e.a === node.id || e.b === node.id);
+        for (const edge of connectedEdges) {
+          const edgeTags = getEdgeTags(edge);
+          for (const tag of edgeTags) {
+            if (selectedTags.has(tag)) {
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+      if (state.tagFilter.mode === 'exclude') return !hasSelectedTag;
+      return true;
+    }
+    
+    // If Cable System Filter is exclusive, ONLY apply cable system filter (bypass container/node/tag filters)
+    if (state.cableSystemFilter.exclusive && 
+        state.cableSystemFilter.mode === 'selected' && 
+        state.cableSystemFilter.selectedSystems.size > 0) {
+      const nodeCSIds = node.cableSystemIds || [];
+      const isUnmapped = nodeCSIds.length === 0;
+      
+      if (isUnmapped && state.cableSystemFilter.showUnmapped) {
+        return true;
+      }
+      // Check if node belongs to any selected cable system
+      for (const csId of nodeCSIds) {
+        if (state.cableSystemFilter.selectedSystems.has(csId)) {
+          return true;
+        }
+      }
+      // Also check if any connected edge belongs to a selected cable system
+      const connectedEdges = state.edges.filter(e => e.a === node.id || e.b === node.id);
+      for (const edge of connectedEdges) {
+        const edgeCSId = edge.cableSystemId;
+        if (edgeCSId && state.cableSystemFilter.selectedSystems.has(edgeCSId)) {
+          return true;
+        }
+        // Check if edge is unmapped and we're showing unmapped
+        if ((edgeCSId === null || edgeCSId === undefined) && state.cableSystemFilter.showUnmapped) {
+          return true;
+        }
+      }
+      return false;
+    }
+    
+    // ========== NORMAL FILTER HIERARCHY ==========
+    // Check Container Filter first
     if (state.containerFilter.mode === 'selected' && 
         (state.containerFilter.selectedBoxes.size > 0 || state.containerFilter.selectedGroups.size > 0)) {
       
@@ -4686,7 +4801,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       if (!passesContainerFilter) return false;
     }
     
-    // Check Node Filter (if exclusive, this is the only filter that matters)
+    // Check Node Filter
     if (state.nodeFilter.mode === 'selected' && state.nodeFilter.selectedNodes.size > 0) {
       const passesNodeFilter = state.nodeFilter.selectedNodes.has(node.id);
       if (state.nodeFilter.exclusive) {
@@ -4695,7 +4810,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       if (!passesNodeFilter) return false;
     }
     
-    // Check Cable System Filter (if exclusive, this is the only filter that matters)
+    // Check Cable System Filter (non-exclusive mode)
     if (state.cableSystemFilter.mode === 'selected' && state.cableSystemFilter.selectedSystems.size > 0) {
       const nodeCSIds = node.cableSystemIds || [];
       const isUnmapped = nodeCSIds.length === 0;
@@ -4713,32 +4828,28 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
         }
       }
       
-      if (state.cableSystemFilter.exclusive) {
-        return passesCSFilter;
-      }
-      if (!passesCSFilter) return false;
-    }
-    
-    // Check Tag Filter
-    if (state.tagFilter.mode === 'all') return true;
-    if (state.tagFilter.exclusive) {
-      // Only apply tag filter
-      const nodeTags = getNodeTags(node);
-      const selectedTags = state.tagFilter.selectedTags;
-      if (selectedTags.size === 0) return true;
-      
-      let hasSelectedTag = false;
-      for (const tag of nodeTags) {
-        if (selectedTags.has(tag)) {
-          hasSelectedTag = true;
-          break;
+      // Also check if any connected edge belongs to a selected cable system
+      if (!passesCSFilter) {
+        const connectedEdges = state.edges.filter(e => e.a === node.id || e.b === node.id);
+        for (const edge of connectedEdges) {
+          const edgeCSId = edge.cableSystemId;
+          if (edgeCSId && state.cableSystemFilter.selectedSystems.has(edgeCSId)) {
+            passesCSFilter = true;
+            break;
+          }
+          // Check if edge is unmapped and we're showing unmapped
+          if ((edgeCSId === null || edgeCSId === undefined) && state.cableSystemFilter.showUnmapped) {
+            passesCSFilter = true;
+            break;
+          }
         }
       }
       
-      if (state.tagFilter.mode === 'include') return hasSelectedTag;
-      if (state.tagFilter.mode === 'exclude') return !hasSelectedTag;
-      return true;
+      if (!passesCSFilter) return false;
     }
+    
+    // Check Tag Filter (non-exclusive mode)
+    if (state.tagFilter.mode === 'all') return true;
     
     const nodeTags = getNodeTags(node);
     const selectedTags = state.tagFilter.selectedTags;
@@ -4755,7 +4866,20 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     }
     
     if (state.tagFilter.mode === 'include') {
-      return hasSelectedTag;
+      // Node is visible if it has a selected tag
+      if (hasSelectedTag) return true;
+      
+      // OR if any connected edge has a selected tag (so edges with tags can be shown)
+      const connectedEdges = state.edges.filter(e => e.a === node.id || e.b === node.id);
+      for (const edge of connectedEdges) {
+        const edgeTags = getEdgeTags(edge);
+        for (const tag of edgeTags) {
+          if (selectedTags.has(tag)) {
+            return true;
+          }
+        }
+      }
+      return false;
     } else if (state.tagFilter.mode === 'exclude') {
       return !hasSelectedTag;
     }
@@ -4770,6 +4894,46 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     const nodeB = findNode(edge.b);
     if (!nodeA || !nodeB) return false;
     
+    // ========== CHECK EXCLUSIVE MODES FIRST ==========
+    // If Tag Filter is exclusive, ONLY apply tag filter (bypass all other filters except node visibility)
+    if (state.tagFilter.exclusive && state.tagFilter.mode !== 'all') {
+      // Still need both nodes to be visible (using tag filter logic)
+      if (!isNodeVisible(nodeA) || !isNodeVisible(nodeB)) return false;
+      
+      const edgeTags = getEdgeTags(edge);
+      const selectedTags = state.tagFilter.selectedTags;
+      if (selectedTags.size === 0) return true;
+      
+      let hasSelectedTag = false;
+      for (const tag of edgeTags) {
+        if (selectedTags.has(tag)) {
+          hasSelectedTag = true;
+          break;
+        }
+      }
+      
+      if (state.tagFilter.mode === 'include') return hasSelectedTag;
+      if (state.tagFilter.mode === 'exclude') return !hasSelectedTag;
+      return true;
+    }
+    
+    // If Cable System Filter is exclusive, ONLY apply cable system filter
+    if (state.cableSystemFilter.exclusive && 
+        state.cableSystemFilter.mode === 'selected' && 
+        state.cableSystemFilter.selectedSystems.size > 0) {
+      const edgeCSId = edge.cableSystemId;
+      const isUnmapped = edgeCSId === null || edgeCSId === undefined;
+      
+      if (isUnmapped && state.cableSystemFilter.showUnmapped) {
+        return true;
+      }
+      if (edgeCSId && state.cableSystemFilter.selectedSystems.has(edgeCSId)) {
+        return true;
+      }
+      return false;
+    }
+    
+    // ========== NORMAL FILTER HIERARCHY ==========
     // Check Container Filter (both nodes must be in selected containers)
     if (state.containerFilter.mode === 'selected' && 
         (state.containerFilter.selectedBoxes.size > 0 || state.containerFilter.selectedGroups.size > 0)) {
@@ -4808,7 +4972,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       if (!connectedToSelectedNode) return false;
     }
     
-    // Check Cable System Filter
+    // Check Cable System Filter (non-exclusive mode)
     if (state.cableSystemFilter.mode === 'selected' && state.cableSystemFilter.selectedSystems.size > 0) {
       const edgeCSId = edge.cableSystemId;
       const isUnmapped = edgeCSId === null || edgeCSId === undefined;
@@ -4820,16 +4984,13 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
         passesCSFilter = true;
       }
       
-      if (state.cableSystemFilter.exclusive) {
-        return passesCSFilter;
-      }
       if (!passesCSFilter) return false;
     }
     
     // FIRST: Both nodes must be visible (node filtering takes priority)
     if (!isNodeVisible(nodeA) || !isNodeVisible(nodeB)) return false;
     
-    // THEN: Apply edge's own tag filter (only if nodes are visible)
+    // THEN: Apply edge's own tag filter (non-exclusive mode, only if nodes are visible)
     if (state.tagFilter.mode === 'all') return true;
     
     const edgeTags = getEdgeTags(edge);
@@ -7005,7 +7166,6 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
 
   function drawGroup(g) {
     const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
-    grp.classList.add('group'); // Base class for hover effects
     const isSel = (state.selected?.type==='group' && state.selected?.id===g.id) || state.selection.groups.has(g.id);
     if (isSel) grp.classList.add('group-selected');
 
@@ -7154,8 +7314,6 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       handle.setAttribute('y', pos.y);
       handle.setAttribute('width', handleSize);
       handle.setAttribute('height', handleSize);
-      handle.setAttribute('rx', 2);
-      handle.setAttribute('ry', 2);
       handle.setAttribute('class', `group-handle handle-${pos.corner}`);
       handle.setAttribute('data-corner', pos.corner);
       
@@ -7464,12 +7622,19 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       hitArea.style.cursor = 'pointer';
       hitArea.addEventListener('click', (ev) => { 
         ev.stopPropagation(); 
-        // Handle link exclusion pick mode in calculation mode
+        // Handle link pick modes in calculation mode
         if (window.routeFinderState && window.routeFinderState.active) {
-          if (window.routeFinderState.pickMode === 'link') {
+          if (window.routeFinderState.pickMode === 'excludeLink') {
             addExcludedLink(e.id);
             window.routeFinderState.pickMode = null;
             updatePickModeButtons();
+            return;
+          }
+          if (window.routeFinderState.pickMode === 'mustUseLink') {
+            addMustUseLink(e.id);
+            window.routeFinderState.pickMode = null;
+            updatePickModeButtons();
+            return;
           }
           return;
         }
@@ -7520,12 +7685,19 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       hitArea.style.cursor = 'pointer';
       hitArea.addEventListener('click', (ev) => { 
         ev.stopPropagation(); 
-        // Handle link exclusion pick mode in calculation mode
+        // Handle link pick modes in calculation mode
         if (window.routeFinderState && window.routeFinderState.active) {
-          if (window.routeFinderState.pickMode === 'link') {
+          if (window.routeFinderState.pickMode === 'excludeLink') {
             addExcludedLink(e.id);
             window.routeFinderState.pickMode = null;
             updatePickModeButtons();
+            return;
+          }
+          if (window.routeFinderState.pickMode === 'mustUseLink') {
+            addMustUseLink(e.id);
+            window.routeFinderState.pickMode = null;
+            updatePickModeButtons();
+            return;
           }
           return;
         }
@@ -7598,12 +7770,19 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       hitArea.style.cursor = 'pointer';
       hitArea.addEventListener('click', (ev) => { 
         ev.stopPropagation(); 
-        // Handle link exclusion pick mode in calculation mode
+        // Handle link pick modes in calculation mode
         if (window.routeFinderState && window.routeFinderState.active) {
-          if (window.routeFinderState.pickMode === 'link') {
+          if (window.routeFinderState.pickMode === 'excludeLink') {
             addExcludedLink(e.id);
             window.routeFinderState.pickMode = null;
             updatePickModeButtons();
+            return;
+          }
+          if (window.routeFinderState.pickMode === 'mustUseLink') {
+            addMustUseLink(e.id);
+            window.routeFinderState.pickMode = null;
+            updatePickModeButtons();
+            return;
           }
           return;
         }
@@ -8257,7 +8436,6 @@ const groupTitle = document.getElementById('groupTitle');
   const groupFill = document.getElementById('groupFill');
   const groupStroke = document.getElementById('groupStroke');
   const groupStrokeW = document.getElementById('groupStrokeW');
-  const groupInternalLatency = document.getElementById('groupInternalLatency');
 
   // Preset controls
   const btnNodePresetSave = document.getElementById('btnNodePresetSave');
@@ -8581,18 +8759,18 @@ const groupTitle = document.getElementById('groupTitle');
       groupExtraTags.value = g.extraTags || '';
       groupW.value = Math.round(g.w);
       groupH.value = Math.round(g.h);
+      
+      // Transit latency
+      const groupTransitLatency = document.getElementById('groupTransitLatency');
+      if (groupTransitLatency) {
+        groupTransitLatency.value = g.transitLatency !== undefined && g.transitLatency !== null ? g.transitLatency : '';
+      }
+      
       groupTitleFont.value = g.titleFont ?? 14;
       groupTitleColor.value = g.titleColor || "#333333";
       groupFill.value = g.fill || "#ffffff";
       groupStroke.value = g.stroke || "#666666";
       if (groupStrokeW) groupStrokeW.value = g.strokeW ?? 1;
-      // Update internal latency field
-      if (groupInternalLatency) {
-        // Show placeholder with default value based on type
-        const defaultLatency = g.type === 'region' ? 10 : 1;
-        groupInternalLatency.value = g.internalLatency ?? '';
-        groupInternalLatency.placeholder = `Default: ${defaultLatency}ms`;
-      }
       // Update color pickers
       if (window.updateColorPickers) window.updateColorPickers();
       
@@ -9128,6 +9306,23 @@ if (groupTitleFontInline) {
     const g = findGroup(state.selected.id); if (!g) return;
     g.extraTags = groupExtraTags.value; commit(); render();
   });
+  
+  // Transit latency
+  const groupTransitLatency = document.getElementById('groupTransitLatency');
+  if (groupTransitLatency) {
+    groupTransitLatency.addEventListener('input', () => {
+      if (state.selected?.type!=='group') return;
+      const g = findGroup(state.selected.id); if (!g) return;
+      const val = groupTransitLatency.value.trim();
+      if (val === '') {
+        delete g.transitLatency; // Use global default
+      } else {
+        g.transitLatency = parseFloat(val) || 0;
+      }
+      commit();
+    });
+  }
+  
   groupW.addEventListener('input', () => {
     if (state.selected?.type!=='group') return;
     const g = findGroup(state.selected.id); if (!g) return;
@@ -9234,19 +9429,6 @@ if (groupTitleFontInline) {
     const g = findGroup(state.selected.id); if (!g) return;
     g.strokeW = clamp(Number(groupStrokeW.value||2),0.5,12);
     commit(); render();
-  });
-  
-  // Internal latency for routing
-  if (groupInternalLatency) groupInternalLatency.addEventListener('input', () => {
-    if (state.selected?.type!=='group') return;
-    const g = findGroup(state.selected.id); if (!g) return;
-    const val = groupInternalLatency.value.trim();
-    if (val === '') {
-      delete g.internalLatency; // Use default
-    } else {
-      g.internalLatency = Math.max(0, parseFloat(val) || 0);
-    }
-    commit();
   });
 
 
@@ -12718,13 +12900,21 @@ function loadProjectObject(obj) {
     regionLatency: 10,        // Containers in same region
     minLatency: 0.000001,     // Floor for zero/undefined latency
     
+    // Transit options
+    enableContainerTransit: true,  // Allow implicit connections within containers
+    enableRegionTransit: true,     // Allow implicit connections between sibling containers
+    
     // Filtering options
     visibleOnly: false,       // Only use visible elements
     excludedNodes: new Set(), // Node IDs to exclude from pathfinding
     excludedLinks: new Set(), // Link IDs to exclude from pathfinding
     
-    // Pick mode for exclusions
-    pickMode: null            // null, 'node', or 'link'
+    // Must-use constraints
+    mustUseNodes: new Set(),  // Node IDs that route must pass through
+    mustUseLinks: new Set(),  // Link IDs that route must use
+    
+    // Pick mode for exclusions/must-use
+    pickMode: null            // null, 'excludeNode', 'excludeLink', 'mustUseNode', 'mustUseLink'
   };
   
   // Expose globally for checking in event handlers
@@ -12797,7 +12987,7 @@ function loadProjectObject(obj) {
       });
     });
     
-    // 2. Add implicit edges within same container
+    // 2. Build containerNodes map (needed for both container and region transit)
     const containerNodes = new Map();
     validNodes.forEach(n => {
       if (n.groupId) {
@@ -12806,90 +12996,95 @@ function loadProjectObject(obj) {
       }
     });
     
-    containerNodes.forEach((nodeIdsInContainer, groupId) => {
-      const group = findGroup(groupId);
-      const containerName = group?.title || 'Container';
-      // Use container-specific latency if defined, otherwise use global default
-      const latency = (group?.internalLatency !== undefined && group?.internalLatency !== null) 
-        ? group.internalLatency 
-        : routeFinderState.containerLatency;
-      const cost = calculateEdgeCost(latency, 0);
+    // 2a. Add implicit edges within same container (if enabled)
+    if (routeFinderState.enableContainerTransit) {
+      containerNodes.forEach((nodeIdsInContainer, groupId) => {
+        const group = findGroup(groupId);
+        const containerName = group?.title || 'Container';
+        // Use per-container transit latency if defined, otherwise use global default
+        const latency = (group?.transitLatency !== undefined && group?.transitLatency !== null) 
+          ? group.transitLatency 
+          : routeFinderState.containerLatency;
+        const cost = calculateEdgeCost(latency, 0);
+        
+        for (let i = 0; i < nodeIdsInContainer.length; i++) {
+          for (let j = i + 1; j < nodeIdsInContainer.length; j++) {
+            const a = nodeIdsInContainer[i];
+            const b = nodeIdsInContainer[j];
+            
+            // Check if explicit edge exists (and is not excluded)
+            const hasExplicit = state.edges.some(e => 
+              ((e.a === a && e.b === b) || (e.a === b && e.b === a)) &&
+              !routeFinderState.excludedLinks.has(e.id) &&
+              (!routeFinderState.visibleOnly || isEdgeVisible(e))
+            );
+            
+            if (!hasExplicit) {
+              adjacency.get(a).push({
+                to: b, cost, edgeId: null, implicit: true, containerId: groupId,
+                latency, description: `via ${containerName}`
+              });
+              adjacency.get(b).push({
+                to: a, cost, edgeId: null, implicit: true, containerId: groupId,
+                latency, description: `via ${containerName}`
+              });
+            }
+          }
+        }
+      });
+    }
+    
+    // 3. Add implicit edges between sibling containers (same parent region) - if enabled
+    if (routeFinderState.enableRegionTransit) {
+      const regionContainers = new Map();
+      state.groups.forEach(g => {
+        if (g.type === 'country' && g.parentId) {
+          if (!regionContainers.has(g.parentId)) regionContainers.set(g.parentId, []);
+          regionContainers.get(g.parentId).push(g.id);
+        }
+      });
       
-      for (let i = 0; i < nodeIdsInContainer.length; i++) {
-        for (let j = i + 1; j < nodeIdsInContainer.length; j++) {
-          const a = nodeIdsInContainer[i];
-          const b = nodeIdsInContainer[j];
-          
-          // Check if explicit edge exists (and is not excluded)
-          const hasExplicit = state.edges.some(e => 
-            ((e.a === a && e.b === b) || (e.a === b && e.b === a)) &&
-            !routeFinderState.excludedLinks.has(e.id) &&
-            (!routeFinderState.visibleOnly || isEdgeVisible(e))
-          );
-          
-          if (!hasExplicit) {
-            adjacency.get(a).push({
-              to: b, cost, edgeId: null, implicit: true, containerId: groupId,
-              latency, description: `via ${containerName}`
-            });
-            adjacency.get(b).push({
-              to: a, cost, edgeId: null, implicit: true, containerId: groupId,
-              latency, description: `via ${containerName}`
+      regionContainers.forEach((containerIds, regionId) => {
+        const region = findGroup(regionId);
+        const regionName = region?.title || 'Region';
+        // Use per-region transit latency if defined, otherwise use global default
+        const latency = (region?.transitLatency !== undefined && region?.transitLatency !== null)
+          ? region.transitLatency
+          : routeFinderState.regionLatency;
+        const cost = calculateEdgeCost(latency, 0);
+        
+        for (let i = 0; i < containerIds.length; i++) {
+          for (let j = i + 1; j < containerIds.length; j++) {
+            const containerA = containerIds[i];
+            const containerB = containerIds[j];
+            const nodesA = containerNodes.get(containerA) || [];
+            const nodesB = containerNodes.get(containerB) || [];
+            
+            nodesA.forEach(a => {
+              nodesB.forEach(b => {
+                // Check if explicit edge exists (and is not excluded)
+                const hasExplicit = state.edges.some(e => 
+                  ((e.a === a && e.b === b) || (e.a === b && e.b === a)) &&
+                  !routeFinderState.excludedLinks.has(e.id) &&
+                  (!routeFinderState.visibleOnly || isEdgeVisible(e))
+                );
+                
+                if (!hasExplicit) {
+                  adjacency.get(a).push({
+                    to: b, cost, edgeId: null, implicit: true, regionId,
+                    latency, description: `via ${regionName}`
+                  });
+                  adjacency.get(b).push({
+                    to: a, cost, edgeId: null, implicit: true, regionId,
+                    latency, description: `via ${regionName}`
+                  });
+                }
+              });
             });
           }
         }
-      }
-    });
-    
-    // 3. Add implicit edges between sibling containers (same parent region)
-    const regionContainers = new Map();
-    state.groups.forEach(g => {
-      if (g.type === 'country' && g.parentId) {
-        if (!regionContainers.has(g.parentId)) regionContainers.set(g.parentId, []);
-        regionContainers.get(g.parentId).push(g.id);
-      }
-    });
-    
-    regionContainers.forEach((containerIds, regionId) => {
-      const region = findGroup(regionId);
-      const regionName = region?.title || 'Region';
-      // Use region-specific latency if defined, otherwise use global default
-      const latency = (region?.internalLatency !== undefined && region?.internalLatency !== null) 
-        ? region.internalLatency 
-        : routeFinderState.regionLatency;
-      const cost = calculateEdgeCost(latency, 0);
-      
-      for (let i = 0; i < containerIds.length; i++) {
-        for (let j = i + 1; j < containerIds.length; j++) {
-          const containerA = containerIds[i];
-          const containerB = containerIds[j];
-          const nodesA = containerNodes.get(containerA) || [];
-          const nodesB = containerNodes.get(containerB) || [];
-          
-          nodesA.forEach(a => {
-            nodesB.forEach(b => {
-              // Check if explicit edge exists (and is not excluded)
-              const hasExplicit = state.edges.some(e => 
-                ((e.a === a && e.b === b) || (e.a === b && e.b === a)) &&
-                !routeFinderState.excludedLinks.has(e.id) &&
-                (!routeFinderState.visibleOnly || isEdgeVisible(e))
-              );
-              
-              if (!hasExplicit) {
-                adjacency.get(a).push({
-                  to: b, cost, edgeId: null, implicit: true, regionId,
-                  latency, description: `via ${regionName}`
-                });
-                adjacency.get(b).push({
-                  to: a, cost, edgeId: null, implicit: true, regionId,
-                  latency, description: `via ${regionName}`
-                });
-              }
-            });
-          });
-        }
-      }
-    });
+      });
+    }
     
     return { adjacency, nodeIds };
   }
@@ -12964,18 +13159,55 @@ function loadProjectObject(obj) {
     
     if (!adjacency.has(source) || !adjacency.has(target)) return [];
     
+    // Helper to check if a route satisfies must-use constraints
+    function satisfiesMustUseConstraints(path, segments) {
+      // Check must-use nodes
+      for (const nodeId of routeFinderState.mustUseNodes) {
+        if (!path.includes(nodeId)) return false;
+      }
+      
+      // Check must-use links
+      for (const edgeId of routeFinderState.mustUseLinks) {
+        const hasLink = segments.some(seg => seg.edgeId === edgeId);
+        if (!hasLink) return false;
+      }
+      
+      return true;
+    }
+    
+    const hasMustUseConstraints = routeFinderState.mustUseNodes.size > 0 || routeFinderState.mustUseLinks.size > 0;
+    
+    // Special handling for must-use constraints: route through waypoints
+    if (hasMustUseConstraints) {
+      const mustUseRoutes = findRoutesWithMustUseConstraints(adjacency, source, target, k);
+      if (mustUseRoutes.length > 0) {
+        return mustUseRoutes;
+      }
+      // If no routes found through must-use constraints, fall through to regular algorithm
+    }
+    
     const A = [];
     const B = [];
+    
+    // Find more paths if we have must-use constraints (we'll filter later)
+    const maxPaths = hasMustUseConstraints ? k * 10 : k;
     
     const { dist, prev } = dijkstra(adjacency, source);
     const firstPath = reconstructPath(prev, source, target);
     
     if (!firstPath) return [];
     
-    A.push({ path: firstPath.path, segments: firstPath.segments, totalCost: dist.get(target) });
+    // Only add if satisfies constraints (or no constraints)
+    if (!hasMustUseConstraints || satisfiesMustUseConstraints(firstPath.path, firstPath.segments)) {
+      A.push({ path: firstPath.path, segments: firstPath.segments, totalCost: dist.get(target) });
+    }
     
-    for (let i = 1; i < k; i++) {
-      const prevPath = A[i - 1];
+    // Find more candidate paths
+    let candidatePaths = [{ path: firstPath.path, segments: firstPath.segments, totalCost: dist.get(target) }];
+    
+    for (let i = 1; i < maxPaths && A.length < k; i++) {
+      const prevPath = candidatePaths[i - 1];
+      if (!prevPath) break;
       
       for (let j = 0; j < prevPath.path.length - 1; j++) {
         const spurNode = prevPath.path[j];
@@ -12987,7 +13219,7 @@ function loadProjectObject(obj) {
         
         const excludeEdges = new Set();
         
-        A.forEach(path => {
+        candidatePaths.forEach(path => {
           if (arraysEqual(path.path.slice(0, j + 1), rootPath)) {
             if (j < path.segments.length) {
               const seg = path.segments[j];
@@ -13029,12 +13261,289 @@ function loadProjectObject(obj) {
       const best = B.shift();
       
       const bestPathStr = best.path.join('-');
-      if (!A.some(p => p.path.join('-') === bestPathStr)) {
-        A.push(best);
+      if (!candidatePaths.some(p => p.path.join('-') === bestPathStr)) {
+        candidatePaths.push(best);
+        
+        // Check if this path satisfies must-use constraints
+        if (!hasMustUseConstraints || satisfiesMustUseConstraints(best.path, best.segments)) {
+          if (!A.some(p => p.path.join('-') === bestPathStr)) {
+            A.push(best);
+          }
+        }
+      }
+      
+      // Stop early if we have enough valid routes
+      if (A.length >= k) break;
+    }
+    
+    return A.slice(0, k);
+  }
+  
+  // Find routes that pass through must-use nodes and links
+  function findRoutesWithMustUseConstraints(adjacency, source, target, k) {
+    const results = [];
+    
+    // Get must-use links with their edge info
+    const mustUseLinks = [];
+    for (const edgeId of routeFinderState.mustUseLinks) {
+      const edge = state.edges.find(e => e.id === edgeId);
+      if (edge) {
+        // Find the adjacency entry for this edge to get cost/latency info
+        const adjEntries = adjacency.get(edge.a) || [];
+        const edgeInfo = adjEntries.find(e => e.edgeId === edgeId);
+        mustUseLinks.push({ 
+          a: edge.a, 
+          b: edge.b, 
+          edgeId,
+          cost: edgeInfo?.cost || edge.latency || 1,
+          latency: edgeInfo?.latency || edge.latency || 1
+        });
       }
     }
     
-    return A;
+    // Get must-use nodes (excluding source/target)
+    const mustUseNodes = [...routeFinderState.mustUseNodes].filter(n => n !== source && n !== target);
+    
+    // If we have must-use links, we need to route through them explicitly
+    if (mustUseLinks.length > 0) {
+      // For each must-use link, try both directions and find paths
+      // that go: source -> linkNodeA -> (via link) -> linkNodeB -> target
+      
+      // Generate all possible orderings of link traversals
+      const linkOrderings = permuteLinkDirections(mustUseLinks);
+      
+      for (const linkOrdering of linkOrderings) {
+        if (results.length >= k * 2) break; // Find more candidates, will filter to k
+        
+        // Build the route by forcing each must-use link
+        // Route: source -> first link start -> (link) -> first link end -> ... -> target
+        
+        // Collect all stops including forced link traversals
+        const segments = [];
+        let stops = [source];
+        
+        // Add must-use nodes as intermediate stops
+        for (const nodeId of mustUseNodes) {
+          if (!stops.includes(nodeId)) {
+            stops.push(nodeId);
+          }
+        }
+        
+        // For each must-use link, add both endpoints
+        for (const link of linkOrdering) {
+          if (!stops.includes(link.from)) stops.push(link.from);
+          // Note: link.to will be added naturally in the path
+        }
+        
+        stops.push(target);
+        
+        // Remove source and target from middle, ensure source is first and target is last
+        stops = [source, ...stops.filter(s => s !== source && s !== target), target];
+        
+        // Now build the actual path, forcing must-use links
+        const fullPath = [];
+        const fullSegments = [];
+        let totalCost = 0;
+        let valid = true;
+        let linksUsed = new Set();
+        
+        for (let i = 0; i < stops.length - 1; i++) {
+          let from = stops[i];
+          let to = stops[i + 1];
+          
+          // Check if there's a must-use link that should be used between these stops
+          // or between 'from' and some intermediate point
+          let forcedLink = null;
+          for (const link of linkOrdering) {
+            if (!linksUsed.has(link.edgeId)) {
+              // Check if we should use this link now
+              if (link.from === from || link.to === from) {
+                forcedLink = link;
+                break;
+              }
+            }
+          }
+          
+          if (forcedLink && !linksUsed.has(forcedLink.edgeId)) {
+            // Need to route to the start of this link first (if not already there)
+            const linkStart = forcedLink.from === from ? forcedLink.from : forcedLink.to;
+            const linkEnd = forcedLink.from === from ? forcedLink.to : forcedLink.from;
+            
+            if (from !== linkStart) {
+              // Route from current position to link start
+              const { dist, prev } = dijkstra(adjacency, from);
+              const subPath = reconstructPath(prev, from, linkStart);
+              if (!subPath) { valid = false; break; }
+              
+              if (fullPath.length === 0) {
+                fullPath.push(...subPath.path);
+              } else {
+                fullPath.push(...subPath.path.slice(1));
+              }
+              fullSegments.push(...subPath.segments);
+              totalCost += dist.get(linkStart);
+              from = linkStart;
+            }
+            
+            // Now use the forced link
+            if (fullPath.length === 0) {
+              fullPath.push(linkStart);
+            }
+            fullPath.push(linkEnd);
+            
+            // Create segment for the forced link
+            const forcedSegment = {
+              to: linkEnd,
+              cost: forcedLink.cost,
+              edgeId: forcedLink.edgeId,
+              latency: forcedLink.latency
+            };
+            fullSegments.push(forcedSegment);
+            totalCost += forcedLink.cost;
+            linksUsed.add(forcedLink.edgeId);
+            
+            // Update 'from' for next iteration - continue from linkEnd to original 'to'
+            from = linkEnd;
+          }
+          
+          // Route from current position to next stop
+          if (from !== to) {
+            const { dist, prev } = dijkstra(adjacency, from);
+            const subPath = reconstructPath(prev, from, to);
+            if (!subPath) { valid = false; break; }
+            
+            if (fullPath.length === 0) {
+              fullPath.push(...subPath.path);
+            } else {
+              fullPath.push(...subPath.path.slice(1));
+            }
+            fullSegments.push(...subPath.segments);
+            totalCost += dist.get(to);
+          }
+        }
+        
+        if (!valid) continue;
+        
+        // Verify all must-use links were used
+        let hasAllLinks = true;
+        for (const edgeId of routeFinderState.mustUseLinks) {
+          if (!linksUsed.has(edgeId)) {
+            hasAllLinks = false;
+            break;
+          }
+        }
+        if (!hasAllLinks) continue;
+        
+        // Verify all must-use nodes are in path
+        let hasAllNodes = true;
+        for (const nodeId of routeFinderState.mustUseNodes) {
+          if (!fullPath.includes(nodeId)) {
+            hasAllNodes = false;
+            break;
+          }
+        }
+        if (!hasAllNodes) continue;
+        
+        // Check for duplicates
+        const pathStr = fullPath.join('-');
+        if (results.some(r => r.path.join('-') === pathStr)) continue;
+        
+        results.push({ path: fullPath, segments: fullSegments, totalCost });
+      }
+    } else if (mustUseNodes.length > 0) {
+      // Only must-use nodes, no links - use waypoint routing
+      const permutations = permute(mustUseNodes.slice(0, 6));
+      
+      for (const ordering of permutations) {
+        if (results.length >= k) break;
+        
+        const stops = [source, ...ordering, target];
+        const fullPath = [];
+        const fullSegments = [];
+        let totalCost = 0;
+        let valid = true;
+        
+        for (let i = 0; i < stops.length - 1; i++) {
+          const from = stops[i];
+          const to = stops[i + 1];
+          
+          const { dist, prev } = dijkstra(adjacency, from);
+          const subPath = reconstructPath(prev, from, to);
+          
+          if (!subPath) { valid = false; break; }
+          
+          if (i === 0) {
+            fullPath.push(...subPath.path);
+          } else {
+            fullPath.push(...subPath.path.slice(1));
+          }
+          fullSegments.push(...subPath.segments);
+          totalCost += dist.get(to);
+        }
+        
+        if (!valid) continue;
+        
+        const pathStr = fullPath.join('-');
+        if (results.some(r => r.path.join('-') === pathStr)) continue;
+        
+        results.push({ path: fullPath, segments: fullSegments, totalCost });
+      }
+    }
+    
+    // Sort by cost and return top k
+    results.sort((a, b) => a.totalCost - b.totalCost);
+    return results.slice(0, k);
+  }
+  
+  // Generate permutations of link directions (each link can be traversed A->B or B->A)
+  function permuteLinkDirections(links) {
+    if (links.length === 0) return [[]];
+    if (links.length === 1) {
+      return [
+        [{ ...links[0], from: links[0].a, to: links[0].b }],
+        [{ ...links[0], from: links[0].b, to: links[0].a }]
+      ];
+    }
+    
+    const results = [];
+    const [first, ...rest] = links;
+    const restPerms = permuteLinkDirections(rest);
+    
+    // Try both directions for the first link
+    for (const dir of [
+      { ...first, from: first.a, to: first.b },
+      { ...first, from: first.b, to: first.a }
+    ]) {
+      for (const restPerm of restPerms) {
+        // Try this link at different positions
+        for (let pos = 0; pos <= restPerm.length; pos++) {
+          const combined = [...restPerm.slice(0, pos), dir, ...restPerm.slice(pos)];
+          results.push(combined);
+        }
+      }
+    }
+    
+    // Limit to avoid explosion
+    return results.slice(0, 48);
+  }
+  
+  // Generate permutations of an array (for must-use nodes)
+  function permute(arr) {
+    if (arr.length <= 1) return [arr];
+    if (arr.length > 6) {
+      // Limit permutations for large arrays
+      arr = arr.slice(0, 6);
+    }
+    
+    const result = [];
+    for (let i = 0; i < arr.length; i++) {
+      const rest = [...arr.slice(0, i), ...arr.slice(i + 1)];
+      const restPerms = permute(rest);
+      for (const perm of restPerms) {
+        result.push([arr[i], ...perm]);
+      }
+    }
+    return result;
   }
   
   function arraysEqual(a, b) {
@@ -13060,6 +13569,21 @@ function loadProjectObject(obj) {
   const routeDetailsContent = document.getElementById('routeDetailsContent');
   const routeContainerLatency = document.getElementById('routeContainerLatency');
   const routeRegionLatency = document.getElementById('routeRegionLatency');
+  const routeEnableContainerTransit = document.getElementById('routeEnableContainerTransit');
+  const routeEnableRegionTransit = document.getElementById('routeEnableRegionTransit');
+  const containerLatencyRow = document.getElementById('containerLatencyRow');
+  const regionLatencyRow = document.getElementById('regionLatencyRow');
+  
+  // Must-use elements
+  const routeMustUseNodeSelect = document.getElementById('routeMustUseNodeSelect');
+  const routeMustUseLinkSelect = document.getElementById('routeMustUseLinkSelect');
+  const btnAddMustUseNode = document.getElementById('btnAddMustUseNode');
+  const btnPickMustUseNode = document.getElementById('btnPickMustUseNode');
+  const btnAddMustUseLink = document.getElementById('btnAddMustUseLink');
+  const btnPickMustUseLink = document.getElementById('btnPickMustUseLink');
+  const btnClearAllMustUse = document.getElementById('btnClearAllMustUse');
+  const mustUseNodesList = document.getElementById('mustUseNodesList');
+  const mustUseLinksList = document.getElementById('mustUseLinksList');
 
   // Enter calculation mode (Route Finder)
   function enterCalculationMode() {
@@ -13101,15 +13625,33 @@ function loadProjectObject(obj) {
     // Populate exclusion dropdowns
     populateExclusionDropdowns();
     
+    // Populate must-use dropdowns
+    populateMustUseDropdowns();
+    
     // Render exclusion lists
     renderExcludedNodesList();
     renderExcludedLinksList();
+    
+    // Render must-use lists
+    renderMustUseNodesList();
+    renderMustUseLinksList();
     
     // Sync visibility checkbox
     const visibleOnlyCheckbox = document.getElementById('routeVisibleOnly');
     if (visibleOnlyCheckbox) {
       visibleOnlyCheckbox.checked = routeFinderState.visibleOnly;
     }
+    
+    // Sync transit checkboxes
+    if (routeEnableContainerTransit) {
+      routeEnableContainerTransit.checked = routeFinderState.enableContainerTransit;
+    }
+    if (routeEnableRegionTransit) {
+      routeEnableRegionTransit.checked = routeFinderState.enableRegionTransit;
+    }
+    
+    // Update latency row visibility based on transit settings
+    updateTransitLatencyVisibility();
     
     // Update UI
     updateRouteFinderUI();
@@ -13190,8 +13732,16 @@ function loadProjectObject(obj) {
     if (!node) return false;
     
     // Check if in node exclusion pick mode
-    if (routeFinderState.pickMode === 'node') {
+    if (routeFinderState.pickMode === 'excludeNode') {
       addExcludedNode(nodeId);
+      routeFinderState.pickMode = null;
+      updatePickModeButtons();
+      return true;
+    }
+    
+    // Check if in must-use node pick mode
+    if (routeFinderState.pickMode === 'mustUseNode') {
+      addMustUseNode(nodeId);
       routeFinderState.pickMode = null;
       updatePickModeButtons();
       return true;
@@ -13423,54 +13973,258 @@ function loadProjectObject(obj) {
     renderExcludedLinksList();
     routeFinderState.routes = [];
     updateRouteFinderUI();
-    showToast('🗑️ All restrictions cleared');
+    showToast('🗑️ All exclusions cleared');
+  }
+
+  // ========== MUST-USE FUNCTIONS ==========
+  
+  // Render must-use nodes list
+  function renderMustUseNodesList() {
+    const container = document.getElementById('mustUseNodesList');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    if (routeFinderState.mustUseNodes.size === 0) {
+      container.innerHTML = '<span style="font-size:10px; color:#94a3b8; font-style:italic;">No must-use nodes</span>';
+      return;
+    }
+    
+    routeFinderState.mustUseNodes.forEach(nodeId => {
+      const node = findNode(nodeId);
+      if (!node) return;
+      
+      const tag = document.createElement('span');
+      tag.style.cssText = 'display:inline-flex; align-items:center; gap:4px; padding:3px 6px 3px 8px; background:#dcfce7; color:#16a34a; border-radius:12px; font-size:10px; font-weight:500;';
+      tag.innerHTML = `
+        ${node.name || node.code || 'Node ' + nodeId}
+        <button style="background:none; border:none; color:#22c55e; cursor:pointer; font-size:12px; line-height:1; padding:0;" 
+                title="Remove from must-use" data-node-id="${nodeId}">✕</button>
+      `;
+      tag.querySelector('button').addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        removeMustUseNode(nodeId);
+      });
+      container.appendChild(tag);
+    });
+  }
+
+  // Render must-use links list
+  function renderMustUseLinksList() {
+    const container = document.getElementById('mustUseLinksList');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    if (routeFinderState.mustUseLinks.size === 0) {
+      container.innerHTML = '<span style="font-size:10px; color:#94a3b8; font-style:italic;">No must-use links</span>';
+      return;
+    }
+    
+    routeFinderState.mustUseLinks.forEach(edgeId => {
+      const edge = state.edges.find(e => e.id === edgeId);
+      if (!edge) return;
+      
+      const nodeA = findNode(edge.a);
+      const nodeB = findNode(edge.b);
+      const nameA = nodeA?.name || nodeA?.code || `N${edge.a}`;
+      const nameB = nodeB?.name || nodeB?.code || `N${edge.b}`;
+      
+      const tag = document.createElement('span');
+      tag.style.cssText = 'display:inline-flex; align-items:center; gap:4px; padding:3px 6px 3px 8px; background:#dcfce7; color:#16a34a; border-radius:12px; font-size:10px; font-weight:500;';
+      tag.innerHTML = `
+        ${nameA} ↔ ${nameB}
+        <button style="background:none; border:none; color:#22c55e; cursor:pointer; font-size:12px; line-height:1; padding:0;" 
+                title="Remove from must-use" data-edge-id="${edgeId}">✕</button>
+      `;
+      tag.querySelector('button').addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        removeMustUseLink(edgeId);
+      });
+      container.appendChild(tag);
+    });
+  }
+
+  // Add must-use node
+  function addMustUseNode(nodeId) {
+    if (!nodeId || routeFinderState.mustUseNodes.has(nodeId)) return;
+    
+    // Can't be both excluded and must-use
+    if (routeFinderState.excludedNodes.has(nodeId)) {
+      showToast('⚠️ Node is currently excluded. Remove from exclusions first.');
+      return;
+    }
+    
+    routeFinderState.mustUseNodes.add(nodeId);
+    const node = findNode(nodeId);
+    showToast(`✅ Must-use node: ${node?.name || node?.code || 'Node ' + nodeId}`);
+    renderMustUseNodesList();
+    routeFinderState.routes = []; // Clear routes
+    updateRouteFinderUI();
+  }
+
+  // Remove must-use node
+  function removeMustUseNode(nodeId) {
+    routeFinderState.mustUseNodes.delete(nodeId);
+    renderMustUseNodesList();
+    routeFinderState.routes = []; // Clear routes
+    updateRouteFinderUI();
+  }
+
+  // Add must-use link
+  function addMustUseLink(edgeId) {
+    if (!edgeId || routeFinderState.mustUseLinks.has(edgeId)) return;
+    
+    // Can't be both excluded and must-use
+    if (routeFinderState.excludedLinks.has(edgeId)) {
+      showToast('⚠️ Link is currently excluded. Remove from exclusions first.');
+      return;
+    }
+    
+    routeFinderState.mustUseLinks.add(edgeId);
+    const edge = state.edges.find(e => e.id === edgeId);
+    if (edge) {
+      const nodeA = findNode(edge.a);
+      const nodeB = findNode(edge.b);
+      const nameA = nodeA?.name || nodeA?.code || `N${edge.a}`;
+      const nameB = nodeB?.name || nodeB?.code || `N${edge.b}`;
+      showToast(`✅ Must-use link: ${nameA} ↔ ${nameB}`);
+    }
+    renderMustUseLinksList();
+    routeFinderState.routes = []; // Clear routes
+    updateRouteFinderUI();
+  }
+
+  // Remove must-use link
+  function removeMustUseLink(edgeId) {
+    routeFinderState.mustUseLinks.delete(edgeId);
+    renderMustUseLinksList();
+    routeFinderState.routes = []; // Clear routes
+    updateRouteFinderUI();
+  }
+
+  // Clear all must-use constraints
+  function clearAllMustUse() {
+    routeFinderState.mustUseNodes.clear();
+    routeFinderState.mustUseLinks.clear();
+    
+    renderMustUseNodesList();
+    renderMustUseLinksList();
+    routeFinderState.routes = [];
+    updateRouteFinderUI();
+    showToast('🗑️ All must-use constraints cleared');
+  }
+
+  // Update transit latency row visibility
+  function updateTransitLatencyVisibility() {
+    if (containerLatencyRow) {
+      containerLatencyRow.style.opacity = routeFinderState.enableContainerTransit ? '1' : '0.5';
+    }
+    if (regionLatencyRow) {
+      regionLatencyRow.style.opacity = routeFinderState.enableRegionTransit ? '1' : '0.5';
+    }
+  }
+
+  // Populate must-use dropdowns
+  function populateMustUseDropdowns() {
+    if (routeMustUseNodeSelect) {
+      routeMustUseNodeSelect.innerHTML = '<option value="">-- Select node (must pass through) --</option>';
+      state.nodes.forEach(n => {
+        const opt = document.createElement('option');
+        opt.value = n.id;
+        opt.textContent = n.name || n.code || `Node ${n.id}`;
+        routeMustUseNodeSelect.appendChild(opt);
+      });
+    }
+    
+    if (routeMustUseLinkSelect) {
+      routeMustUseLinkSelect.innerHTML = '<option value="">-- Select link (must use) --</option>';
+      state.edges.forEach(e => {
+        const nodeA = findNode(e.a);
+        const nodeB = findNode(e.b);
+        const opt = document.createElement('option');
+        opt.value = e.id;
+        const nameA = nodeA?.name || nodeA?.code || `N${e.a}`;
+        const nameB = nodeB?.name || nodeB?.code || `N${e.b}`;
+        opt.textContent = `${nameA} ↔ ${nameB}`;
+        routeMustUseLinkSelect.appendChild(opt);
+      });
+    }
   }
 
   // Handle exclusion pick mode click on node
   function handleExclusionNodeClick(nodeId) {
     if (!routeFinderState.active) return false;
-    if (routeFinderState.pickMode !== 'node') return false;
     
-    addExcludedNode(nodeId);
-    routeFinderState.pickMode = null;
-    updatePickModeButtons();
-    return true;
+    if (routeFinderState.pickMode === 'excludeNode') {
+      addExcludedNode(nodeId);
+      routeFinderState.pickMode = null;
+      updatePickModeButtons();
+      return true;
+    }
+    
+    if (routeFinderState.pickMode === 'mustUseNode') {
+      addMustUseNode(nodeId);
+      routeFinderState.pickMode = null;
+      updatePickModeButtons();
+      return true;
+    }
+    
+    return false;
   }
 
   // Handle exclusion pick mode click on link
   function handleExclusionLinkClick(edgeId) {
     if (!routeFinderState.active) return false;
-    if (routeFinderState.pickMode !== 'link') return false;
     
-    addExcludedLink(edgeId);
-    routeFinderState.pickMode = null;
-    updatePickModeButtons();
-    return true;
+    if (routeFinderState.pickMode === 'excludeLink') {
+      addExcludedLink(edgeId);
+      routeFinderState.pickMode = null;
+      updatePickModeButtons();
+      return true;
+    }
+    
+    if (routeFinderState.pickMode === 'mustUseLink') {
+      addMustUseLink(edgeId);
+      routeFinderState.pickMode = null;
+      updatePickModeButtons();
+      return true;
+    }
+    
+    return false;
   }
 
   // Update pick mode button styles
   function updatePickModeButtons() {
     const btnPickNode = document.getElementById('btnPickExcludeNode');
     const btnPickLink = document.getElementById('btnPickExcludeLink');
+    const btnPickMustNode = document.getElementById('btnPickMustUseNode');
+    const btnPickMustLink = document.getElementById('btnPickMustUseLink');
     
-    if (btnPickNode) {
-      if (routeFinderState.pickMode === 'node') {
-        btnPickNode.style.background = '#7c3aed';
-        btnPickNode.style.color = 'white';
-      } else {
-        btnPickNode.style.background = '';
-        btnPickNode.style.color = '';
+    // Reset all buttons first
+    [btnPickNode, btnPickLink, btnPickMustNode, btnPickMustLink].forEach(btn => {
+      if (btn) {
+        btn.style.background = '';
+        btn.style.color = '';
       }
+    });
+    
+    // Highlight active pick mode
+    if (routeFinderState.pickMode === 'excludeNode' && btnPickNode) {
+      btnPickNode.style.background = '#7c3aed';
+      btnPickNode.style.color = 'white';
     }
-    
-    if (btnPickLink) {
-      if (routeFinderState.pickMode === 'link') {
-        btnPickLink.style.background = '#dc2626';
-        btnPickLink.style.color = 'white';
-      } else {
-        btnPickLink.style.background = '';
-        btnPickLink.style.color = '';
-      }
+    if (routeFinderState.pickMode === 'excludeLink' && btnPickLink) {
+      btnPickLink.style.background = '#dc2626';
+      btnPickLink.style.color = 'white';
+    }
+    if (routeFinderState.pickMode === 'mustUseNode' && btnPickMustNode) {
+      btnPickMustNode.style.background = '#16a34a';
+      btnPickMustNode.style.color = 'white';
+    }
+    if (routeFinderState.pickMode === 'mustUseLink' && btnPickMustLink) {
+      btnPickMustLink.style.background = '#16a34a';
+      btnPickMustLink.style.color = 'white';
     }
   }
 
@@ -13491,12 +14245,18 @@ function loadProjectObject(obj) {
       return;
     }
     
-    // Update latency settings from inputs
+    // Update settings from inputs
     if (routeContainerLatency) {
       routeFinderState.containerLatency = parseFloat(routeContainerLatency.value) || 1;
     }
     if (routeRegionLatency) {
       routeFinderState.regionLatency = parseFloat(routeRegionLatency.value) || 10;
+    }
+    if (routeEnableContainerTransit) {
+      routeFinderState.enableContainerTransit = routeEnableContainerTransit.checked;
+    }
+    if (routeEnableRegionTransit) {
+      routeFinderState.enableRegionTransit = routeEnableRegionTransit.checked;
     }
     
     const routes = findKShortestPaths(
@@ -13510,20 +14270,24 @@ function loadProjectObject(obj) {
     
     updateRouteFinderUI();
     
-    // Build restriction summary for toast
-    const restrictions = [];
-    if (routeFinderState.visibleOnly) restrictions.push('visible only');
-    if (routeFinderState.excludedNodes.size > 0) restrictions.push(`${routeFinderState.excludedNodes.size} node(s) excluded`);
-    if (routeFinderState.excludedLinks.size > 0) restrictions.push(`${routeFinderState.excludedLinks.size} link(s) excluded`);
-    const restrictionText = restrictions.length > 0 ? ` (${restrictions.join(', ')})` : '';
+    // Build restriction/constraint summary for toast
+    const constraints = [];
+    if (routeFinderState.visibleOnly) constraints.push('visible only');
+    if (!routeFinderState.enableContainerTransit) constraints.push('no container transit');
+    if (!routeFinderState.enableRegionTransit) constraints.push('no region transit');
+    if (routeFinderState.excludedNodes.size > 0) constraints.push(`${routeFinderState.excludedNodes.size} node(s) excluded`);
+    if (routeFinderState.excludedLinks.size > 0) constraints.push(`${routeFinderState.excludedLinks.size} link(s) excluded`);
+    if (routeFinderState.mustUseNodes.size > 0) constraints.push(`${routeFinderState.mustUseNodes.size} must-use node(s)`);
+    if (routeFinderState.mustUseLinks.size > 0) constraints.push(`${routeFinderState.mustUseLinks.size} must-use link(s)`);
+    const constraintText = constraints.length > 0 ? ` (${constraints.join(', ')})` : '';
     
     if (routes.length > 0) {
       highlightActiveRoute();
-      showToast(`✅ Found ${routes.length} route${routes.length > 1 ? 's' : ''}${restrictionText}`);
+      showToast(`✅ Found ${routes.length} route${routes.length > 1 ? 's' : ''}${constraintText}`);
     } else {
       clearRouteHighlights();
       highlightEndpoints();
-      showToast(`❌ No path found${restrictionText}`);
+      showToast(`❌ No path found${constraintText}`);
     }
   }
 
@@ -13537,11 +14301,25 @@ function loadProjectObject(obj) {
       const hasRestrictions = routeFinderState.visibleOnly || 
                               routeFinderState.excludedNodes.size > 0 || 
                               routeFinderState.excludedLinks.size > 0;
+      const hasMustUse = routeFinderState.mustUseNodes.size > 0 || 
+                         routeFinderState.mustUseLinks.size > 0;
+      const hasTransitDisabled = !routeFinderState.enableContainerTransit || 
+                                 !routeFinderState.enableRegionTransit;
+      
+      let hint = 'Nodes are not connected';
+      if (hasMustUse) {
+        hint = 'No routes found passing through all must-use constraints';
+      } else if (hasRestrictions) {
+        hint = 'Try adjusting restrictions';
+      } else if (hasTransitDisabled) {
+        hint = 'Try enabling container/region transit';
+      }
+      
       routeResultsContent.innerHTML = `
         <div style="padding:20px; text-align:center; color:#666;">
           <div style="font-size:32px; margin-bottom:8px;">🚫</div>
           <div><strong>No path found</strong></div>
-          <div style="font-size:11px; margin-top:4px;">${hasRestrictions ? 'Try adjusting restrictions' : 'Nodes are not connected'}</div>
+          <div style="font-size:11px; margin-top:4px;">${hint}</div>
         </div>
       `;
       return;
@@ -13855,11 +14633,11 @@ function loadProjectObject(obj) {
 
   if (btnPickExcludeNode) {
     btnPickExcludeNode.addEventListener('click', () => {
-      if (routeFinderState.pickMode === 'node') {
+      if (routeFinderState.pickMode === 'excludeNode') {
         routeFinderState.pickMode = null;
         showToast('Node pick mode cancelled');
       } else {
-        routeFinderState.pickMode = 'node';
+        routeFinderState.pickMode = 'excludeNode';
         showToast('🎯 Click on a node to exclude it from calculations');
       }
       updatePickModeButtons();
@@ -13878,11 +14656,11 @@ function loadProjectObject(obj) {
 
   if (btnPickExcludeLink) {
     btnPickExcludeLink.addEventListener('click', () => {
-      if (routeFinderState.pickMode === 'link') {
+      if (routeFinderState.pickMode === 'excludeLink') {
         routeFinderState.pickMode = null;
         showToast('Link pick mode cancelled');
       } else {
-        routeFinderState.pickMode = 'link';
+        routeFinderState.pickMode = 'excludeLink';
         showToast('🎯 Click on a link to exclude it from calculations');
       }
       updatePickModeButtons();
@@ -13891,6 +14669,79 @@ function loadProjectObject(obj) {
 
   if (btnClearAllRestrictions) {
     btnClearAllRestrictions.addEventListener('click', clearAllRestrictions);
+  }
+
+  // Must-use node event listeners
+  if (btnAddMustUseNode) {
+    btnAddMustUseNode.addEventListener('click', () => {
+      const val = parseInt(routeMustUseNodeSelect?.value, 10);
+      if (!isNaN(val)) {
+        addMustUseNode(val);
+        routeMustUseNodeSelect.value = '';
+      }
+    });
+  }
+
+  if (btnPickMustUseNode) {
+    btnPickMustUseNode.addEventListener('click', () => {
+      if (routeFinderState.pickMode === 'mustUseNode') {
+        routeFinderState.pickMode = null;
+        showToast('Must-use node pick mode cancelled');
+      } else {
+        routeFinderState.pickMode = 'mustUseNode';
+        showToast('✅ Click on a node to add as must-use waypoint');
+      }
+      updatePickModeButtons();
+    });
+  }
+
+  // Must-use link event listeners
+  if (btnAddMustUseLink) {
+    btnAddMustUseLink.addEventListener('click', () => {
+      const val = parseInt(routeMustUseLinkSelect?.value, 10);
+      if (!isNaN(val)) {
+        addMustUseLink(val);
+        routeMustUseLinkSelect.value = '';
+      }
+    });
+  }
+
+  if (btnPickMustUseLink) {
+    btnPickMustUseLink.addEventListener('click', () => {
+      if (routeFinderState.pickMode === 'mustUseLink') {
+        routeFinderState.pickMode = null;
+        showToast('Must-use link pick mode cancelled');
+      } else {
+        routeFinderState.pickMode = 'mustUseLink';
+        showToast('✅ Click on a link to add as must-use');
+      }
+      updatePickModeButtons();
+    });
+  }
+
+  if (btnClearAllMustUse) {
+    btnClearAllMustUse.addEventListener('click', clearAllMustUse);
+  }
+
+  // Transit toggle event listeners
+  if (routeEnableContainerTransit) {
+    routeEnableContainerTransit.addEventListener('change', () => {
+      routeFinderState.enableContainerTransit = routeEnableContainerTransit.checked;
+      updateTransitLatencyVisibility();
+      routeFinderState.routes = [];
+      updateRouteFinderUI();
+      showToast(routeFinderState.enableContainerTransit ? '✅ Container transit enabled' : '🚫 Container transit disabled');
+    });
+  }
+
+  if (routeEnableRegionTransit) {
+    routeEnableRegionTransit.addEventListener('change', () => {
+      routeFinderState.enableRegionTransit = routeEnableRegionTransit.checked;
+      updateTransitLatencyVisibility();
+      routeFinderState.routes = [];
+      updateRouteFinderUI();
+      showToast(routeFinderState.enableRegionTransit ? '✅ Region transit enabled' : '🚫 Region transit disabled');
+    });
   }
 
   // Make Route Finder panel draggable
