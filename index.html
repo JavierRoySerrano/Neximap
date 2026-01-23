@@ -2369,7 +2369,16 @@
           <input id="canvasHeight" type="number" min="300" step="100" />
         </div>
       </div>
+      <div style="display:flex; gap:6px; margin-top:8px;">
+        <button class="btn" id="btnAutoFitCanvas" style="flex:1; font-size:11px; padding:6px;" title="Automatically expand canvas to fit all elements">
+          📐 Auto-fit Canvas
+        </button>
+        <button class="btn" id="btnCenterElements" style="flex:1; font-size:11px; padding:6px;" title="Center all elements on canvas">
+          ⊛ Center All
+        </button>
+      </div>
       <label class="toggle"><input type="checkbox" id="tglCanvasBorder" checked />Show Canvas Border</label>
+      <label class="toggle"><input type="checkbox" id="tglAutoExpandCanvas" checked />Auto-expand on drag</label>
       <div class="muted" style="margin-top: 8px;">Drag objects beyond the border to expand the workspace.</div>
     </div>
 
@@ -3996,6 +4005,208 @@
     commit();
     render();
     showToast(`Canvas trimmed to ${state.canvasWidth} × ${state.canvasHeight} pixels.`);
+  }
+
+  // Auto-fit canvas to include all elements with padding
+  function autoFitCanvas() {
+    if (state.nodes.length === 0 && state.groups.length === 0) {
+      showToast('No content to fit.');
+      return;
+    }
+
+    // Calculate bounding box of ALL content (including those outside canvas)
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    
+    // Include nodes with their labels (estimate label width)
+    state.nodes.forEach(n => {
+      const r = n.r || 24;
+      const labelPadding = 60; // Extra space for labels
+      minX = Math.min(minX, n.x - r - labelPadding);
+      minY = Math.min(minY, n.y - r - 30); // Space above for labels
+      maxX = Math.max(maxX, n.x + r + labelPadding);
+      maxY = Math.max(maxY, n.y + r + 40); // Space below for labels
+    });
+    
+    // Include groups/containers
+    state.groups.forEach(g => {
+      minX = Math.min(minX, g.x - 20);
+      minY = Math.min(minY, g.y - 30); // Title space above
+      maxX = Math.max(maxX, g.x + g.w + 20);
+      maxY = Math.max(maxY, g.y + g.h + 20);
+    });
+
+    // Add padding around content
+    const padding = 80;
+    
+    // Calculate how much we need to shift elements (if minX or minY is negative or too small)
+    const shiftX = minX < padding ? padding - minX : 0;
+    const shiftY = minY < padding ? padding - minY : 0;
+    
+    // Move all nodes if needed
+    if (shiftX > 0 || shiftY > 0) {
+      state.nodes.forEach(n => {
+        n.x += shiftX;
+        n.y += shiftY;
+      });
+      
+      // Move all groups
+      state.groups.forEach(g => {
+        g.x += shiftX;
+        g.y += shiftY;
+      });
+      
+      // Update bounds after shift
+      minX += shiftX;
+      minY += shiftY;
+      maxX += shiftX;
+      maxY += shiftY;
+    }
+
+    // Calculate new canvas size
+    const newWidth = Math.max(state.canvasWidth, maxX + padding);
+    const newHeight = Math.max(state.canvasHeight, maxY + padding);
+    
+    const wasExpanded = newWidth > state.canvasWidth || newHeight > state.canvasHeight;
+    const wasShifted = shiftX > 0 || shiftY > 0;
+    
+    state.canvasWidth = Math.ceil(newWidth);
+    state.canvasHeight = Math.ceil(newHeight);
+
+    // Update viewBox
+    updateViewBox();
+    
+    // Update canvas size inputs
+    const canvasWidthInput = document.getElementById('canvasWidth');
+    const canvasHeightInput = document.getElementById('canvasHeight');
+    if (canvasWidthInput) canvasWidthInput.value = state.canvasWidth;
+    if (canvasHeightInput) canvasHeightInput.value = state.canvasHeight;
+
+    commit();
+    render();
+    
+    if (wasShifted && wasExpanded) {
+      showToast(`📐 Canvas expanded to ${state.canvasWidth} × ${state.canvasHeight} and elements repositioned`);
+    } else if (wasShifted) {
+      showToast(`📐 Elements repositioned to fit within canvas`);
+    } else if (wasExpanded) {
+      showToast(`📐 Canvas expanded to ${state.canvasWidth} × ${state.canvasHeight}`);
+    } else {
+      showToast(`📐 All elements already fit within canvas`);
+    }
+  }
+
+  // Center all elements on the canvas
+  function centerElements() {
+    if (state.nodes.length === 0 && state.groups.length === 0) {
+      showToast('No content to center.');
+      return;
+    }
+
+    // Calculate bounding box of all content
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    
+    state.nodes.forEach(n => {
+      const r = n.r || 24;
+      minX = Math.min(minX, n.x - r);
+      minY = Math.min(minY, n.y - r);
+      maxX = Math.max(maxX, n.x + r);
+      maxY = Math.max(maxY, n.y + r);
+    });
+    
+    state.groups.forEach(g => {
+      minX = Math.min(minX, g.x);
+      minY = Math.min(minY, g.y);
+      maxX = Math.max(maxX, g.x + g.w);
+      maxY = Math.max(maxY, g.y + g.h);
+    });
+
+    // Calculate content dimensions
+    const contentWidth = maxX - minX;
+    const contentHeight = maxY - minY;
+    
+    // Calculate offset to center content
+    const targetX = (state.canvasWidth - contentWidth) / 2;
+    const targetY = (state.canvasHeight - contentHeight) / 2;
+    
+    const offsetX = targetX - minX;
+    const offsetY = targetY - minY;
+
+    // Move all nodes
+    state.nodes.forEach(n => {
+      n.x += offsetX;
+      n.y += offsetY;
+    });
+
+    // Move all groups
+    state.groups.forEach(g => {
+      g.x += offsetX;
+      g.y += offsetY;
+    });
+
+    commit();
+    render();
+    showToast('⊛ Elements centered on canvas');
+  }
+
+  // Check if elements are outside canvas bounds and auto-expand if enabled
+  function checkAndAutoExpandCanvas() {
+    const autoExpandCheckbox = document.getElementById('tglAutoExpandCanvas');
+    if (!autoExpandCheckbox || !autoExpandCheckbox.checked) return;
+    
+    let needsExpansion = false;
+    let maxX = state.canvasWidth;
+    let maxY = state.canvasHeight;
+    let minX = 0;
+    let minY = 0;
+    
+    // Check nodes
+    state.nodes.forEach(n => {
+      const r = n.r || 24;
+      if (n.x + r + 50 > maxX) { maxX = n.x + r + 100; needsExpansion = true; }
+      if (n.y + r + 50 > maxY) { maxY = n.y + r + 100; needsExpansion = true; }
+      if (n.x - r < minX + 50) { minX = n.x - r - 100; needsExpansion = true; }
+      if (n.y - r < minY + 50) { minY = n.y - r - 100; needsExpansion = true; }
+    });
+    
+    // Check groups
+    state.groups.forEach(g => {
+      if (g.x + g.w + 50 > maxX) { maxX = g.x + g.w + 100; needsExpansion = true; }
+      if (g.y + g.h + 50 > maxY) { maxY = g.y + g.h + 100; needsExpansion = true; }
+      if (g.x < minX + 50) { minX = g.x - 100; needsExpansion = true; }
+      if (g.y < minY + 50) { minY = g.y - 100; needsExpansion = true; }
+    });
+    
+    if (!needsExpansion) return;
+    
+    // Calculate shift needed for left/top expansion
+    const shiftX = minX < 0 ? -minX : 0;
+    const shiftY = minY < 0 ? -minY : 0;
+    
+    if (shiftX > 0 || shiftY > 0) {
+      // Shift all elements to accommodate left/top expansion
+      state.nodes.forEach(n => {
+        n.x += shiftX;
+        n.y += shiftY;
+      });
+      state.groups.forEach(g => {
+        g.x += shiftX;
+        g.y += shiftY;
+      });
+      maxX += shiftX;
+      maxY += shiftY;
+    }
+    
+    // Update canvas size
+    state.canvasWidth = Math.ceil(Math.max(state.canvasWidth, maxX));
+    state.canvasHeight = Math.ceil(Math.max(state.canvasHeight, maxY));
+    
+    updateViewBox();
+    
+    // Update canvas size inputs
+    const canvasWidthInput = document.getElementById('canvasWidth');
+    const canvasHeightInput = document.getElementById('canvasHeight');
+    if (canvasWidthInput) canvasWidthInput.value = state.canvasWidth;
+    if (canvasHeightInput) canvasHeightInput.value = state.canvasHeight;
   }
 
   // In-app clipboard (for copy/paste)
@@ -10521,6 +10732,11 @@ if (groupTitleFontInline) {
     state.resizingGroup = null;
     state.resizingNode = null;
     
+    // Check if canvas needs to expand to fit elements
+    if (wasDragging && typeof checkAndAutoExpandCanvas === 'function') {
+      checkAndAutoExpandCanvas();
+    }
+    
     // Render if we were dragging to update cursor/state
     if (wasDragging) {
       render();
@@ -12003,6 +12219,25 @@ function loadProjectObject(obj) {
       commit();
       render();
     });
+  }
+
+  // Auto-fit Canvas button
+  const btnAutoFitCanvas = document.getElementById('btnAutoFitCanvas');
+  if (btnAutoFitCanvas) {
+    btnAutoFitCanvas.addEventListener('click', autoFitCanvas);
+  }
+
+  // Center Elements button
+  const btnCenterElements = document.getElementById('btnCenterElements');
+  if (btnCenterElements) {
+    btnCenterElements.addEventListener('click', centerElements);
+  }
+
+  // Auto-expand canvas toggle - stored in state
+  const tglAutoExpandCanvas = document.getElementById('tglAutoExpandCanvas');
+  if (tglAutoExpandCanvas) {
+    // Default to checked
+    tglAutoExpandCanvas.checked = true;
   }
 
   // ============== SHAPE LIBRARY SYSTEM ==============
