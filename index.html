@@ -748,6 +748,180 @@
       margin-bottom: 8px;
     }
 
+    /* Label Manager Panel */
+    #labelManagerPanel {
+      position: absolute;
+      left: 360px;
+      top: 20px;
+      width: 340px;
+      max-height: calc(100vh - 160px);
+      background: #ffffff;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      z-index: 99;
+      flex-direction: column;
+      overflow: hidden;
+      resize: horizontal;
+      min-width: 300px;
+      max-width: 500px;
+      display: none;
+    }
+    #labelManagerPanel.visible {
+      display: flex !important;
+    }
+    #labelManagerHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      border-bottom: 1px solid #7c3aed;
+      cursor: move;
+      user-select: none;
+    }
+    #labelManagerHeader h3 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+    #labelManagerControls {
+      display: flex;
+      gap: 4px;
+    }
+    #labelManagerControls button {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #labelManagerControls button:hover { background: rgba(255,255,255,0.3); }
+    #labelManagerContent {
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+    /* Tag items in Label Manager */
+    .lm-tag-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .lm-tag-item:hover {
+      background: #f3f4f6;
+    }
+    .lm-tag-item.selected {
+      background: #ede9fe;
+    }
+    .lm-tag-checkbox {
+      width: 16px;
+      height: 16px;
+      accent-color: #8b5cf6;
+    }
+    .lm-tag-name {
+      flex: 1;
+      font-size: 12px;
+      color: #374151;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .lm-tag-counts {
+      display: flex;
+      gap: 6px;
+      font-size: 10px;
+      color: #9ca3af;
+    }
+    .lm-tag-count {
+      padding: 1px 4px;
+      background: #f3f4f6;
+      border-radius: 3px;
+    }
+    .lm-tag-count.nodes { background: #dbeafe; color: #1d4ed8; }
+    .lm-tag-count.links { background: #fef3c7; color: #92400e; }
+    .lm-tag-count.containers { background: #d1fae5; color: #065f46; }
+    .lm-tag-menu {
+      opacity: 0;
+      padding: 2px 6px;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    .lm-tag-item:hover .lm-tag-menu {
+      opacity: 1;
+    }
+    .lm-tag-menu:hover {
+      background: #e5e7eb;
+    }
+    
+    /* Selection status indicator */
+    .lm-selection-status {
+      padding: 10px 12px;
+      background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%);
+      border-bottom: 1px solid #c4b5fd;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .lm-selection-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: #8b5cf6;
+      color: white;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    
+    /* Checkbox states */
+    .lm-checkbox-partial {
+      position: relative;
+    }
+    .lm-checkbox-partial::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 2px;
+      background: #8b5cf6;
+    }
+    
+    /* Tag pill style for selection display */
+    .lm-tag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: #ede9fe;
+      color: #6d28d9;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .lm-tag-pill .remove {
+      cursor: pointer;
+      opacity: 0.7;
+    }
+    .lm-tag-pill .remove:hover {
+      opacity: 1;
+    }
+
     .toast {
       position:absolute; right:14px; bottom:14px; background:#333; border:1px solid #222;
       color:#fff; padding:10px 16px; border-radius:8px; max-width: 520px; font-size: 13px; opacity:0;
@@ -2090,6 +2264,16 @@
     
     <div style="flex:1;"></div>
     
+    <!-- Label Manager Button -->
+    <button class="tool-btn" id="btnLabelManager" type="button" title="Label Manager - Manage tags across nodes, links, and containers">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+        <path d="M2 17l10 5 10-5"/>
+        <path d="M2 12l10 5 10-5"/>
+      </svg>
+      <span style="font-size:11px; margin-left:4px;">Labels</span>
+    </button>
+    
     <!-- Route Finder Button -->
     <button class="tool-btn" id="btnRouteFinder" type="button" title="Route Finder - Find optimal paths between nodes">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -3149,6 +3333,202 @@
         <button class="btn" id="btnExitRouteFinder" style="width:100%; background:#f3f4f6; border-color:#d1d5db;">
           ← Exit Route Finder (Return to Edit Mode)
         </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Label Manager Panel -->
+  <aside id="labelManagerPanel">
+    <div id="labelManagerHeader">
+      <h3>🏷️ Label Manager</h3>
+      <div id="labelManagerControls">
+        <button id="btnCloseLabelManager" title="Close Label Manager">✕</button>
+      </div>
+    </div>
+    <div id="labelManagerContent">
+      <!-- Selection Status -->
+      <div id="lmSelectionStatus" class="lm-selection-status">
+        <span style="font-size:14px;">📌</span>
+        <div style="flex:1;">
+          <div style="font-weight:600; font-size:12px; color:#5b21b6;">Selection</div>
+          <div id="lmSelectionSummary" style="font-size:11px; color:#7c3aed;">Nothing selected</div>
+        </div>
+      </div>
+
+      <!-- Project Tags Section -->
+      <div class="inspector-section" data-section="lm-project-tags">
+        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>📋 Project Tags</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content">
+          <div style="margin-bottom:8px;">
+            <input type="text" id="lmTagSearch" placeholder="Search tags..." style="width:100%; padding:6px 10px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px;" />
+          </div>
+          <div style="display:flex; gap:4px; margin-bottom:8px;">
+            <button class="btn" id="lmFilterAll" style="flex:1; font-size:10px; padding:4px 6px;" title="Show all tags">All</button>
+            <button class="btn" id="lmFilterNodes" style="flex:1; font-size:10px; padding:4px 6px;" title="Show tags used on nodes">🔵 Nodes</button>
+            <button class="btn" id="lmFilterLinks" style="flex:1; font-size:10px; padding:4px 6px;" title="Show tags used on links">🔶 Links</button>
+            <button class="btn" id="lmFilterContainers" style="flex:1; font-size:10px; padding:4px 6px;" title="Show tags used on containers">🟩 Boxes</button>
+          </div>
+          <div id="lmProjectTagsList" style="max-height:200px; overflow-y:auto; border:1px solid #e5e7eb; border-radius:4px;">
+            <!-- Tags will be rendered here -->
+          </div>
+          <div style="display:flex; gap:6px; margin-top:8px;">
+            <button class="btn" id="lmSelectAllWithTag" style="flex:1; font-size:11px; padding:6px;" disabled>
+              🎯 Select All with Checked Tags
+            </button>
+          </div>
+          <div style="display:flex; gap:6px; margin-top:6px;">
+            <button class="btn" id="lmNewTag" style="flex:1; font-size:11px; padding:6px;">
+              + New Tag
+            </button>
+            <button class="btn" id="lmDeleteUnused" style="flex:1; font-size:11px; padding:6px;" title="Remove tags not used anywhere">
+              🗑️ Delete Unused
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selection Tags Section -->
+      <div class="inspector-section" data-section="lm-selection-tags">
+        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>✏️ Selection Tags</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content">
+          <div id="lmNoSelection" style="padding:12px; text-align:center; color:#9ca3af; font-size:12px;">
+            <div style="font-size:24px; margin-bottom:6px;">👆</div>
+            Select nodes, links, or containers<br>to manage their tags
+          </div>
+          <div id="lmSelectionTags" style="display:none;">
+            <div style="font-size:11px; color:#6b7280; margin-bottom:8px;">
+              Check/uncheck to add/remove tags from selection:
+            </div>
+            <div id="lmSelectionTagsList" style="max-height:180px; overflow-y:auto; border:1px solid #e5e7eb; border-radius:4px;">
+              <!-- Selection tags with checkboxes -->
+            </div>
+            <div style="display:flex; gap:6px; margin-top:8px;">
+              <button class="btn" id="lmApplyChecked" style="flex:1; font-size:11px; padding:6px; background:#f0fdf4; border-color:#86efac; color:#166534;">
+                ✓ Apply Checked
+              </button>
+              <button class="btn" id="lmRemoveUnchecked" style="flex:1; font-size:11px; padding:6px; background:#fef2f2; border-color:#fecaca; color:#991b1b;">
+                ✗ Remove Unchecked
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bulk Apply Section -->
+      <div class="inspector-section" data-section="lm-bulk-apply">
+        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>⚡ Bulk Apply</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content">
+          <div class="hint" style="margin-bottom:10px; padding:6px; background:#f3e8ff; border-radius:4px; color:#6d28d9; font-size:11px;">
+            Apply or remove multiple tags at once
+          </div>
+          
+          <!-- Tags to apply/remove -->
+          <div class="row">
+            <label style="font-weight:600; font-size:11px;">Tags to Apply/Remove</label>
+            <div id="lmBulkTagsSelected" style="min-height:30px; padding:6px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:4px; margin-top:4px; display:flex; flex-wrap:wrap; gap:4px;">
+              <span style="color:#9ca3af; font-size:11px;">Click tags below to add</span>
+            </div>
+          </div>
+          
+          <!-- Available tags multiselect -->
+          <div class="row" style="margin-top:8px;">
+            <label style="font-weight:600; font-size:11px;">Available Tags (click to add)</label>
+            <div id="lmBulkAvailableTags" style="max-height:100px; overflow-y:auto; padding:6px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:4px; margin-top:4px; display:flex; flex-wrap:wrap; gap:4px;">
+              <!-- Available tags -->
+            </div>
+            <div style="display:flex; gap:4px; margin-top:6px;">
+              <input type="text" id="lmBulkNewTag" placeholder="Or type new tag..." style="flex:1; padding:6px; font-size:11px; border:1px solid #d0d0d0; border-radius:4px;" />
+              <button class="btn" id="lmBulkAddNewTag" style="padding:6px 10px; font-size:11px;">+</button>
+            </div>
+          </div>
+          
+          <!-- Action mode -->
+          <div class="row" style="margin-top:10px;">
+            <label style="font-weight:600; font-size:11px;">Action</label>
+            <div style="display:flex; flex-direction:column; gap:4px; margin-top:4px;">
+              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12px;">
+                <input type="radio" name="lmBulkAction" value="add" checked style="accent-color:#8b5cf6;" />
+                <span style="color:#166534;">➕ Add tags to targets</span>
+              </label>
+              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12px;">
+                <input type="radio" name="lmBulkAction" value="remove" style="accent-color:#8b5cf6;" />
+                <span style="color:#991b1b;">➖ Remove tags from targets</span>
+              </label>
+              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12px;">
+                <input type="radio" name="lmBulkAction" value="set" style="accent-color:#8b5cf6;" />
+                <span style="color:#1d4ed8;">🔄 Set tags exactly (replace all)</span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- Target selection -->
+          <div class="row" style="margin-top:10px;">
+            <label style="font-weight:600; font-size:11px;">Target Elements</label>
+            <div style="display:flex; flex-direction:column; gap:4px; margin-top:4px;">
+              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12px;">
+                <input type="radio" name="lmBulkTarget" value="selection" checked style="accent-color:#8b5cf6;" />
+                <span>Current selection</span>
+                <span id="lmBulkSelectionCount" class="lm-selection-badge" style="font-size:10px;">0 items</span>
+              </label>
+              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12px;">
+                <input type="radio" name="lmBulkTarget" value="pick" style="accent-color:#8b5cf6;" />
+                <span>Pick elements on canvas</span>
+                <button class="btn" id="lmBulkPickMode" style="padding:2px 8px; font-size:10px; margin-left:auto;">🎯 Start Pick</button>
+              </label>
+            </div>
+            <div id="lmBulkPickList" style="display:none; margin-top:8px; padding:6px; background:#fef3c7; border-radius:4px;">
+              <div style="font-size:11px; font-weight:600; color:#92400e; margin-bottom:4px;">Picked elements:</div>
+              <div id="lmBulkPickedItems" style="display:flex; flex-wrap:wrap; gap:4px;">
+                <!-- Picked items will appear here -->
+              </div>
+              <button class="btn" id="lmBulkClearPicked" style="width:100%; margin-top:6px; font-size:10px; padding:4px;">Clear All</button>
+            </div>
+          </div>
+          
+          <!-- Apply button -->
+          <div class="row" style="margin-top:12px;">
+            <button class="btn primary" id="lmBulkApply" style="width:100%; padding:10px; font-size:12px; background:linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border:none; color:white;">
+              ⚡ Apply Changes
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rename Tag Section -->
+      <div class="inspector-section collapsed" data-section="lm-rename">
+        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>✏️ Rename Tag</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content">
+          <div class="hint" style="margin-bottom:10px; padding:6px; background:#fef3c7; border-radius:4px; color:#92400e; font-size:11px;">
+            Rename a tag across all nodes, links, and containers
+          </div>
+          <div class="row">
+            <label style="font-weight:600; font-size:11px;">Current Tag Name</label>
+            <select id="lmRenameFrom" style="width:100%; padding:6px; font-size:11px; border-radius:4px; border:1px solid #ddd; margin-top:4px;">
+              <option value="">-- Select tag to rename --</option>
+            </select>
+          </div>
+          <div class="row" style="margin-top:8px;">
+            <label style="font-weight:600; font-size:11px;">New Tag Name</label>
+            <input type="text" id="lmRenameTo" placeholder="Enter new name..." style="width:100%; padding:6px; font-size:11px; border-radius:4px; border:1px solid #ddd; margin-top:4px;" />
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <button class="btn" id="lmRenameApply" style="width:100%; padding:8px; font-size:11px; background:#fef3c7; border-color:#fcd34d; color:#92400e;">
+              ✏️ Rename Tag Globally
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </aside>
@@ -7173,6 +7553,10 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       svg.appendChild(r);
     }
     updateInspector();
+    // Refresh Label Manager if visible
+    if (window.labelManagerState?.visible && typeof window.refreshLabelManager === 'function') {
+      window.refreshLabelManager();
+    }
   }
 
   function drawGroup(g) {
@@ -14845,6 +15229,1193 @@ function loadProjectObject(obj) {
   });
 
   // ============== END ROUTE FINDER / PATHFINDING SYSTEM ==============
+
+  // ============== LABEL MANAGER ==============
+  
+  const labelManagerPanel = document.getElementById('labelManagerPanel');
+  const labelManagerHeader = document.getElementById('labelManagerHeader');
+  const btnLabelManager = document.getElementById('btnLabelManager');
+  const btnCloseLabelManager = document.getElementById('btnCloseLabelManager');
+  
+  // Label Manager state
+  const labelManagerState = {
+    visible: false,
+    filterType: 'all', // 'all', 'nodes', 'links', 'containers'
+    selectedProjectTags: new Set(),
+    pickMode: false,
+    pickedElements: { nodes: new Set(), links: new Set(), containers: new Set() },
+    bulkTags: new Set()
+  };
+  
+  // Open/close Label Manager
+  function toggleLabelManager() {
+    labelManagerState.visible = !labelManagerState.visible;
+    if (labelManagerPanel) {
+      labelManagerPanel.classList.toggle('visible', labelManagerState.visible);
+    }
+    if (labelManagerState.visible) {
+      refreshLabelManager();
+    }
+  }
+  
+  function closeLabelManager() {
+    labelManagerState.visible = false;
+    labelManagerState.pickMode = false;
+    if (labelManagerPanel) {
+      labelManagerPanel.classList.remove('visible');
+    }
+  }
+  
+  // Get all unique tags from the project
+  function getAllProjectTags() {
+    const tagCounts = new Map(); // tag -> { nodes: count, links: count, containers: count }
+    
+    // Count node tags
+    state.nodes.forEach(n => {
+      const tags = n.tags || [];
+      tags.forEach(tag => {
+        if (!tagCounts.has(tag)) tagCounts.set(tag, { nodes: 0, links: 0, containers: 0 });
+        tagCounts.get(tag).nodes++;
+      });
+      // Also check extraTags
+      if (n.extraTags) {
+        n.extraTags.split(',').map(t => t.trim()).filter(Boolean).forEach(tag => {
+          if (!tagCounts.has(tag)) tagCounts.set(tag, { nodes: 0, links: 0, containers: 0 });
+          tagCounts.get(tag).nodes++;
+        });
+      }
+    });
+    
+    // Count edge/link tags (filterTags)
+    state.edges.forEach(e => {
+      const tags = e.filterTags || [];
+      tags.forEach(tag => {
+        if (!tagCounts.has(tag)) tagCounts.set(tag, { nodes: 0, links: 0, containers: 0 });
+        tagCounts.get(tag).links++;
+      });
+      if (e.extraTags) {
+        e.extraTags.split(',').map(t => t.trim()).filter(Boolean).forEach(tag => {
+          if (!tagCounts.has(tag)) tagCounts.set(tag, { nodes: 0, links: 0, containers: 0 });
+          tagCounts.get(tag).links++;
+        });
+      }
+    });
+    
+    // Count container tags (filterTags)
+    state.groups.forEach(g => {
+      const tags = g.filterTags || [];
+      tags.forEach(tag => {
+        if (!tagCounts.has(tag)) tagCounts.set(tag, { nodes: 0, links: 0, containers: 0 });
+        tagCounts.get(tag).containers++;
+      });
+      if (g.extraTags) {
+        g.extraTags.split(',').map(t => t.trim()).filter(Boolean).forEach(tag => {
+          if (!tagCounts.has(tag)) tagCounts.set(tag, { nodes: 0, links: 0, containers: 0 });
+          tagCounts.get(tag).containers++;
+        });
+      }
+    });
+    
+    return tagCounts;
+  }
+  
+  // Get tags for a specific element
+  function getElementTags(type, id) {
+    const tags = new Set();
+    if (type === 'node') {
+      const n = findNode(id);
+      if (n) {
+        (n.tags || []).forEach(t => tags.add(t));
+        if (n.extraTags) n.extraTags.split(',').map(t => t.trim()).filter(Boolean).forEach(t => tags.add(t));
+      }
+    } else if (type === 'edge') {
+      const e = state.edges.find(e => e.id === id);
+      if (e) {
+        (e.filterTags || []).forEach(t => tags.add(t));
+        if (e.extraTags) e.extraTags.split(',').map(t => t.trim()).filter(Boolean).forEach(t => tags.add(t));
+      }
+    } else if (type === 'group') {
+      const g = findGroup(id);
+      if (g) {
+        (g.filterTags || []).forEach(t => tags.add(t));
+        if (g.extraTags) g.extraTags.split(',').map(t => t.trim()).filter(Boolean).forEach(t => tags.add(t));
+      }
+    }
+    return tags;
+  }
+  
+  // Set tags on an element
+  function setElementTags(type, id, tags) {
+    const tagArray = Array.from(tags);
+    if (type === 'node') {
+      const n = findNode(id);
+      if (n) {
+        n.tags = tagArray;
+        n.extraTags = '';
+      }
+    } else if (type === 'edge') {
+      const e = state.edges.find(e => e.id === id);
+      if (e) {
+        e.filterTags = tagArray;
+        e.extraTags = '';
+      }
+    } else if (type === 'group') {
+      const g = findGroup(id);
+      if (g) {
+        g.filterTags = tagArray;
+        g.extraTags = '';
+      }
+    }
+  }
+  
+  // Get current selection summary
+  function getSelectionSummary() {
+    const nodeCount = state.selection.nodes.size + (state.selected?.type === 'node' ? 1 : 0);
+    const linkCount = state.selection.edges.size + (state.selected?.type === 'edge' ? 1 : 0);
+    const containerCount = state.selection.groups.size + (state.selected?.type === 'group' ? 1 : 0);
+    return { nodeCount, linkCount, containerCount, total: nodeCount + linkCount + containerCount };
+  }
+  
+  // Get all selected element IDs
+  function getSelectedElements() {
+    const nodes = new Set(state.selection.nodes);
+    const edges = new Set(state.selection.edges);
+    const groups = new Set(state.selection.groups);
+    
+    if (state.selected?.type === 'node') nodes.add(state.selected.id);
+    if (state.selected?.type === 'edge') edges.add(state.selected.id);
+    if (state.selected?.type === 'group') groups.add(state.selected.id);
+    
+    return { nodes, edges, groups };
+  }
+  
+  // Get tags across all selected elements with counts
+  function getSelectionTagsWithCounts() {
+    const { nodes, edges, groups } = getSelectedElements();
+    const totalCount = nodes.size + edges.size + groups.size;
+    const tagCounts = new Map(); // tag -> count of elements that have it
+    
+    // Count from nodes
+    nodes.forEach(id => {
+      const tags = getElementTags('node', id);
+      tags.forEach(tag => {
+        tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+      });
+    });
+    
+    // Count from edges
+    edges.forEach(id => {
+      const tags = getElementTags('edge', id);
+      tags.forEach(tag => {
+        tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+      });
+    });
+    
+    // Count from groups
+    groups.forEach(id => {
+      const tags = getElementTags('group', id);
+      tags.forEach(tag => {
+        tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+      });
+    });
+    
+    return { tagCounts, totalCount };
+  }
+  
+  // Refresh entire Label Manager UI
+  function refreshLabelManager() {
+    renderProjectTagsList();
+    renderSelectionTags();
+    renderBulkApplySection();
+    updateSelectionStatus();
+    updateRenameDropdown();
+  }
+  
+  // Update selection status display
+  function updateSelectionStatus() {
+    const summary = getSelectionSummary();
+    const summaryEl = document.getElementById('lmSelectionSummary');
+    const bulkCountEl = document.getElementById('lmBulkSelectionCount');
+    
+    if (summary.total === 0) {
+      if (summaryEl) summaryEl.textContent = 'Nothing selected';
+      if (bulkCountEl) bulkCountEl.textContent = '0 items';
+    } else {
+      const parts = [];
+      if (summary.nodeCount > 0) parts.push(`${summary.nodeCount} node${summary.nodeCount > 1 ? 's' : ''}`);
+      if (summary.linkCount > 0) parts.push(`${summary.linkCount} link${summary.linkCount > 1 ? 's' : ''}`);
+      if (summary.containerCount > 0) parts.push(`${summary.containerCount} container${summary.containerCount > 1 ? 's' : ''}`);
+      if (summaryEl) summaryEl.textContent = parts.join(', ');
+      if (bulkCountEl) bulkCountEl.textContent = `${summary.total} item${summary.total > 1 ? 's' : ''}`;
+    }
+  }
+  
+  // Render project tags list
+  function renderProjectTagsList() {
+    const container = document.getElementById('lmProjectTagsList');
+    if (!container) return;
+    
+    const searchInput = document.getElementById('lmTagSearch');
+    const searchTerm = (searchInput?.value || '').toLowerCase();
+    
+    const allTags = getAllProjectTags();
+    const filterType = labelManagerState.filterType;
+    
+    // Filter and sort tags
+    let filteredTags = [];
+    allTags.forEach((counts, tag) => {
+      if (searchTerm && !tag.toLowerCase().includes(searchTerm)) return;
+      
+      // Apply type filter
+      if (filterType === 'nodes' && counts.nodes === 0) return;
+      if (filterType === 'links' && counts.links === 0) return;
+      if (filterType === 'containers' && counts.containers === 0) return;
+      
+      filteredTags.push({ tag, ...counts, total: counts.nodes + counts.links + counts.containers });
+    });
+    
+    filteredTags.sort((a, b) => a.tag.localeCompare(b.tag));
+    
+    if (filteredTags.length === 0) {
+      container.innerHTML = `<div style="padding:20px; text-align:center; color:#9ca3af; font-size:11px;">
+        ${searchTerm ? 'No tags matching search' : 'No tags in project'}
+      </div>`;
+      return;
+    }
+    
+    let html = '';
+    filteredTags.forEach(({ tag, nodes, links, containers }) => {
+      const isChecked = labelManagerState.selectedProjectTags.has(tag);
+      html += `
+        <div class="lm-tag-item ${isChecked ? 'selected' : ''}" data-tag="${escapeHtml(tag)}">
+          <input type="checkbox" class="lm-tag-checkbox" ${isChecked ? 'checked' : ''} />
+          <span class="lm-tag-name">${escapeHtml(tag)}</span>
+          <div class="lm-tag-counts">
+            ${nodes > 0 ? `<span class="lm-tag-count nodes" title="Nodes">${nodes}N</span>` : ''}
+            ${links > 0 ? `<span class="lm-tag-count links" title="Links">${links}L</span>` : ''}
+            ${containers > 0 ? `<span class="lm-tag-count containers" title="Containers">${containers}C</span>` : ''}
+          </div>
+          <span class="lm-tag-menu" onclick="event.stopPropagation(); showLMTagMenu('${escapeHtml(tag)}', event)">⋮</span>
+        </div>
+      `;
+    });
+    
+    container.innerHTML = html;
+    
+    // Add click handlers
+    container.querySelectorAll('.lm-tag-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        if (e.target.classList.contains('lm-tag-menu')) return;
+        const tag = item.dataset.tag;
+        const checkbox = item.querySelector('.lm-tag-checkbox');
+        
+        if (labelManagerState.selectedProjectTags.has(tag)) {
+          labelManagerState.selectedProjectTags.delete(tag);
+          checkbox.checked = false;
+          item.classList.remove('selected');
+        } else {
+          labelManagerState.selectedProjectTags.add(tag);
+          checkbox.checked = true;
+          item.classList.add('selected');
+        }
+        
+        updateSelectAllButton();
+      });
+    });
+    
+    updateSelectAllButton();
+  }
+  
+  // Helper to escape HTML
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+  
+  // Update "Select All with Tag" button state
+  function updateSelectAllButton() {
+    const btn = document.getElementById('lmSelectAllWithTag');
+    if (btn) {
+      btn.disabled = labelManagerState.selectedProjectTags.size === 0;
+    }
+  }
+  
+  // Select all elements with checked tags
+  function selectAllWithCheckedTags() {
+    const tags = labelManagerState.selectedProjectTags;
+    if (tags.size === 0) {
+      showToast('No tags selected');
+      return;
+    }
+    
+    // Clear current selection
+    state.selection.nodes.clear();
+    state.selection.edges.clear();
+    state.selection.groups.clear();
+    state.selected = null;
+    
+    let count = 0;
+    
+    // Select nodes with any of the tags
+    state.nodes.forEach(n => {
+      const nodeTags = getElementTags('node', n.id);
+      for (const tag of tags) {
+        if (nodeTags.has(tag)) {
+          state.selection.nodes.add(n.id);
+          count++;
+          break;
+        }
+      }
+    });
+    
+    // Select edges with any of the tags
+    state.edges.forEach(e => {
+      const edgeTags = getElementTags('edge', e.id);
+      for (const tag of tags) {
+        if (edgeTags.has(tag)) {
+          state.selection.edges.add(e.id);
+          count++;
+          break;
+        }
+      }
+    });
+    
+    // Select containers with any of the tags
+    state.groups.forEach(g => {
+      const groupTags = getElementTags('group', g.id);
+      for (const tag of tags) {
+        if (groupTags.has(tag)) {
+          state.selection.groups.add(g.id);
+          count++;
+          break;
+        }
+      }
+    });
+    
+    render();
+    refreshLabelManager();
+    showToast(`🎯 Selected ${count} element${count !== 1 ? 's' : ''} with checked tags`);
+  }
+  
+  // Render selection tags section
+  function renderSelectionTags() {
+    const noSelectionEl = document.getElementById('lmNoSelection');
+    const selectionTagsEl = document.getElementById('lmSelectionTags');
+    const listEl = document.getElementById('lmSelectionTagsList');
+    
+    const summary = getSelectionSummary();
+    
+    if (summary.total === 0) {
+      if (noSelectionEl) noSelectionEl.style.display = 'block';
+      if (selectionTagsEl) selectionTagsEl.style.display = 'none';
+      return;
+    }
+    
+    if (noSelectionEl) noSelectionEl.style.display = 'none';
+    if (selectionTagsEl) selectionTagsEl.style.display = 'block';
+    
+    if (!listEl) return;
+    
+    const { tagCounts, totalCount } = getSelectionTagsWithCounts();
+    const allTags = getAllProjectTags();
+    
+    // Merge all project tags with selection counts
+    const mergedTags = new Map();
+    allTags.forEach((counts, tag) => {
+      mergedTags.set(tag, {
+        inProject: true,
+        inSelection: tagCounts.get(tag) || 0,
+        total: totalCount
+      });
+    });
+    
+    // Sort: tags in selection first, then alphabetically
+    const sortedTags = Array.from(mergedTags.entries())
+      .sort((a, b) => {
+        if (a[1].inSelection > 0 && b[1].inSelection === 0) return -1;
+        if (a[1].inSelection === 0 && b[1].inSelection > 0) return 1;
+        return a[0].localeCompare(b[0]);
+      });
+    
+    let html = '';
+    sortedTags.forEach(([tag, info]) => {
+      const allHave = info.inSelection === info.total;
+      const someHave = info.inSelection > 0 && info.inSelection < info.total;
+      const noneHave = info.inSelection === 0;
+      
+      const checkState = allHave ? 'checked' : (someHave ? 'indeterminate' : '');
+      const label = allHave ? '(all)' : (someHave ? `(${info.inSelection}/${info.total})` : '');
+      
+      html += `
+        <div class="lm-tag-item" data-tag="${escapeHtml(tag)}">
+          <input type="checkbox" class="lm-tag-checkbox" ${checkState} data-partial="${someHave}" />
+          <span class="lm-tag-name">${escapeHtml(tag)}</span>
+          <span style="font-size:10px; color:#9ca3af; margin-left:auto;">${label}</span>
+        </div>
+      `;
+    });
+    
+    listEl.innerHTML = html || '<div style="padding:12px; text-align:center; color:#9ca3af; font-size:11px;">No tags in project</div>';
+    
+    // Set indeterminate state and add click handlers
+    listEl.querySelectorAll('.lm-tag-item').forEach(item => {
+      const checkbox = item.querySelector('.lm-tag-checkbox');
+      if (checkbox.dataset.partial === 'true') {
+        checkbox.indeterminate = true;
+      }
+      
+      item.addEventListener('click', (e) => {
+        if (e.target === checkbox) return; // Let checkbox handle its own click
+        checkbox.checked = !checkbox.checked;
+        checkbox.indeterminate = false;
+      });
+    });
+  }
+  
+  // Apply checked tags to selection
+  function applyCheckedTagsToSelection() {
+    const listEl = document.getElementById('lmSelectionTagsList');
+    if (!listEl) return;
+    
+    const { nodes, edges, groups } = getSelectedElements();
+    if (nodes.size + edges.size + groups.size === 0) {
+      showToast('Nothing selected');
+      return;
+    }
+    
+    const checkedTags = new Set();
+    listEl.querySelectorAll('.lm-tag-checkbox:checked').forEach(cb => {
+      const item = cb.closest('.lm-tag-item');
+      if (item) checkedTags.add(item.dataset.tag);
+    });
+    
+    let changed = 0;
+    
+    // Add checked tags to all selected elements
+    nodes.forEach(id => {
+      const current = getElementTags('node', id);
+      checkedTags.forEach(tag => current.add(tag));
+      setElementTags('node', id, current);
+      changed++;
+    });
+    
+    edges.forEach(id => {
+      const current = getElementTags('edge', id);
+      checkedTags.forEach(tag => current.add(tag));
+      setElementTags('edge', id, current);
+      changed++;
+    });
+    
+    groups.forEach(id => {
+      const current = getElementTags('group', id);
+      checkedTags.forEach(tag => current.add(tag));
+      setElementTags('group', id, current);
+      changed++;
+    });
+    
+    commit();
+    render();
+    refreshLabelManager();
+    showToast(`✅ Applied ${checkedTags.size} tag(s) to ${changed} element(s)`);
+  }
+  
+  // Remove unchecked tags from selection
+  function removeUncheckedTagsFromSelection() {
+    const listEl = document.getElementById('lmSelectionTagsList');
+    if (!listEl) return;
+    
+    const { nodes, edges, groups } = getSelectedElements();
+    if (nodes.size + edges.size + groups.size === 0) {
+      showToast('Nothing selected');
+      return;
+    }
+    
+    const uncheckedTags = new Set();
+    listEl.querySelectorAll('.lm-tag-checkbox:not(:checked)').forEach(cb => {
+      const item = cb.closest('.lm-tag-item');
+      if (item) uncheckedTags.add(item.dataset.tag);
+    });
+    
+    let changed = 0;
+    
+    // Remove unchecked tags from all selected elements
+    nodes.forEach(id => {
+      const current = getElementTags('node', id);
+      uncheckedTags.forEach(tag => current.delete(tag));
+      setElementTags('node', id, current);
+      changed++;
+    });
+    
+    edges.forEach(id => {
+      const current = getElementTags('edge', id);
+      uncheckedTags.forEach(tag => current.delete(tag));
+      setElementTags('edge', id, current);
+      changed++;
+    });
+    
+    groups.forEach(id => {
+      const current = getElementTags('group', id);
+      uncheckedTags.forEach(tag => current.delete(tag));
+      setElementTags('group', id, current);
+      changed++;
+    });
+    
+    commit();
+    render();
+    refreshLabelManager();
+    showToast(`✗ Removed ${uncheckedTags.size} tag(s) from ${changed} element(s)`);
+  }
+  
+  // Render bulk apply section
+  function renderBulkApplySection() {
+    // Render selected tags for bulk operation
+    const selectedContainer = document.getElementById('lmBulkTagsSelected');
+    const availableContainer = document.getElementById('lmBulkAvailableTags');
+    
+    if (selectedContainer) {
+      if (labelManagerState.bulkTags.size === 0) {
+        selectedContainer.innerHTML = '<span style="color:#9ca3af; font-size:11px;">Click tags below to add</span>';
+      } else {
+        let html = '';
+        labelManagerState.bulkTags.forEach(tag => {
+          html += `<span class="lm-tag-pill" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)} <span class="remove" onclick="removeBulkTag('${escapeHtml(tag)}')">×</span></span>`;
+        });
+        selectedContainer.innerHTML = html;
+      }
+    }
+    
+    if (availableContainer) {
+      const allTags = getAllProjectTags();
+      let html = '';
+      const sortedTags = Array.from(allTags.keys()).sort();
+      sortedTags.forEach(tag => {
+        if (!labelManagerState.bulkTags.has(tag)) {
+          html += `<span class="lm-tag-pill" style="background:#f3f4f6; color:#374151; cursor:pointer;" onclick="addBulkTag('${escapeHtml(tag)}')">${escapeHtml(tag)} +</span>`;
+        }
+      });
+      availableContainer.innerHTML = html || '<span style="color:#9ca3af; font-size:11px;">All tags selected above</span>';
+    }
+    
+    // Update pick list visibility
+    const pickList = document.getElementById('lmBulkPickList');
+    const pickTarget = document.querySelector('input[name="lmBulkTarget"]:checked')?.value;
+    if (pickList) {
+      pickList.style.display = pickTarget === 'pick' ? 'block' : 'none';
+    }
+    
+    renderPickedItems();
+  }
+  
+  // Add tag to bulk operation
+  window.addBulkTag = function(tag) {
+    labelManagerState.bulkTags.add(tag);
+    renderBulkApplySection();
+  };
+  
+  // Remove tag from bulk operation
+  window.removeBulkTag = function(tag) {
+    labelManagerState.bulkTags.delete(tag);
+    renderBulkApplySection();
+  };
+  
+  // Render picked items list
+  function renderPickedItems() {
+    const container = document.getElementById('lmBulkPickedItems');
+    if (!container) return;
+    
+    const { nodes, links, containers } = labelManagerState.pickedElements;
+    
+    if (nodes.size + links.size + containers.size === 0) {
+      container.innerHTML = '<span style="color:#9ca3af; font-size:11px;">No elements picked yet</span>';
+      return;
+    }
+    
+    let html = '';
+    nodes.forEach(id => {
+      const n = findNode(id);
+      if (n) html += `<span class="lm-tag-pill" style="background:#dbeafe;">${n.name || n.code || 'Node ' + id} <span class="remove" onclick="removePickedElement('node', ${id})">×</span></span>`;
+    });
+    links.forEach(id => {
+      const e = state.edges.find(e => e.id === id);
+      if (e) {
+        const nodeA = findNode(e.a);
+        const nodeB = findNode(e.b);
+        html += `<span class="lm-tag-pill" style="background:#fef3c7;">${nodeA?.code || 'N' + e.a}↔${nodeB?.code || 'N' + e.b} <span class="remove" onclick="removePickedElement('link', ${id})">×</span></span>`;
+      }
+    });
+    containers.forEach(id => {
+      const g = findGroup(id);
+      if (g) html += `<span class="lm-tag-pill" style="background:#d1fae5;">${g.title || 'Container ' + id} <span class="remove" onclick="removePickedElement('container', ${id})">×</span></span>`;
+    });
+    
+    container.innerHTML = html;
+  }
+  
+  // Remove picked element
+  window.removePickedElement = function(type, id) {
+    if (type === 'node') labelManagerState.pickedElements.nodes.delete(id);
+    if (type === 'link') labelManagerState.pickedElements.links.delete(id);
+    if (type === 'container') labelManagerState.pickedElements.containers.delete(id);
+    renderPickedItems();
+  };
+  
+  // Apply bulk tag operation
+  function applyBulkOperation() {
+    const action = document.querySelector('input[name="lmBulkAction"]:checked')?.value || 'add';
+    const targetMode = document.querySelector('input[name="lmBulkTarget"]:checked')?.value || 'selection';
+    
+    const tags = labelManagerState.bulkTags;
+    if (tags.size === 0) {
+      showToast('No tags selected for bulk operation');
+      return;
+    }
+    
+    let targetNodes, targetEdges, targetGroups;
+    
+    if (targetMode === 'selection') {
+      const selected = getSelectedElements();
+      targetNodes = selected.nodes;
+      targetEdges = selected.edges;
+      targetGroups = selected.groups;
+    } else {
+      targetNodes = labelManagerState.pickedElements.nodes;
+      targetEdges = labelManagerState.pickedElements.links;
+      targetGroups = labelManagerState.pickedElements.containers;
+    }
+    
+    const totalTargets = targetNodes.size + targetEdges.size + targetGroups.size;
+    if (totalTargets === 0) {
+      showToast('No target elements selected');
+      return;
+    }
+    
+    let changed = 0;
+    
+    // Apply to nodes
+    targetNodes.forEach(id => {
+      const current = getElementTags('node', id);
+      if (action === 'add') {
+        tags.forEach(tag => current.add(tag));
+      } else if (action === 'remove') {
+        tags.forEach(tag => current.delete(tag));
+      } else if (action === 'set') {
+        current.clear();
+        tags.forEach(tag => current.add(tag));
+      }
+      setElementTags('node', id, current);
+      changed++;
+    });
+    
+    // Apply to edges
+    targetEdges.forEach(id => {
+      const current = getElementTags('edge', id);
+      if (action === 'add') {
+        tags.forEach(tag => current.add(tag));
+      } else if (action === 'remove') {
+        tags.forEach(tag => current.delete(tag));
+      } else if (action === 'set') {
+        current.clear();
+        tags.forEach(tag => current.add(tag));
+      }
+      setElementTags('edge', id, current);
+      changed++;
+    });
+    
+    // Apply to groups
+    targetGroups.forEach(id => {
+      const current = getElementTags('group', id);
+      if (action === 'add') {
+        tags.forEach(tag => current.add(tag));
+      } else if (action === 'remove') {
+        tags.forEach(tag => current.delete(tag));
+      } else if (action === 'set') {
+        current.clear();
+        tags.forEach(tag => current.add(tag));
+      }
+      setElementTags('group', id, current);
+      changed++;
+    });
+    
+    commit();
+    render();
+    refreshLabelManager();
+    
+    const actionLabel = action === 'add' ? 'Added' : (action === 'remove' ? 'Removed' : 'Set');
+    showToast(`⚡ ${actionLabel} ${tags.size} tag(s) on ${changed} element(s)`);
+  }
+  
+  // Rename tag globally
+  function renameTagGlobally() {
+    const fromSelect = document.getElementById('lmRenameFrom');
+    const toInput = document.getElementById('lmRenameTo');
+    
+    const fromTag = fromSelect?.value;
+    const toTag = toInput?.value?.trim();
+    
+    if (!fromTag) {
+      showToast('Select a tag to rename');
+      return;
+    }
+    if (!toTag) {
+      showToast('Enter a new name');
+      return;
+    }
+    if (fromTag === toTag) {
+      showToast('New name is same as old name');
+      return;
+    }
+    
+    let changed = 0;
+    
+    // Rename in nodes
+    state.nodes.forEach(n => {
+      const tags = getElementTags('node', n.id);
+      if (tags.has(fromTag)) {
+        tags.delete(fromTag);
+        tags.add(toTag);
+        setElementTags('node', n.id, tags);
+        changed++;
+      }
+    });
+    
+    // Rename in edges
+    state.edges.forEach(e => {
+      const tags = getElementTags('edge', e.id);
+      if (tags.has(fromTag)) {
+        tags.delete(fromTag);
+        tags.add(toTag);
+        setElementTags('edge', e.id, tags);
+        changed++;
+      }
+    });
+    
+    // Rename in groups
+    state.groups.forEach(g => {
+      const tags = getElementTags('group', g.id);
+      if (tags.has(fromTag)) {
+        tags.delete(fromTag);
+        tags.add(toTag);
+        setElementTags('group', g.id, tags);
+        changed++;
+      }
+    });
+    
+    commit();
+    render();
+    refreshLabelManager();
+    
+    if (toInput) toInput.value = '';
+    showToast(`✏️ Renamed "${fromTag}" to "${toTag}" in ${changed} element(s)`);
+  }
+  
+  // Update rename dropdown
+  function updateRenameDropdown() {
+    const select = document.getElementById('lmRenameFrom');
+    if (!select) return;
+    
+    const allTags = getAllProjectTags();
+    const sortedTags = Array.from(allTags.keys()).sort();
+    
+    select.innerHTML = '<option value="">-- Select tag to rename --</option>';
+    sortedTags.forEach(tag => {
+      const opt = document.createElement('option');
+      opt.value = tag;
+      opt.textContent = tag;
+      select.appendChild(opt);
+    });
+  }
+  
+  // Create new tag
+  function createNewTag() {
+    const tagName = prompt('Enter new tag name:');
+    if (!tagName || !tagName.trim()) return;
+    
+    const tag = tagName.trim();
+    
+    // Add to bulk tags for easy application
+    labelManagerState.bulkTags.add(tag);
+    renderBulkApplySection();
+    showToast(`Created tag "${tag}" - apply it using Bulk Apply section`);
+  }
+  
+  // Delete unused tags (tags not on any element)
+  function deleteUnusedTags() {
+    const allTags = getAllProjectTags();
+    const unusedTags = [];
+    
+    allTags.forEach((counts, tag) => {
+      if (counts.nodes + counts.links + counts.containers === 0) {
+        unusedTags.push(tag);
+      }
+    });
+    
+    if (unusedTags.length === 0) {
+      showToast('No unused tags found');
+      return;
+    }
+    
+    // Remove from bulk tags
+    unusedTags.forEach(tag => labelManagerState.bulkTags.delete(tag));
+    
+    refreshLabelManager();
+    showToast(`🗑️ Removed ${unusedTags.length} unused tag(s)`);
+  }
+  
+  // Show tag context menu
+  window.showLMTagMenu = function(tag, event) {
+    event.stopPropagation();
+    
+    // Remove existing menu
+    document.querySelectorAll('.lm-context-menu').forEach(m => m.remove());
+    
+    const menu = document.createElement('div');
+    menu.className = 'lm-context-menu';
+    menu.style.cssText = `
+      position: fixed;
+      left: ${event.clientX}px;
+      top: ${event.clientY}px;
+      background: white;
+      border: 1px solid #d0d0d0;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      padding: 4px 0;
+      z-index: 1000;
+      min-width: 160px;
+    `;
+    
+    menu.innerHTML = `
+      <div class="lm-menu-item" onclick="selectAllWithTag('${escapeHtml(tag)}')" style="padding:8px 12px; cursor:pointer; font-size:12px;">🎯 Select all with "${escapeHtml(tag)}"</div>
+      <div class="lm-menu-item" onclick="addBulkTag('${escapeHtml(tag)}')" style="padding:8px 12px; cursor:pointer; font-size:12px;">⚡ Add to bulk operation</div>
+      <div style="border-top:1px solid #e5e7eb; margin:4px 0;"></div>
+      <div class="lm-menu-item" onclick="renameTagPrompt('${escapeHtml(tag)}')" style="padding:8px 12px; cursor:pointer; font-size:12px;">✏️ Rename...</div>
+      <div class="lm-menu-item" onclick="deleteTagGlobally('${escapeHtml(tag)}')" style="padding:8px 12px; cursor:pointer; font-size:12px; color:#dc2626;">🗑️ Delete from all elements</div>
+    `;
+    
+    // Add hover styles
+    menu.querySelectorAll('.lm-menu-item').forEach(item => {
+      item.addEventListener('mouseenter', () => item.style.background = '#f3f4f6');
+      item.addEventListener('mouseleave', () => item.style.background = '');
+    });
+    
+    document.body.appendChild(menu);
+    
+    // Close on click outside
+    setTimeout(() => {
+      document.addEventListener('click', function closeMenu() {
+        menu.remove();
+        document.removeEventListener('click', closeMenu);
+      }, { once: true });
+    }, 0);
+  };
+  
+  // Select all elements with a specific tag
+  window.selectAllWithTag = function(tag) {
+    state.selection.nodes.clear();
+    state.selection.edges.clear();
+    state.selection.groups.clear();
+    state.selected = null;
+    
+    let count = 0;
+    
+    state.nodes.forEach(n => {
+      if (getElementTags('node', n.id).has(tag)) {
+        state.selection.nodes.add(n.id);
+        count++;
+      }
+    });
+    
+    state.edges.forEach(e => {
+      if (getElementTags('edge', e.id).has(tag)) {
+        state.selection.edges.add(e.id);
+        count++;
+      }
+    });
+    
+    state.groups.forEach(g => {
+      if (getElementTags('group', g.id).has(tag)) {
+        state.selection.groups.add(g.id);
+        count++;
+      }
+    });
+    
+    render();
+    refreshLabelManager();
+    showToast(`🎯 Selected ${count} element(s) with tag "${tag}"`);
+  };
+  
+  // Rename tag with prompt
+  window.renameTagPrompt = function(tag) {
+    const newName = prompt(`Rename tag "${tag}" to:`, tag);
+    if (!newName || !newName.trim() || newName.trim() === tag) return;
+    
+    document.getElementById('lmRenameFrom').value = tag;
+    document.getElementById('lmRenameTo').value = newName.trim();
+    renameTagGlobally();
+  };
+  
+  // Delete tag globally
+  window.deleteTagGlobally = function(tag) {
+    if (!confirm(`Delete tag "${tag}" from all elements?`)) return;
+    
+    let changed = 0;
+    
+    state.nodes.forEach(n => {
+      const tags = getElementTags('node', n.id);
+      if (tags.has(tag)) {
+        tags.delete(tag);
+        setElementTags('node', n.id, tags);
+        changed++;
+      }
+    });
+    
+    state.edges.forEach(e => {
+      const tags = getElementTags('edge', e.id);
+      if (tags.has(tag)) {
+        tags.delete(tag);
+        setElementTags('edge', e.id, tags);
+        changed++;
+      }
+    });
+    
+    state.groups.forEach(g => {
+      const tags = getElementTags('group', g.id);
+      if (tags.has(tag)) {
+        tags.delete(tag);
+        setElementTags('group', g.id, tags);
+        changed++;
+      }
+    });
+    
+    commit();
+    render();
+    refreshLabelManager();
+    showToast(`🗑️ Deleted tag "${tag}" from ${changed} element(s)`);
+  };
+  
+  // Handle Label Manager pick mode for canvas clicks
+  function handleLabelManagerCanvasClick(type, id) {
+    if (!labelManagerState.pickMode) return false;
+    
+    if (type === 'node') {
+      if (labelManagerState.pickedElements.nodes.has(id)) {
+        labelManagerState.pickedElements.nodes.delete(id);
+      } else {
+        labelManagerState.pickedElements.nodes.add(id);
+      }
+    } else if (type === 'edge') {
+      if (labelManagerState.pickedElements.links.has(id)) {
+        labelManagerState.pickedElements.links.delete(id);
+      } else {
+        labelManagerState.pickedElements.links.add(id);
+      }
+    } else if (type === 'group') {
+      if (labelManagerState.pickedElements.containers.has(id)) {
+        labelManagerState.pickedElements.containers.delete(id);
+      } else {
+        labelManagerState.pickedElements.containers.add(id);
+      }
+    }
+    
+    renderPickedItems();
+    const total = labelManagerState.pickedElements.nodes.size + labelManagerState.pickedElements.links.size + labelManagerState.pickedElements.containers.size;
+    showToast(`🎯 Picked ${total} element(s)`);
+    
+    return true;
+  }
+  
+  // Expose for external use
+  window.handleLabelManagerCanvasClick = handleLabelManagerCanvasClick;
+  window.labelManagerState = labelManagerState;
+  
+  // Event listeners
+  if (btnLabelManager) {
+    btnLabelManager.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleLabelManager();
+    });
+  }
+  
+  if (btnCloseLabelManager) {
+    btnCloseLabelManager.addEventListener('click', closeLabelManager);
+  }
+  
+  // Tag search
+  const lmTagSearch = document.getElementById('lmTagSearch');
+  if (lmTagSearch) {
+    lmTagSearch.addEventListener('input', () => renderProjectTagsList());
+  }
+  
+  // Filter buttons
+  ['lmFilterAll', 'lmFilterNodes', 'lmFilterLinks', 'lmFilterContainers'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.addEventListener('click', () => {
+        labelManagerState.filterType = id.replace('lmFilter', '').toLowerCase();
+        // Update button styles
+        document.querySelectorAll('#lmFilterAll, #lmFilterNodes, #lmFilterLinks, #lmFilterContainers').forEach(b => {
+          b.style.background = '';
+          b.style.color = '';
+        });
+        btn.style.background = '#8b5cf6';
+        btn.style.color = 'white';
+        renderProjectTagsList();
+      });
+    }
+  });
+  
+  // Select all with checked tags
+  const lmSelectAllWithTag = document.getElementById('lmSelectAllWithTag');
+  if (lmSelectAllWithTag) {
+    lmSelectAllWithTag.addEventListener('click', selectAllWithCheckedTags);
+  }
+  
+  // New tag button
+  const lmNewTag = document.getElementById('lmNewTag');
+  if (lmNewTag) {
+    lmNewTag.addEventListener('click', createNewTag);
+  }
+  
+  // Delete unused tags
+  const lmDeleteUnused = document.getElementById('lmDeleteUnused');
+  if (lmDeleteUnused) {
+    lmDeleteUnused.addEventListener('click', deleteUnusedTags);
+  }
+  
+  // Apply/remove buttons for selection tags
+  const lmApplyChecked = document.getElementById('lmApplyChecked');
+  if (lmApplyChecked) {
+    lmApplyChecked.addEventListener('click', applyCheckedTagsToSelection);
+  }
+  
+  const lmRemoveUnchecked = document.getElementById('lmRemoveUnchecked');
+  if (lmRemoveUnchecked) {
+    lmRemoveUnchecked.addEventListener('click', removeUncheckedTagsFromSelection);
+  }
+  
+  // Bulk apply new tag input
+  const lmBulkAddNewTag = document.getElementById('lmBulkAddNewTag');
+  const lmBulkNewTag = document.getElementById('lmBulkNewTag');
+  if (lmBulkAddNewTag && lmBulkNewTag) {
+    lmBulkAddNewTag.addEventListener('click', () => {
+      const tag = lmBulkNewTag.value.trim();
+      if (tag) {
+        labelManagerState.bulkTags.add(tag);
+        lmBulkNewTag.value = '';
+        renderBulkApplySection();
+      }
+    });
+    lmBulkNewTag.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const tag = lmBulkNewTag.value.trim();
+        if (tag) {
+          labelManagerState.bulkTags.add(tag);
+          lmBulkNewTag.value = '';
+          renderBulkApplySection();
+        }
+      }
+    });
+  }
+  
+  // Bulk target radio buttons
+  document.querySelectorAll('input[name="lmBulkTarget"]').forEach(radio => {
+    radio.addEventListener('change', renderBulkApplySection);
+  });
+  
+  // Pick mode button
+  const lmBulkPickMode = document.getElementById('lmBulkPickMode');
+  if (lmBulkPickMode) {
+    lmBulkPickMode.addEventListener('click', () => {
+      labelManagerState.pickMode = !labelManagerState.pickMode;
+      lmBulkPickMode.textContent = labelManagerState.pickMode ? '🎯 Stop Pick' : '🎯 Start Pick';
+      lmBulkPickMode.style.background = labelManagerState.pickMode ? '#8b5cf6' : '';
+      lmBulkPickMode.style.color = labelManagerState.pickMode ? 'white' : '';
+      if (labelManagerState.pickMode) {
+        showToast('🎯 Click on nodes, links, or containers to pick them');
+      }
+    });
+  }
+  
+  // Clear picked button
+  const lmBulkClearPicked = document.getElementById('lmBulkClearPicked');
+  if (lmBulkClearPicked) {
+    lmBulkClearPicked.addEventListener('click', () => {
+      labelManagerState.pickedElements.nodes.clear();
+      labelManagerState.pickedElements.links.clear();
+      labelManagerState.pickedElements.containers.clear();
+      renderPickedItems();
+    });
+  }
+  
+  // Bulk apply button
+  const lmBulkApply = document.getElementById('lmBulkApply');
+  if (lmBulkApply) {
+    lmBulkApply.addEventListener('click', applyBulkOperation);
+  }
+  
+  // Rename apply button
+  const lmRenameApply = document.getElementById('lmRenameApply');
+  if (lmRenameApply) {
+    lmRenameApply.addEventListener('click', renameTagGlobally);
+  }
+  
+  // Make Label Manager panel draggable
+  if (labelManagerHeader && labelManagerPanel) {
+    labelManagerHeader.style.cursor = 'move';
+    let lmPanelDragging = false;
+    let lmPanelDragOffset = { x: 0, y: 0 };
+    
+    labelManagerHeader.addEventListener('mousedown', (ev) => {
+      if (ev.target.tagName === 'BUTTON' || ev.target.closest('button')) return;
+      
+      lmPanelDragging = true;
+      const rect = labelManagerPanel.getBoundingClientRect();
+      lmPanelDragOffset.x = ev.clientX - rect.left;
+      lmPanelDragOffset.y = ev.clientY - rect.top;
+      labelManagerPanel.style.cursor = 'grabbing';
+      ev.preventDefault();
+    });
+    
+    window.addEventListener('mousemove', (ev) => {
+      if (!lmPanelDragging) return;
+      
+      const layout = document.getElementById('layout');
+      const layoutRect = layout.getBoundingClientRect();
+      
+      let newLeft = ev.clientX - layoutRect.left - lmPanelDragOffset.x;
+      let newTop = ev.clientY - layoutRect.top - lmPanelDragOffset.y;
+      
+      newLeft = Math.max(0, Math.min(newLeft, layoutRect.width - labelManagerPanel.offsetWidth));
+      newTop = Math.max(0, Math.min(newTop, layoutRect.height - 50));
+      
+      labelManagerPanel.style.left = newLeft + 'px';
+      labelManagerPanel.style.top = newTop + 'px';
+      labelManagerPanel.style.right = 'auto';
+    });
+    
+    window.addEventListener('mouseup', () => {
+      if (lmPanelDragging) {
+        lmPanelDragging = false;
+        labelManagerPanel.style.cursor = '';
+      }
+    });
+  }
+  
+  // Listen for selection changes to update Label Manager
+  const originalRender = window.render || render;
+  const renderWithLabelManager = function() {
+    originalRender();
+    if (labelManagerState.visible) {
+      updateSelectionStatus();
+      renderSelectionTags();
+    }
+  };
+  // Override render in the window scope if available
+  if (typeof window !== 'undefined') {
+    window.refreshLabelManager = refreshLabelManager;
+  }
+
+  // ============== END LABEL MANAGER ==============
 
 
 
