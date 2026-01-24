@@ -1734,6 +1734,35 @@
         <label class="item toggle-item"><input type="radio" name="mapSource" id="mapSourceBuiltin" /> Built-in SVG Map</label>
         <div class="item" id="miLoadMapUrl" style="color:#0096D6;">🔗 Load Map from URL...</div>
         <div class="item" id="miUploadGeoMap" style="color:#0096D6;">📷 Upload Map Image...</div>
+        <div class="sep"></div>
+        <div class="menu-section-header" style="font-size:10px;">Projection Adjustment</div>
+        <div style="padding:6px 12px; font-size:11px;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+            <label style="width:70px; color:#666;">Scale X:</label>
+            <input type="range" id="projScaleX" min="0.8" max="1.2" step="0.005" value="0.895" style="flex:1; cursor:pointer;">
+            <input type="number" id="projScaleXVal" value="0.895" step="0.005" min="0.5" max="1.5" style="width:55px; font-size:10px; text-align:center; padding:2px;">
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+            <label style="width:70px; color:#666;">Scale Y:</label>
+            <input type="range" id="projScaleY" min="0.8" max="1.2" step="0.005" value="0.815" style="flex:1; cursor:pointer;">
+            <input type="number" id="projScaleYVal" value="0.815" step="0.005" min="0.5" max="1.5" style="width:55px; font-size:10px; text-align:center; padding:2px;">
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+            <label style="width:70px; color:#666;">Offset X:</label>
+            <input type="range" id="projOffsetX" min="-100" max="100" step="1" value="-61" style="flex:1; cursor:pointer;">
+            <input type="number" id="projOffsetXVal" value="-61" step="1" min="-200" max="200" style="width:55px; font-size:10px; text-align:center; padding:2px;">
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+            <label style="width:70px; color:#666;">Offset Y:</label>
+            <input type="range" id="projOffsetY" min="-100" max="100" step="1" value="-10" style="flex:1; cursor:pointer;">
+            <input type="number" id="projOffsetYVal" value="-10" step="1" min="-200" max="200" style="width:55px; font-size:10px; text-align:center; padding:2px;">
+          </div>
+          <div style="display:flex; gap:6px; margin-top:8px;">
+            <button id="projResetBtn" class="btn mini-btn" style="flex:1;">Reset</button>
+            <button id="projShowValuesBtn" class="btn mini-btn" style="flex:1;">📋 Copy Values</button>
+          </div>
+          <div style="font-size:9px; color:#888; margin-top:6px;">Calibrated for Wikimedia world map</div>
+        </div>
       </div>
       <div class="sep"></div>
       <div class="menu-section-header">Node Labels</div>
@@ -2380,6 +2409,71 @@
       <svg id="svg" viewBox="0 0 1600 900" preserveAspectRatio="none"></svg>
     </div>
     <div class="toast" id="toast"></div>
+  </div>
+
+  <!-- Floating Projection Adjustment Panel (visible in Geo View) -->
+  <div id="projectionPanel" style="
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    width: 280px;
+    background: #ffffff;
+    border: 1px solid #d0d0d0;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    z-index: 100;
+    display: none;
+    font-size: 12px;
+  ">
+    <div style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e8e8e8;
+      border-radius: 8px 8px 0 0;
+    ">
+      <span style="font-weight: 600; color: #333;">🎯 Projection Adjustment</span>
+      <button id="projPanelClose" style="
+        background: none;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        color: #999;
+        padding: 0 4px;
+      ">✕</button>
+    </div>
+    <div style="padding: 12px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+        <label style="width:65px; color:#666; font-size:11px;">Scale X:</label>
+        <input type="range" id="projScaleX2" min="0.8" max="1.2" step="0.005" value="0.895" style="flex:1; cursor:pointer;">
+        <input type="number" id="projScaleXVal2" value="0.895" step="0.005" min="0.5" max="1.5" style="width:50px; font-size:10px; text-align:center; padding:3px; border:1px solid #ccc; border-radius:3px;">
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+        <label style="width:65px; color:#666; font-size:11px;">Scale Y:</label>
+        <input type="range" id="projScaleY2" min="0.8" max="1.2" step="0.005" value="0.815" style="flex:1; cursor:pointer;">
+        <input type="number" id="projScaleYVal2" value="0.815" step="0.005" min="0.5" max="1.5" style="width:50px; font-size:10px; text-align:center; padding:3px; border:1px solid #ccc; border-radius:3px;">
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+        <label style="width:65px; color:#666; font-size:11px;">Offset X:</label>
+        <input type="range" id="projOffsetX2" min="-100" max="100" step="1" value="-61" style="flex:1; cursor:pointer;">
+        <input type="number" id="projOffsetXVal2" value="-61" step="1" min="-200" max="200" style="width:50px; font-size:10px; text-align:center; padding:3px; border:1px solid #ccc; border-radius:3px;">
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+        <label style="width:65px; color:#666; font-size:11px;">Offset Y:</label>
+        <input type="range" id="projOffsetY2" min="-100" max="100" step="1" value="-10" style="flex:1; cursor:pointer;">
+        <input type="number" id="projOffsetYVal2" value="-10" step="1" min="-200" max="200" style="width:50px; font-size:10px; text-align:center; padding:3px; border:1px solid #ccc; border-radius:3px;">
+      </div>
+      <div style="display:flex; gap:6px;">
+        <button id="projResetBtn2" class="btn mini-btn" style="flex:1; font-size:10px;">🔄 Reset</button>
+        <button id="projCopyBtn2" class="btn mini-btn" style="flex:1; font-size:10px;">📋 Copy</button>
+      </div>
+      <div style="font-size:9px; color:#888; margin-top:8px; line-height:1.4;">
+        💡 Scale &lt;1 shrinks nodes toward center.<br>
+        Adjust until nodes align with map features.
+      </div>
+    </div>
   </div>
 
   <aside id="inspector">
@@ -16937,6 +17031,15 @@ function loadProjectObject(obj) {
     canvasWidth: 1800,
     canvasHeight: 918, // Maintain aspect ratio: 1800 * (170.1/360) ≈ 850, but we add padding
     padding: 0, // No padding - draw map full bleed for accurate GPS alignment
+    // Projection adjustment factors - calibrated for Wikimedia BlankMap-World-Equirectangular.svg
+    // Scale: 1.0 = normal, <1 = shrink coordinates (nodes closer to center), >1 = expand
+    // Offset: shifts all nodes by this many pixels
+    projectionAdjust: {
+      scaleX: 0.895,   // Horizontal scale factor (affects longitude mapping)
+      scaleY: 0.815,   // Vertical scale factor (affects latitude mapping)
+      offsetX: -61,    // Horizontal offset in pixels (positive = shift right)
+      offsetY: -10     // Vertical offset in pixels (positive = shift down)
+    },
     // Custom map image support
     customMapImage: null, // Base64 data URL or external URL
     customMapBounds: null, // { minLat, maxLat, minLon, maxLon } for custom image
@@ -17126,7 +17229,8 @@ function loadProjectObject(obj) {
   
   // Convert GPS coordinates to canvas position (Equirectangular projection)
   // This maps GPS coordinates directly to canvas pixel positions
-  function gpsToCanvas(lat, lon) {
+  // Applies adjustable scale and offset factors for fine-tuning alignment
+  function gpsToCanvas(lat, lon, applyAdjustment = true) {
     // Use custom bounds if set, otherwise use default map bounds
     const bounds = geoViewState.customMapBounds || geoViewState.mapBounds;
     const { minLat, maxLat, minLon, maxLon } = bounds;
@@ -17134,17 +17238,37 @@ function loadProjectObject(obj) {
     const width = geoViewState.canvasWidth;
     const height = geoViewState.canvasHeight;
     
+    // Calculate center point of the canvas
+    const centerX = width / 2;
+    const centerY = height / 2;
+    
     // X: longitude range maps to [0, width]
-    // lonRange = maxLon - minLon (e.g., 360 for full world)
     const lonRange = maxLon - minLon;
-    const x = ((lon - minLon) / lonRange) * width;
+    let x = ((lon - minLon) / lonRange) * width;
     
     // Y: latitude range maps to [0, height], inverted (north at top)
-    // latRange = maxLat - minLat (e.g., 170.1 for -85.05 to 85.05)
     const latRange = maxLat - minLat;
-    const y = ((maxLat - lat) / latRange) * height;
+    let y = ((maxLat - lat) / latRange) * height;
+    
+    // Apply projection adjustment if enabled (for node positioning, not map background)
+    if (applyAdjustment && geoViewState.projectionAdjust) {
+      const adj = geoViewState.projectionAdjust;
+      
+      // Scale from center point
+      x = centerX + (x - centerX) * adj.scaleX;
+      y = centerY + (y - centerY) * adj.scaleY;
+      
+      // Apply offset
+      x += adj.offsetX;
+      y += adj.offsetY;
+    }
     
     return { x, y };
+  }
+  
+  // Version without adjustment - used for drawing the map background and graticule
+  function gpsToCanvasRaw(lat, lon) {
+    return gpsToCanvas(lat, lon, false);
   }
   
   // Accurate world map coordinate data (simplified but geographically correct)
@@ -17715,6 +17839,12 @@ function loadProjectObject(obj) {
     const btnGeoView = document.getElementById('btnGeoView');
     if (btnGeoView) {
       btnGeoView.classList.toggle('active', active);
+    }
+    
+    // Show/hide floating projection panel
+    const projPanel = document.getElementById('projectionPanel');
+    if (projPanel) {
+      projPanel.style.display = active ? 'block' : 'none';
     }
     
     if (active) {
@@ -18305,6 +18435,254 @@ function loadProjectObject(obj) {
     if (mapSourceBuiltin) mapSourceBuiltin.checked = geoViewState.mapSource === 'builtin';
   }
   updateMapSourceRadios();
+  
+  // Projection adjustment controls
+  const projScaleX = document.getElementById('projScaleX');
+  const projScaleXVal = document.getElementById('projScaleXVal');
+  const projScaleY = document.getElementById('projScaleY');
+  const projScaleYVal = document.getElementById('projScaleYVal');
+  const projOffsetX = document.getElementById('projOffsetX');
+  const projOffsetXVal = document.getElementById('projOffsetXVal');
+  const projOffsetY = document.getElementById('projOffsetY');
+  const projOffsetYVal = document.getElementById('projOffsetYVal');
+  const projResetBtn = document.getElementById('projResetBtn');
+  const projShowValuesBtn = document.getElementById('projShowValuesBtn');
+  
+  function updateProjectionFromControls() {
+    geoViewState.projectionAdjust.scaleX = parseFloat(projScaleX?.value) || 1.0;
+    geoViewState.projectionAdjust.scaleY = parseFloat(projScaleY?.value) || 1.0;
+    geoViewState.projectionAdjust.offsetX = parseFloat(projOffsetX?.value) || 0;
+    geoViewState.projectionAdjust.offsetY = parseFloat(projOffsetY?.value) || 0;
+    
+    // Update number inputs
+    if (projScaleXVal) projScaleXVal.value = geoViewState.projectionAdjust.scaleX;
+    if (projScaleYVal) projScaleYVal.value = geoViewState.projectionAdjust.scaleY;
+    if (projOffsetXVal) projOffsetXVal.value = geoViewState.projectionAdjust.offsetX;
+    if (projOffsetYVal) projOffsetYVal.value = geoViewState.projectionAdjust.offsetY;
+    
+    // Save to localStorage
+    try {
+      localStorage.setItem('neximap-geo-projection-adjust', JSON.stringify(geoViewState.projectionAdjust));
+    } catch(e) {}
+    
+    if (geoViewState.active) render();
+  }
+  
+  function updateControlsFromProjection() {
+    const adj = geoViewState.projectionAdjust;
+    if (projScaleX) projScaleX.value = adj.scaleX;
+    if (projScaleXVal) projScaleXVal.value = adj.scaleX;
+    if (projScaleY) projScaleY.value = adj.scaleY;
+    if (projScaleYVal) projScaleYVal.value = adj.scaleY;
+    if (projOffsetX) projOffsetX.value = adj.offsetX;
+    if (projOffsetXVal) projOffsetXVal.value = adj.offsetX;
+    if (projOffsetY) projOffsetY.value = adj.offsetY;
+    if (projOffsetYVal) projOffsetYVal.value = adj.offsetY;
+  }
+  
+  // Load saved projection adjustment
+  try {
+    const savedAdj = localStorage.getItem('neximap-geo-projection-adjust');
+    if (savedAdj) {
+      const adj = JSON.parse(savedAdj);
+      geoViewState.projectionAdjust = { ...geoViewState.projectionAdjust, ...adj };
+      updateControlsFromProjection();
+    }
+  } catch(e) {}
+  
+  // Slider event handlers
+  if (projScaleX) {
+    projScaleX.addEventListener('input', updateProjectionFromControls);
+  }
+  if (projScaleY) {
+    projScaleY.addEventListener('input', updateProjectionFromControls);
+  }
+  if (projOffsetX) {
+    projOffsetX.addEventListener('input', updateProjectionFromControls);
+  }
+  if (projOffsetY) {
+    projOffsetY.addEventListener('input', updateProjectionFromControls);
+  }
+  
+  // Number input event handlers
+  if (projScaleXVal) {
+    projScaleXVal.addEventListener('change', () => {
+      if (projScaleX) projScaleX.value = projScaleXVal.value;
+      updateProjectionFromControls();
+    });
+  }
+  if (projScaleYVal) {
+    projScaleYVal.addEventListener('change', () => {
+      if (projScaleY) projScaleY.value = projScaleYVal.value;
+      updateProjectionFromControls();
+    });
+  }
+  if (projOffsetXVal) {
+    projOffsetXVal.addEventListener('change', () => {
+      if (projOffsetX) projOffsetX.value = projOffsetXVal.value;
+      updateProjectionFromControls();
+    });
+  }
+  if (projOffsetYVal) {
+    projOffsetYVal.addEventListener('change', () => {
+      if (projOffsetY) projOffsetY.value = projOffsetYVal.value;
+      updateProjectionFromControls();
+    });
+  }
+  
+  // Reset button
+  if (projResetBtn) {
+    projResetBtn.addEventListener('click', () => {
+      geoViewState.projectionAdjust = { scaleX: 1.0, scaleY: 1.0, offsetX: 0, offsetY: 0 };
+      updateControlsFromProjection();
+      try {
+        localStorage.removeItem('neximap-geo-projection-adjust');
+      } catch(e) {}
+      if (geoViewState.active) render();
+      showToast('🔄 Projection reset to defaults');
+    });
+  }
+  
+  // Copy values button
+  if (projShowValuesBtn) {
+    projShowValuesBtn.addEventListener('click', () => {
+      const adj = geoViewState.projectionAdjust;
+      const values = `scaleX: ${adj.scaleX}, scaleY: ${adj.scaleY}, offsetX: ${adj.offsetX}, offsetY: ${adj.offsetY}`;
+      navigator.clipboard.writeText(values).then(() => {
+        showToast('📋 Values copied: ' + values);
+      }).catch(() => {
+        showToast('📋 ' + values);
+      });
+    });
+  }
+  
+  // ============ FLOATING PROJECTION PANEL ============
+  const projectionPanel = document.getElementById('projectionPanel');
+  const projPanelClose = document.getElementById('projPanelClose');
+  const projScaleX2 = document.getElementById('projScaleX2');
+  const projScaleXVal2 = document.getElementById('projScaleXVal2');
+  const projScaleY2 = document.getElementById('projScaleY2');
+  const projScaleYVal2 = document.getElementById('projScaleYVal2');
+  const projOffsetX2 = document.getElementById('projOffsetX2');
+  const projOffsetXVal2 = document.getElementById('projOffsetXVal2');
+  const projOffsetY2 = document.getElementById('projOffsetY2');
+  const projOffsetYVal2 = document.getElementById('projOffsetYVal2');
+  const projResetBtn2 = document.getElementById('projResetBtn2');
+  const projCopyBtn2 = document.getElementById('projCopyBtn2');
+  
+  // Show/hide floating panel based on geo view state
+  function updateProjectionPanelVisibility() {
+    if (projectionPanel) {
+      projectionPanel.style.display = geoViewState.active ? 'block' : 'none';
+    }
+  }
+  
+  // Sync floating panel controls with geoViewState
+  function syncFloatingPanelControls() {
+    const adj = geoViewState.projectionAdjust;
+    if (projScaleX2) projScaleX2.value = adj.scaleX;
+    if (projScaleXVal2) projScaleXVal2.value = adj.scaleX;
+    if (projScaleY2) projScaleY2.value = adj.scaleY;
+    if (projScaleYVal2) projScaleYVal2.value = adj.scaleY;
+    if (projOffsetX2) projOffsetX2.value = adj.offsetX;
+    if (projOffsetXVal2) projOffsetXVal2.value = adj.offsetX;
+    if (projOffsetY2) projOffsetY2.value = adj.offsetY;
+    if (projOffsetYVal2) projOffsetYVal2.value = adj.offsetY;
+  }
+  
+  // Update from floating panel controls
+  function updateFromFloatingPanel() {
+    geoViewState.projectionAdjust.scaleX = parseFloat(projScaleX2?.value) || 1.0;
+    geoViewState.projectionAdjust.scaleY = parseFloat(projScaleY2?.value) || 1.0;
+    geoViewState.projectionAdjust.offsetX = parseFloat(projOffsetX2?.value) || 0;
+    geoViewState.projectionAdjust.offsetY = parseFloat(projOffsetY2?.value) || 0;
+    
+    // Sync number inputs
+    if (projScaleXVal2) projScaleXVal2.value = geoViewState.projectionAdjust.scaleX;
+    if (projScaleYVal2) projScaleYVal2.value = geoViewState.projectionAdjust.scaleY;
+    if (projOffsetXVal2) projOffsetXVal2.value = geoViewState.projectionAdjust.offsetX;
+    if (projOffsetYVal2) projOffsetYVal2.value = geoViewState.projectionAdjust.offsetY;
+    
+    // Also sync menu controls
+    updateControlsFromProjection();
+    
+    // Save to localStorage
+    try {
+      localStorage.setItem('neximap-geo-projection-adjust', JSON.stringify(geoViewState.projectionAdjust));
+    } catch(e) {}
+    
+    if (geoViewState.active) render();
+  }
+  
+  // Close button
+  if (projPanelClose) {
+    projPanelClose.addEventListener('click', () => {
+      if (projectionPanel) projectionPanel.style.display = 'none';
+    });
+  }
+  
+  // Slider event handlers for floating panel
+  if (projScaleX2) projScaleX2.addEventListener('input', updateFromFloatingPanel);
+  if (projScaleY2) projScaleY2.addEventListener('input', updateFromFloatingPanel);
+  if (projOffsetX2) projOffsetX2.addEventListener('input', updateFromFloatingPanel);
+  if (projOffsetY2) projOffsetY2.addEventListener('input', updateFromFloatingPanel);
+  
+  // Number input event handlers for floating panel
+  if (projScaleXVal2) {
+    projScaleXVal2.addEventListener('change', () => {
+      if (projScaleX2) projScaleX2.value = projScaleXVal2.value;
+      updateFromFloatingPanel();
+    });
+  }
+  if (projScaleYVal2) {
+    projScaleYVal2.addEventListener('change', () => {
+      if (projScaleY2) projScaleY2.value = projScaleYVal2.value;
+      updateFromFloatingPanel();
+    });
+  }
+  if (projOffsetXVal2) {
+    projOffsetXVal2.addEventListener('change', () => {
+      if (projOffsetX2) projOffsetX2.value = projOffsetXVal2.value;
+      updateFromFloatingPanel();
+    });
+  }
+  if (projOffsetYVal2) {
+    projOffsetYVal2.addEventListener('change', () => {
+      if (projOffsetY2) projOffsetY2.value = projOffsetYVal2.value;
+      updateFromFloatingPanel();
+    });
+  }
+  
+  // Reset button for floating panel
+  if (projResetBtn2) {
+    projResetBtn2.addEventListener('click', () => {
+      geoViewState.projectionAdjust = { scaleX: 1.0, scaleY: 1.0, offsetX: 0, offsetY: 0 };
+      syncFloatingPanelControls();
+      updateControlsFromProjection();
+      try {
+        localStorage.removeItem('neximap-geo-projection-adjust');
+      } catch(e) {}
+      if (geoViewState.active) render();
+      showToast('🔄 Projection reset to defaults');
+    });
+  }
+  
+  // Copy button for floating panel
+  if (projCopyBtn2) {
+    projCopyBtn2.addEventListener('click', () => {
+      const adj = geoViewState.projectionAdjust;
+      const values = `scaleX: ${adj.scaleX}, scaleY: ${adj.scaleY}, offsetX: ${adj.offsetX}, offsetY: ${adj.offsetY}`;
+      navigator.clipboard.writeText(values).then(() => {
+        showToast('📋 Values copied: ' + values);
+      }).catch(() => {
+        showToast('📋 ' + values);
+      });
+    });
+  }
+  
+  // Initialize floating panel state
+  syncFloatingPanelControls();
+  // ============ END FLOATING PROJECTION PANEL ============
   
   if (mapSourceUrl) {
     mapSourceUrl.addEventListener('change', () => {
