@@ -3072,16 +3072,10 @@
               </div>
             </div>
           </div>
-          <div class="row inline">
-            <div>
-              <label>Capacity</label>
-              <input id="edgeCapacity" placeholder="e.g. 100G" />
-            </div>
-            <div>
-              <label>Priority (-100 to +100)</label>
-              <input id="edgePriority" type="number" min="-100" max="100" step="1" placeholder="0" />
-              <div class="hint">+100 = half cost (preferred), -100 = 1.5× cost (avoided)</div>
-            </div>
+          <div class="row">
+            <label>Priority (-100 to +100)</label>
+            <input id="edgePriority" type="number" min="-100" max="100" step="1" placeholder="0" style="width:100%;" />
+            <div class="hint">+100 = half cost (preferred), -100 = 1.5× cost (avoided)</div>
           </div>
         </div>
       </div>
@@ -3100,6 +3094,54 @@
           <div class="row">
             <label>Additional Tags (free text)</label>
             <input id="edgeExtraTags" placeholder="e.g. provider=ISP1, circuit=ABC123" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Capacity Inventory Section -->
+      <div class="inspector-section collapsed" data-section="edge-capacity-inventory">
+        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>📊 Capacity Inventory</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content">
+          <!-- Design Maximum Capacity -->
+          <div class="row" style="margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid #e5e7eb;">
+            <label style="font-weight:600; color:#1e40af;">Total Design Maximum Capacity</label>
+            <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
+              <input id="edgeDesignCapacity" type="number" min="0" step="0.1" value="0" placeholder="0" style="flex:1; text-align:right; padding:6px 8px; font-size:13px; border:2px solid #93c5fd; border-radius:4px;" />
+              <span style="font-weight:600; color:#1e40af; font-size:12px;">Gbps</span>
+            </div>
+            <div class="hint" style="margin-top:4px;">Maximum theoretical capacity of this link</div>
+          </div>
+          
+          <!-- Available Inventory -->
+          <div style="font-size:11px; font-weight:600; color:#6b7280; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Available Inventory by Speed</div>
+          <div class="row" style="display:grid; grid-template-columns:1fr 80px; gap:6px; align-items:center;">
+            <label style="font-size:11px;">Quantity of 1 Gbps</label>
+            <input id="edgeCap1G" type="number" min="0" step="0.1" value="0" style="text-align:right; padding:4px 6px;" />
+          </div>
+          <div class="row" style="display:grid; grid-template-columns:1fr 80px; gap:6px; align-items:center;">
+            <label style="font-size:11px;">Quantity of 10 Gbps</label>
+            <input id="edgeCap10G" type="number" min="0" step="0.1" value="0" style="text-align:right; padding:4px 6px;" />
+          </div>
+          <div class="row" style="display:grid; grid-template-columns:1fr 80px; gap:6px; align-items:center;">
+            <label style="font-size:11px;">Quantity of 100 Gbps</label>
+            <input id="edgeCap100G" type="number" min="0" step="0.1" value="0" style="text-align:right; padding:4px 6px;" />
+          </div>
+          <div class="row" style="display:grid; grid-template-columns:1fr 80px; gap:6px; align-items:center;">
+            <label style="font-size:11px;">Quantity of 400 Gbps</label>
+            <input id="edgeCap400G" type="number" min="0" step="0.1" value="0" style="text-align:right; padding:4px 6px;" />
+          </div>
+          <div class="row" style="display:grid; grid-template-columns:1fr 80px; gap:6px; align-items:center;">
+            <label style="font-size:11px;">Quantity of Tbps</label>
+            <input id="edgeCapTbps" type="number" min="0" step="0.1" value="0" style="text-align:right; padding:4px 6px;" />
+          </div>
+          <div style="margin-top:10px; padding:8px 10px; background:linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius:6px; border:1px solid #a7f3d0;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight:600; font-size:11px; color:#065f46;">Total Available</span>
+              <span id="edgeCapTotalGbps" style="font-weight:700; font-size:14px; color:#047857;">0 Gbps</span>
+            </div>
           </div>
         </div>
       </div>
@@ -3566,6 +3608,12 @@
           <span style="color:#475569;">Calculate using <strong>visible elements only</strong></span>
         </label>
         <div style="font-size:10px; color:#94a3b8; margin-top:4px; margin-left:24px;">Respects current tag filters and visibility settings</div>
+        
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:12px; margin-top:8px;">
+          <input type="checkbox" id="routeSkipImplicitTransit" style="width:16px; height:16px; accent-color:#5a67d8;">
+          <span style="color:#475569;">Skip <strong>implicit container transit</strong></span>
+        </label>
+        <div style="font-size:10px; color:#94a3b8; margin-top:4px; margin-left:24px;">Don't use dashed-line connections through containers/regions</div>
       </div>
 
       <!-- Endpoint Selection Section -->
@@ -3590,6 +3638,20 @@
           <div class="row" style="display:flex; gap:8px; margin-top:12px;">
             <button class="btn" id="btnSwapEndpoints" style="flex:1;">⇄ Swap</button>
             <button class="btn primary" id="btnCalculateRoutes" style="flex:1;" disabled>🔍 Calculate</button>
+          </div>
+          <!-- Active Filters Indicator -->
+          <div id="activeFiltersIndicator" style="display:none; margin-top:10px; padding:8px; background:#fef3c7; border:1px solid #fcd34d; border-radius:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="font-size:11px; color:#92400e;">
+                <span style="font-weight:600;">⚠️ Active Filters:</span>
+                <span id="activeFiltersText"></span>
+              </div>
+            </div>
+          </div>
+          <div class="row" style="margin-top:8px;">
+            <button class="btn" id="btnResetAllFilters" style="width:100%; font-size:11px; padding:6px; background:#fee2e2; border-color:#fca5a5; color:#991b1b;">
+              🧹 Reset All Filters
+            </button>
           </div>
         </div>
       </div>
@@ -3685,6 +3747,145 @@
           <div class="row" style="margin-top:12px;">
             <button class="btn" id="btnClearAllMustUse" style="width:100%; font-size:11px; padding:6px; background:#f0fdf4; border-color:#86efac; color:#166534;">
               🗑️ Clear All Must-Use Constraints
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tag Filters Section -->
+      <div class="inspector-section collapsed" data-section="route-tag-filters">
+        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>🏷️ Tag Filters</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content">
+          <div class="hint" style="margin-bottom:10px; padding:6px; background:#fefce8; border-radius:4px; color:#854d0e;">
+            Filter path calculation by node or link tags. Independent of global filters.
+          </div>
+          
+          <!-- Node Tag Filter -->
+          <div class="row">
+            <label style="font-weight:600; color:#6366f1; font-size:11px;">Node Tags</label>
+            <div style="display:flex; gap:4px; margin-top:4px;">
+              <select id="routeNodeTagMode" style="width:80px; padding:4px; font-size:10px; border-radius:4px; border:1px solid #ddd;">
+                <option value="any">Any</option>
+                <option value="include">Include</option>
+                <option value="exclude">Exclude</option>
+              </select>
+              <span style="font-size:10px; color:#888; align-self:center; flex:1; text-align:right;" id="routeNodeTagModeHint">All nodes allowed</span>
+            </div>
+            <div id="routeNodeTagList" style="margin-top:6px; max-height:100px; overflow-y:auto; border:1px solid #e5e7eb; border-radius:4px; padding:4px; display:none;">
+              <!-- Node tags will be listed here -->
+            </div>
+            <div id="routeNodeTagSelected" style="margin-top:6px; display:flex; flex-wrap:wrap; gap:3px;">
+              <!-- Selected node tags shown as chips -->
+            </div>
+          </div>
+
+          <!-- Link Tag Filter -->
+          <div class="row" style="margin-top:12px;">
+            <label style="font-weight:600; color:#6366f1; font-size:11px;">Link Tags</label>
+            <div style="display:flex; gap:4px; margin-top:4px;">
+              <select id="routeLinkTagMode" style="width:80px; padding:4px; font-size:10px; border-radius:4px; border:1px solid #ddd;">
+                <option value="any">Any</option>
+                <option value="include">Include</option>
+                <option value="exclude">Exclude</option>
+              </select>
+              <span style="font-size:10px; color:#888; align-self:center; flex:1; text-align:right;" id="routeLinkTagModeHint">All links allowed</span>
+            </div>
+            <div id="routeLinkTagList" style="margin-top:6px; max-height:100px; overflow-y:auto; border:1px solid #e5e7eb; border-radius:4px; padding:4px; display:none;">
+              <!-- Link tags will be listed here -->
+            </div>
+            <div id="routeLinkTagSelected" style="margin-top:6px; display:flex; flex-wrap:wrap; gap:3px;">
+              <!-- Selected link tags shown as chips -->
+            </div>
+          </div>
+
+          <!-- Clear Tag Filters -->
+          <div class="row" style="margin-top:12px;">
+            <button class="btn" id="btnClearRouteTagFilters" style="width:100%; font-size:11px; padding:6px; background:#fefce8; border-color:#fde047; color:#854d0e;">
+              🗑️ Clear Tag Filters
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Capacity Requirements Section -->
+      <div class="inspector-section collapsed" data-section="route-capacity-filter">
+        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>📊 Capacity Requirements</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content">
+          <div class="hint" style="margin-bottom:10px; padding:6px; background:#eff6ff; border-radius:4px; color:#1e40af;">
+            Filter paths by available capacity on links.
+          </div>
+          
+          <!-- Filter Mode Selection -->
+          <div class="row">
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer; padding:4px 0;">
+              <input type="radio" name="routeCapacityMode" value="none" checked style="accent-color:#3b82f6;" />
+              <span style="font-size:11px;">No capacity filter (use all links)</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer; padding:4px 0;">
+              <input type="radio" name="routeCapacityMode" value="total" style="accent-color:#3b82f6;" />
+              <span style="font-size:11px;">Minimum Total Available Capacity</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer; padding:4px 0;">
+              <input type="radio" name="routeCapacityMode" value="units" style="accent-color:#3b82f6;" />
+              <span style="font-size:11px;">Minimum Units by Speed Tier</span>
+            </label>
+          </div>
+          
+          <!-- Total Capacity Filter (shown when mode=total) -->
+          <div id="routeCapacityTotalSection" style="display:none; margin-top:10px; padding:10px; background:#f8fafc; border-radius:6px; border:1px solid #e2e8f0;">
+            <label style="font-size:11px; font-weight:600; color:#1e40af;">Required Total Capacity</label>
+            <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
+              <input id="routeCapacityMinTotal" type="number" min="0" step="0.1" value="0" style="flex:1; text-align:right; padding:6px 8px;" />
+              <span style="font-size:11px; font-weight:600; color:#1e40af;">Gbps</span>
+            </div>
+          </div>
+          
+          <!-- Units Filter (shown when mode=units) -->
+          <div id="routeCapacityUnitsSection" style="display:none; margin-top:10px; padding:10px; background:#f8fafc; border-radius:6px; border:1px solid #e2e8f0;">
+            <label style="font-size:11px; font-weight:600; color:#1e40af; margin-bottom:6px; display:block;">Required Units (minimum)</label>
+            <div style="display:grid; grid-template-columns:1fr 60px; gap:4px; align-items:center;">
+              <span style="font-size:10px;">1 Gbps units</span>
+              <input id="routeCapacityMin1G" type="number" min="0" step="0.1" value="0" style="text-align:right; padding:3px 6px; font-size:11px;" />
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 60px; gap:4px; align-items:center; margin-top:3px;">
+              <span style="font-size:10px;">10 Gbps units</span>
+              <input id="routeCapacityMin10G" type="number" min="0" step="0.1" value="0" style="text-align:right; padding:3px 6px; font-size:11px;" />
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 60px; gap:4px; align-items:center; margin-top:3px;">
+              <span style="font-size:10px;">100 Gbps units</span>
+              <input id="routeCapacityMin100G" type="number" min="0" step="0.1" value="0" style="text-align:right; padding:3px 6px; font-size:11px;" />
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 60px; gap:4px; align-items:center; margin-top:3px;">
+              <span style="font-size:10px;">400 Gbps units</span>
+              <input id="routeCapacityMin400G" type="number" min="0" step="0.1" value="0" style="text-align:right; padding:3px 6px; font-size:11px;" />
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 60px; gap:4px; align-items:center; margin-top:3px;">
+              <span style="font-size:10px;">Tbps units</span>
+              <input id="routeCapacityMinTbps" type="number" min="0" step="0.1" value="0" style="text-align:right; padding:3px 6px; font-size:11px;" />
+            </div>
+          </div>
+          
+          <!-- Include undefined capacity option -->
+          <div class="row" style="margin-top:10px; padding-top:10px; border-top:1px solid #e5e7eb;">
+            <label style="display:flex; align-items:flex-start; gap:6px; cursor:pointer;">
+              <input type="checkbox" id="routeCapacityIncludeUndefined" checked style="accent-color:#3b82f6; margin-top:2px;" />
+              <div>
+                <span style="font-size:11px; font-weight:500;">Include links with undefined capacity</span>
+                <div style="font-size:10px; color:#888; margin-top:2px;">Links where all capacity fields are zero will be included in path calculation</div>
+              </div>
+            </label>
+          </div>
+          
+          <!-- Clear Capacity Filter -->
+          <div class="row" style="margin-top:10px;">
+            <button class="btn" id="btnClearRouteCapacityFilter" style="width:100%; font-size:11px; padding:6px; background:#eff6ff; border-color:#93c5fd; color:#1e40af;">
+              🗑️ Clear Capacity Filter
             </button>
           </div>
         </div>
@@ -5773,9 +5974,15 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
   let linkMode = false;
   let linkSourceNode = null;  // Track the source node ID
   
+  // Expose to window for MapLibre and other views to access
+  window.linkMode = linkMode;
+  window.linkSourceNode = linkSourceNode;
+  
   function clearLinkMode() {
     linkMode = false;
     linkSourceNode = null;
+    window.linkMode = false;
+    window.linkSourceNode = null;
     state.connectFrom = null;
     btnCreateLink.classList.remove('primary');
   }
@@ -5784,6 +5991,8 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     ev.stopPropagation();
     linkMode = !linkMode;
     linkSourceNode = null;
+    window.linkMode = linkMode;
+    window.linkSourceNode = null;
     state.connectFrom = null;
     btnCreateLink.classList.toggle('primary', linkMode);
     console.log(`[LINK MODE] ${linkMode ? 'ACTIVATED' : 'DEACTIVATED'} - linkMode=${linkMode}, linkSourceNode=${linkSourceNode}`);
@@ -5791,6 +6000,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       // Check if a node is already selected
       if (state.selected && state.selected.type === 'node') {
         linkSourceNode = state.selected.id;
+        window.linkSourceNode = linkSourceNode;
         const node = findNode(linkSourceNode);
         console.log(`[LINK MODE] Node ${linkSourceNode} already selected - using as source`);
         showToast(`Link source: ${node?.name || `N${linkSourceNode}`} → Click target node`);
@@ -9565,6 +9775,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
           if (linkSourceNode === null) {
             // First click - set source node
             linkSourceNode = n.id;
+            window.linkSourceNode = linkSourceNode;
             console.log(`[LINK MODE] Node ${n.id} set as SOURCE - waiting for target click`);
             select({type:'node', id:n.id});
             render(); // Show the orange highlight for the source node
@@ -9580,6 +9791,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
             console.log(`[LINK MODE] Node ${n.id} set as TARGET - Creating link from ${linkSourceNode} to ${n.id}`);
             const sourceId = linkSourceNode;
             linkSourceNode = null;  // Reset for next link - ready to select new source
+            window.linkSourceNode = null;
             createEdge(sourceId, n.id, true); // Skip edge selection in link mode
             clearSelection(); // Clear any selection to show we're ready for next source
             render(); // Update display to show cleared selection
@@ -9783,7 +9995,6 @@ const edgeTag = document.getElementById('edgeTag');
   const edgeLabelFont = document.getElementById('edgeLabelFont');
   const edgeLabelColor = document.getElementById('edgeLabelColor');
   const edgeStrokeW = document.getElementById('edgeStrokeW');
-  const edgeCapacity = document.getElementById('edgeCapacity');
   const edgePriority = document.getElementById('edgePriority');
   const edgeStrokeColor = document.getElementById('edgeStrokeColor');
 const groupTitle = document.getElementById('groupTitle');
@@ -10042,6 +10253,22 @@ const groupTitle = document.getElementById('groupTitle');
       if (edgeFilterTags) edgeFilterTags.value = edgeTagsArray.join(', ');
       edgeLatency.value = (typeof e.latencyMs === "number" && isFinite(e.latencyMs)) ? e.latencyMs : '';
       if (edgePriority) edgePriority.value = (typeof e.priority === "number" && isFinite(e.priority)) ? e.priority : 0;
+      
+      // Populate capacity inventory fields
+      const edgeDesignCapacity = document.getElementById('edgeDesignCapacity');
+      const edgeCap1G = document.getElementById('edgeCap1G');
+      const edgeCap10G = document.getElementById('edgeCap10G');
+      const edgeCap100G = document.getElementById('edgeCap100G');
+      const edgeCap400G = document.getElementById('edgeCap400G');
+      const edgeCapTbps = document.getElementById('edgeCapTbps');
+      if (edgeDesignCapacity) edgeDesignCapacity.value = e.designCapacityGbps || 0;
+      if (edgeCap1G) edgeCap1G.value = e.cap1G || 0;
+      if (edgeCap10G) edgeCap10G.value = e.cap10G || 0;
+      if (edgeCap100G) edgeCap100G.value = e.cap100G || 0;
+      if (edgeCap400G) edgeCap400G.value = e.cap400G || 0;
+      if (edgeCapTbps) edgeCapTbps.value = e.capTbps || 0;
+      updateEdgeCapacityTotal();
+      
       edgeExtraTags.value = e.extraTags || '';
       edgeCode.value = e.code || '';
       edgeStyle.value = e.style || 'straight';
@@ -10321,11 +10548,14 @@ if (nodeCountry) nodeCountry.addEventListener('input', () => {
   n.country = nodeCountry.value; commit(); render();
 });
 
-// Edge capacity listener
-if (edgeCapacity) edgeCapacity.addEventListener('input', () => {
+// Edge Design Maximum Capacity listener
+const edgeDesignCapacity = document.getElementById('edgeDesignCapacity');
+if (edgeDesignCapacity) edgeDesignCapacity.addEventListener('input', () => {
   if (state.selected?.type!=='edge') return;
   const e = findEdge(state.selected.id); if (!e) return;
-  e.capacity = edgeCapacity.value; commit(); render();
+  const val = parseFloat(edgeDesignCapacity.value) || 0;
+  e.designCapacityGbps = val;
+  commit();
 });
 
 // Edge priority listener
@@ -10336,6 +10566,62 @@ if (edgePriority) edgePriority.addEventListener('input', () => {
   e.priority = isNaN(val) ? 0 : val;
   commit(); render();
 });
+
+// ============== CAPACITY INVENTORY HANDLERS ==============
+
+// Calculate and display total capacity in Gbps
+function updateEdgeCapacityTotal() {
+  const cap1G = parseFloat(document.getElementById('edgeCap1G')?.value) || 0;
+  const cap10G = parseFloat(document.getElementById('edgeCap10G')?.value) || 0;
+  const cap100G = parseFloat(document.getElementById('edgeCap100G')?.value) || 0;
+  const cap400G = parseFloat(document.getElementById('edgeCap400G')?.value) || 0;
+  const capTbps = parseFloat(document.getElementById('edgeCapTbps')?.value) || 0;
+  
+  const totalGbps = cap1G + (10 * cap10G) + (100 * cap100G) + (400 * cap400G) + (1000 * capTbps);
+  
+  const totalEl = document.getElementById('edgeCapTotalGbps');
+  if (totalEl) {
+    // Format nicely: show Tbps if >= 1000, otherwise Gbps
+    if (totalGbps >= 1000) {
+      const tbps = totalGbps / 1000;
+      totalEl.textContent = tbps % 1 === 0 ? `${tbps} Tbps` : `${tbps.toFixed(2)} Tbps`;
+    } else {
+      totalEl.textContent = totalGbps % 1 === 0 ? `${totalGbps} Gbps` : `${totalGbps.toFixed(2)} Gbps`;
+    }
+  }
+  
+  return totalGbps;
+}
+
+// Save capacity to edge and update total
+function saveEdgeCapacity(field, value) {
+  if (state.selected?.type !== 'edge') return;
+  const e = findEdge(state.selected.id);
+  if (!e) return;
+  
+  const val = parseFloat(value) || 0;
+  e[field] = val;
+  
+  // Also update the calculated total on the edge object
+  e.totalCapacityGbps = updateEdgeCapacityTotal();
+  
+  commit();
+}
+
+// Capacity inventory input listeners
+const edgeCap1G = document.getElementById('edgeCap1G');
+const edgeCap10G = document.getElementById('edgeCap10G');
+const edgeCap100G = document.getElementById('edgeCap100G');
+const edgeCap400G = document.getElementById('edgeCap400G');
+const edgeCapTbps = document.getElementById('edgeCapTbps');
+
+if (edgeCap1G) edgeCap1G.addEventListener('input', () => saveEdgeCapacity('cap1G', edgeCap1G.value));
+if (edgeCap10G) edgeCap10G.addEventListener('input', () => saveEdgeCapacity('cap10G', edgeCap10G.value));
+if (edgeCap100G) edgeCap100G.addEventListener('input', () => saveEdgeCapacity('cap100G', edgeCap100G.value));
+if (edgeCap400G) edgeCap400G.addEventListener('input', () => saveEdgeCapacity('cap400G', edgeCap400G.value));
+if (edgeCapTbps) edgeCapTbps.addEventListener('input', () => saveEdgeCapacity('capTbps', edgeCapTbps.value));
+
+// ============== END CAPACITY INVENTORY HANDLERS ==============
 
 // ============== INLINE CONTROL HANDLERS ==============
 
@@ -14453,6 +14739,25 @@ function loadProjectObject(obj) {
     mustUseNodes: new Set(),  // Node IDs that route must pass through
     mustUseLinks: new Set(),  // Link IDs that route must use
     
+    // Tag filters for path calculation
+    nodeTagMode: 'any',       // 'any', 'include', 'exclude'
+    nodeTagFilter: new Set(), // Tags to include/exclude for nodes
+    linkTagMode: 'any',       // 'any', 'include', 'exclude'
+    linkTagFilter: new Set(), // Tags to include/exclude for links
+    
+    // Capacity filters for path calculation
+    capacityMode: 'none',     // 'none', 'total', 'units'
+    capacityMinTotal: 0,      // Minimum total Gbps required (when mode='total')
+    capacityMin1G: 0,         // Minimum 1G units required (when mode='units')
+    capacityMin10G: 0,        // Minimum 10G units required
+    capacityMin100G: 0,       // Minimum 100G units required
+    capacityMin400G: 0,       // Minimum 400G units required
+    capacityMinTbps: 0,       // Minimum Tbps units required
+    capacityIncludeUndefined: true,  // Include links with all capacity fields = 0
+    
+    // Implicit transit option (at top of panel)
+    skipImplicitTransit: false,      // Skip implicit container/region transit connections
+    
     // Pick mode for exclusions/must-use
     pickMode: null            // null, 'excludeNode', 'excludeLink', 'mustUseNode', 'mustUseLink'
   };
@@ -14477,12 +14782,139 @@ function loadProjectObject(obj) {
   function buildPathfindingGraph() {
     const adjacency = new Map();
     
+    // Helper to check if node passes tag filter
+    function nodePassesTagFilter(n) {
+      if (routeFinderState.nodeTagMode === 'any') return true;
+      
+      // Get node tags using the proper function
+      let nodeTags;
+      if (typeof getNodeTags === 'function') {
+        nodeTags = getNodeTags(n);
+      } else {
+        // Fallback
+        nodeTags = new Set(['default']);
+        if (n.tags && Array.isArray(n.tags)) {
+          n.tags.forEach(t => {
+            const trimmed = t.trim().toLowerCase();
+            if (trimmed) nodeTags.add(trimmed);
+          });
+        }
+      }
+      
+      if (nodeTags.size === 0 && routeFinderState.nodeTagFilter.size > 0) {
+        return routeFinderState.nodeTagMode === 'exclude';
+      }
+      
+      // Check if any node tag matches the filter
+      let hasMatchingTag = false;
+      for (const t of nodeTags) {
+        if (routeFinderState.nodeTagFilter.has(t)) {
+          hasMatchingTag = true;
+          break;
+        }
+      }
+      
+      if (routeFinderState.nodeTagMode === 'include') {
+        return hasMatchingTag;
+      } else if (routeFinderState.nodeTagMode === 'exclude') {
+        return !hasMatchingTag;
+      }
+      return true;
+    }
+    
+    // Helper to check if edge passes tag filter
+    function edgePassesTagFilter(edge) {
+      if (routeFinderState.linkTagMode === 'any') return true;
+      
+      // Get edge tags using the proper function
+      let edgeTags;
+      if (typeof getEdgeTags === 'function') {
+        edgeTags = getEdgeTags(edge);
+      } else {
+        // Fallback
+        edgeTags = new Set(['default']);
+        if (edge.filterTags && Array.isArray(edge.filterTags)) {
+          edge.filterTags.forEach(t => {
+            const trimmed = t.trim().toLowerCase();
+            if (trimmed) edgeTags.add(trimmed);
+          });
+        }
+      }
+      
+      if (edgeTags.size === 0 && routeFinderState.linkTagFilter.size > 0) {
+        return routeFinderState.linkTagMode === 'exclude';
+      }
+      
+      // Check if any edge tag matches the filter
+      let hasMatchingTag = false;
+      for (const t of edgeTags) {
+        if (routeFinderState.linkTagFilter.has(t)) {
+          hasMatchingTag = true;
+          break;
+        }
+      }
+      
+      if (routeFinderState.linkTagMode === 'include') {
+        return hasMatchingTag;
+      } else if (routeFinderState.linkTagMode === 'exclude') {
+        return !hasMatchingTag;
+      }
+      return true;
+    }
+    
+    // Helper to check if edge passes capacity filter
+    function edgePassesCapacityFilter(edge) {
+      if (routeFinderState.capacityMode === 'none') return true;
+      
+      // Get edge capacity values
+      const cap1G = edge.cap1G || 0;
+      const cap10G = edge.cap10G || 0;
+      const cap100G = edge.cap100G || 0;
+      const cap400G = edge.cap400G || 0;
+      const capTbps = edge.capTbps || 0;
+      
+      // Check if all capacity fields are zero (undefined capacity)
+      const isUndefined = (cap1G === 0 && cap10G === 0 && cap100G === 0 && cap400G === 0 && capTbps === 0);
+      
+      // If capacity is undefined and we allow undefined, pass the filter
+      if (isUndefined && routeFinderState.capacityIncludeUndefined) {
+        return true;
+      }
+      
+      // If capacity is undefined and we don't allow undefined, fail the filter
+      if (isUndefined && !routeFinderState.capacityIncludeUndefined) {
+        return false;
+      }
+      
+      // Check based on mode
+      if (routeFinderState.capacityMode === 'total') {
+        // Calculate total available capacity in Gbps
+        const totalGbps = cap1G + (10 * cap10G) + (100 * cap100G) + (400 * cap400G) + (1000 * capTbps);
+        return totalGbps >= routeFinderState.capacityMinTotal;
+      }
+      
+      if (routeFinderState.capacityMode === 'units') {
+        // Check each unit type meets minimum requirement
+        // Only check units where a minimum is specified (> 0)
+        if (routeFinderState.capacityMin1G > 0 && cap1G < routeFinderState.capacityMin1G) return false;
+        if (routeFinderState.capacityMin10G > 0 && cap10G < routeFinderState.capacityMin10G) return false;
+        if (routeFinderState.capacityMin100G > 0 && cap100G < routeFinderState.capacityMin100G) return false;
+        if (routeFinderState.capacityMin400G > 0 && cap400G < routeFinderState.capacityMin400G) return false;
+        if (routeFinderState.capacityMinTbps > 0 && capTbps < routeFinderState.capacityMinTbps) return false;
+        return true;
+      }
+      
+      return true;
+    }
+    
     // Determine which nodes to include
     const validNodes = state.nodes.filter(n => {
       // Check if excluded
       if (routeFinderState.excludedNodes.has(n.id)) return false;
       // Check visibility if enabled
       if (routeFinderState.visibleOnly && !isNodeVisible(n)) return false;
+      // Check tag filter
+      if (!nodePassesTagFilter(n)) return false;
       return true;
     });
     
@@ -14501,6 +14933,12 @@ function loadProjectObject(obj) {
       
       // Check edge visibility if enabled
       if (routeFinderState.visibleOnly && !isEdgeVisible(edge)) return;
+      
+      // Check tag filter
+      if (!edgePassesTagFilter(edge)) return;
+      
+      // Check capacity filter
+      if (!edgePassesCapacityFilter(edge)) return;
       
       const nodeA = findNode(edge.a);
       const nodeB = findNode(edge.b);
@@ -14536,8 +14974,8 @@ function loadProjectObject(obj) {
       }
     });
     
-    // 2a. Add implicit edges within same container (if enabled)
-    if (routeFinderState.enableContainerTransit) {
+    // 2a. Add implicit edges within same container (if enabled and not skipped)
+    if (routeFinderState.enableContainerTransit && !routeFinderState.skipImplicitTransit) {
       containerNodes.forEach((nodeIdsInContainer, groupId) => {
         const group = findGroup(groupId);
         const containerName = group?.title || 'Container';
@@ -14574,8 +15012,8 @@ function loadProjectObject(obj) {
       });
     }
     
-    // 3. Add implicit edges between sibling containers (same parent region) - if enabled
-    if (routeFinderState.enableRegionTransit) {
+    // 3. Add implicit edges between sibling containers (same parent region) - if enabled and not skipped
+    if (routeFinderState.enableRegionTransit && !routeFinderState.skipImplicitTransit) {
       const regionContainers = new Map();
       state.groups.forEach(g => {
         if (g.type === 'country' && g.parentId) {
@@ -15206,6 +15644,12 @@ function loadProjectObject(obj) {
     routeFinderState.active = false;
     routeFinderState.pickMode = null;
     
+    // Clear routes data
+    routeFinderState.routes = [];
+    routeFinderState.activeRouteIndex = 0;
+    routeFinderState.originNodeId = null;
+    routeFinderState.destNodeId = null;
+    
     // Hide panel
     const panel = document.getElementById('routeFinderPanel');
     if (panel) {
@@ -15216,8 +15660,16 @@ function loadProjectObject(obj) {
     const btn = document.getElementById('btnRouteFinder');
     if (btn) btn.classList.remove('primary');
     
-    // Clear highlights
+    // Clear highlights in all views
     clearRouteHighlights();
+    
+    // Also clear MapLibre route path
+    if (typeof clearMapLibreRoutePath === 'function') {
+      clearMapLibreRoutePath();
+    }
+    
+    // Re-render to remove any lingering highlights
+    render();
     
     showToast('✏️ Edit Mode: Normal editing restored');
   }
@@ -16333,6 +16785,9 @@ function loadProjectObject(obj) {
       routeFinderState.visibleOnly = routeVisibleOnlyCheckbox.checked;
       routeFinderState.routes = []; // Clear routes
       updateRouteFinderUI();
+      if (typeof updateActiveFiltersIndicator === 'function') {
+        updateActiveFiltersIndicator();
+      }
       if (routeFinderState.visibleOnly) {
         showToast('👁️ Calculating using visible elements only');
       } else {
@@ -16442,6 +16897,536 @@ function loadProjectObject(obj) {
   if (btnClearAllMustUse) {
     btnClearAllMustUse.addEventListener('click', clearAllMustUse);
   }
+
+  // ============== ROUTE FINDER TAG FILTERS ==============
+  
+  // Populate tag filter lists when opening the section
+  function populateRouteTagFilters() {
+    // Collect all unique node tags using the same method as Tags panel
+    const nodeTags = new Set();
+    state.nodes.forEach(n => {
+      // Use the same getNodeTags function if available, otherwise fallback
+      if (typeof getNodeTags === 'function') {
+        getNodeTags(n).forEach(t => nodeTags.add(t));
+      } else if (n.tags && Array.isArray(n.tags)) {
+        n.tags.forEach(t => nodeTags.add(t));
+      }
+      if (n.filterTags && Array.isArray(n.filterTags)) {
+        n.filterTags.forEach(t => {
+          const trimmed = t.trim().toLowerCase();
+          if (trimmed) nodeTags.add(trimmed);
+        });
+      }
+    });
+    
+    // Collect all unique link tags using getEdgeTags
+    const linkTags = new Set();
+    state.edges.forEach(e => {
+      if (typeof getEdgeTags === 'function') {
+        getEdgeTags(e).forEach(t => linkTags.add(t));
+      } else {
+        // Fallback: check filterTags array
+        if (e.filterTags && Array.isArray(e.filterTags)) {
+          e.filterTags.forEach(t => {
+            const trimmed = t.trim().toLowerCase();
+            if (trimmed) linkTags.add(trimmed);
+          });
+        }
+        // Also check extraTags
+        if (e.extraTags) {
+          e.extraTags.split(',').forEach(t => {
+            const trimmed = t.trim().toLowerCase();
+            if (trimmed) linkTags.add(trimmed);
+          });
+        }
+        // Add default
+        linkTags.add('default');
+      }
+    });
+    
+    // Populate node tag list
+    const nodeTagList = document.getElementById('routeNodeTagList');
+    if (nodeTagList) {
+      nodeTagList.innerHTML = '';
+      if (nodeTags.size === 0) {
+        nodeTagList.innerHTML = '<div style="font-size:10px; color:#888; padding:4px;">No node tags in diagram</div>';
+      } else {
+        Array.from(nodeTags).sort().forEach(tag => {
+          const label = document.createElement('label');
+          label.style.cssText = 'display:flex; align-items:center; gap:4px; padding:2px 4px; cursor:pointer; font-size:10px;';
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.value = tag;
+          cb.checked = routeFinderState.nodeTagFilter.has(tag);
+          cb.addEventListener('change', () => {
+            if (cb.checked) {
+              routeFinderState.nodeTagFilter.add(tag);
+            } else {
+              routeFinderState.nodeTagFilter.delete(tag);
+            }
+            updateRouteTagSelectedChips('node');
+            routeFinderState.routes = [];
+            updateRouteFinderUI();
+          });
+          label.appendChild(cb);
+          label.appendChild(document.createTextNode(tag));
+          nodeTagList.appendChild(label);
+        });
+      }
+    }
+    
+    // Populate link tag list
+    const linkTagList = document.getElementById('routeLinkTagList');
+    if (linkTagList) {
+      linkTagList.innerHTML = '';
+      if (linkTags.size === 0) {
+        linkTagList.innerHTML = '<div style="font-size:10px; color:#888; padding:4px;">No link tags in diagram</div>';
+      } else {
+        Array.from(linkTags).sort().forEach(tag => {
+          const label = document.createElement('label');
+          label.style.cssText = 'display:flex; align-items:center; gap:4px; padding:2px 4px; cursor:pointer; font-size:10px;';
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.value = tag;
+          cb.checked = routeFinderState.linkTagFilter.has(tag);
+          cb.addEventListener('change', () => {
+            if (cb.checked) {
+              routeFinderState.linkTagFilter.add(tag);
+            } else {
+              routeFinderState.linkTagFilter.delete(tag);
+            }
+            updateRouteTagSelectedChips('link');
+            routeFinderState.routes = [];
+            updateRouteFinderUI();
+          });
+          label.appendChild(cb);
+          label.appendChild(document.createTextNode(tag));
+          linkTagList.appendChild(label);
+        });
+      }
+    }
+    
+    updateRouteTagSelectedChips('node');
+    updateRouteTagSelectedChips('link');
+  }
+  
+  // Update the selected tag chips display
+  function updateRouteTagSelectedChips(type) {
+    const container = document.getElementById(type === 'node' ? 'routeNodeTagSelected' : 'routeLinkTagSelected');
+    const filterSet = type === 'node' ? routeFinderState.nodeTagFilter : routeFinderState.linkTagFilter;
+    const mode = type === 'node' ? routeFinderState.nodeTagMode : routeFinderState.linkTagMode;
+    
+    if (!container) return;
+    container.innerHTML = '';
+    
+    if (mode === 'any' || filterSet.size === 0) {
+      return; // No chips to show
+    }
+    
+    const modeColor = mode === 'include' ? '#22c55e' : '#ef4444';
+    const modeLabel = mode === 'include' ? '✓' : '✗';
+    
+    filterSet.forEach(tag => {
+      const chip = document.createElement('span');
+      chip.style.cssText = `display:inline-flex; align-items:center; gap:2px; padding:2px 6px; border-radius:10px; font-size:9px; background:${mode === 'include' ? '#dcfce7' : '#fee2e2'}; color:${modeColor}; border:1px solid ${modeColor};`;
+      chip.innerHTML = `${modeLabel} ${tag} <span style="cursor:pointer; margin-left:2px;" title="Remove">×</span>`;
+      chip.querySelector('span').addEventListener('click', () => {
+        filterSet.delete(tag);
+        // Uncheck in the list
+        const list = document.getElementById(type === 'node' ? 'routeNodeTagList' : 'routeLinkTagList');
+        if (list) {
+          const cb = list.querySelector(`input[value="${tag}"]`);
+          if (cb) cb.checked = false;
+        }
+        updateRouteTagSelectedChips(type);
+        routeFinderState.routes = [];
+        updateRouteFinderUI();
+      });
+      container.appendChild(chip);
+    });
+  }
+  
+  // Update hint text based on mode
+  function updateRouteTagModeHint(type) {
+    const hint = document.getElementById(type === 'node' ? 'routeNodeTagModeHint' : 'routeLinkTagModeHint');
+    const mode = type === 'node' ? routeFinderState.nodeTagMode : routeFinderState.linkTagMode;
+    const filterSet = type === 'node' ? routeFinderState.nodeTagFilter : routeFinderState.linkTagFilter;
+    const list = document.getElementById(type === 'node' ? 'routeNodeTagList' : 'routeLinkTagList');
+    
+    if (!hint) return;
+    
+    if (mode === 'any') {
+      hint.textContent = type === 'node' ? 'All nodes allowed' : 'All links allowed';
+      hint.style.color = '#888';
+      if (list) list.style.display = 'none';
+    } else if (mode === 'include') {
+      hint.textContent = filterSet.size > 0 ? `Only ${filterSet.size} tag(s)` : 'Select tags to include';
+      hint.style.color = '#22c55e';
+      if (list) list.style.display = 'block';
+    } else if (mode === 'exclude') {
+      hint.textContent = filterSet.size > 0 ? `Excluding ${filterSet.size} tag(s)` : 'Select tags to exclude';
+      hint.style.color = '#ef4444';
+      if (list) list.style.display = 'block';
+    }
+  }
+  
+  // Node tag mode change handler
+  const routeNodeTagMode = document.getElementById('routeNodeTagMode');
+  if (routeNodeTagMode) {
+    routeNodeTagMode.addEventListener('change', () => {
+      routeFinderState.nodeTagMode = routeNodeTagMode.value;
+      updateRouteTagModeHint('node');
+      updateRouteTagSelectedChips('node');
+      routeFinderState.routes = [];
+      updateRouteFinderUI();
+    });
+  }
+  
+  // Link tag mode change handler
+  const routeLinkTagMode = document.getElementById('routeLinkTagMode');
+  if (routeLinkTagMode) {
+    routeLinkTagMode.addEventListener('change', () => {
+      routeFinderState.linkTagMode = routeLinkTagMode.value;
+      updateRouteTagModeHint('link');
+      updateRouteTagSelectedChips('link');
+      routeFinderState.routes = [];
+      updateRouteFinderUI();
+    });
+  }
+  
+  // Clear tag filters button
+  const btnClearRouteTagFilters = document.getElementById('btnClearRouteTagFilters');
+  if (btnClearRouteTagFilters) {
+    btnClearRouteTagFilters.addEventListener('click', () => {
+      routeFinderState.nodeTagMode = 'any';
+      routeFinderState.nodeTagFilter.clear();
+      routeFinderState.linkTagMode = 'any';
+      routeFinderState.linkTagFilter.clear();
+      
+      // Reset UI
+      if (routeNodeTagMode) routeNodeTagMode.value = 'any';
+      if (routeLinkTagMode) routeLinkTagMode.value = 'any';
+      updateRouteTagModeHint('node');
+      updateRouteTagModeHint('link');
+      updateRouteTagSelectedChips('node');
+      updateRouteTagSelectedChips('link');
+      populateRouteTagFilters();
+      
+      routeFinderState.routes = [];
+      updateRouteFinderUI();
+      showToast('🗑️ Tag filters cleared');
+    });
+  }
+  
+  // Populate tag filters when route finder is opened
+  const originalEnterCalcMode = enterCalculationMode;
+  enterCalculationMode = function() {
+    originalEnterCalcMode();
+    populateRouteTagFilters();
+    updateRouteTagModeHint('node');
+    updateRouteTagModeHint('link');
+  };
+  
+  // ============== END ROUTE FINDER TAG FILTERS ==============
+
+  // ============== ROUTE FINDER CAPACITY FILTERS ==============
+  
+  // Show/hide capacity filter sections based on mode
+  function updateCapacityFilterSections() {
+    const totalSection = document.getElementById('routeCapacityTotalSection');
+    const unitsSection = document.getElementById('routeCapacityUnitsSection');
+    
+    if (totalSection) totalSection.style.display = routeFinderState.capacityMode === 'total' ? 'block' : 'none';
+    if (unitsSection) unitsSection.style.display = routeFinderState.capacityMode === 'units' ? 'block' : 'none';
+  }
+  
+  // Capacity mode radio buttons
+  const capacityModeRadios = document.querySelectorAll('input[name="routeCapacityMode"]');
+  capacityModeRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      routeFinderState.capacityMode = radio.value;
+      updateCapacityFilterSections();
+      routeFinderState.routes = [];
+      updateRouteFinderUI();
+    });
+  });
+  
+  // Total capacity input
+  const routeCapacityMinTotal = document.getElementById('routeCapacityMinTotal');
+  if (routeCapacityMinTotal) {
+    routeCapacityMinTotal.addEventListener('input', () => {
+      routeFinderState.capacityMinTotal = parseFloat(routeCapacityMinTotal.value) || 0;
+      routeFinderState.routes = [];
+      updateRouteFinderUI();
+    });
+  }
+  
+  // Unit capacity inputs
+  const routeCapacityMin1G = document.getElementById('routeCapacityMin1G');
+  const routeCapacityMin10G = document.getElementById('routeCapacityMin10G');
+  const routeCapacityMin100G = document.getElementById('routeCapacityMin100G');
+  const routeCapacityMin400G = document.getElementById('routeCapacityMin400G');
+  const routeCapacityMinTbps = document.getElementById('routeCapacityMinTbps');
+  
+  if (routeCapacityMin1G) {
+    routeCapacityMin1G.addEventListener('input', () => {
+      routeFinderState.capacityMin1G = parseFloat(routeCapacityMin1G.value) || 0;
+      routeFinderState.routes = [];
+      updateRouteFinderUI();
+    });
+  }
+  if (routeCapacityMin10G) {
+    routeCapacityMin10G.addEventListener('input', () => {
+      routeFinderState.capacityMin10G = parseFloat(routeCapacityMin10G.value) || 0;
+      routeFinderState.routes = [];
+      updateRouteFinderUI();
+    });
+  }
+  if (routeCapacityMin100G) {
+    routeCapacityMin100G.addEventListener('input', () => {
+      routeFinderState.capacityMin100G = parseFloat(routeCapacityMin100G.value) || 0;
+      routeFinderState.routes = [];
+      updateRouteFinderUI();
+    });
+  }
+  if (routeCapacityMin400G) {
+    routeCapacityMin400G.addEventListener('input', () => {
+      routeFinderState.capacityMin400G = parseFloat(routeCapacityMin400G.value) || 0;
+      routeFinderState.routes = [];
+      updateRouteFinderUI();
+    });
+  }
+  if (routeCapacityMinTbps) {
+    routeCapacityMinTbps.addEventListener('input', () => {
+      routeFinderState.capacityMinTbps = parseFloat(routeCapacityMinTbps.value) || 0;
+      routeFinderState.routes = [];
+      updateRouteFinderUI();
+    });
+  }
+  
+  // Include undefined capacity checkbox
+  const routeCapacityIncludeUndefined = document.getElementById('routeCapacityIncludeUndefined');
+  if (routeCapacityIncludeUndefined) {
+    routeCapacityIncludeUndefined.addEventListener('change', () => {
+      routeFinderState.capacityIncludeUndefined = routeCapacityIncludeUndefined.checked;
+      routeFinderState.routes = [];
+      updateRouteFinderUI();
+      updateActiveFiltersIndicator();
+    });
+  }
+  
+  // Skip implicit transit checkbox (at top of panel)
+  const routeSkipImplicitTransit = document.getElementById('routeSkipImplicitTransit');
+  if (routeSkipImplicitTransit) {
+    routeSkipImplicitTransit.addEventListener('change', () => {
+      routeFinderState.skipImplicitTransit = routeSkipImplicitTransit.checked;
+      routeFinderState.routes = [];
+      updateRouteFinderUI();
+      if (typeof updateActiveFiltersIndicator === 'function') {
+        updateActiveFiltersIndicator();
+      }
+      if (routeFinderState.skipImplicitTransit) {
+        showToast('🚫 Implicit container transit disabled');
+      } else {
+        showToast('✅ Implicit container transit enabled');
+      }
+    });
+  }
+  
+  // Clear capacity filter button
+  const btnClearRouteCapacityFilter = document.getElementById('btnClearRouteCapacityFilter');
+  if (btnClearRouteCapacityFilter) {
+    btnClearRouteCapacityFilter.addEventListener('click', () => {
+      // Reset state
+      routeFinderState.capacityMode = 'none';
+      routeFinderState.capacityMinTotal = 0;
+      routeFinderState.capacityMin1G = 0;
+      routeFinderState.capacityMin10G = 0;
+      routeFinderState.capacityMin100G = 0;
+      routeFinderState.capacityMin400G = 0;
+      routeFinderState.capacityMinTbps = 0;
+      routeFinderState.capacityIncludeUndefined = true;
+      
+      // Reset UI
+      const noneRadio = document.querySelector('input[name="routeCapacityMode"][value="none"]');
+      if (noneRadio) noneRadio.checked = true;
+      if (routeCapacityMinTotal) routeCapacityMinTotal.value = 0;
+      if (routeCapacityMin1G) routeCapacityMin1G.value = 0;
+      if (routeCapacityMin10G) routeCapacityMin10G.value = 0;
+      if (routeCapacityMin100G) routeCapacityMin100G.value = 0;
+      if (routeCapacityMin400G) routeCapacityMin400G.value = 0;
+      if (routeCapacityMinTbps) routeCapacityMinTbps.value = 0;
+      if (routeCapacityIncludeUndefined) routeCapacityIncludeUndefined.checked = true;
+      updateCapacityFilterSections();
+      
+      routeFinderState.routes = [];
+      updateRouteFinderUI();
+      updateActiveFiltersIndicator();
+      showToast('🗑️ Capacity filter cleared');
+    });
+  }
+  
+  // ============== ACTIVE FILTERS INDICATOR ==============
+  
+  function updateActiveFiltersIndicator() {
+    const indicator = document.getElementById('activeFiltersIndicator');
+    const textEl = document.getElementById('activeFiltersText');
+    if (!indicator || !textEl) return;
+    
+    const activeFilters = [];
+    
+    // Check restrictions
+    if (routeFinderState.excludedNodes.size > 0) {
+      activeFilters.push(`${routeFinderState.excludedNodes.size} excluded node(s)`);
+    }
+    if (routeFinderState.excludedLinks.size > 0) {
+      activeFilters.push(`${routeFinderState.excludedLinks.size} excluded link(s)`);
+    }
+    
+    // Check must-use
+    if (routeFinderState.mustUseNodes.size > 0) {
+      activeFilters.push(`${routeFinderState.mustUseNodes.size} must-use node(s)`);
+    }
+    if (routeFinderState.mustUseLinks.size > 0) {
+      activeFilters.push(`${routeFinderState.mustUseLinks.size} must-use link(s)`);
+    }
+    
+    // Check tag filters
+    if (routeFinderState.nodeTagMode !== 'any' && routeFinderState.nodeTagFilter.size > 0) {
+      activeFilters.push(`node tags (${routeFinderState.nodeTagMode})`);
+    }
+    if (routeFinderState.linkTagMode !== 'any' && routeFinderState.linkTagFilter.size > 0) {
+      activeFilters.push(`link tags (${routeFinderState.linkTagMode})`);
+    }
+    
+    // Check capacity filter
+    if (routeFinderState.capacityMode !== 'none') {
+      if (routeFinderState.capacityMode === 'total') {
+        activeFilters.push(`capacity ≥${routeFinderState.capacityMinTotal}G`);
+      } else {
+        activeFilters.push('capacity units');
+      }
+    }
+    
+    // Check visible only
+    if (routeFinderState.visibleOnly) {
+      activeFilters.push('visible only');
+    }
+    
+    // Check skip implicit transit
+    if (routeFinderState.skipImplicitTransit) {
+      activeFilters.push('no implicit transit');
+    }
+    
+    if (activeFilters.length > 0) {
+      indicator.style.display = 'block';
+      textEl.textContent = activeFilters.join(', ');
+    } else {
+      indicator.style.display = 'none';
+    }
+  }
+  
+  // ============== RESET ALL FILTERS ==============
+  
+  function resetAllRouteFilters() {
+    // Reset exclusions
+    routeFinderState.excludedNodes.clear();
+    routeFinderState.excludedLinks.clear();
+    
+    // Reset must-use
+    routeFinderState.mustUseNodes.clear();
+    routeFinderState.mustUseLinks.clear();
+    
+    // Reset tag filters
+    routeFinderState.nodeTagMode = 'any';
+    routeFinderState.nodeTagFilter.clear();
+    routeFinderState.linkTagMode = 'any';
+    routeFinderState.linkTagFilter.clear();
+    
+    // Reset capacity filters
+    routeFinderState.capacityMode = 'none';
+    routeFinderState.capacityMinTotal = 0;
+    routeFinderState.capacityMin1G = 0;
+    routeFinderState.capacityMin10G = 0;
+    routeFinderState.capacityMin100G = 0;
+    routeFinderState.capacityMin400G = 0;
+    routeFinderState.capacityMinTbps = 0;
+    routeFinderState.capacityIncludeUndefined = true;
+    
+    // Reset skip implicit transit
+    routeFinderState.skipImplicitTransit = false;
+    const routeSkipImplicitTransit = document.getElementById('routeSkipImplicitTransit');
+    if (routeSkipImplicitTransit) routeSkipImplicitTransit.checked = false;
+    
+    // Reset visible only
+    routeFinderState.visibleOnly = false;
+    const routeVisibleOnly = document.getElementById('routeVisibleOnly');
+    if (routeVisibleOnly) routeVisibleOnly.checked = false;
+    
+    // Reset UI elements
+    // Exclusions
+    document.getElementById('excludedNodesList').innerHTML = '';
+    document.getElementById('excludedLinksList').innerHTML = '';
+    
+    // Must-use
+    document.getElementById('mustUseNodesList').innerHTML = '';
+    document.getElementById('mustUseLinksList').innerHTML = '';
+    
+    // Tag filters
+    const routeNodeTagMode = document.getElementById('routeNodeTagMode');
+    const routeLinkTagMode = document.getElementById('routeLinkTagMode');
+    if (routeNodeTagMode) routeNodeTagMode.value = 'any';
+    if (routeLinkTagMode) routeLinkTagMode.value = 'any';
+    updateRouteTagModeHint('node');
+    updateRouteTagModeHint('link');
+    updateRouteTagSelectedChips('node');
+    updateRouteTagSelectedChips('link');
+    populateRouteTagFilters();
+    
+    // Capacity filters
+    const noneRadio = document.querySelector('input[name="routeCapacityMode"][value="none"]');
+    if (noneRadio) noneRadio.checked = true;
+    if (routeCapacityMinTotal) routeCapacityMinTotal.value = 0;
+    if (routeCapacityMin1G) routeCapacityMin1G.value = 0;
+    if (routeCapacityMin10G) routeCapacityMin10G.value = 0;
+    if (routeCapacityMin100G) routeCapacityMin100G.value = 0;
+    if (routeCapacityMin400G) routeCapacityMin400G.value = 0;
+    if (routeCapacityMinTbps) routeCapacityMinTbps.value = 0;
+    if (routeCapacityIncludeUndefined) routeCapacityIncludeUndefined.checked = true;
+    updateCapacityFilterSections();
+    
+    // Clear routes and update UI
+    routeFinderState.routes = [];
+    updateRouteFinderUI();
+    updateActiveFiltersIndicator();
+    
+    showToast('🧹 All filters have been reset');
+  }
+  
+  const btnResetAllFilters = document.getElementById('btnResetAllFilters');
+  if (btnResetAllFilters) {
+    btnResetAllFilters.addEventListener('click', resetAllRouteFilters);
+  }
+  
+  // Update indicator when other filters change
+  // Override existing clear functions to also update indicator
+  const originalClearAllRestrictions = typeof clearAllRestrictions === 'function' ? clearAllRestrictions : null;
+  if (originalClearAllRestrictions) {
+    window.clearAllRestrictions = function() {
+      originalClearAllRestrictions();
+      updateActiveFiltersIndicator();
+    };
+  }
+  
+  const originalClearAllMustUse = typeof clearAllMustUse === 'function' ? clearAllMustUse : null;
+  if (originalClearAllMustUse) {
+    window.clearAllMustUse = function() {
+      originalClearAllMustUse();
+      updateActiveFiltersIndicator();
+    };
+  }
+  
+  // ============== END ROUTE FINDER CAPACITY FILTERS ==============
 
   // Transit toggle event listeners
   if (routeEnableContainerTransit) {
@@ -18370,14 +19355,18 @@ function loadProjectObject(obj) {
     // Draw world map background
     svg.appendChild(drawGeoBackground());
     
-    // Get nodes with GPS data
+    // Get nodes with GPS data AND that pass visibility filters
     const geoNodes = state.nodes.filter(n => 
       n.gpsLat !== null && n.gpsLat !== undefined &&
-      n.gpsLon !== null && n.gpsLon !== undefined
+      n.gpsLon !== null && n.gpsLon !== undefined &&
+      isNodeVisible(n)  // Apply tag/cable system/node/container filters
     );
     
-    // Draw edges between geo nodes
+    // Draw edges between geo nodes (only if edge is visible)
     state.edges.forEach(e => {
+      // Apply edge visibility filter
+      if (!isEdgeVisible(e)) return;
+      
       const nodeA = findNode(e.a);
       const nodeB = findNode(e.b);
       
@@ -18458,6 +19447,7 @@ function loadProjectObject(obj) {
       
       const isSel = (state.selected?.type === 'node' && state.selected?.id === n.id) || 
                     state.selection.nodes.has(n.id);
+      const isLinkSource = window.linkMode && window.linkSourceNode === n.id;
       
       // Node circle
       const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -18465,13 +19455,27 @@ function loadProjectObject(obj) {
       circle.setAttribute('cy', pos.y);
       circle.setAttribute('r', r);
       circle.setAttribute('fill', n.fill || '#dae8fc');
-      circle.setAttribute('stroke', isSel ? '#0096D6' : (n.stroke || '#6c8ebf'));
-      circle.setAttribute('stroke-width', isSel ? 3 : 2);
+      
+      // Determine stroke color based on state
+      let strokeColor = n.stroke || '#6c8ebf';
+      let strokeWidth = 2;
+      if (isLinkSource) {
+        strokeColor = '#ff9800'; // Orange for link source
+        strokeWidth = 4;
+      } else if (isSel) {
+        strokeColor = '#0096D6'; // Blue for selection
+        strokeWidth = 3;
+      }
+      
+      circle.setAttribute('stroke', strokeColor);
+      circle.setAttribute('stroke-width', strokeWidth);
       circle.setAttribute('class', 'geo-node');
       circle.setAttribute('data-node-id', n.id);
       circle.style.cursor = 'pointer';
       
-      if (isSel) {
+      if (isLinkSource) {
+        circle.style.filter = 'drop-shadow(0 0 6px rgba(255,152,0,0.6))';
+      } else if (isSel) {
         circle.style.filter = 'drop-shadow(0 0 4px #0096D6)';
       }
       
@@ -18481,6 +19485,36 @@ function loadProjectObject(obj) {
         // Check if in Route Finder calculation mode
         if (typeof routeFinderState !== 'undefined' && routeFinderState.active) {
           handleCalculationModeNodeClick(n.id);
+          return;
+        }
+        
+        // Check if in link mode
+        if (window.linkMode) {
+          if (window.linkSourceNode === null) {
+            // First click - set source node
+            window.linkSourceNode = n.id;
+            // Also update the local variable if accessible
+            if (typeof linkSourceNode !== 'undefined') linkSourceNode = n.id;
+            state.selected = { type: 'node', id: n.id };
+            renderGeoView();
+            updateInspector();
+            showToast(`Link source: ${n.name || 'N' + n.id} → Click target node`);
+          } else {
+            // Second click - create link
+            if (window.linkSourceNode === n.id) {
+              showToast('❌ Cannot link node to itself');
+              return;
+            }
+            const sourceId = window.linkSourceNode;
+            window.linkSourceNode = null;
+            if (typeof linkSourceNode !== 'undefined') linkSourceNode = null;
+            createEdge(sourceId, n.id, true);
+            state.selected = null;
+            state.selection.nodes.clear();
+            renderGeoView();
+            updateInspector();
+            showToast(`✓ Link created! Click next source node`);
+          }
           return;
         }
         
@@ -18594,10 +19628,16 @@ function loadProjectObject(obj) {
     }
   }
   
-  // Override render when in geo view
+  // Override render when in geo view or MapLibre view
   const originalRenderFunc = render;
   const geoAwareRender = function() {
-    if (geoViewState.active) {
+    // Check MapLibre first (it takes priority)
+    if (window.mapLibreState && window.mapLibreState.active) {
+      window.mapLibreState.skipFitBounds = true;
+      if (typeof window.renderMapLibreContent === 'function') {
+        window.renderMapLibreContent();
+      }
+    } else if (geoViewState.active) {
       renderGeoView();
     } else {
       originalRenderFunc();
@@ -19949,14 +20989,15 @@ function loadProjectObject(obj) {
     const defaultLinkColor = mapLibreState.defaultLinkColor || '#6c8ebf';
     const defaultLinkWidth = mapLibreState.defaultLinkWidth || 2;
     
-    // Get nodes with GPS coordinates
+    // Get nodes with GPS coordinates AND that pass visibility filters
     const geoNodes = state.nodes.filter(n => 
       n.gpsLat !== null && n.gpsLat !== undefined &&
-      n.gpsLon !== null && n.gpsLon !== undefined
+      n.gpsLon !== null && n.gpsLon !== undefined &&
+      isNodeVisible(n)  // Apply tag/cable system/node/container filters
     );
     
     if (geoNodes.length === 0) {
-      showToast('ℹ️ No nodes with GPS coordinates to display');
+      showToast('ℹ️ No visible nodes with GPS coordinates to display');
       return;
     }
     
@@ -19975,6 +21016,9 @@ function loadProjectObject(obj) {
     
     if (showLinks) {
       state.edges.forEach((e, idx) => {
+        // Apply edge visibility filter (tag/cable system filters)
+        if (!isEdgeVisible(e)) return;
+        
         const fromCoords = nodeGpsMap.get(e.a);
         const toCoords = nodeGpsMap.get(e.b);
         
@@ -19991,6 +21035,7 @@ function loadProjectObject(obj) {
           // Highlight if selected
           const isSelected = mapLibreState.selectedEdge === e.id;
           if (isSelected) {
+            edgeColor = '#0096D6'; // Blue - same as main canvas selection
             edgeWidth = Math.max(edgeWidth + 2, 4);
           }
           
@@ -20166,7 +21211,7 @@ function loadProjectObject(obj) {
         
         const isSelected = mapLibreState.selectedEdge === labelInfo.edgeId;
         labelEl.style.cssText = `
-          background: ${isSelected ? '#fef3c7' : 'rgba(255,255,255,0.9)'};
+          background: ${isSelected ? '#e0f2fe' : 'rgba(255,255,255,0.9)'};
           padding: 1px 4px;
           border-radius: 2px;
           font-size: 9px;
@@ -20176,8 +21221,8 @@ function loadProjectObject(obj) {
           pointer-events: ${selectionEnabled ? 'auto' : 'none'};
           cursor: ${selectionEnabled ? 'pointer' : 'default'};
           box-shadow: 0 1px 2px rgba(0,0,0,0.15);
-          border-left: 3px solid ${labelInfo.color};
-          ${isSelected ? 'outline: 2px solid #f59e0b;' : ''}
+          border-left: 3px solid ${isSelected ? '#0096D6' : labelInfo.color};
+          ${isSelected ? 'outline: 2px solid #0096D6;' : ''}
         `;
         
         // Add click handler for label selection
@@ -20208,6 +21253,9 @@ function loadProjectObject(obj) {
       
       const isSelected = mapLibreState.selectedNode === n.id;
       
+      // Check if in link mode (creating links)
+      const isLinkSource = window.linkMode && window.linkSourceNode === n.id;
+      
       // Check if this node is a route finder origin/destination or path node
       const isRouteOrigin = window.routeFinderState && routeFinderState.originNodeId === n.id;
       const isRouteDest = window.routeFinderState && routeFinderState.destNodeId === n.id;
@@ -20219,7 +21267,7 @@ function loadProjectObject(obj) {
       
       const baseSize = Math.max(16, Math.min(40, (n.r || 20) * 1.2));
       let size = baseSize;
-      if (isSelected || isRouteOrigin || isRouteDest) size = baseSize + 4;
+      if (isSelected || isRouteOrigin || isRouteDest || isLinkSource) size = baseSize + 4;
       
       // Determine colors based on state
       const fill = n.fill || '#dae8fc';
@@ -20227,7 +21275,13 @@ function loadProjectObject(obj) {
       let strokeWidth = 2;
       let extraCircle = '';
       
-      if (isRouteOrigin) {
+      if (isLinkSource) {
+        stroke = '#ff9800'; // Orange for link source - same as main canvas
+        strokeWidth = 4;
+        extraCircle = `<circle cx="${size/2}" cy="${size/2}" r="${size/2 + 3}" fill="none" stroke="#ff9800" stroke-width="2" opacity="0.7">
+                         <animate attributeName="opacity" values="1;0.5;1" dur="1s" repeatCount="indefinite"/>
+                       </circle>`;
+      } else if (isRouteOrigin) {
         stroke = '#22c55e'; // Green for origin
         strokeWidth = 4;
         extraCircle = `<circle cx="${size/2}" cy="${size/2}" r="${size/2 + 3}" fill="none" stroke="#22c55e" stroke-width="2" stroke-dasharray="4,2"/>`;
@@ -20248,9 +21302,9 @@ function loadProjectObject(obj) {
         extraCircle = `<line x1="${size*0.2}" y1="${size*0.2}" x2="${size*0.8}" y2="${size*0.8}" stroke="#ef4444" stroke-width="2"/>
                        <line x1="${size*0.8}" y1="${size*0.2}" x2="${size*0.2}" y2="${size*0.8}" stroke="#ef4444" stroke-width="2"/>`;
       } else if (isSelected) {
-        stroke = '#f59e0b';
+        stroke = '#0096D6'; // Blue - same as main canvas selection
         strokeWidth = 4;
-        extraCircle = `<circle cx="${size/2}" cy="${size/2}" r="${size/2 + 2}" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="3,2"/>`;
+        extraCircle = `<circle cx="${size/2}" cy="${size/2}" r="${size/2 + 2}" fill="none" stroke="#0096D6" stroke-width="2" stroke-dasharray="3,2"/>`;
       }
       
       el.innerHTML = `
@@ -20300,7 +21354,7 @@ function loadProjectObject(obj) {
       
       marker.setPopup(popup);
       
-      // Click handler for selection, route finder, and path finder mode
+      // Click handler for selection, route finder, link mode, and path finder mode
       el.addEventListener('click', (ev) => {
         ev.stopPropagation();
         
@@ -20312,6 +21366,40 @@ function loadProjectObject(obj) {
             // Re-render MapLibre to show the visual feedback (green/red highlighting)
             mapLibreState.skipFitBounds = true;
             renderMapLibreContent();
+          }
+          return;
+        }
+        
+        // Check if in link mode
+        if (window.linkMode) {
+          if (window.linkSourceNode === null) {
+            // First click - set source node
+            window.linkSourceNode = n.id;
+            if (typeof linkSourceNode !== 'undefined') linkSourceNode = n.id;
+            state.selected = { type: 'node', id: n.id };
+            mapLibreState.selectedNode = n.id;
+            mapLibreState.selectedEdge = null;
+            mapLibreState.skipFitBounds = true;
+            renderMapLibreContent();
+            updateInspector();
+            showToast(`Link source: ${n.name || 'N' + n.id} → Click target node`);
+          } else {
+            // Second click - create link
+            if (window.linkSourceNode === n.id) {
+              showToast('❌ Cannot link node to itself');
+              return;
+            }
+            const sourceId = window.linkSourceNode;
+            window.linkSourceNode = null;
+            if (typeof linkSourceNode !== 'undefined') linkSourceNode = null;
+            createEdge(sourceId, n.id, true);
+            state.selected = null;
+            state.selection.nodes.clear();
+            mapLibreState.selectedNode = null;
+            mapLibreState.skipFitBounds = true;
+            renderMapLibreContent();
+            updateInspector();
+            showToast(`✓ Link created! Click next source node`);
           }
           return;
         }
@@ -20361,8 +21449,8 @@ function loadProjectObject(obj) {
           
           // Highlight if selected
           if (isSelected) {
-            labelEl.style.background = '#fef3c7';
-            labelEl.style.outline = '2px solid #f59e0b';
+            labelEl.style.background = '#e0f2fe'; // Light blue background
+            labelEl.style.outline = '2px solid #0096D6'; // Blue outline - same as main canvas
           }
           
           const labelMarker = new maplibregl.Marker({
