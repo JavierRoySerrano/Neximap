@@ -997,6 +997,72 @@
       opacity: 0.85;
     }
     
+    /* Protection path styling (amber/orange) */
+    /* Target path and line elements directly since they have class="edge" */
+    path.edge.route-protection-path,
+    line.edge.route-protection-path,
+    path.route-protection-path,
+    line.route-protection-path {
+      stroke: #f59e0b !important;
+      stroke-width: 5 !important;
+      filter: drop-shadow(0 0 10px rgba(245,158,11,0.9));
+    }
+    /* Closure nodes (ring closure points) */
+    .node.route-closure-node .node-circle {
+      stroke: #f59e0b !important;
+      stroke-width: 4 !important;
+      filter: drop-shadow(0 0 8px rgba(245,158,11,0.8));
+    }
+    circle.geo-node.route-closure-node {
+      stroke: #f59e0b !important;
+      stroke-width: 4 !important;
+      filter: drop-shadow(0 0 8px rgba(245,158,11,0.8));
+    }
+    /* Protection closure node checkbox styling */
+    .protection-closure-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.15s;
+    }
+    .protection-closure-item:hover {
+      background: #fef9c3;
+    }
+    .protection-closure-item.selected {
+      background: #fde68a;
+    }
+    .protection-closure-item.endpoint {
+      background: #fef3c7;
+      cursor: default;
+    }
+    .protection-closure-item input[type="checkbox"] {
+      accent-color: #f59e0b;
+      width: 16px;
+      height: 16px;
+    }
+    .protection-closure-item .node-name {
+      flex: 1;
+      font-size: 12px;
+      color: #78350f;
+    }
+    .protection-closure-item .node-badge {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .protection-closure-item .node-badge.origin {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .protection-closure-item .node-badge.dest {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
     /* MLG route segments (Phase 1) - purple glow */
     .edge.route-mlg-segment path:not(.edge-hit) {
       stroke: #a855f7 !important;
@@ -5037,6 +5103,41 @@
         </div>
       </div>
 
+      <!-- Physical Routing Diversity Section -->
+      <div class="inspector-section collapsed" data-section="edge-routing-overlap">
+        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>🔀 Physical Routing Diversity</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content">
+          <div class="hint" style="margin-bottom:10px;">
+            Define diversity levels with other links based on shared physical infrastructure (conduits, ducts, rights-of-way). 100% = fully diverse, 0% = identical path.
+          </div>
+          <div class="row">
+            <label>Diversity with Other Links</label>
+            <div id="edgeRoutingOverlapList" style="min-height:30px; max-height:180px; overflow-y:auto; border:1px solid #e5e7eb; border-radius:6px; padding:6px; background:#f9fafb; margin-bottom:8px;">
+              <span class="muted" style="font-size:11px;">No diversity constraints defined</span>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+              <select id="edgeRoutingOverlapSelect" style="flex:1; padding:6px; font-size:12px; border:1px solid #d1d5db; border-radius:4px;">
+                <option value="">-- Select link --</option>
+              </select>
+              <div style="display:flex; align-items:center; gap:4px;">
+                <input id="edgeRoutingOverlapDiversity" type="number" min="0" max="100" value="0" style="width:60px; padding:6px; font-size:12px; border:1px solid #d1d5db; border-radius:4px; text-align:center;" />
+                <span style="font-size:12px; color:#6b7280;">%</span>
+              </div>
+              <button id="btnAddRoutingOverlap" class="btn" style="padding:6px 12px; font-size:12px; background:#0096D6; color:white; border:none; border-radius:4px;">Add</button>
+            </div>
+            <div class="hint" style="margin-top:6px; display:flex; align-items:center; gap:8px;">
+              <button id="btnPickRoutingOverlap" class="btn" style="padding:4px 8px; font-size:11px; background:#f59e0b; color:white; border:none; border-radius:4px; cursor:pointer;">
+                🖱️ Pick from canvas
+              </button>
+              <span style="color:#6b7280;">Click a link on the canvas, then set diversity %</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Capacity Inventory Section -->
       <div class="inspector-section collapsed" data-section="edge-capacity-inventory">
         <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
@@ -6148,6 +6249,70 @@
         </div>
       </div>
 
+      <!-- Physical Routing Diversity Section -->
+      <div class="inspector-section collapsed" data-section="route-physical-diversity">
+        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>🔀 Physical Routing Diversity</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content">
+          <div class="hint" style="margin-bottom:10px; padding:8px; background:#f0fdf4; border:1px solid #86efac; border-radius:6px; color:#166534;">
+            Enforce physical path diversity when calculating routes. Links with diversity below the threshold relative to specified links will be excluded.
+          </div>
+          
+          <!-- Enable/Disable Physical Diversity -->
+          <div class="row" style="margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="checkbox" id="chkLinearPhysicalDiversity" style="width:16px; height:16px; cursor:pointer;" />
+              <label for="chkLinearPhysicalDiversity" style="font-weight:600; color:#166534; font-size:11px; cursor:pointer;">
+                Enable Physical Diversity Check
+              </label>
+            </div>
+            <div style="font-size:10px; color:#6b7280; margin-top:4px; margin-left:24px;">
+              When enabled, routes will avoid links that share physical infrastructure with specified "diverse from" links.
+            </div>
+          </div>
+          
+          <!-- Required Diversity Percentage -->
+          <div class="row" style="margin-bottom:12px; padding:10px; background:#ecfdf5; border-radius:6px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:11px; color:#166534; font-weight:600;">Required Diversity:</span>
+              <input type="number" id="inputLinearRequiredDiversity" min="0" max="100" value="100" 
+                     style="width:60px; padding:4px 6px; font-size:11px; text-align:center; border:1px solid #86efac; border-radius:4px;" />
+              <span style="font-size:11px; color:#166534;">%</span>
+            </div>
+            <div style="font-size:10px; color:#15803d; margin-top:6px;">
+              Links with diversity below this threshold will be excluded from route calculation.
+            </div>
+          </div>
+          
+          <!-- Diverse From Links -->
+          <div class="row">
+            <label style="font-weight:600; color:#166534; font-size:11px;">Must Be Diverse From Links</label>
+            <div style="font-size:10px; color:#6b7280; margin-bottom:6px;">
+              Route will avoid links that have low physical diversity with these links.
+            </div>
+            <div style="display:flex; gap:4px; margin-top:4px;">
+              <select id="routeDiverseFromLinkSelect" style="flex:1; padding:6px; font-size:11px; border-radius:4px; border:1px solid #86efac;">
+                <option value="">-- Select link --</option>
+              </select>
+              <button class="btn" id="btnAddDiverseFromLink" style="padding:6px 10px; font-size:11px; background:#f0fdf4; border-color:#86efac;" title="Add link">+</button>
+              <button class="btn" id="btnPickDiverseFromLink" style="padding:6px 10px; font-size:11px; background:#f0fdf4; border-color:#86efac;" title="Click on canvas to pick">⊕</button>
+            </div>
+            <div id="diverseFromLinksList" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:4px;">
+              <!-- Diverse-from links will appear here as tags -->
+            </div>
+          </div>
+          
+          <!-- Clear All Diversity Constraints -->
+          <div class="row" style="margin-top:12px;">
+            <button class="btn" id="btnClearDiversityConstraints" style="width:100%; font-size:11px; padding:6px; background:#f0fdf4; border-color:#86efac; color:#166534;">
+              🗑️ Clear Diversity Constraints
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Tag Filters Section -->
       <div class="inspector-section collapsed" data-section="route-tag-filters">
         <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
@@ -6456,6 +6621,88 @@
           </button>
           <div style="font-size:10px; color:#6b7280; margin-top:6px; text-align:center;">
             Creates a new MLG from the currently selected route
+          </div>
+        </div>
+      </div>
+
+      <!-- Protection Path Section (Ring Protection) -->
+      <div class="inspector-section" data-section="route-protection" id="routeProtectionSection" style="display:none;">
+        <div class="inspector-section-header" style="background:linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>🛡️ Protection Path</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content">
+          <div class="hint" style="margin-bottom:10px; padding:8px; background:#fffbeb; border:1px solid #fcd34d; border-radius:6px; color:#92400e;">
+            Create a diverse protection path that avoids the primary route's links. Select ring closure nodes below.
+          </div>
+          
+          <!-- Physical Routing Diversity Settings -->
+          <div class="row" style="margin-bottom:12px; padding:10px; background:#f0fdf4; border:1px solid #86efac; border-radius:6px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+              <input type="checkbox" id="chkPhysicalDiversity" checked style="width:16px; height:16px; cursor:pointer;" />
+              <label for="chkPhysicalDiversity" style="font-weight:600; color:#166534; font-size:11px; cursor:pointer;">
+                🔀 Physical Routing Diversity
+              </label>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; margin-left:24px;">
+              <span style="font-size:11px; color:#166534;">Required Diversity:</span>
+              <input type="number" id="inputRequiredDiversity" min="0" max="100" value="100" 
+                     style="width:60px; padding:4px 6px; font-size:11px; text-align:center; border:1px solid #86efac; border-radius:4px;" />
+              <span style="font-size:11px; color:#166534;">%</span>
+            </div>
+            <div style="font-size:10px; color:#15803d; margin-top:6px; margin-left:24px;">
+              Protection path will exclude links with diversity below this threshold relative to primary path links.
+            </div>
+          </div>
+          
+          <!-- Ring Closure Nodes Selection -->
+          <div class="row">
+            <label style="font-weight:600; color:#d97706; font-size:11px; margin-bottom:8px; display:block;">Ring Closure Nodes</label>
+            <div style="font-size:10px; color:#6b7280; margin-bottom:8px;">
+              Origin and destination are pre-selected. Select intermediate nodes that the protection path must pass through.
+            </div>
+            <div id="protectionClosureNodesList" style="max-height:200px; overflow-y:auto; border:1px solid #fcd34d; border-radius:6px; padding:8px; background:#fffef7;">
+              <!-- Closure nodes will be rendered here as checkboxes -->
+            </div>
+          </div>
+          
+          <!-- Calculate Protection Button -->
+          <div class="row" style="margin-top:12px;">
+            <button class="btn" id="btnCalculateProtection" style="width:100%; padding:10px; font-size:12px; background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border:none; color:white; font-weight:600;">
+              🔍 Calculate Protection Path
+            </button>
+          </div>
+          
+          <!-- Protection Path Result -->
+          <div id="protectionPathResult" style="display:none; margin-top:12px;">
+            <div style="padding:10px; background:#fef3c7; border:2px solid #f59e0b; border-radius:8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-weight:600; color:#92400e; font-size:12px;">🛡️ Protection Path</span>
+                <div style="display:flex; gap:8px; font-size:11px; color:#92400e;">
+                  <span id="protectionLatency">-</span>
+                  <span id="protectionHops">-</span>
+                </div>
+              </div>
+              <div id="protectionPathNodes" style="font-size:11px; color:#78350f; word-break:break-word;"></div>
+            </div>
+          </div>
+          
+          <!-- Protection Path Error -->
+          <div id="protectionPathError" style="display:none; margin-top:12px;">
+            <div style="padding:10px; background:#fef2f2; border:2px solid #fca5a5; border-radius:8px;">
+              <div style="font-weight:600; color:#991b1b; font-size:12px; margin-bottom:4px;">❌ Protection Not Viable</div>
+              <div id="protectionErrorText" style="font-size:11px; color:#991b1b;"></div>
+            </div>
+          </div>
+          
+          <!-- Save as Protected MLG -->
+          <div id="saveProtectedMLGContainer" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid #fcd34d;">
+            <button class="btn" id="btnSaveProtectedMLG" style="width:100%; padding:10px; font-size:12px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); border:none; color:white; font-weight:600;">
+              💾 Save as Protected MLG (Ring)
+            </button>
+            <div style="font-size:10px; color:#6b7280; margin-top:6px; text-align:center;">
+              Creates an MLG with primary + protection paths between closure nodes
+            </div>
           </div>
         </div>
       </div>
@@ -11187,7 +11434,8 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     state.nextEdge = snap.nextEdge || (Math.max(0, ...state.edges.map(e=>e.id)) + 1);
     state.nextGroup = snap.nextGroup || (Math.max(0, ...state.groups.map(g=>g.id)) + 1);
     state.nextCableSystem = snap.nextCableSystem || (Math.max(0, ...state.cableSystems.map(cs=>cs.id)) + 1);
-    state.nextMultilinkGroup = snap.nextMultilinkGroup || (Math.max(0, ...state.multilinkGroups.map(mlg=>mlg.id)) + 1);
+    // Filter out string IDs (like "mlg_123") when calculating next numeric ID
+    state.nextMultilinkGroup = snap.nextMultilinkGroup || (Math.max(0, ...state.multilinkGroups.filter(mlg => typeof mlg.id === 'number').map(mlg=>mlg.id)) + 1);
 
     // Backward compatibility: ensure cableSystemId exists on edges
     state.edges.forEach(e => {
@@ -11958,6 +12206,12 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       hitArea.style.cursor = 'pointer';
       hitArea.addEventListener('click', (ev) => { 
         ev.stopPropagation(); 
+        // Handle routing overlap pick mode
+        if (window.routingOverlapPickMode && window.routingOverlapPickMode()) {
+          if (window.handleRoutingOverlapPick && window.handleRoutingOverlapPick(e.id)) {
+            return;
+          }
+        }
         // Handle link pick modes in calculation mode
         if (window.routeFinderState && window.routeFinderState.active) {
           if (window.routeFinderState.pickMode === 'excludeLink') {
@@ -11968,6 +12222,12 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
           }
           if (window.routeFinderState.pickMode === 'mustUseLink') {
             addMustUseLink(e.id);
+            window.routeFinderState.pickMode = null;
+            updatePickModeButtons();
+            return;
+          }
+          if (window.routeFinderState.pickMode === 'diverseFromLink') {
+            if (typeof addDiverseFromLink === 'function') addDiverseFromLink(e.id);
             window.routeFinderState.pickMode = null;
             updatePickModeButtons();
             return;
@@ -12038,6 +12298,12 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       hitArea.style.cursor = 'pointer';
       hitArea.addEventListener('click', (ev) => { 
         ev.stopPropagation(); 
+        // Handle routing overlap pick mode
+        if (window.routingOverlapPickMode && window.routingOverlapPickMode()) {
+          if (window.handleRoutingOverlapPick && window.handleRoutingOverlapPick(e.id)) {
+            return;
+          }
+        }
         // Handle link pick modes in calculation mode
         if (window.routeFinderState && window.routeFinderState.active) {
           if (window.routeFinderState.pickMode === 'excludeLink') {
@@ -12048,6 +12314,12 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
           }
           if (window.routeFinderState.pickMode === 'mustUseLink') {
             addMustUseLink(e.id);
+            window.routeFinderState.pickMode = null;
+            updatePickModeButtons();
+            return;
+          }
+          if (window.routeFinderState.pickMode === 'diverseFromLink') {
+            if (typeof addDiverseFromLink === 'function') addDiverseFromLink(e.id);
             window.routeFinderState.pickMode = null;
             updatePickModeButtons();
             return;
@@ -12141,6 +12413,12 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       hitArea.style.cursor = 'pointer';
       hitArea.addEventListener('click', (ev) => { 
         ev.stopPropagation(); 
+        // Handle routing overlap pick mode
+        if (window.routingOverlapPickMode && window.routingOverlapPickMode()) {
+          if (window.handleRoutingOverlapPick && window.handleRoutingOverlapPick(e.id)) {
+            return;
+          }
+        }
         // Handle link pick modes in calculation mode
         if (window.routeFinderState && window.routeFinderState.active) {
           if (window.routeFinderState.pickMode === 'excludeLink') {
@@ -12151,6 +12429,12 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
           }
           if (window.routeFinderState.pickMode === 'mustUseLink') {
             addMustUseLink(e.id);
+            window.routeFinderState.pickMode = null;
+            updatePickModeButtons();
+            return;
+          }
+          if (window.routeFinderState.pickMode === 'diverseFromLink') {
+            if (typeof addDiverseFromLink === 'function') addDiverseFromLink(e.id);
             window.routeFinderState.pickMode = null;
             updatePickModeButtons();
             return;
@@ -13173,6 +13457,9 @@ const groupTitle = document.getElementById('groupTitle');
       // Update color pickers
       if (window.updateColorPickers) window.updateColorPickers();
       
+      // Update Routing Overlap section
+      updateRoutingOverlapUI(e);
+      
       // Sync inline controls
       const edgeTagColorSwatch = document.getElementById('edgeTagColorSwatch');
       const edgeTagColorInline = document.getElementById('edgeTagColorInline');
@@ -14124,6 +14411,7 @@ if (groupTitleFontInline) {
       capacity:'Up to 10G WL',
       priority: 0,
       cableSystemId: null,  // ID of associated cable system (null = unmapped)
+      routingOverlap: [],   // Array of link IDs that share physical routing with this link
       code: `L-${id}`,
       showCode: true,
       extraTags:"",
@@ -16641,6 +16929,7 @@ function loadProjectObject(obj) {
     capacity: e.capacity || 'Up to 10G WL',
     priority: (typeof e.priority === 'number') ? e.priority : 0,
     cableSystemId: (e.cableSystemId !== undefined) ? e.cableSystemId : null,  // Backward compatible
+    routingOverlap: Array.isArray(e.routingOverlap) ? e.routingOverlap : [],  // Links sharing physical routing
     curveArch: (typeof e.curveArch === 'number') ? e.curveArch : 0.3,
     uuid: e.uuid || generateUUID(),
     filterTags: Array.isArray(e.filterTags) ? e.filterTags : ['default'],
@@ -16777,7 +17066,8 @@ function loadProjectObject(obj) {
   state.nextEdge = (typeof obj.nextEdge === 'number') ? obj.nextEdge : (Math.max(0, ...state.edges.map(e=>e.id)) + 1);
   state.nextGroup = (typeof obj.nextGroup === 'number') ? obj.nextGroup : (Math.max(0, ...state.groups.map(g=>g.id)) + 1);
   state.nextCableSystem = (typeof obj.nextCableSystem === 'number') ? obj.nextCableSystem : (Math.max(0, ...state.cableSystems.map(cs=>cs.id)) + 1);
-  state.nextMultilinkGroup = (typeof obj.nextMultilinkGroup === 'number') ? obj.nextMultilinkGroup : (Math.max(0, ...state.multilinkGroups.map(mlg=>mlg.id)) + 1);
+  // Filter out string IDs (like "mlg_123") when calculating next numeric ID
+  state.nextMultilinkGroup = (typeof obj.nextMultilinkGroup === 'number') ? obj.nextMultilinkGroup : (Math.max(0, ...state.multilinkGroups.filter(mlg => typeof mlg.id === 'number').map(mlg=>mlg.id)) + 1);
   
   // Restore canvas dimensions
   if (typeof obj.canvasWidth === 'number') state.canvasWidth = obj.canvasWidth;
@@ -17704,6 +17994,293 @@ function loadProjectObject(obj) {
     });
   });
 
+  // ============================================
+  // PHYSICAL ROUTING DIVERSITY FUNCTIONS
+  // ============================================
+  
+  // State for routing overlap pick mode
+  let routingOverlapPickMode = false;
+  let pendingOverlapLinkId = null; // Store picked link until diversity is set
+  
+  // Helper: Get diversity entry for a link pair
+  function getDiversityEntry(edge, otherLinkId) {
+    if (!edge.routingOverlap || !Array.isArray(edge.routingOverlap)) return null;
+    return edge.routingOverlap.find(entry => {
+      if (typeof entry === 'object') return entry.linkId === otherLinkId;
+      return entry === otherLinkId; // Backward compatibility with old format
+    });
+  }
+  
+  // Helper: Get diversity percentage between two links
+  function getDiversityPercent(edge, otherLinkId) {
+    const entry = getDiversityEntry(edge, otherLinkId);
+    if (!entry) return 100; // No entry means fully diverse (default)
+    if (typeof entry === 'object') return entry.diversityPercent ?? 100;
+    return 0; // Old format (just ID) means 0% diversity for backward compat
+  }
+  
+  // Helper: Normalize routingOverlap to new format
+  function normalizeRoutingOverlap(overlap) {
+    if (!overlap || !Array.isArray(overlap)) return [];
+    return overlap.map(entry => {
+      if (typeof entry === 'object' && entry.linkId !== undefined) {
+        return { linkId: entry.linkId, diversityPercent: entry.diversityPercent ?? 0 };
+      }
+      // Convert old format (just ID) to new format
+      return { linkId: entry, diversityPercent: 0 };
+    });
+  }
+  
+  // Update the Routing Diversity UI in the inspector
+  function updateRoutingOverlapUI(edge) {
+    const listEl = document.getElementById('edgeRoutingOverlapList');
+    const selectEl = document.getElementById('edgeRoutingOverlapSelect');
+    const diversityInput = document.getElementById('edgeRoutingOverlapDiversity');
+    
+    if (!listEl || !selectEl) return;
+    
+    // Normalize to new format
+    const overlapEntries = normalizeRoutingOverlap(edge.routingOverlap);
+    
+    // Render the list of diversity constraints
+    if (overlapEntries.length === 0) {
+      listEl.innerHTML = '<span class="muted" style="font-size:11px;">No diversity constraints defined</span>';
+    } else {
+      listEl.innerHTML = overlapEntries.map(entry => {
+        const link = findEdge(entry.linkId);
+        if (!link) return '';
+        const nodeA = findNode(link.a);
+        const nodeB = findNode(link.b);
+        const linkName = link.code || `L-${entry.linkId}`;
+        const nodePair = `${nodeA?.name || nodeA?.code || 'N'+link.a} ↔ ${nodeB?.name || nodeB?.code || 'N'+link.b}`;
+        const diversityPct = entry.diversityPercent ?? 0;
+        
+        // Color code: red (0-30%), orange (31-70%), green (71-100%)
+        let diversityColor = '#ef4444'; // red
+        if (diversityPct > 70) diversityColor = '#22c55e'; // green
+        else if (diversityPct > 30) diversityColor = '#f59e0b'; // orange
+        
+        return `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 8px; background:white; border-radius:4px; margin-bottom:4px; border:1px solid #e5e7eb;">
+            <span style="font-size:11px; flex:1;">
+              <strong style="color:#0096D6;">${linkName}</strong>
+              <span style="color:#6b7280; margin-left:4px; font-size:10px;">${nodePair}</span>
+            </span>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <input type="number" min="0" max="100" value="${diversityPct}" 
+                     class="diversity-percent-input" data-link-id="${entry.linkId}"
+                     style="width:50px; padding:3px 4px; font-size:11px; text-align:center; border:1px solid #d1d5db; border-radius:3px;" />
+              <span style="font-size:11px; color:${diversityColor}; font-weight:600; width:20px;">%</span>
+              <button class="btn-remove-overlap" data-link-id="${entry.linkId}" 
+                      style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:14px; padding:2px 4px;" title="Remove">✕</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      // Add event handlers for diversity percent inputs
+      listEl.querySelectorAll('.diversity-percent-input').forEach(input => {
+        input.addEventListener('change', () => {
+          const linkId = parseInt(input.dataset.linkId);
+          const newPercent = Math.max(0, Math.min(100, parseInt(input.value) || 0));
+          input.value = newPercent; // Normalize display
+          updateDiversityPercent(edge.id, linkId, newPercent);
+        });
+      });
+      
+      // Add click handlers for remove buttons
+      listEl.querySelectorAll('.btn-remove-overlap').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const linkIdToRemove = parseInt(btn.dataset.linkId);
+          removeRoutingOverlap(edge.id, linkIdToRemove);
+        });
+      });
+    }
+    
+    // Populate the dropdown with available links (excluding current edge and already added ones)
+    const existingLinkIds = overlapEntries.map(e => e.linkId);
+    selectEl.innerHTML = '<option value="">-- Select link --</option>';
+    state.edges.forEach(e => {
+      if (e.id === edge.id) return; // Skip current edge
+      if (existingLinkIds.includes(e.id)) return; // Skip already added
+      
+      const nodeA = findNode(e.a);
+      const nodeB = findNode(e.b);
+      const linkName = e.code || `L-${e.id}`;
+      const nodePair = `${nodeA?.name || nodeA?.code || 'N'+e.a} ↔ ${nodeB?.name || nodeB?.code || 'N'+e.b}`;
+      
+      const opt = document.createElement('option');
+      opt.value = e.id;
+      opt.textContent = `${linkName}: ${nodePair}`;
+      selectEl.appendChild(opt);
+    });
+    
+    // Reset diversity input to default
+    if (diversityInput) diversityInput.value = 0;
+  }
+  
+  // Add a routing diversity relationship (bidirectional)
+  function addRoutingOverlap(edgeId, overlappingEdgeId, diversityPercent = 0) {
+    const edge = findEdge(edgeId);
+    const overlappingEdge = findEdge(overlappingEdgeId);
+    
+    if (!edge || !overlappingEdge) return;
+    if (edgeId === overlappingEdgeId) return;
+    
+    // Initialize and normalize arrays if needed
+    edge.routingOverlap = normalizeRoutingOverlap(edge.routingOverlap);
+    overlappingEdge.routingOverlap = normalizeRoutingOverlap(overlappingEdge.routingOverlap);
+    
+    // Add to this edge (if not already present)
+    const existingEntry = edge.routingOverlap.find(e => e.linkId === overlappingEdgeId);
+    if (!existingEntry) {
+      edge.routingOverlap.push({ linkId: overlappingEdgeId, diversityPercent });
+    } else {
+      existingEntry.diversityPercent = diversityPercent;
+    }
+    
+    // Add to the other edge (bidirectional) with same diversity
+    const existingReverseEntry = overlappingEdge.routingOverlap.find(e => e.linkId === edgeId);
+    if (!existingReverseEntry) {
+      overlappingEdge.routingOverlap.push({ linkId: edgeId, diversityPercent });
+    } else {
+      existingReverseEntry.diversityPercent = diversityPercent;
+    }
+    
+    commit();
+    updateRoutingOverlapUI(edge);
+    showToast(`Added diversity constraint: ${diversityPercent}% diverse from ${overlappingEdge.code || 'L-'+overlappingEdgeId}`);
+  }
+  
+  // Update diversity percentage (bidirectional)
+  function updateDiversityPercent(edgeId, overlappingEdgeId, diversityPercent) {
+    const edge = findEdge(edgeId);
+    const overlappingEdge = findEdge(overlappingEdgeId);
+    
+    if (!edge) return;
+    
+    // Update on this edge
+    edge.routingOverlap = normalizeRoutingOverlap(edge.routingOverlap);
+    const entry = edge.routingOverlap.find(e => e.linkId === overlappingEdgeId);
+    if (entry) {
+      entry.diversityPercent = diversityPercent;
+    }
+    
+    // Update on other edge (bidirectional)
+    if (overlappingEdge) {
+      overlappingEdge.routingOverlap = normalizeRoutingOverlap(overlappingEdge.routingOverlap);
+      const reverseEntry = overlappingEdge.routingOverlap.find(e => e.linkId === edgeId);
+      if (reverseEntry) {
+        reverseEntry.diversityPercent = diversityPercent;
+      }
+    }
+    
+    commit();
+    showToast(`Diversity updated to ${diversityPercent}%`);
+  }
+  
+  // Remove a routing diversity relationship (bidirectional)
+  function removeRoutingOverlap(edgeId, overlappingEdgeId) {
+    const edge = findEdge(edgeId);
+    const overlappingEdge = findEdge(overlappingEdgeId);
+    
+    if (!edge) return;
+    
+    // Remove from this edge
+    if (edge.routingOverlap) {
+      edge.routingOverlap = normalizeRoutingOverlap(edge.routingOverlap);
+      edge.routingOverlap = edge.routingOverlap.filter(e => e.linkId !== overlappingEdgeId);
+    }
+    
+    // Remove from the other edge (bidirectional)
+    if (overlappingEdge && overlappingEdge.routingOverlap) {
+      overlappingEdge.routingOverlap = normalizeRoutingOverlap(overlappingEdge.routingOverlap);
+      overlappingEdge.routingOverlap = overlappingEdge.routingOverlap.filter(e => e.linkId !== edgeId);
+    }
+    
+    commit();
+    updateRoutingOverlapUI(edge);
+    showToast('Diversity constraint removed');
+  }
+  
+  // Handle routing overlap pick mode from canvas
+  function handleRoutingOverlapPick(edgeId) {
+    if (!routingOverlapPickMode) return false;
+    
+    const selectedEdge = state.selected?.type === 'edge' ? findEdge(state.selected.id) : null;
+    if (!selectedEdge) {
+      routingOverlapPickMode = false;
+      return false;
+    }
+    
+    if (edgeId === selectedEdge.id) {
+      showToast('Cannot add diversity constraint with itself');
+      return true;
+    }
+    
+    // Get diversity percentage from input
+    const diversityInput = document.getElementById('edgeRoutingOverlapDiversity');
+    const diversityPercent = diversityInput ? Math.max(0, Math.min(100, parseInt(diversityInput.value) || 0)) : 0;
+    
+    addRoutingOverlap(selectedEdge.id, edgeId, diversityPercent);
+    routingOverlapPickMode = false;
+    
+    // Update button state
+    const pickBtn = document.getElementById('btnPickRoutingOverlap');
+    if (pickBtn) {
+      pickBtn.style.background = '#f59e0b';
+      pickBtn.textContent = '🖱️ Pick from canvas';
+    }
+    
+    return true;
+  }
+  
+  // Set up routing overlap UI event handlers
+  const btnAddRoutingOverlap = document.getElementById('btnAddRoutingOverlap');
+  if (btnAddRoutingOverlap) {
+    btnAddRoutingOverlap.addEventListener('click', () => {
+      const selectEl = document.getElementById('edgeRoutingOverlapSelect');
+      const diversityInput = document.getElementById('edgeRoutingOverlapDiversity');
+      const selectedValue = selectEl?.value;
+      
+      if (!selectedValue) {
+        showToast('Please select a link');
+        return;
+      }
+      
+      const currentEdge = state.selected?.type === 'edge' ? findEdge(state.selected.id) : null;
+      if (!currentEdge) {
+        showToast('No link selected');
+        return;
+      }
+      
+      const diversityPercent = diversityInput ? Math.max(0, Math.min(100, parseInt(diversityInput.value) || 0)) : 0;
+      addRoutingOverlap(currentEdge.id, parseInt(selectedValue), diversityPercent);
+    });
+  }
+  
+  const btnPickRoutingOverlap = document.getElementById('btnPickRoutingOverlap');
+  if (btnPickRoutingOverlap) {
+    btnPickRoutingOverlap.addEventListener('click', () => {
+      routingOverlapPickMode = !routingOverlapPickMode;
+      
+      if (routingOverlapPickMode) {
+        btnPickRoutingOverlap.style.background = '#22c55e';
+        btnPickRoutingOverlap.textContent = '✓ Click a link on canvas...';
+        showToast('Click a link on the canvas to add diversity constraint');
+      } else {
+        btnPickRoutingOverlap.style.background = '#f59e0b';
+        btnPickRoutingOverlap.textContent = '🖱️ Pick from canvas';
+      }
+    });
+  }
+  
+  // Expose for canvas click handling and protection path algorithm
+  window.handleRoutingOverlapPick = handleRoutingOverlapPick;
+  window.routingOverlapPickMode = () => routingOverlapPickMode;
+  window.getDiversityPercent = getDiversityPercent;
+  window.normalizeRoutingOverlap = normalizeRoutingOverlap;
+
   // Update edge cable system dropdown
   function updateEdgeCableSystemDropdown() {
     const dropdown = document.getElementById('edgeCableSystem');
@@ -18566,12 +19143,16 @@ function loadProjectObject(obj) {
     // Add click handlers
     list.querySelectorAll('.mlg-item').forEach(item => {
       item.addEventListener('click', () => {
-        const id = parseInt(item.dataset.id);
-        selectMultilinkGroup(id);
+        // Don't parseInt - MLG IDs can be strings like "mlg_1234567890"
+        const id = item.dataset.id;
+        // Try to parse as int if it looks like a number, otherwise keep as string
+        const parsedId = /^\d+$/.test(id) ? parseInt(id) : id;
+        selectMultilinkGroup(parsedId);
       });
       item.addEventListener('dblclick', () => {
-        const id = parseInt(item.dataset.id);
-        editMultilinkGroup(id);
+        const id = item.dataset.id;
+        const parsedId = /^\d+$/.test(id) ? parseInt(id) : id;
+        editMultilinkGroup(parsedId);
       });
     });
   }
@@ -20622,6 +21203,9 @@ function loadProjectObject(obj) {
     mustUseNodes: new Set(),  // Node IDs that route must pass through
     mustUseLinks: new Set(),  // Link IDs that route must use
     
+    // Physical routing diversity constraints
+    diverseFromLinks: new Set(),  // Link IDs that route must be diverse from
+    
     // Tag filters for path calculation
     nodeTagMode: 'any',       // 'any', 'include', 'exclude'
     nodeTagFilter: new Set(), // Tags to include/exclude for nodes
@@ -20642,7 +21226,7 @@ function loadProjectObject(obj) {
     skipImplicitTransit: false,      // Skip implicit container/region transit connections
     
     // Pick mode for exclusions/must-use
-    pickMode: null,            // null, 'excludeNode', 'excludeLink', 'mustUseNode', 'mustUseLink', 'mustUseMLG', 'excludeMLG'
+    pickMode: null,            // null, 'excludeNode', 'excludeLink', 'mustUseNode', 'mustUseLink', 'mustUseMLG', 'excludeMLG', 'diverseFromLink'
     
     // ============== COST OPTIMIZATION SETTINGS (Phase 4) ==============
     // Optimization balance: 0 = pure latency, 1 = pure cost
@@ -20670,8 +21254,14 @@ function loadProjectObject(obj) {
     mlgCapacityMin100G: 0,
     mlgCapacityMin400G: 0,
     mlgCapacityMinTbps: 0,
-    mlgCapacityIncludeUndefined: true     // Include MLGs with all capacity = 0
+    mlgCapacityIncludeUndefined: true,     // Include MLGs with all capacity = 0
     // ============== END MLG PREFERENCE SETTINGS ==============
+    
+    // ============== PROTECTION PATH SETTINGS ==============
+    protectionPath: null,                 // Calculated protection path result
+    protectionClosureNodes: new Set(),    // Selected ring closure node IDs
+    primaryPathForProtection: null        // Stores the primary path when calculating protection
+    // ============== END PROTECTION PATH SETTINGS ==============
   };
   
   // Expose globally for checking in event handlers
@@ -20914,6 +21504,94 @@ function loadProjectObject(obj) {
       return true;
     }
     
+    // Helper to check if edge passes physical diversity filter
+    function edgePassesDiversityFilter(edge) {
+      // Check if diversity filtering is enabled
+      const chkLinearPhysicalDiversity = document.getElementById('chkLinearPhysicalDiversity');
+      const inputLinearRequiredDiversity = document.getElementById('inputLinearRequiredDiversity');
+      
+      console.log(`[Diversity Filter DEBUG] Checkbox element:`, chkLinearPhysicalDiversity);
+      console.log(`[Diversity Filter DEBUG] Checkbox checked:`, chkLinearPhysicalDiversity?.checked);
+      console.log(`[Diversity Filter DEBUG] diverseFromLinks size:`, routeFinderState.diverseFromLinks.size);
+      console.log(`[Diversity Filter DEBUG] diverseFromLinks contents:`, [...routeFinderState.diverseFromLinks]);
+      
+      const usePhysicalDiversity = chkLinearPhysicalDiversity ? chkLinearPhysicalDiversity.checked : false;
+      if (!usePhysicalDiversity) {
+        console.log(`[Diversity Filter DEBUG] DISABLED - checkbox not checked, returning true`);
+        return true; // Disabled, allow all
+      }
+      
+      const requiredDiversity = inputLinearRequiredDiversity ? 
+        Math.max(0, Math.min(100, parseInt(inputLinearRequiredDiversity.value) || 100)) : 100;
+      
+      if (routeFinderState.diverseFromLinks.size === 0) {
+        console.log(`[Diversity Filter DEBUG] No constraints - diverseFromLinks is empty, returning true`);
+        return true; // No constraints defined
+      }
+      
+      // Debug: Log what we're checking
+      console.log(`[Diversity Filter] Checking edge ${edge.id} (${edge.code || 'L-'+edge.id}), diverseFromLinks:`, [...routeFinderState.diverseFromLinks], 'required:', requiredDiversity + '%');
+      console.log(`[Diversity Filter] Edge ${edge.id} routingOverlap:`, edge.routingOverlap);
+      
+      // Check if this edge has low diversity with any of the "diverse from" links
+      // Need to check BOTH directions since diversity relationships are bidirectional
+      for (const diverseFromLinkId of routeFinderState.diverseFromLinks) {
+        // The "diverse from" link itself should be excluded (we want routes diverse FROM it)
+        if (edge.id === diverseFromLinkId) {
+          console.log(`[Diversity Filter] *** EXCLUDING link ${edge.id} - it IS the diverse-from reference link`);
+          return false;
+        }
+        
+        // Direction 1: Check if the "diverse from" link has an entry pointing to this edge
+        const diverseFromEdge = findEdge(diverseFromLinkId);
+        console.log(`[Diversity Filter] diverseFromEdge (id=${diverseFromLinkId}):`, diverseFromEdge ? 'found' : 'NOT FOUND', diverseFromEdge?.routingOverlap);
+        
+        if (diverseFromEdge && diverseFromEdge.routingOverlap) {
+          const overlapEntries = window.normalizeRoutingOverlap ? 
+            window.normalizeRoutingOverlap(diverseFromEdge.routingOverlap) : 
+            diverseFromEdge.routingOverlap;
+          
+          console.log(`[Diversity Filter] Checking Direction 1 - diverseFromEdge ${diverseFromLinkId} overlap entries:`, overlapEntries);
+          
+          for (const entry of overlapEntries) {
+            const linkId = typeof entry === 'object' ? entry.linkId : entry;
+            const diversityPct = typeof entry === 'object' ? (entry.diversityPercent ?? 0) : 0;
+            
+            console.log(`[Diversity Filter] Entry: linkId=${linkId}, diversityPct=${diversityPct}, comparing to edge.id=${edge.id}`);
+            
+            if (linkId === edge.id && diversityPct < requiredDiversity) {
+              console.log(`[Diversity Filter] *** EXCLUDING link ${edge.id} - ${diversityPct}% diverse from link ${diverseFromLinkId} (required: ${requiredDiversity}%) [checked on diverseFrom link]`);
+              return false;
+            }
+          }
+        }
+        
+        // Direction 2: Check if THIS edge has an entry pointing to the "diverse from" link
+        if (edge.routingOverlap) {
+          const edgeOverlapEntries = window.normalizeRoutingOverlap ? 
+            window.normalizeRoutingOverlap(edge.routingOverlap) : 
+            edge.routingOverlap;
+          
+          console.log(`[Diversity Filter] Checking Direction 2 - edge ${edge.id} overlap entries:`, edgeOverlapEntries);
+          
+          for (const entry of edgeOverlapEntries) {
+            const linkId = typeof entry === 'object' ? entry.linkId : entry;
+            const diversityPct = typeof entry === 'object' ? (entry.diversityPercent ?? 0) : 0;
+            
+            console.log(`[Diversity Filter] Entry: linkId=${linkId}, diversityPct=${diversityPct}, comparing to diverseFromLinkId=${diverseFromLinkId}`);
+            
+            if (linkId === diverseFromLinkId && diversityPct < requiredDiversity) {
+              console.log(`[Diversity Filter] *** EXCLUDING link ${edge.id} - ${diversityPct}% diverse from link ${diverseFromLinkId} (required: ${requiredDiversity}%) [checked on candidate edge]`);
+              return false;
+            }
+          }
+        }
+      }
+      
+      console.log(`[Diversity Filter] Edge ${edge.id} PASSED diversity check`);
+      return true;
+    }
+    
     // Determine which nodes to include
     const validNodes = state.nodes.filter(n => {
       // Check if excluded
@@ -20946,6 +21624,9 @@ function loadProjectObject(obj) {
       
       // Check capacity filter
       if (!edgePassesCapacityFilter(edge)) return;
+      
+      // Check physical diversity filter
+      if (!edgePassesDiversityFilter(edge)) return;
       
       const nodeA = findNode(edge.a);
       const nodeB = findNode(edge.b);
@@ -21935,6 +22616,11 @@ function loadProjectObject(obj) {
     // Update latency row visibility based on transit settings
     updateTransitLatencyVisibility();
     
+    // Initialize diversity constraints UI
+    if (typeof initializeDiversityConstraints === 'function') {
+      initializeDiversityConstraints();
+    }
+    
     // Update UI
     updateRouteFinderUI();
     
@@ -22098,13 +22784,671 @@ function loadProjectObject(obj) {
       // Show the save as MLG button container
       const saveAsMLGContainer = document.getElementById('saveAsMLGContainer');
       if (saveAsMLGContainer) saveAsMLGContainer.style.display = 'block';
+      
+      // Show protection path section and populate closure nodes
+      // Get element fresh to avoid stale reference
+      const protSection = document.getElementById('routeProtectionSection');
+      console.log('[Protection UI] Routes found, protection section element:', protSection);
+      if (protSection) {
+        protSection.style.display = 'block';
+        protSection.classList.remove('collapsed');
+        populateProtectionClosureNodes();
+      }
     } else {
       if (routeResultsSection) routeResultsSection.style.display = 'none';
       if (routeDetailsSection) routeDetailsSection.style.display = 'none';
       // Hide the save as MLG button container
       const saveAsMLGContainer = document.getElementById('saveAsMLGContainer');
       if (saveAsMLGContainer) saveAsMLGContainer.style.display = 'none';
+      
+      // Hide protection path section and clear state
+      const protSection = document.getElementById('routeProtectionSection');
+      const protResultDiv = document.getElementById('protectionPathResult');
+      const protErrorDiv = document.getElementById('protectionPathError');
+      const saveProtMLGContainer = document.getElementById('saveProtectedMLGContainer');
+      if (protSection) protSection.style.display = 'none';
+      if (protResultDiv) protResultDiv.style.display = 'none';
+      if (protErrorDiv) protErrorDiv.style.display = 'none';
+      if (saveProtMLGContainer) saveProtMLGContainer.style.display = 'none';
+      routeFinderState.protectionPath = null;
+      routeFinderState.protectionClosureNodes.clear();
+      routeFinderState.primaryPathForProtection = null;
     }
+    
+    // Update protection path display if calculated
+    if (routeFinderState.protectionPath) {
+      const protResultDiv = document.getElementById('protectionPathResult');
+      const protErrorDiv = document.getElementById('protectionPathError');
+      const saveProtMLGContainer = document.getElementById('saveProtectedMLGContainer');
+      if (protResultDiv) protResultDiv.style.display = 'block';
+      if (protErrorDiv) protErrorDiv.style.display = 'none';
+      if (saveProtMLGContainer) saveProtMLGContainer.style.display = 'block';
+      displayProtectionPathResult();
+    }
+  }
+  
+  // Populate protection closure nodes based on current active route
+  function populateProtectionClosureNodes() {
+    const container = document.getElementById('protectionClosureNodesList');
+    if (!container) return;
+    
+    const route = routeFinderState.routes[routeFinderState.activeRouteIndex];
+    if (!route || !route.path || route.path.length < 2) {
+      container.innerHTML = '<div style="padding:8px; color:#94a3b8; font-style:italic; font-size:11px;">Calculate a route first</div>';
+      return;
+    }
+    
+    // Store the primary path for protection calculation
+    routeFinderState.primaryPathForProtection = route;
+    
+    // Get origin and destination
+    const originId = route.path[0];
+    const destId = route.path[route.path.length - 1];
+    
+    // Pre-select origin and destination as closure nodes
+    routeFinderState.protectionClosureNodes.clear();
+    routeFinderState.protectionClosureNodes.add(originId);
+    routeFinderState.protectionClosureNodes.add(destId);
+    
+    // Build the checkbox list
+    let html = '';
+    route.path.forEach((nodeId, idx) => {
+      const node = findNode(nodeId);
+      const nodeName = node?.name || node?.code || `Node ${nodeId}`;
+      const isOrigin = idx === 0;
+      const isDest = idx === route.path.length - 1;
+      const isEndpoint = isOrigin || isDest;
+      const isSelected = routeFinderState.protectionClosureNodes.has(nodeId);
+      
+      html += `
+        <div class="protection-closure-item ${isSelected ? 'selected' : ''} ${isEndpoint ? 'endpoint' : ''}" data-node-id="${nodeId}">
+          <input type="checkbox" ${isSelected ? 'checked' : ''} ${isEndpoint ? 'disabled' : ''} data-node-id="${nodeId}">
+          <span class="node-name">${nodeName}</span>
+          ${isOrigin ? '<span class="node-badge origin">Origin</span>' : ''}
+          ${isDest ? '<span class="node-badge dest">Dest</span>' : ''}
+        </div>
+      `;
+    });
+    
+    container.innerHTML = html;
+    
+    // Add event listeners for checkboxes
+    container.querySelectorAll('.protection-closure-item').forEach(item => {
+      const checkbox = item.querySelector('input[type="checkbox"]');
+      const nodeId = parseInt(item.dataset.nodeId);
+      
+      // Click on item (but not checkbox) toggles checkbox
+      item.addEventListener('click', (e) => {
+        if (e.target === checkbox || checkbox.disabled) return;
+        checkbox.checked = !checkbox.checked;
+        checkbox.dispatchEvent(new Event('change'));
+      });
+      
+      // Checkbox change handler
+      checkbox.addEventListener('change', () => {
+        if (checkbox.checked) {
+          routeFinderState.protectionClosureNodes.add(nodeId);
+          item.classList.add('selected');
+        } else {
+          routeFinderState.protectionClosureNodes.delete(nodeId);
+          item.classList.remove('selected');
+        }
+        // Clear protection path when closure nodes change
+        routeFinderState.protectionPath = null;
+        const protectionResultDiv = document.getElementById('protectionPathResult');
+        const protectionErrorDiv = document.getElementById('protectionPathError');
+        const saveProtectedMLGContainer = document.getElementById('saveProtectedMLGContainer');
+        if (protectionResultDiv) protectionResultDiv.style.display = 'none';
+        if (protectionErrorDiv) protectionErrorDiv.style.display = 'none';
+        if (saveProtectedMLGContainer) saveProtectedMLGContainer.style.display = 'none';
+        // Re-render canvas to update closure node highlights
+        render();
+      });
+    });
+  }
+  
+  // Calculate protection path
+  function calculateProtectionPath() {
+    const primaryRoute = routeFinderState.primaryPathForProtection;
+    if (!primaryRoute || !primaryRoute.path || primaryRoute.path.length < 2) {
+      showToast('❌ No primary path available');
+      return;
+    }
+    
+    // Get closure nodes in path order
+    const closureNodes = primaryRoute.path.filter(nodeId => 
+      routeFinderState.protectionClosureNodes.has(nodeId)
+    );
+    
+    if (closureNodes.length < 2) {
+      showToast('❌ At least 2 closure nodes required (origin and destination)');
+      return;
+    }
+    
+    // Get physical diversity settings
+    const chkPhysicalDiversity = document.getElementById('chkPhysicalDiversity');
+    const inputRequiredDiversity = document.getElementById('inputRequiredDiversity');
+    const usePhysicalDiversity = chkPhysicalDiversity ? chkPhysicalDiversity.checked : true;
+    const requiredDiversity = inputRequiredDiversity ? Math.max(0, Math.min(100, parseInt(inputRequiredDiversity.value) || 100)) : 100;
+    
+    console.log('[Protection] Physical Diversity Check:', usePhysicalDiversity, '| Required:', requiredDiversity + '%');
+    
+    // Get primary path link IDs to exclude
+    const primaryLinkIds = new Set();
+    if (primaryRoute.segments) {
+      primaryRoute.segments.forEach(seg => {
+        if (seg.edgeId) primaryLinkIds.add(seg.edgeId);
+      });
+    }
+    
+    // Build set of links to exclude due to physical diversity constraints
+    const physicalDiversityExcluded = new Set();
+    if (usePhysicalDiversity && requiredDiversity > 0) {
+      primaryLinkIds.forEach(primaryLinkId => {
+        const primaryEdge = findEdge(primaryLinkId);
+        if (!primaryEdge || !primaryEdge.routingOverlap) return;
+        
+        // Normalize and check each overlap entry
+        const overlapEntries = window.normalizeRoutingOverlap ? 
+          window.normalizeRoutingOverlap(primaryEdge.routingOverlap) : 
+          primaryEdge.routingOverlap;
+        
+        overlapEntries.forEach(entry => {
+          const diversityPct = typeof entry === 'object' ? (entry.diversityPercent ?? 0) : 0;
+          const linkId = typeof entry === 'object' ? entry.linkId : entry;
+          
+          // If diversity is below required threshold, exclude this link
+          if (diversityPct < requiredDiversity) {
+            physicalDiversityExcluded.add(linkId);
+            console.log('[Protection] Excluding link', linkId, 'due to low diversity (' + diversityPct + '%) with primary link', primaryLinkId);
+          }
+        });
+      });
+    }
+    
+    console.log('[Protection] === STARTING PROTECTION PATH CALCULATION ===');
+    console.log('[Protection] Primary path:', primaryRoute.path);
+    console.log('[Protection] Primary path links to exclude:', [...primaryLinkIds]);
+    console.log('[Protection] Physical diversity excluded links:', [...physicalDiversityExcluded]);
+    console.log('[Protection] Closure nodes:', closureNodes);
+    
+    // Build adjacency list excluding primary path links and low-diversity links
+    const adj = new Map();
+    state.nodes.forEach(n => adj.set(n.id, []));
+    
+    let availableEdgeCount = 0;
+    let excludedCount = 0;
+    let diversityExcludedCount = 0;
+    
+    state.edges.forEach(e => {
+      // Skip only the specific links used by primary path (allow parallel links)
+      if (primaryLinkIds.has(e.id)) {
+        console.log('[Protection] Excluding primary link:', e.id, '(', findNode(e.a)?.name, '↔', findNode(e.b)?.name, ')');
+        excludedCount++;
+        return;
+      }
+      
+      // Skip links excluded due to physical diversity constraints
+      if (physicalDiversityExcluded.has(e.id)) {
+        console.log('[Protection] Excluding low-diversity link:', e.id, '(', findNode(e.a)?.name, '↔', findNode(e.b)?.name, ')');
+        diversityExcludedCount++;
+        return;
+      }
+      
+      // Skip hidden edges if visibility filter is on
+      if (routeFinderState.visibleOnly && e.hidden) return;
+      // Skip excluded edges from route finder
+      if (routeFinderState.excludedLinks.has(e.id)) return;
+      // Skip edges to/from excluded nodes
+      if (routeFinderState.excludedNodes.has(e.a) || routeFinderState.excludedNodes.has(e.b)) return;
+      
+      // Use latencyMs (same as main pathfinder), fallback to latency for compatibility
+      const latency = parseFloat(e.latencyMs) || parseFloat(e.latency) || routeFinderState.minLatency || 0.001;
+      
+      const edgeDataAB = {
+        to: e.b,
+        cost: latency,
+        edgeId: e.id,
+        implicit: false,
+        latency: latency
+      };
+      
+      const edgeDataBA = {
+        to: e.a,
+        cost: latency,
+        edgeId: e.id,
+        implicit: false,
+        latency: latency
+      };
+      
+      adj.get(e.a)?.push(edgeDataAB);
+      adj.get(e.b)?.push(edgeDataBA);
+      availableEdgeCount++;
+    });
+    
+    console.log('[Protection] Total edges:', state.edges.length);
+    console.log('[Protection] Excluded (primary):', excludedCount);
+    console.log('[Protection] Excluded (diversity):', diversityExcludedCount);
+    console.log('[Protection] Available edges for protection:', availableEdgeCount);
+    
+    // Dijkstra implementation
+    function runDijkstra(adjacency, start, end) {
+      console.log('[Protection] Running dijkstra from', start, '(', findNode(start)?.name, ') to', end, '(', findNode(end)?.name, ')');
+      
+      const dist = new Map();
+      const prev = new Map();
+      const visited = new Set();
+      
+      state.nodes.forEach(n => dist.set(n.id, Infinity));
+      dist.set(start, 0);
+      prev.set(start, null);
+      
+      const pq = [{ id: start, d: 0 }];
+      
+      while (pq.length > 0) {
+        pq.sort((a, b) => a.d - b.d);
+        const { id: u } = pq.shift();
+        
+        if (visited.has(u)) continue;
+        visited.add(u);
+        
+        if (u === end) {
+          console.log('[Protection] Reached destination!');
+          break;
+        }
+        
+        const neighbors = adjacency.get(u) || [];
+        neighbors.forEach(edge => {
+          const v = edge.to;
+          if (visited.has(v)) return;
+          
+          const newDist = dist.get(u) + edge.cost;
+          if (newDist < dist.get(v)) {
+            dist.set(v, newDist);
+            prev.set(v, { from: u, edge: edge });
+            pq.push({ id: v, d: newDist });
+          }
+        });
+      }
+      
+      if (dist.get(end) === Infinity) {
+        console.log('[Protection] ❌ No path found from', findNode(start)?.name, 'to', findNode(end)?.name);
+        return null;
+      }
+      
+      // Reconstruct path
+      const path = [];
+      const segments = [];
+      let totalLatency = 0;
+      let cur = end;
+      
+      while (cur !== null) {
+        path.unshift(cur);
+        const prevInfo = prev.get(cur);
+        if (prevInfo && prevInfo.edge) {
+          segments.unshift({
+            edgeId: prevInfo.edge.edgeId,
+            latency: prevInfo.edge.latency,
+            cost: prevInfo.edge.cost,
+            implicit: prevInfo.edge.implicit || false
+          });
+          totalLatency += prevInfo.edge.latency;
+        }
+        cur = prevInfo ? prevInfo.from : null;
+      }
+      
+      console.log('[Protection] ✓ Found path:', path.map(id => findNode(id)?.name || id).join(' → '));
+      console.log('[Protection] ✓ Segments:', segments.length, 'links:', segments.map(s => s.edgeId).join(', '));
+      console.log('[Protection] ✓ Total latency:', totalLatency, 'ms');
+      
+      return { path, segments, totalCost: dist.get(end), totalLatency };
+    }
+    
+    // Calculate protection path through closure nodes
+    const origin = closureNodes[0];
+    const dest = closureNodes[closureNodes.length - 1];
+    const intermediateNodes = closureNodes.slice(1, -1);
+    
+    console.log('[Protection] Origin:', findNode(origin)?.name, '| Dest:', findNode(dest)?.name);
+    console.log('[Protection] Intermediate closure nodes:', intermediateNodes.map(id => findNode(id)?.name || id));
+    
+    let protectionResult = null;
+    
+    if (intermediateNodes.length > 0) {
+      // Route through waypoints
+      const waypoints = [origin, ...intermediateNodes, dest];
+      let fullPath = [];
+      let fullSegments = [];
+      let totalCost = 0;
+      let totalLatency = 0;
+      let failed = false;
+      
+      for (let i = 0; i < waypoints.length - 1; i++) {
+        const segResult = runDijkstra(adj, waypoints[i], waypoints[i + 1]);
+        if (!segResult || segResult.segments.length === 0) {
+          console.log('[Protection] ❌ Failed to find path segment from', findNode(waypoints[i])?.name, 'to', findNode(waypoints[i+1])?.name);
+          failed = true;
+          break;
+        }
+        
+        console.log('[Protection] Waypoint segment', i, ':', 
+                    findNode(waypoints[i])?.name, '→', findNode(waypoints[i+1])?.name,
+                    '| Path:', segResult.path.map(id => findNode(id)?.name || id).join('→'),
+                    '| Segments:', segResult.segments.length);
+        
+        if (i === 0) {
+          fullPath = segResult.path;
+        } else {
+          fullPath = fullPath.concat(segResult.path.slice(1));
+        }
+        fullSegments = fullSegments.concat(segResult.segments);
+        totalCost += segResult.totalCost;
+        totalLatency += segResult.totalLatency;
+        
+        console.log('[Protection] After merge - fullPath:', fullPath.map(id => findNode(id)?.name || id).join('→'));
+      }
+      
+      if (!failed && fullPath.length > 0 && fullSegments.length > 0) {
+        protectionResult = { path: fullPath, segments: fullSegments, totalCost, totalLatency };
+      }
+    } else {
+      // Direct path from origin to destination
+      const result = runDijkstra(adj, origin, dest);
+      if (result && result.segments.length > 0) {
+        protectionResult = result;
+      }
+    }
+    
+    // Validate result - MUST have segments with actual edgeIds
+    const hasValidSegments = protectionResult && 
+                            protectionResult.segments && 
+                            protectionResult.segments.length > 0 &&
+                            protectionResult.segments.some(s => s.edgeId);
+    
+    if (!hasValidSegments) {
+      // Show error
+      console.log('[Protection] ❌ FAILED - No valid protection path found');
+      
+      const errorDiv = document.getElementById('protectionPathError');
+      const errorText = document.getElementById('protectionErrorText');
+      const resultDiv = document.getElementById('protectionPathResult');
+      const saveContainer = document.getElementById('saveProtectedMLGContainer');
+      
+      if (errorDiv) errorDiv.style.display = 'block';
+      if (errorText) errorText.textContent = 'No diverse path exists that avoids the primary route links. The network may not have alternative routing between these endpoints.';
+      if (resultDiv) resultDiv.style.display = 'none';
+      if (saveContainer) saveContainer.style.display = 'none';
+      
+      routeFinderState.protectionPath = null;
+      showToast('❌ This protection configuration is not viable');
+    } else {
+      // Success - store protection path
+      routeFinderState.protectionPath = protectionResult;
+      
+      console.log('[Protection] ✓✓✓ SUCCESS ✓✓✓');
+      console.log('[Protection] Final path:', protectionResult.path.map(id => findNode(id)?.name || id).join(' → '));
+      console.log('[Protection] Final segments:', protectionResult.segments.length);
+      console.log('[Protection] Final latency:', protectionResult.totalLatency, 'ms');
+      console.log('[Protection] Edge IDs:', protectionResult.segments.map(s => s.edgeId).join(', '));
+      
+      const errorDiv = document.getElementById('protectionPathError');
+      const resultDiv = document.getElementById('protectionPathResult');
+      const saveContainer = document.getElementById('saveProtectedMLGContainer');
+      
+      if (errorDiv) errorDiv.style.display = 'none';
+      if (resultDiv) resultDiv.style.display = 'block';
+      if (saveContainer) saveContainer.style.display = 'block';
+      
+      displayProtectionPathResult();
+      showToast('✓ Protection path calculated!');
+      highlightActiveRoute();
+    }
+  }
+  
+  // Helper to get commercial cost from edge (unused for protection, keeping latency-only)
+  function getCommercialCost(edge) {
+    return 0; // Protection path uses latency only
+  }
+  
+  // Display protection path result
+  function displayProtectionPathResult() {
+    const protection = routeFinderState.protectionPath;
+    if (!protection) return;
+    
+    const latencySpan = document.getElementById('protectionLatency');
+    const hopsSpan = document.getElementById('protectionHops');
+    const nodesDiv = document.getElementById('protectionPathNodes');
+    
+    // Use totalLatency if available, otherwise totalCost
+    const latency = protection.totalLatency || protection.totalCost || 0;
+    
+    if (latencySpan) latencySpan.textContent = `🕐 ${latency.toFixed(3)} ms`;
+    if (hopsSpan) hopsSpan.textContent = `📏 ${protection.segments?.length || 0} links`;
+    
+    // Show path with links: Node1 → [L-24] → Node2 → [L-23] → Node13
+    if (nodesDiv && protection.path && protection.segments) {
+      let pathStr = '';
+      for (let i = 0; i < protection.path.length; i++) {
+        const nodeId = protection.path[i];
+        const node = findNode(nodeId);
+        const nodeName = node?.name || node?.code || `N${nodeId}`;
+        
+        if (i > 0) {
+          // Add the link before this node
+          const segment = protection.segments[i - 1];
+          if (segment && segment.edgeId !== null && segment.edgeId !== undefined) {
+            const edge = state.edges.find(e => e.id === segment.edgeId);
+            const linkCode = edge?.code || `L-${segment.edgeId}`;
+            pathStr += ` → [${linkCode}] → `;
+          } else {
+            pathStr += ' → ';
+          }
+        }
+        pathStr += nodeName;
+      }
+      nodesDiv.innerHTML = `<span style="font-family: monospace; font-size: 11px;">${pathStr}</span>`;
+    }
+  }
+  
+  // Save as protected MLG with segments
+  function saveProtectedMLG() {
+    const primaryRoute = routeFinderState.primaryPathForProtection;
+    const protectionPath = routeFinderState.protectionPath;
+    
+    if (!primaryRoute || !protectionPath) {
+      showToast('❌ Both primary and protection paths required');
+      return;
+    }
+    
+    // Get closure nodes in order
+    const closureNodes = primaryRoute.path.filter(nodeId => 
+      routeFinderState.protectionClosureNodes.has(nodeId)
+    );
+    
+    if (closureNodes.length < 2) {
+      showToast('❌ At least 2 closure nodes required');
+      return;
+    }
+    
+    const originNode = findNode(closureNodes[0]);
+    const destNode = findNode(closureNodes[closureNodes.length - 1]);
+    const originName = originNode?.name || originNode?.code || `N${closureNodes[0]}`;
+    const destName = destNode?.name || destNode?.code || `N${closureNodes[closureNodes.length - 1]}`;
+    
+    // Prompt for MLG name
+    const defaultName = `Protected: ${originName} → ${destName}`;
+    const mlgName = prompt('Enter a name for the Protected MLG:', defaultName);
+    
+    if (!mlgName) {
+      showToast('⚠️ MLG save cancelled');
+      return;
+    }
+    
+    // Build segments between consecutive closure nodes in proper MLG structure
+    const segments = [];
+    let segmentId = 1;
+    let pathId = 1;
+    
+    for (let i = 0; i < closureNodes.length - 1; i++) {
+      const fromNode = closureNodes[i];
+      const toNode = closureNodes[i + 1];
+      
+      // Get primary path links for this segment
+      const primarySegmentLinks = getPathLinksBetweenNodes(primaryRoute, fromNode, toNode);
+      const primaryLatency = calculateLinksLatency(primarySegmentLinks);
+      
+      // Get protection path links for this segment
+      const protectionSegmentLinks = getPathLinksBetweenNodes(protectionPath, fromNode, toNode);
+      const protectionLatency = calculateLinksLatency(protectionSegmentLinks);
+      
+      // Create segment with proper MLG structure
+      segments.push({
+        id: segmentId++,
+        fromNode: fromNode,
+        toNode: toNode,
+        paths: [
+          { 
+            id: pathId++, 
+            type: 'primary', 
+            role: 'primary',
+            links: primarySegmentLinks,
+            latency: primaryLatency
+          },
+          { 
+            id: pathId++, 
+            type: 'protection', 
+            role: 'protection',
+            links: protectionSegmentLinks,
+            latency: protectionLatency
+          }
+        ],
+        latency: Math.min(primaryLatency, protectionLatency),
+        isDiverse: protectionSegmentLinks.length > 0,
+        diversityWarning: protectionSegmentLinks.length === 0 ? 'No protection path for this segment' : null
+      });
+    }
+    
+    // Calculate total latencies
+    const primaryLatency = primaryRoute.totalLatency || primaryRoute.totalCost || 0;
+    const protectionLatency = protectionPath.totalLatency || protectionPath.totalCost || 0;
+    
+    const mlgId = 'mlg_' + Date.now();
+    const now = new Date().toISOString();
+    const mlg = {
+      id: mlgId,
+      name: mlgName.trim(),
+      color: '#f59e0b',
+      description: `Ring-protected route\nPrimary: ${primaryLatency.toFixed(3)} ms\nProtection: ${protectionLatency.toFixed(3)} ms`,
+      type: 'ring',
+      topology: 'ring',
+      segments: segments,
+      totalLatency: primaryLatency,
+      protectionLatency: protectionLatency,
+      originNode: closureNodes[0],
+      destinationNode: closureNodes[closureNodes.length - 1],
+      endpointA: closureNodes[0],
+      endpointB: closureNodes[closureNodes.length - 1],
+      source: 'pathfinder-protection',
+      closureNodes: closureNodes,
+      isDiverse: true,
+      diversityWarning: null,
+      warnings: [],
+      tags: [],
+      // Timestamps
+      created: now,
+      modified: now,
+      // Capacity fields
+      calcCap1G: 0,
+      calcCap10G: 0,
+      calcCap100G: 0,
+      calcCap400G: 0,
+      calcCapTbps: 0,
+      overrideCap1G: null,
+      overrideCap10G: null,
+      overrideCap100G: null,
+      overrideCap400G: null,
+      overrideCapTbps: null,
+      // Commercial cost fields
+      calcLeaseNRC: 0,
+      calcLeaseMRC: 0,
+      calcIRUFee: 0,
+      calcIRUOAM: 0,
+      overrideLeaseNRC: null,
+      overrideLeaseMRC: null,
+      overrideIRUFee: null,
+      overrideIRUOAM: null,
+      // IRU term fields
+      iruTerm: state.financialSettings?.defaultIRUTerm || 15,
+      iruOamAnnualIncrement: state.financialSettings?.defaultOAMIncrement || 0,
+      commercialCostMode: state.financialSettings?.defaultCommercialMode || 'lease'
+    };
+    
+    console.log('[Protection] Saving MLG:', mlg);
+    
+    // Add to MLGs
+    if (!state.multilinkGroups) state.multilinkGroups = [];
+    state.multilinkGroups.push(mlg);
+    
+    // Clear protection state
+    routeFinderState.protectionPath = null;
+    routeFinderState.primaryPathForProtection = null;
+    routeFinderState.protectionClosureNodes.clear();
+    
+    // Hide protection UI
+    const protectionResultDiv = document.getElementById('protectionPathResult');
+    const protectionErrorDiv = document.getElementById('protectionPathError');
+    const saveProtectedMLGContainer = document.getElementById('saveProtectedMLGContainer');
+    if (protectionResultDiv) protectionResultDiv.style.display = 'none';
+    if (protectionErrorDiv) protectionErrorDiv.style.display = 'none';
+    if (saveProtectedMLGContainer) saveProtectedMLGContainer.style.display = 'none';
+    
+    commit();
+    render();
+    showToast(`✓ Protected MLG "${mlg.name}" created!`);
+    
+    // Open MLG Manager to show the new MLG
+    const multilinkManager = document.getElementById('multilinkManager');
+    if (multilinkManager) {
+      multilinkManager.style.display = 'flex';
+    }
+    
+    // Refresh MLG manager
+    if (typeof window.refreshMultilinkManager === 'function') {
+      window.refreshMultilinkManager();
+    }
+  }
+  
+  // Helper: Calculate total latency of a list of link IDs
+  function calculateLinksLatency(linkIds) {
+    let total = 0;
+    linkIds.forEach(linkId => {
+      const edge = state.edges.find(e => e.id === linkId);
+      if (edge) {
+        total += parseFloat(edge.latencyMs) || parseFloat(edge.latency) || 0;
+      }
+    });
+    return total;
+  }
+  
+  // Helper: Get link IDs between two nodes in a path
+  function getPathLinksBetweenNodes(route, fromNode, toNode) {
+    if (!route || !route.path || !route.segments) return [];
+    
+    const links = [];
+    const fromIdx = route.path.indexOf(fromNode);
+    const toIdx = route.path.indexOf(toNode);
+    
+    if (fromIdx === -1 || toIdx === -1 || fromIdx >= toIdx) return [];
+    
+    // Collect links between these nodes
+    for (let i = fromIdx; i < toIdx; i++) {
+      const segment = route.segments[i];
+      if (segment && segment.edgeId) {
+        links.push(segment.edgeId);
+      }
+    }
+    
+    return links;
   }
 
   // Populate exclusion dropdowns
@@ -22502,9 +23846,10 @@ function loadProjectObject(obj) {
     const btnPickLink = document.getElementById('btnPickExcludeLink');
     const btnPickMustNode = document.getElementById('btnPickMustUseNode');
     const btnPickMustLink = document.getElementById('btnPickMustUseLink');
+    const btnPickDiverseFrom = document.getElementById('btnPickDiverseFromLink');
     
     // Reset all buttons first
-    [btnPickNode, btnPickLink, btnPickMustNode, btnPickMustLink].forEach(btn => {
+    [btnPickNode, btnPickLink, btnPickMustNode, btnPickMustLink, btnPickDiverseFrom].forEach(btn => {
       if (btn) {
         btn.style.background = '';
         btn.style.color = '';
@@ -22527,6 +23872,10 @@ function loadProjectObject(obj) {
     if (routeFinderState.pickMode === 'mustUseLink' && btnPickMustLink) {
       btnPickMustLink.style.background = '#16a34a';
       btnPickMustLink.style.color = 'white';
+    }
+    if (routeFinderState.pickMode === 'diverseFromLink' && btnPickDiverseFrom) {
+      btnPickDiverseFrom.style.background = '#22c55e';
+      btnPickDiverseFrom.style.color = 'white';
     }
   }
 
@@ -22597,6 +23946,13 @@ function loadProjectObject(obj) {
     if (routeFinderState.mustUseLinks.size > 0) constraints.push(`${routeFinderState.mustUseLinks.size} must-use link(s)`);
     if (routeFinderState.mustUseMLGs.size > 0) constraints.push(`${routeFinderState.mustUseMLGs.size} must-use MLG(s)`);
     if (routeFinderState.excludedMLGs.size > 0) constraints.push(`${routeFinderState.excludedMLGs.size} MLG(s) excluded`);
+    // Add diversity constraints info
+    const chkLinearPhysicalDiversity = document.getElementById('chkLinearPhysicalDiversity');
+    if (chkLinearPhysicalDiversity?.checked && routeFinderState.diverseFromLinks.size > 0) {
+      const inputLinearRequiredDiversity = document.getElementById('inputLinearRequiredDiversity');
+      const reqDiv = inputLinearRequiredDiversity ? parseInt(inputLinearRequiredDiversity.value) || 100 : 100;
+      constraints.push(`diverse from ${routeFinderState.diverseFromLinks.size} link(s) ≥${reqDiv}%`);
+    }
     const constraintText = constraints.length > 0 ? ` (${constraints.join(', ')})` : '';
     
     if (routes.length > 0) {
@@ -22860,17 +24216,20 @@ function loadProjectObject(obj) {
   // Clear route highlights from SVG
   function clearRouteHighlights() {
     // Clear standard view highlights
-    svg.querySelectorAll('.node.route-origin, .node.route-dest, .node.route-path-node').forEach(el => {
-      el.classList.remove('route-origin', 'route-dest', 'route-path-node');
+    svg.querySelectorAll('.node.route-origin, .node.route-dest, .node.route-path-node, .node.route-closure-node').forEach(el => {
+      el.classList.remove('route-origin', 'route-dest', 'route-path-node', 'route-closure-node');
     });
     // Clear geo view highlights
-    svg.querySelectorAll('.geo-node.route-origin, .geo-node.route-dest, .geo-node.route-path-node').forEach(el => {
-      el.classList.remove('route-origin', 'route-dest', 'route-path-node');
+    svg.querySelectorAll('.geo-node.route-origin, .geo-node.route-dest, .geo-node.route-path-node, .geo-node.route-closure-node').forEach(el => {
+      el.classList.remove('route-origin', 'route-dest', 'route-path-node', 'route-closure-node');
     });
-    svg.querySelectorAll('.edge.route-path-1, .edge.route-path-2, .edge.route-path-3').forEach(el => {
-      el.classList.remove('route-path-1', 'route-path-2', 'route-path-3');
+    svg.querySelectorAll('.edge.route-path-1, .edge.route-path-2, .edge.route-path-3, .edge.route-protection-path, .route-protection-path').forEach(el => {
+      el.classList.remove('route-path-1', 'route-path-2', 'route-path-3', 'route-protection-path');
     });
     svg.querySelectorAll('.route-implicit-segment').forEach(el => el.remove());
+    
+    // Clear protection path lines (drawn as separate SVG elements - legacy cleanup)
+    svg.querySelectorAll('.protection-path-line').forEach(el => el.remove());
     
     // Clear MLG-specific styling (Phase 1)
     svg.querySelectorAll('.edge.route-mlg-segment').forEach(el => {
@@ -23035,8 +24394,90 @@ function loadProjectObject(obj) {
       }
     });
     
+    // Highlight protection path if calculated
+    highlightProtectionPath();
+    
     // Also render the route in MapLibre Geo Dynamic Map
     renderRouteInMapLibre(route, color);
+  }
+  
+  // Highlight protection path on canvas by adding CSS class to edge elements
+  function highlightProtectionPath() {
+    const protectionPath = routeFinderState.protectionPath;
+    
+    console.log('[Protection Highlight] Called');
+    console.log('[Protection Highlight] protectionPath.segments:', protectionPath?.segments);
+    
+    if (!protectionPath || !protectionPath.path || !protectionPath.segments) {
+      console.log('[Protection Highlight] No protection path to highlight');
+      return;
+    }
+    
+    if (protectionPath.segments.length === 0) {
+      console.log('[Protection Highlight] No segments to highlight');
+      return;
+    }
+    
+    console.log('[Protection Highlight] Highlighting', protectionPath.segments.length, 'segments');
+    
+    // Get origin and destination to avoid highlighting them as closure nodes
+    const originId = routeFinderState.originNodeId;
+    const destId = routeFinderState.destNodeId;
+    
+    // Highlight ONLY intermediate closure nodes
+    const inGeoView = typeof geoViewState !== 'undefined' && geoViewState.active;
+    routeFinderState.protectionClosureNodes.forEach(nodeId => {
+      if (nodeId === originId || nodeId === destId) return;
+      
+      let el = svg.querySelector(`g.node[data-node-id="${nodeId}"]`);
+      if (!el && inGeoView) {
+        el = svg.querySelector(`circle.geo-node[data-node-id="${nodeId}"]`);
+      }
+      if (el) el.classList.add('route-closure-node');
+    });
+    
+    // Highlight each segment by adding class to existing edge elements
+    // This matches how highlightActiveRoute() does it for the primary path
+    let highlightedCount = 0;
+    
+    protectionPath.segments.forEach((segment, i) => {
+      const edgeId = segment.edgeId;
+      
+      if (edgeId === null || edgeId === undefined) {
+        console.log('[Protection Highlight] Segment', i, 'has no edgeId (implicit?)');
+        return;
+      }
+      
+      // Find edge element using the same selector pattern as primary route
+      // First try the .edge class selector (path elements have class="edge")
+      let edgeEl = svg.querySelector(`path.edge[data-edge-id="${edgeId}"]`);
+      
+      // Also try line elements
+      if (!edgeEl) {
+        edgeEl = svg.querySelector(`line.edge[data-edge-id="${edgeId}"]`);
+      }
+      
+      // Try without .edge class in case it was stripped
+      if (!edgeEl) {
+        edgeEl = svg.querySelector(`path[data-edge-id="${edgeId}"]`);
+      }
+      if (!edgeEl) {
+        edgeEl = svg.querySelector(`line[data-edge-id="${edgeId}"]`);
+      }
+      
+      console.log('[Protection Highlight] Edge', edgeId, '- found:', !!edgeEl);
+      
+      if (edgeEl) {
+        // Add the protection path class - CSS will handle the styling
+        edgeEl.classList.add('route-protection-path');
+        highlightedCount++;
+        console.log('[Protection Highlight] ✓ Added route-protection-path class to edge', edgeId);
+      } else {
+        console.log('[Protection Highlight] ✗ Could not find edge element for id:', edgeId);
+      }
+    });
+    
+    console.log('[Protection Highlight] Total highlighted:', highlightedCount, 'edges');
   }
   
   // Render route in MapLibre Geo Dynamic Map
@@ -23399,6 +24840,122 @@ function loadProjectObject(obj) {
 
   if (btnClearAllMustUse) {
     btnClearAllMustUse.addEventListener('click', clearAllMustUse);
+  }
+
+  // ============== PHYSICAL ROUTING DIVERSITY CONSTRAINTS ==============
+  
+  // Add diverse-from link
+  function addDiverseFromLink(edgeId) {
+    const edge = findEdge(edgeId);
+    if (!edge) return;
+    
+    routeFinderState.diverseFromLinks.add(edgeId);
+    updateDiverseFromLinksList();
+    populateDiverseFromLinkDropdown();
+    showToast(`Added diversity constraint: must be diverse from ${edge.code || 'L-'+edgeId}`);
+  }
+  
+  // Remove diverse-from link
+  function removeDiverseFromLink(edgeId) {
+    routeFinderState.diverseFromLinks.delete(edgeId);
+    updateDiverseFromLinksList();
+    populateDiverseFromLinkDropdown();
+  }
+  
+  // Update diverse-from links list display
+  function updateDiverseFromLinksList() {
+    const listEl = document.getElementById('diverseFromLinksList');
+    if (!listEl) return;
+    
+    if (routeFinderState.diverseFromLinks.size === 0) {
+      listEl.innerHTML = '<span class="muted" style="font-size:10px; color:#6b7280;">No diversity constraints</span>';
+      return;
+    }
+    
+    listEl.innerHTML = Array.from(routeFinderState.diverseFromLinks).map(edgeId => {
+      const edge = findEdge(edgeId);
+      if (!edge) return '';
+      const nodeA = findNode(edge.a);
+      const nodeB = findNode(edge.b);
+      const linkName = edge.code || `L-${edgeId}`;
+      return `
+        <span style="display:inline-flex; align-items:center; gap:4px; padding:3px 8px; background:#dcfce7; border:1px solid #86efac; border-radius:12px; font-size:10px; color:#166534;">
+          <strong>${linkName}</strong>
+          <span style="color:#15803d; font-size:9px;">${nodeA?.code || 'N'+edge.a}↔${nodeB?.code || 'N'+edge.b}</span>
+          <button onclick="removeDiverseFromLink(${edgeId})" style="background:none; border:none; color:#dc2626; cursor:pointer; font-size:12px; padding:0 2px; line-height:1;">✕</button>
+        </span>
+      `;
+    }).join('');
+  }
+  
+  // Populate diverse-from link dropdown
+  function populateDiverseFromLinkDropdown() {
+    const selectEl = document.getElementById('routeDiverseFromLinkSelect');
+    if (!selectEl) return;
+    
+    selectEl.innerHTML = '<option value="">-- Select link --</option>';
+    state.edges.forEach(e => {
+      if (routeFinderState.diverseFromLinks.has(e.id)) return; // Skip already added
+      
+      const nodeA = findNode(e.a);
+      const nodeB = findNode(e.b);
+      const linkName = e.code || `L-${e.id}`;
+      const nodePair = `${nodeA?.code || 'N'+e.a} ↔ ${nodeB?.code || 'N'+e.b}`;
+      
+      const opt = document.createElement('option');
+      opt.value = e.id;
+      opt.textContent = `${linkName}: ${nodePair}`;
+      selectEl.appendChild(opt);
+    });
+  }
+  
+  // Clear all diversity constraints
+  function clearDiversityConstraints() {
+    routeFinderState.diverseFromLinks.clear();
+    updateDiverseFromLinksList();
+    populateDiverseFromLinkDropdown();
+    showToast('Diversity constraints cleared');
+  }
+  
+  // Expose for inline onclick handlers
+  window.removeDiverseFromLink = removeDiverseFromLink;
+  
+  // Set up event handlers for diversity constraints
+  const btnAddDiverseFromLink = document.getElementById('btnAddDiverseFromLink');
+  if (btnAddDiverseFromLink) {
+    btnAddDiverseFromLink.addEventListener('click', () => {
+      const selectEl = document.getElementById('routeDiverseFromLinkSelect');
+      const edgeId = selectEl?.value ? parseInt(selectEl.value) : null;
+      if (edgeId) {
+        addDiverseFromLink(edgeId);
+      } else {
+        showToast('Please select a link');
+      }
+    });
+  }
+  
+  const btnPickDiverseFromLink = document.getElementById('btnPickDiverseFromLink');
+  if (btnPickDiverseFromLink) {
+    btnPickDiverseFromLink.addEventListener('click', () => {
+      if (routeFinderState.pickMode === 'diverseFromLink') {
+        routeFinderState.pickMode = null;
+      } else {
+        routeFinderState.pickMode = 'diverseFromLink';
+        showToast('Click a link on the canvas to add as diversity constraint');
+      }
+      updatePickModeButtons();
+    });
+  }
+  
+  const btnClearDiversityConstraints = document.getElementById('btnClearDiversityConstraints');
+  if (btnClearDiversityConstraints) {
+    btnClearDiversityConstraints.addEventListener('click', clearDiversityConstraints);
+  }
+  
+  // Initialize diversity lists when route finder opens
+  function initializeDiversityConstraints() {
+    updateDiverseFromLinksList();
+    populateDiverseFromLinkDropdown();
   }
 
   // ============== ROUTE FINDER TAG FILTERS ==============
@@ -24364,6 +25921,18 @@ function loadProjectObject(obj) {
       
       showToast('📝 Route loaded into MLG Editor — review and save');
     });
+  }
+  
+  // Calculate Protection Path button handler
+  const btnCalculateProtection = document.getElementById('btnCalculateProtection');
+  if (btnCalculateProtection) {
+    btnCalculateProtection.addEventListener('click', calculateProtectionPath);
+  }
+  
+  // Save Protected MLG button handler
+  const btnSaveProtectedMLG = document.getElementById('btnSaveProtectedMLG');
+  if (btnSaveProtectedMLG) {
+    btnSaveProtectedMLG.addEventListener('click', saveProtectedMLG);
   }
   
   // Initialize MLG preference UI
@@ -33577,6 +35146,7 @@ function loadProjectObject(obj) {
     </div>
   </div>
 </div>
+
 
 <script>
 // Help Center JavaScript
