@@ -7808,6 +7808,7 @@
       defaultOAM: 3,               // percentage of IRU fee
       defaultOAMIncrement: 2,      // yearly percentage increase
       tierMultipliers: { '10G': 2.5, '100G': 6.25, '400G': 15.625 },
+      iruFromMRCMultiplier: 36,    // IRU Fee = MRC × this multiplier (default: 36 = 3 years)
       // Container defaults (used when no links exist inside container)
       containerDefaultMRC: 1,
       containerDefaultNRC: 0,
@@ -33017,6 +33018,13 @@ function loadProjectObject(obj) {
     if (finTierMult100G) finTierMult100G.value = multipliers['100G'] || 6.25;
     if (finTierMult400G) finTierMult400G.value = multipliers['400G'] || 15.625;
     
+    // Load IRU from MRC multiplier
+    const finIRUFromMRCMultiplier = document.getElementById('finIRUFromMRCMultiplier');
+    if (finIRUFromMRCMultiplier) {
+      finIRUFromMRCMultiplier.value = state.financialSettings.iruFromMRCMultiplier || 36;
+      updateIRUExampleResult();
+    }
+    
     // Update currency unit labels
     updateFinancialSettingsUnits();
     
@@ -33147,6 +33155,10 @@ function loadProjectObject(obj) {
       '400G': parseFloat(finTierMult400G?.value) || 15.625
     };
     
+    // Update IRU from MRC multiplier
+    const finIRUFromMRCMultiplier = document.getElementById('finIRUFromMRCMultiplier');
+    state.financialSettings.iruFromMRCMultiplier = parseFloat(finIRUFromMRCMultiplier?.value) || 36;
+    
     // Update pathfinder settings
     state.pathfinderSettings.costMetric = finDefaultCostMetric?.value || 'lease';
     state.pathfinderSettings.costScale = finCostScale?.value || 'logarithmic';
@@ -33237,6 +33249,23 @@ function loadProjectObject(obj) {
         if (finTierMult100G) finTierMult100G.value = 6.25;
         if (finTierMult400G) finTierMult400G.value = 15.625;
       });
+    }
+    
+    // IRU from MRC multiplier - update example in real-time
+    const finIRUFromMRCMultiplier = document.getElementById('finIRUFromMRCMultiplier');
+    if (finIRUFromMRCMultiplier) {
+      finIRUFromMRCMultiplier.addEventListener('input', updateIRUExampleResult);
+    }
+  }
+  
+  // Update IRU example calculation display
+  function updateIRUExampleResult() {
+    const finIRUFromMRCMultiplier = document.getElementById('finIRUFromMRCMultiplier');
+    const finIRUExampleResult = document.getElementById('finIRUExampleResult');
+    if (finIRUFromMRCMultiplier && finIRUExampleResult) {
+      const mult = parseFloat(finIRUFromMRCMultiplier.value) || 36;
+      const result = 1000 * mult;
+      finIRUExampleResult.textContent = result.toLocaleString();
     }
   }
   
@@ -34384,9 +34413,13 @@ function loadProjectObject(obj) {
     const countSpan = document.getElementById('dataTableSelectionCount');
     
     if (filterLabel && filterCheckbox && countSpan) {
+      // Always keep the filter visible and enabled
+      countSpan.textContent = `(${totalSelected})`;
+      
       if (totalSelected > 0) {
-        filterLabel.style.display = 'flex';
-        countSpan.textContent = `(${totalSelected})`;
+        // Style as having active selection
+        filterLabel.style.opacity = '1';
+        filterLabel.style.background = '#eef2ff';
         // Auto-enable filter when there's a selection
         filterCheckbox.checked = true;
         dataTableState.filterBySelection = true;
@@ -34402,9 +34435,14 @@ function loadProjectObject(obj) {
           if (typeSelect) typeSelect.value = 'nodes';
         }
       } else {
-        filterLabel.style.display = 'none';
-        filterCheckbox.checked = false;
-        dataTableState.filterBySelection = false;
+        // No selection - keep enabled but style subtly different
+        filterLabel.style.opacity = '0.8';
+        filterLabel.style.background = '#f8f9ff';
+        // Don't auto-disable - let user keep it on if they want to select items next
+        // Only auto-disable if checkbox wasn't already checked
+        if (!filterCheckbox.checked) {
+          dataTableState.filterBySelection = false;
+        }
       }
     }
   }
@@ -34443,13 +34481,18 @@ function loadProjectObject(obj) {
     const countSpan = document.getElementById('dataTableSelectionCount');
     
     if (filterLabel && filterCheckbox && countSpan) {
+      // Always keep visible and enabled, update count
+      countSpan.textContent = `(${totalSelected})`;
+      
       if (totalSelected > 0) {
-        filterLabel.style.display = 'flex';
-        countSpan.textContent = `(${totalSelected})`;
+        filterLabel.style.opacity = '1';
+        filterLabel.style.background = '#eef2ff';
         
-        // Auto-enable filter and switch tab when selection changes
-        filterCheckbox.checked = true;
-        dataTableState.filterBySelection = true;
+        // If filter mode is enabled, auto-check and refresh
+        if (dataTableState.filterBySelection || filterCheckbox.checked) {
+          filterCheckbox.checked = true;
+          dataTableState.filterBySelection = true;
+        }
         
         // Auto-switch to appropriate tab based on selection
         if (selectedEdges.size > 0 && selectedNodes.size === 0) {
@@ -34465,9 +34508,10 @@ function loadProjectObject(obj) {
         // Re-render to apply filter
         renderDataTable();
       } else {
-        filterLabel.style.display = 'none';
-        filterCheckbox.checked = false;
-        dataTableState.filterBySelection = false;
+        filterLabel.style.opacity = '0.8';
+        filterLabel.style.background = '#f8f9ff';
+        // Keep filter state as-is (user may want to select items next)
+        // Just re-render to show empty or all items based on filter state
         renderDataTable();
       }
     }
@@ -34485,11 +34529,17 @@ function loadProjectObject(obj) {
     const rowCount = document.getElementById('dataTableRowCount');
     const totalACVEl = document.getElementById('dataTableTotalACV');
     const totalIRUEl = document.getElementById('dataTableTotalIRU');
+    const resetPricesGroup = document.getElementById('dataTableResetPricesGroup');
     
     if (!thead || !tbody) return;
     
     const currency = state.financialSettings.baseCurrency || 'USD';
     const showCost = dataTableState.showCostColumns;
+    
+    // Show/hide reset prices button based on table type (only for links)
+    if (resetPricesGroup) {
+      resetPricesGroup.style.display = (type === 'links') ? 'flex' : 'none';
+    }
     
     if (type === 'links') {
       renderLinksTable(thead, tbody, showCost, currency);
@@ -35285,6 +35335,16 @@ function loadProjectObject(obj) {
         recalculateAllContainerCosts();
         renderDataTable();
         showToast('Costs recalculated (MLGs and Containers)');
+      });
+    }
+    
+    // Reset Prices from Tier button
+    const btnResetPrices = document.getElementById('btnDataTableResetPrices');
+    if (btnResetPrices) {
+      btnResetPrices.addEventListener('click', () => {
+        const sourceTierSelect = document.getElementById('dataTableSourceTier');
+        const sourceTier = sourceTierSelect?.value || '10G';
+        resetAllPricesFromTier(sourceTier);
       });
     }
     
@@ -36338,6 +36398,105 @@ function loadProjectObject(obj) {
   }
   
   /**
+   * Reset all link prices from a source tier, applying tier multipliers to other tiers
+   * and IRU = MRC × iruFromMRCMultiplier for all tiers.
+   * Also recalculates container costs from their internal links.
+   * @param {string} sourceTier - The tier to use as the source ('1G', '10G', '100G', '400G')
+   */
+  function resetAllPricesFromTier(sourceTier) {
+    const tierMultipliers = state.financialSettings?.tierMultipliers || { '10G': 2.5, '100G': 6.25, '400G': 15.625 };
+    const iruMultiplier = state.financialSettings?.iruFromMRCMultiplier || 36;
+    const tiers = ['1G', '10G', '100G', '400G'];
+    
+    // Calculate the multiplier from source tier to 1G (inverse)
+    // If source is 1G, multiplier to 1G is 1
+    // If source is 10G, multiplier to 1G is 1/2.5 = 0.4
+    // If source is 100G, multiplier to 1G is 1/6.25 = 0.16
+    // If source is 400G, multiplier to 1G is 1/15.625 = 0.064
+    let sourceMultiplier = 1;
+    if (sourceTier !== '1G') {
+      sourceMultiplier = tierMultipliers[sourceTier] || 1;
+    }
+    
+    let linksUpdated = 0;
+    let containersUpdated = 0;
+    
+    // Process all links
+    state.edges.forEach(edge => {
+      // Get the current values at the source tier
+      const sourceMRC = getValueForTier(edge.leaseMRC, sourceTier, state.financialSettings?.defaultMRC || 1);
+      const sourceNRC = getValueForTier(edge.leaseNRC, sourceTier, state.financialSettings?.defaultNRC || 0);
+      
+      // Calculate base (1G) values by dividing by source multiplier
+      const baseMRC = sourceMRC / sourceMultiplier;
+      const baseNRC = sourceNRC / sourceMultiplier;
+      
+      // Initialize tier-based objects if not already
+      if (typeof edge.leaseMRC !== 'object') {
+        edge.leaseMRC = normalizeTierPricing(edge.leaseMRC, state.financialSettings?.defaultMRC || 1);
+      }
+      if (typeof edge.leaseNRC !== 'object') {
+        edge.leaseNRC = normalizeTierPricing(edge.leaseNRC, 0);
+      }
+      if (typeof edge.iruFee !== 'object') {
+        edge.iruFee = normalizeTierPricing(edge.iruFee, state.financialSettings?.defaultIRU || 1);
+      }
+      
+      // Calculate all tiers based on the base values
+      tiers.forEach(tier => {
+        let mult = 1;
+        if (tier !== '1G') {
+          mult = tierMultipliers[tier] || 1;
+        }
+        
+        // Calculate MRC and NRC for this tier
+        const tierMRC = baseMRC * mult;
+        const tierNRC = baseNRC * mult;
+        
+        // Set MRC and NRC
+        edge.leaseMRC[tier] = Math.round(tierMRC * 100) / 100; // Round to 2 decimal places
+        edge.leaseNRC[tier] = Math.round(tierNRC * 100) / 100;
+        
+        // Calculate IRU as MRC × iruMultiplier
+        edge.iruFee[tier] = Math.round(tierMRC * iruMultiplier * 100) / 100;
+      });
+      
+      linksUpdated++;
+    });
+    
+    // Recalculate all container costs (which derive from their internal links)
+    state.groups.forEach(group => {
+      if (!group.commercialCostOverride) {
+        const result = calculateContainerCost(group);
+        group.leaseNRC = result.costs.leaseNRC;
+        group.leaseMRC = result.costs.leaseMRC;
+        group.iruFee = result.costs.iruFee;
+        group.iruTerm = result.costs.iruTerm;
+        group.iruOamPercent = result.costs.iruOamPercent;
+        group.iruOamAnnualIncrement = result.costs.iruOamAnnualIncrement;
+        containersUpdated++;
+      }
+    });
+    
+    // Recalculate all MLG costs
+    recalculateAllMLGCosts();
+    
+    // Commit changes and refresh
+    commit();
+    renderDataTable();
+    render();
+    
+    // Show confirmation
+    const mult10G = tierMultipliers['10G'] || 2.5;
+    const mult100G = tierMultipliers['100G'] || 6.25;
+    const mult400G = tierMultipliers['400G'] || 15.625;
+    showToast(`Prices reset from ${sourceTier}: ${linksUpdated} links updated, ${containersUpdated} containers recalculated. Multipliers: ×${mult10G} (10G), ×${mult100G} (100G), ×${mult400G} (400G). IRU = MRC × ${iruMultiplier}`);
+  }
+  
+  // Expose reset function globally
+  window.resetAllPricesFromTier = resetAllPricesFromTier;
+  
+  /**
    * Get commercial cost for a container for pathfinding
    * @param {Object} group - Container/group object
    * @param {string} tier - Capacity tier ('1G', '10G', '100G', '400G')
@@ -36907,6 +37066,28 @@ function loadProjectObject(obj) {
         </div>
       </div>
       
+      <!-- IRU from MRC Multiplier Section -->
+      <div class="fin-section">
+        <div class="fin-section-title">📜 IRU Fee Calculation from MRC</div>
+        <div class="fin-hint" style="margin-bottom:10px;">When resetting prices, the IRU fee for each tier is calculated as: MRC × IRU Multiplier. This provides a standard conversion from monthly lease pricing to one-time IRU fees.</div>
+        
+        <div style="display:flex; align-items:center; gap:12px; padding:12px; background:#faf5ff; border:1px solid #e9d5ff; border-radius:6px;">
+          <div style="flex:1;">
+            <div style="font-size:11px; font-weight:700; color:#7c3aed; margin-bottom:6px;">IRU Fee = MRC × Multiplier</div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <label style="font-size:11px; color:#6b7280;">Multiplier:</label>
+              <input type="number" id="finIRUFromMRCMultiplier" value="36" min="1" max="1000" step="1" style="width:70px; text-align:center; padding:6px; border:1px solid #c4b5fd; border-radius:4px; font-weight:600; color:#7c3aed;" />
+              <span style="font-size:11px; color:#6b7280;">× MRC</span>
+            </div>
+            <div style="font-size:10px; color:#8b5cf6; margin-top:6px;">Default: 36 (equivalent to 3 years of MRC)</div>
+          </div>
+          <div style="padding:10px; background:#ede9fe; border-radius:6px; text-align:center;">
+            <div style="font-size:9px; color:#6b21a8; text-transform:uppercase; font-weight:600; margin-bottom:4px;">Example</div>
+            <div style="font-size:12px; color:#7c3aed; font-weight:600;">MRC $1,000 → IRU $<span id="finIRUExampleResult">36,000</span></div>
+          </div>
+        </div>
+      </div>
+      
       <!-- Container Defaults Section -->
       <div class="fin-section">
         <div class="fin-section-title">📦 Container Transit Defaults (1G Base Tier)</div>
@@ -36995,7 +37176,7 @@ function loadProjectObject(obj) {
     <div id="dataTableToolbar">
       <input type="text" id="dataTableSearch" placeholder="🔍 Search..." />
       <div style="display:flex; gap:8px; align-items:center;">
-        <label id="dataTableSelectionFilterLabel" style="font-size:11px; color:#6366f1; display:flex; align-items:center; gap:4px; padding:4px 8px; background:#eef2ff; border:1px solid #c7d2fe; border-radius:4px; cursor:pointer; display:none;">
+        <label id="dataTableSelectionFilterLabel" style="font-size:11px; color:#6366f1; display:flex; align-items:center; gap:4px; padding:4px 8px; background:#eef2ff; border:1px solid #c7d2fe; border-radius:4px; cursor:pointer;">
           <input type="checkbox" id="dataTableSelectionFilter" style="width:14px; height:14px; accent-color:#6366f1;" />
           <span>📍 Selection only</span>
           <span id="dataTableSelectionCount" style="font-weight:600; color:#4f46e5;">(0)</span>
@@ -37015,6 +37196,18 @@ function loadProjectObject(obj) {
         </label>
       </div>
       <div style="flex:1;"></div>
+      <div id="dataTableResetPricesGroup" style="display:flex; align-items:center; gap:4px; padding:4px 8px; background:#fef3c7; border:1px solid #fcd34d; border-radius:6px;">
+        <span style="font-size:10px; color:#92400e; font-weight:600;">⚡ Reset Prices from:</span>
+        <select id="dataTableSourceTier" style="padding:3px 6px; font-size:11px; border:1px solid #fbbf24; border-radius:4px; background:white; font-weight:600; color:#92400e;">
+          <option value="1G">1G</option>
+          <option value="10G">10G</option>
+          <option value="100G">100G</option>
+          <option value="400G">400G</option>
+        </select>
+        <button class="toolbar-btn" id="btnDataTableResetPrices" style="background:#f59e0b; color:white; border-color:#d97706; font-weight:600;" title="Recalculate all tier prices and IRU fees based on the selected source tier using the configured multipliers">
+          🔄 Apply to All
+        </button>
+      </div>
       <button class="toolbar-btn" id="btnDataTableExport">📤 Export CSV</button>
       <button class="toolbar-btn" id="btnDataTableRecalc">🔄 Recalculate</button>
     </div>
