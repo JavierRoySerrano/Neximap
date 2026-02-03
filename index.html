@@ -6616,10 +6616,41 @@
         </div>
         <!-- Save as MLG Button (Phase 1) -->
         <div id="saveAsMLGContainer" style="display:none; padding:10px 12px; border-top:1px solid #e5e7eb;">
+          <!-- Save Mode Selection -->
+          <div style="margin-bottom:10px;">
+            <label style="font-size:11px; font-weight:600; color:#6b7280; text-transform:uppercase; display:block; margin-bottom:6px;">Save Route To</label>
+            <div style="display:flex; gap:6px;">
+              <label style="flex:1; display:flex; align-items:center; gap:4px; padding:8px; border:2px solid #a855f7; border-radius:6px; cursor:pointer; font-size:11px; font-weight:500; background:#faf5ff; color:#7c3aed;" id="mlgSaveModeNewLabel">
+                <input type="radio" name="mlgSaveMode" id="mlgSaveModeNew" value="new" checked style="margin:0; accent-color:#a855f7;" />
+                <span>➕ New MLG</span>
+              </label>
+              <label style="flex:1; display:flex; align-items:center; gap:4px; padding:8px; border:2px solid #e5e7eb; border-radius:6px; cursor:pointer; font-size:11px; font-weight:500; background:white;" id="mlgSaveModeExistingLabel">
+                <input type="radio" name="mlgSaveMode" id="mlgSaveModeExisting" value="existing" style="margin:0; accent-color:#a855f7;" />
+                <span>📎 Existing MLG</span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- Existing MLG Selection (hidden by default) -->
+          <div id="existingMLGSelection" style="display:none; margin-bottom:10px;">
+            <label style="font-size:11px; font-weight:600; color:#7c3aed; display:block; margin-bottom:4px;">Select Compatible MLG</label>
+            <select id="compatibleMLGSelect" style="width:100%; padding:8px; border:2px solid #e9d5ff; border-radius:6px; font-size:12px; background:#fefbff;">
+              <option value="">-- Select an MLG with same endpoints --</option>
+            </select>
+            <div id="compatibleMLGInfo" style="font-size:10px; color:#6b7280; margin-top:4px;"></div>
+          </div>
+          
+          <!-- Save as New MLG Button -->
           <button class="btn primary" id="btnSaveRouteAsMLG" style="width:100%; padding:10px; font-size:12px; background:linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); border-color:#7c3aed;">
             💾 Save Route as Multilink Group
           </button>
-          <div style="font-size:10px; color:#6b7280; margin-top:6px; text-align:center;">
+          
+          <!-- Add to Existing MLG Button (hidden by default) -->
+          <button class="btn primary" id="btnAddRouteToMLG" style="display:none; width:100%; padding:10px; font-size:12px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); border-color:#059669;">
+            ➕ Add Path to Selected MLG
+          </button>
+          
+          <div id="mlgSaveHint" style="font-size:10px; color:#6b7280; margin-top:6px; text-align:center;">
             Creates a new MLG from the currently selected route
           </div>
         </div>
@@ -13238,6 +13269,9 @@ const groupTitle = document.getElementById('groupTitle');
     
     // Update format toolbar indicators
     if (typeof updateFormatIndicators === 'function') updateFormatIndicators();
+    
+    // Update data table selection filter if data table is open
+    if (typeof syncDataTableWithSelection === 'function') syncDataTableWithSelection();
     
     if (!state.selected) {
       const c = state.selection.nodes.size + state.selection.edges.size + state.selection.groups.size;
@@ -22784,6 +22818,10 @@ function loadProjectObject(obj) {
       // Show the save as MLG button container
       const saveAsMLGContainer = document.getElementById('saveAsMLGContainer');
       if (saveAsMLGContainer) saveAsMLGContainer.style.display = 'block';
+      // Update compatible MLGs dropdown for add-to-existing feature
+      if (typeof updateCompatibleMLGDropdown === 'function') {
+        updateCompatibleMLGDropdown();
+      }
       
       // Show protection path section and populate closure nodes
       // Get element fresh to avoid stale reference
@@ -24092,6 +24130,10 @@ function loadProjectObject(obj) {
     const saveAsMLGContainer = document.getElementById('saveAsMLGContainer');
     if (saveAsMLGContainer) {
       saveAsMLGContainer.style.display = 'block';
+    }
+    // Update compatible MLGs dropdown for add-to-existing feature
+    if (typeof updateCompatibleMLGDropdown === 'function') {
+      updateCompatibleMLGDropdown();
     }
     
     let html = '<div style="font-size:11px;">';
@@ -25922,6 +25964,302 @@ function loadProjectObject(obj) {
       showToast('📝 Route loaded into MLG Editor — review and save');
     });
   }
+  
+  // ============== ADD TO EXISTING MLG FUNCTIONALITY ==============
+  
+  // Helper function to get MLG termination points
+  function getMLGTerminations(mlg) {
+    if (!mlg || !mlg.segments || mlg.segments.length === 0) return { origin: null, dest: null };
+    const origin = mlg.originNode || mlg.segments[0]?.fromNode;
+    const dest = mlg.destinationNode || mlg.segments[mlg.segments.length - 1]?.toNode;
+    return { origin, dest };
+  }
+  
+  // Helper function to find compatible MLGs (same termination points as current route)
+  function findCompatibleMLGs(routeOrigin, routeDest) {
+    if (!state.multilinkGroups || !routeOrigin || !routeDest) return [];
+    
+    return state.multilinkGroups.filter(mlg => {
+      const { origin, dest } = getMLGTerminations(mlg);
+      // Check both directions (origin->dest or dest->origin)
+      return (origin === routeOrigin && dest === routeDest) ||
+             (origin === routeDest && dest === routeOrigin);
+    });
+  }
+  
+  // Update the compatible MLG dropdown when route changes
+  function updateCompatibleMLGDropdown() {
+    const route = routeFinderState.routes[routeFinderState.activeRouteIndex];
+    const select = document.getElementById('compatibleMLGSelect');
+    const infoDiv = document.getElementById('compatibleMLGInfo');
+    const existingLabel = document.getElementById('mlgSaveModeExistingLabel');
+    
+    if (!select || !route || !route.path || route.path.length < 2) {
+      if (select) select.innerHTML = '<option value="">-- No route selected --</option>';
+      if (infoDiv) infoDiv.textContent = '';
+      if (existingLabel) existingLabel.style.opacity = '0.5';
+      return;
+    }
+    
+    const routeOrigin = route.path[0];
+    const routeDest = route.path[route.path.length - 1];
+    const compatibleMLGs = findCompatibleMLGs(routeOrigin, routeDest);
+    
+    // Build dropdown options
+    select.innerHTML = '<option value="">-- Select an MLG with same endpoints --</option>';
+    
+    if (compatibleMLGs.length === 0) {
+      if (infoDiv) infoDiv.innerHTML = '<span style="color:#dc2626;">No compatible MLGs found (same A-Z endpoints)</span>';
+      if (existingLabel) {
+        existingLabel.style.opacity = '0.5';
+        existingLabel.title = 'No MLGs with matching endpoints';
+      }
+    } else {
+      compatibleMLGs.forEach(mlg => {
+        const { origin, dest } = getMLGTerminations(mlg);
+        const originName = getNodeDisplayName(origin);
+        const destName = getNodeDisplayName(dest);
+        const pathCount = mlg.segments?.reduce((count, seg) => count + (seg.paths?.length || 0), 0) || 0;
+        const option = document.createElement('option');
+        option.value = mlg.id;
+        option.textContent = `${mlg.name} (${pathCount} path${pathCount !== 1 ? 's' : ''})`;
+        select.appendChild(option);
+      });
+      if (infoDiv) infoDiv.innerHTML = `<span style="color:#16a34a;">✓ ${compatibleMLGs.length} compatible MLG${compatibleMLGs.length !== 1 ? 's' : ''} found</span>`;
+      if (existingLabel) {
+        existingLabel.style.opacity = '1';
+        existingLabel.title = '';
+      }
+    }
+  }
+  
+  // MLG Save Mode radio button handlers
+  const mlgSaveModeNew = document.getElementById('mlgSaveModeNew');
+  const mlgSaveModeExisting = document.getElementById('mlgSaveModeExisting');
+  const mlgSaveModeNewLabel = document.getElementById('mlgSaveModeNewLabel');
+  const mlgSaveModeExistingLabel = document.getElementById('mlgSaveModeExistingLabel');
+  const existingMLGSelection = document.getElementById('existingMLGSelection');
+  const btnSaveRouteAsMLGEl = document.getElementById('btnSaveRouteAsMLG');
+  const btnAddRouteToMLG = document.getElementById('btnAddRouteToMLG');
+  const mlgSaveHint = document.getElementById('mlgSaveHint');
+  
+  function updateMLGSaveModeUI() {
+    const isNewMode = mlgSaveModeNew?.checked;
+    
+    // Update labels styling
+    if (mlgSaveModeNewLabel) {
+      mlgSaveModeNewLabel.style.borderColor = isNewMode ? '#a855f7' : '#e5e7eb';
+      mlgSaveModeNewLabel.style.background = isNewMode ? '#faf5ff' : 'white';
+      mlgSaveModeNewLabel.style.color = isNewMode ? '#7c3aed' : '#374151';
+    }
+    if (mlgSaveModeExistingLabel) {
+      mlgSaveModeExistingLabel.style.borderColor = isNewMode ? '#e5e7eb' : '#10b981';
+      mlgSaveModeExistingLabel.style.background = isNewMode ? 'white' : '#ecfdf5';
+      mlgSaveModeExistingLabel.style.color = isNewMode ? '#374151' : '#059669';
+    }
+    
+    // Show/hide appropriate elements
+    if (existingMLGSelection) {
+      existingMLGSelection.style.display = isNewMode ? 'none' : 'block';
+    }
+    if (btnSaveRouteAsMLGEl) {
+      btnSaveRouteAsMLGEl.style.display = isNewMode ? 'block' : 'none';
+    }
+    if (btnAddRouteToMLG) {
+      btnAddRouteToMLG.style.display = isNewMode ? 'none' : 'block';
+    }
+    if (mlgSaveHint) {
+      mlgSaveHint.textContent = isNewMode 
+        ? 'Creates a new MLG from the currently selected route'
+        : 'Adds this route as a new path to the selected MLG';
+    }
+    
+    // Update compatible MLGs dropdown when switching to existing mode
+    if (!isNewMode) {
+      updateCompatibleMLGDropdown();
+    }
+  }
+  
+  if (mlgSaveModeNew) {
+    mlgSaveModeNew.addEventListener('change', updateMLGSaveModeUI);
+  }
+  if (mlgSaveModeExisting) {
+    mlgSaveModeExisting.addEventListener('change', updateMLGSaveModeUI);
+  }
+  
+  // Compatible MLG selection change handler
+  const compatibleMLGSelect = document.getElementById('compatibleMLGSelect');
+  if (compatibleMLGSelect) {
+    compatibleMLGSelect.addEventListener('change', () => {
+      const selectedId = compatibleMLGSelect.value;
+      const infoDiv = document.getElementById('compatibleMLGInfo');
+      
+      if (selectedId && infoDiv) {
+        const mlg = findMultilinkGroup(selectedId);
+        if (mlg) {
+          const pathCount = mlg.segments?.reduce((count, seg) => count + (seg.paths?.length || 0), 0) || 0;
+          const segCount = mlg.segments?.length || 0;
+          infoDiv.innerHTML = `<span style="color:#059669;">📊 ${segCount} segment${segCount !== 1 ? 's' : ''}, ${pathCount} existing path${pathCount !== 1 ? 's' : ''}</span>`;
+        }
+      }
+    });
+  }
+  
+  // Add Route to Existing MLG button handler
+  if (btnAddRouteToMLG) {
+    btnAddRouteToMLG.addEventListener('click', () => {
+      const route = routeFinderState.routes[routeFinderState.activeRouteIndex];
+      if (!route || !route.path || route.path.length < 2) {
+        showToast('⚠️ No valid route to add');
+        return;
+      }
+      
+      const selectedMLGId = document.getElementById('compatibleMLGSelect')?.value;
+      if (!selectedMLGId) {
+        showToast('⚠️ Please select an MLG to add the route to');
+        return;
+      }
+      
+      const targetMLG = findMultilinkGroup(selectedMLGId);
+      if (!targetMLG) {
+        showToast('⚠️ Selected MLG not found');
+        return;
+      }
+      
+      // Check if route direction matches MLG direction
+      const routeOrigin = route.path[0];
+      const routeDest = route.path[route.path.length - 1];
+      const { origin: mlgOrigin, dest: mlgDest } = getMLGTerminations(targetMLG);
+      const isReversed = (routeOrigin === mlgDest && routeDest === mlgOrigin);
+      
+      // Convert route to link sequence
+      let routeLinks = [];
+      route.segments.forEach(seg => {
+        if (seg.edgeId) {
+          routeLinks.push(seg.edgeId);
+        } else if (seg.isMLG && seg.mlgId) {
+          // Flatten MLG links - use primary path
+          const mlg = findMultilinkGroup(seg.mlgId);
+          if (mlg && mlg.segments) {
+            mlg.segments.forEach(mlgSeg => {
+              if (mlgSeg.paths && mlgSeg.paths[0] && mlgSeg.paths[0].links) {
+                routeLinks.push(...mlgSeg.paths[0].links);
+              }
+            });
+          }
+        }
+      });
+      
+      if (routeLinks.length === 0) {
+        showToast('⚠️ Route has no links to add');
+        return;
+      }
+      
+      // If reversed, reverse the links
+      if (isReversed) {
+        routeLinks = routeLinks.reverse();
+      }
+      
+      // Calculate the route latency
+      const routeLatency = routeLinks.reduce((sum, lid) => {
+        const e = state.edges.find(edge => edge.id === lid);
+        return sum + (parseFloat(e?.latencyMs) || parseFloat(e?.latency) || 0);
+      }, 0);
+      
+      // Generate new segment and path IDs
+      let maxSegmentId = 0;
+      let maxPathId = 0;
+      targetMLG.segments.forEach(seg => {
+        if (seg.id > maxSegmentId) maxSegmentId = seg.id;
+        if (seg.paths) {
+          seg.paths.forEach(p => {
+            if (p.id > maxPathId) maxPathId = p.id;
+          });
+        }
+      });
+      const newSegmentId = maxSegmentId + 1;
+      const newPathId = maxPathId + 1;
+      
+      // Determine new path type based on total segments count
+      const existingSegmentCount = targetMLG.segments.length;
+      let newPathType = 'primary';
+      if (existingSegmentCount >= 1) {
+        newPathType = 'protection';
+      }
+      if (existingSegmentCount >= 2) {
+        newPathType = 'tertiary';
+      }
+      if (existingSegmentCount >= 3) {
+        newPathType = `path_${existingSegmentCount + 1}`;
+      }
+      
+      // Create a new segment with the entire route as a single path from origin to destination
+      const newSegment = {
+        id: newSegmentId,
+        fromNode: mlgOrigin,  // Use MLG's origin (handles reversal)
+        toNode: mlgDest,      // Use MLG's destination
+        paths: [{
+          id: newPathId,
+          type: newPathType,
+          role: newPathType,
+          links: routeLinks,
+          latency: routeLatency
+        }],
+        latency: routeLatency,
+        isDiverse: true,
+        diversityWarning: null
+      };
+      
+      // Add the new segment to the MLG
+      targetMLG.segments.push(newSegment);
+      
+      // Update MLG metadata
+      targetMLG.modified = new Date().toISOString();
+      
+      // Recalculate total MLG latency (use minimum across all segment latencies)
+      if (typeof calculateMLGLatency === 'function') {
+        targetMLG.totalLatency = calculateMLGLatency(targetMLG.segments);
+      } else {
+        // Fallback: minimum latency across segments
+        targetMLG.totalLatency = Math.min(...targetMLG.segments.map(s => s.latency || 0));
+      }
+      
+      // Recalculate capacity
+      if (typeof calculateMLGCapacity === 'function') {
+        const capacity = calculateMLGCapacity(targetMLG.segments);
+        targetMLG.calcCap1G = capacity.cap1G;
+        targetMLG.calcCap10G = capacity.cap10G;
+        targetMLG.calcCap100G = capacity.cap100G;
+        targetMLG.calcCap400G = capacity.cap400G;
+        targetMLG.calcCapTbps = capacity.capTbps;
+      }
+      
+      // Reclassify MLG type (linear/ring/ring_linear) - with multiple segments it becomes ring-like
+      if (typeof classifyMLGType === 'function') {
+        targetMLG.type = classifyMLGType(targetMLG.segments);
+        targetMLG.topology = targetMLG.type;
+      }
+      
+      // Commit changes
+      commit();
+      render();
+      
+      showToast(`✓ Route added as new segment (${newPathType}) to "${targetMLG.name}"`);
+      
+      // Refresh MLG manager display
+      if (typeof updateMultilinkGroupList === 'function') {
+        updateMultilinkGroupList();
+      }
+      
+      // Reset to new mode
+      if (mlgSaveModeNew) {
+        mlgSaveModeNew.checked = true;
+        updateMLGSaveModeUI();
+      }
+    });
+  }
+  
+  // ============== END ADD TO EXISTING MLG FUNCTIONALITY ==============
   
   // Calculate Protection Path button handler
   const btnCalculateProtection = document.getElementById('btnCalculateProtection');
@@ -31994,13 +32332,19 @@ function loadProjectObject(obj) {
     sortColumn: null,
     sortDirection: 'asc',
     searchQuery: '',
-    showCostColumns: true
+    showCostColumns: true,
+    filterBySelection: false,
+    selectedNodeIds: new Set(),
+    selectedEdgeIds: new Set()
   };
   
   function showDataTable() {
     const modal = document.getElementById('dataTableModal');
     const content = document.getElementById('dataTableContent');
     if (!modal) return;
+    
+    // Capture current selection
+    updateDataTableSelectionFilter();
     
     // Reset position to center
     if (content) {
@@ -32018,6 +32362,126 @@ function loadProjectObject(obj) {
     
     modal.classList.add('show');
     renderDataTable();
+  }
+  
+  // Update data table selection filter based on current canvas selection
+  function updateDataTableSelectionFilter() {
+    // Collect all selected node and edge IDs
+    const selectedNodes = new Set();
+    const selectedEdges = new Set();
+    
+    // Add from multi-selection
+    state.selection.nodes.forEach(id => selectedNodes.add(id));
+    state.selection.edges.forEach(id => selectedEdges.add(id));
+    
+    // Add single selection if not already in multi-select
+    if (state.selected) {
+      if (state.selected.type === 'node') {
+        selectedNodes.add(state.selected.id);
+      } else if (state.selected.type === 'edge') {
+        selectedEdges.add(state.selected.id);
+      }
+    }
+    
+    // Store in dataTableState
+    dataTableState.selectedNodeIds = selectedNodes;
+    dataTableState.selectedEdgeIds = selectedEdges;
+    
+    const totalSelected = selectedNodes.size + selectedEdges.size;
+    
+    // Update UI
+    const filterLabel = document.getElementById('dataTableSelectionFilterLabel');
+    const filterCheckbox = document.getElementById('dataTableSelectionFilter');
+    const countSpan = document.getElementById('dataTableSelectionCount');
+    
+    if (filterLabel && filterCheckbox && countSpan) {
+      if (totalSelected > 0) {
+        filterLabel.style.display = 'flex';
+        countSpan.textContent = `(${totalSelected})`;
+        // Auto-enable filter when there's a selection
+        filterCheckbox.checked = true;
+        dataTableState.filterBySelection = true;
+        
+        // Auto-switch to appropriate tab based on selection
+        if (selectedEdges.size > 0 && selectedNodes.size === 0) {
+          dataTableState.type = 'links';
+          const typeSelect = document.getElementById('dataTableType');
+          if (typeSelect) typeSelect.value = 'links';
+        } else if (selectedNodes.size > 0 && selectedEdges.size === 0) {
+          dataTableState.type = 'nodes';
+          const typeSelect = document.getElementById('dataTableType');
+          if (typeSelect) typeSelect.value = 'nodes';
+        }
+      } else {
+        filterLabel.style.display = 'none';
+        filterCheckbox.checked = false;
+        dataTableState.filterBySelection = false;
+      }
+    }
+  }
+  
+  // Sync data table with current selection (called when selection changes while data table is open)
+  function syncDataTableWithSelection() {
+    const modal = document.getElementById('dataTableModal');
+    if (!modal || !modal.classList.contains('show')) return; // Only sync if data table is open
+    
+    // Collect all selected node and edge IDs
+    const selectedNodes = new Set();
+    const selectedEdges = new Set();
+    
+    // Add from multi-selection
+    state.selection.nodes.forEach(id => selectedNodes.add(id));
+    state.selection.edges.forEach(id => selectedEdges.add(id));
+    
+    // Add single selection if not already in multi-select
+    if (state.selected) {
+      if (state.selected.type === 'node') {
+        selectedNodes.add(state.selected.id);
+      } else if (state.selected.type === 'edge') {
+        selectedEdges.add(state.selected.id);
+      }
+    }
+    
+    // Store in dataTableState
+    dataTableState.selectedNodeIds = selectedNodes;
+    dataTableState.selectedEdgeIds = selectedEdges;
+    
+    const totalSelected = selectedNodes.size + selectedEdges.size;
+    
+    // Update UI
+    const filterLabel = document.getElementById('dataTableSelectionFilterLabel');
+    const filterCheckbox = document.getElementById('dataTableSelectionFilter');
+    const countSpan = document.getElementById('dataTableSelectionCount');
+    
+    if (filterLabel && filterCheckbox && countSpan) {
+      if (totalSelected > 0) {
+        filterLabel.style.display = 'flex';
+        countSpan.textContent = `(${totalSelected})`;
+        
+        // Auto-enable filter and switch tab when selection changes
+        filterCheckbox.checked = true;
+        dataTableState.filterBySelection = true;
+        
+        // Auto-switch to appropriate tab based on selection
+        if (selectedEdges.size > 0 && selectedNodes.size === 0) {
+          dataTableState.type = 'links';
+          const typeSelect = document.getElementById('dataTableType');
+          if (typeSelect) typeSelect.value = 'links';
+        } else if (selectedNodes.size > 0 && selectedEdges.size === 0) {
+          dataTableState.type = 'nodes';
+          const typeSelect = document.getElementById('dataTableType');
+          if (typeSelect) typeSelect.value = 'nodes';
+        }
+        
+        // Re-render to apply filter
+        renderDataTable();
+      } else {
+        filterLabel.style.display = 'none';
+        filterCheckbox.checked = false;
+        dataTableState.filterBySelection = false;
+        renderDataTable();
+      }
+    }
   }
   
   function hideDataTable() {
@@ -32116,6 +32580,11 @@ function loadProjectObject(obj) {
     });
     
     let filteredEdges = state.edges.filter(e => {
+      // Filter by selection first if enabled
+      if (dataTableState.filterBySelection && dataTableState.selectedEdgeIds.size > 0) {
+        if (!dataTableState.selectedEdgeIds.has(e.id)) return false;
+      }
+      
       if (!search) return true;
       const aNode = findNode(e.a);
       const bNode = findNode(e.b);
@@ -32328,6 +32797,11 @@ function loadProjectObject(obj) {
       </tr>`;
     
     let filteredNodes = state.nodes.filter(n => {
+      // Filter by selection first if enabled
+      if (dataTableState.filterBySelection && dataTableState.selectedNodeIds.size > 0) {
+        if (!dataTableState.selectedNodeIds.has(n.id)) return false;
+      }
+      
       if (!search) return true;
       const nodeTags = getElementTags('node', n.id);
       const tagsStr = Array.from(nodeTags).join(' ').toLowerCase();
@@ -32621,6 +33095,15 @@ function loadProjectObject(obj) {
     if (showCostCheck) {
       showCostCheck.addEventListener('change', () => {
         dataTableState.showCostColumns = showCostCheck.checked;
+        renderDataTable();
+      });
+    }
+    
+    // Selection filter toggle
+    const selectionFilterCheck = document.getElementById('dataTableSelectionFilter');
+    if (selectionFilterCheck) {
+      selectionFilterCheck.addEventListener('change', () => {
+        dataTableState.filterBySelection = selectionFilterCheck.checked;
         renderDataTable();
       });
     }
@@ -33943,6 +34426,11 @@ function loadProjectObject(obj) {
     <div id="dataTableToolbar">
       <input type="text" id="dataTableSearch" placeholder="🔍 Search..." />
       <div style="display:flex; gap:8px; align-items:center;">
+        <label id="dataTableSelectionFilterLabel" style="font-size:11px; color:#6366f1; display:flex; align-items:center; gap:4px; padding:4px 8px; background:#eef2ff; border:1px solid #c7d2fe; border-radius:4px; cursor:pointer; display:none;">
+          <input type="checkbox" id="dataTableSelectionFilter" style="width:14px; height:14px; accent-color:#6366f1;" />
+          <span>📍 Selection only</span>
+          <span id="dataTableSelectionCount" style="font-weight:600; color:#4f46e5;">(0)</span>
+        </label>
         <label style="font-size:11px; color:#64748b; display:flex; align-items:center; gap:4px;">
           View Tier:
           <select id="dataTableCapacityTier" style="padding:4px 6px; font-size:11px; border:1px solid #d1d5db; border-radius:4px; background:white;">
