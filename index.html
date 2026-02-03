@@ -4032,6 +4032,7 @@
     
     <div class="menu" id="helpMenu" hidden style="min-width:200px;">
       <div class="item" id="miHelpCenter">📚 Help Center... <span style="opacity:0.5;float:right">F1</span></div>
+      <div class="item" id="miOnlineGuide">🌐 Online User Guide...</div>
       <div class="sep"></div>
       <div class="item" id="miQuickShortcuts">⌨️ Quick Shortcuts</div>
       <div class="sep"></div>
@@ -38000,11 +38001,17 @@ function loadProjectObject(obj) {
         <span style="font-size: 22px;">❓</span>
         Help Center
       </h2>
-      <button class="close-btn" id="btnCloseHelpCenter" title="Close (Esc)">×</button>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button id="btnOpenOnlineDocs" style="padding:8px 16px; background:linear-gradient(135deg, #10b981, #059669); color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px;" title="Open full documentation in new tab">
+          🌐 Full Guide
+        </button>
+        <button class="close-btn" id="btnCloseHelpCenter" title="Close (Esc)">×</button>
+      </div>
     </div>
     
     <div id="helpCenterSearch">
       <input type="text" id="helpSearchInput" placeholder="Search help topics, shortcuts, features..." autocomplete="off" />
+    </div>
     </div>
     
     <div id="helpCenterBody">
@@ -38582,9 +38589,13 @@ function loadProjectObject(obj) {
   
   // Menu items
   const miHelpCenter = document.getElementById('miHelpCenter');
+  const miOnlineGuide = document.getElementById('miOnlineGuide');
   const miQuickShortcuts = document.getElementById('miQuickShortcuts');
   const miAbout = document.getElementById('miAbout');
   const helpMenu = document.getElementById('helpMenu');
+  
+  // Online documentation URL
+  const ONLINE_DOCS_URL = 'https://javierroyserrano.github.io/Neximap/';
   
   // Open Help Center
   function openHelpCenter(section = 'getting-started') {
@@ -38671,7 +38682,7 @@ function loadProjectObject(obj) {
         item.classList.toggle('active', item.dataset.section === matches[0].section);
       });
     } else {
-      // Show no results
+      // Show no results with link to online docs
       const resultsSection = document.getElementById('help-search-results');
       const resultsContent = document.getElementById('searchResultsContent');
       resultsContent.innerHTML = `
@@ -38679,6 +38690,9 @@ function loadProjectObject(obj) {
           <div class="no-results-icon">🔍</div>
           <p>No results found for "<strong>${query}</strong>"</p>
           <p style="color:#aaa; font-size:12px; margin-top:8px;">Try different keywords or browse the sections on the left.</p>
+          <button onclick="window.open('${ONLINE_DOCS_URL}#' + encodeURIComponent('${query}'), '_blank')" style="margin-top:16px; padding:10px 20px; background:linear-gradient(135deg, #6366f1, #8b5cf6); color:white; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600; display:inline-flex; align-items:center; gap:8px;">
+            🌐 Search Online Documentation
+          </button>
         </div>
       `;
       helpSections.forEach(section => section.classList.remove('active'));
@@ -38691,6 +38705,14 @@ function loadProjectObject(obj) {
   if (miHelpCenter) {
     miHelpCenter.addEventListener('click', () => {
       openHelpCenter('getting-started');
+    });
+  }
+  
+  // Open Online User Guide
+  if (miOnlineGuide) {
+    miOnlineGuide.addEventListener('click', () => {
+      if (helpMenu) helpMenu.hidden = true;
+      window.open(ONLINE_DOCS_URL, '_blank');
     });
   }
   
@@ -38710,6 +38732,14 @@ function loadProjectObject(obj) {
   // Close button
   if (btnCloseHelpCenter) {
     btnCloseHelpCenter.addEventListener('click', closeHelpCenter);
+  }
+  
+  // Full Guide button - opens online documentation
+  const btnOpenOnlineDocs = document.getElementById('btnOpenOnlineDocs');
+  if (btnOpenOnlineDocs) {
+    btnOpenOnlineDocs.addEventListener('click', () => {
+      window.open(ONLINE_DOCS_URL, '_blank');
+    });
   }
   
   // Close on background click
