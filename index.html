@@ -3389,10 +3389,16 @@
       border-radius: 10px;
       padding: 16px;
       transition: all 0.2s;
+      cursor: pointer;
+      position: relative;
     }
     .feature-card:hover {
       border-color: #667eea;
       box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+      transform: translateY(-2px);
+    }
+    .feature-card:hover .feature-link {
+      opacity: 1;
     }
     .feature-card h4 {
       margin: 0 0 8px 0;
@@ -3408,6 +3414,15 @@
       font-size: 12px;
       color: #666;
       line-height: 1.5;
+    }
+    .feature-card .feature-link {
+      display: block;
+      margin-top: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #667eea;
+      opacity: 0;
+      transition: opacity 0.2s;
     }
     
     /* Tips list */
@@ -3567,6 +3582,121 @@
       font-size: 14px;
     }
     
+    /* Search Results Styling */
+    .search-results-header {
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: #495057;
+    }
+    .search-results-header .results-count {
+      color: #667eea;
+      font-weight: 600;
+    }
+    .search-results-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .search-category {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #868e96;
+      padding: 12px 0 6px;
+      border-bottom: 1px solid #e9ecef;
+      margin-top: 8px;
+    }
+    .search-category:first-child {
+      margin-top: 0;
+    }
+    .search-result-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: white;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .search-result-item:hover {
+      border-color: #667eea;
+      background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+      transform: translateX(4px);
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+    }
+    .search-result-item .result-icon {
+      font-size: 24px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8f9fa;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    .search-result-item:hover .result-icon {
+      background: white;
+    }
+    .search-result-item .result-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .search-result-item .result-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 2px;
+    }
+    .search-result-item .result-desc {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .search-result-item .result-arrow {
+      font-size: 16px;
+      color: #adb5bd;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .search-result-item:hover .result-arrow {
+      color: #667eea;
+      transform: translateX(4px);
+    }
+    .search-results-footer {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #e9ecef;
+      text-align: center;
+    }
+    .search-full-guide-btn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .search-full-guide-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
     /* Quick start cards */
     .quick-start-grid {
       display: grid;
@@ -3582,11 +3712,15 @@
       text-align: center;
       cursor: pointer;
       transition: all 0.2s;
+      position: relative;
     }
     .quick-start-card:hover {
       border-color: #667eea;
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .quick-start-card:hover .qs-link {
+      opacity: 1;
     }
     .quick-start-card .qs-icon {
       font-size: 28px;
@@ -3601,6 +3735,46 @@
     .quick-start-card .qs-desc {
       font-size: 11px;
       color: #888;
+    }
+    .quick-start-card .qs-link {
+      font-size: 10px;
+      color: #667eea;
+      margin-top: 8px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      font-weight: 600;
+    }
+    
+    /* Help Action Buttons */
+    .help-action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .help-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #495057;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .help-action-btn:hover {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-color: #667eea;
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    .help-action-btn span {
+      font-size: 16px;
     }
     
     /* Printable shortcuts */
@@ -38012,7 +38186,6 @@ function loadProjectObject(obj) {
     <div id="helpCenterSearch">
       <input type="text" id="helpSearchInput" placeholder="Search help topics, shortcuts, features..." autocomplete="off" />
     </div>
-    </div>
     
     <div id="helpCenterBody">
       <nav id="helpCenterNav">
@@ -38039,7 +38212,7 @@ function loadProjectObject(obj) {
         <div class="help-nav-item" data-section="changelog">
           <span class="nav-icon">📋</span>
           <span>What's New</span>
-          <span class="nav-badge">v57</span>
+          <span class="nav-badge">v60</span>
         </div>
       </nav>
       
@@ -38047,27 +38220,64 @@ function loadProjectObject(obj) {
         <!-- Getting Started Section -->
         <div class="help-section active" id="help-getting-started">
           <h3><span class="section-icon">🚀</span> Getting Started</h3>
-          <p>Welcome to NexiMap Studio! Here's a quick guide to get you up and running.</p>
+          <p>Welcome to NexiMap Studio! Click any card below to learn more in the full documentation.</p>
           
           <div class="quick-start-grid">
-            <div class="quick-start-card" data-action="create-node">
+            <div class="quick-start-card" data-guide-section="nodes" title="Click to learn more about nodes">
               <div class="qs-icon">📍</div>
               <div class="qs-title">Create Nodes</div>
               <div class="qs-desc">Double-click on canvas</div>
+              <div class="qs-link">Learn more →</div>
             </div>
-            <div class="quick-start-card" data-action="connect-nodes">
+            <div class="quick-start-card" data-guide-section="links" title="Click to learn more about links">
               <div class="qs-icon">🔗</div>
               <div class="qs-title">Connect Nodes</div>
               <div class="qs-desc">Drag from node to node</div>
+              <div class="qs-link">Learn more →</div>
             </div>
-            <div class="quick-start-card" data-action="select-items">
+            <div class="quick-start-card" data-guide-section="quick-start" title="Click to learn more about selection">
               <div class="qs-icon">🎯</div>
               <div class="qs-title">Select Items</div>
               <div class="qs-desc">Click or Alt+drag</div>
+              <div class="qs-link">Learn more →</div>
+            </div>
+            <div class="quick-start-card" data-guide-section="containers" title="Click to learn more about containers">
+              <div class="qs-icon">📦</div>
+              <div class="qs-title">Containers</div>
+              <div class="qs-desc">Group and organize</div>
+              <div class="qs-link">Learn more →</div>
+            </div>
+            <div class="quick-start-card" data-guide-section="tags" title="Click to learn more about tags">
+              <div class="qs-icon">🏷️</div>
+              <div class="qs-title">Tags & Labels</div>
+              <div class="qs-desc">Categorize elements</div>
+              <div class="qs-link">Learn more →</div>
+            </div>
+            <div class="quick-start-card" data-guide-section="route-finder" title="Click to learn more about route finding">
+              <div class="qs-icon">🛤️</div>
+              <div class="qs-title">Find Routes</div>
+              <div class="qs-desc">Optimal path calculation</div>
+              <div class="qs-link">Learn more →</div>
             </div>
           </div>
           
-          <h4 style="margin: 20px 0 12px; font-size: 15px; color: #333;">Basic Workflow</h4>
+          <h4 style="margin: 24px 0 12px; font-size: 15px; color: #333;">📖 Quick Actions</h4>
+          <div class="help-action-buttons">
+            <button class="help-action-btn" data-guide-section="canvas-view">
+              <span>🎨</span> Canvas View Guide
+            </button>
+            <button class="help-action-btn" data-guide-section="dynamic-map">
+              <span>🌍</span> Map View Guide
+            </button>
+            <button class="help-action-btn" data-guide-section="data-table">
+              <span>📊</span> Data Table Guide
+            </button>
+            <button class="help-action-btn" data-guide-section="cost-model">
+              <span>💰</span> Cost Model Guide
+            </button>
+          </div>
+          
+          <h4 style="margin: 24px 0 12px; font-size: 15px; color: #333;">Basic Workflow</h4>
           <ol style="padding-left: 20px; color: #555; line-height: 1.8;">
             <li><strong>Create nodes</strong> by double-clicking on the canvas or selecting a shape from the toolbar</li>
             <li><strong>Connect nodes</strong> by clicking and dragging from one node to another</li>
@@ -38269,56 +38479,68 @@ function loadProjectObject(obj) {
         <!-- Features Guide Section -->
         <div class="help-section" id="help-features">
           <h3><span class="section-icon">🎯</span> Features Guide</h3>
-          <p>Explore the powerful features of NexiMap Studio.</p>
+          <p>Explore the powerful features of NexiMap Studio. Click any card to open the detailed guide.</p>
           
           <div class="feature-grid">
-            <div class="feature-card">
+            <div class="feature-card" data-guide-section="nodes">
               <h4><span class="feature-icon">📍</span> Nodes</h4>
               <p>Create network nodes with customizable shapes, colors, sizes, and labels. Nodes support GPS coordinates for geo-mapping.</p>
+              <span class="feature-link">View full guide →</span>
             </div>
-            <div class="feature-card">
+            <div class="feature-card" data-guide-section="links">
               <h4><span class="feature-icon">🔗</span> Links</h4>
               <p>Connect nodes with links that can display labels, costs, capacity, and latency. Support for curved and straight lines.</p>
+              <span class="feature-link">View full guide →</span>
             </div>
-            <div class="feature-card">
+            <div class="feature-card" data-guide-section="containers">
               <h4><span class="feature-icon">📦</span> Containers</h4>
               <p>Group related nodes into containers. Containers can represent locations, regions, or logical groupings.</p>
+              <span class="feature-link">View full guide →</span>
             </div>
-            <div class="feature-card">
+            <div class="feature-card" data-guide-section="tags">
               <h4><span class="feature-icon">🏷️</span> Tags & Labels</h4>
               <p>Add tags to nodes, links, and containers for easy filtering and organization. Use the Label Manager for bulk operations.</p>
+              <span class="feature-link">View full guide →</span>
             </div>
-            <div class="feature-card">
-              <h4><span class="feature-icon">🗺️</span> Geo View</h4>
-              <p>Visualize your network on a geographic map using GPS coordinates. Switch between schematic and geographic views.</p>
+            <div class="feature-card" data-guide-section="static-geo">
+              <h4><span class="feature-icon">🗺️</span> Static Geo View</h4>
+              <p>Visualize your network on a static geographic map using GPS coordinates. Works offline with custom backgrounds.</p>
+              <span class="feature-link">View full guide →</span>
             </div>
-            <div class="feature-card">
-              <h4><span class="feature-icon">🗺️</span> Interactive Map</h4>
+            <div class="feature-card" data-guide-section="dynamic-map">
+              <h4><span class="feature-icon">🌍</span> Interactive Map</h4>
               <p>Use the dynamic MapLibre-powered map for zoomable, pannable geographic visualization with OpenStreetMap tiles.</p>
+              <span class="feature-link">View full guide →</span>
             </div>
-            <div class="feature-card">
+            <div class="feature-card" data-guide-section="data-table">
               <h4><span class="feature-icon">📊</span> Data Table</h4>
               <p>View and edit all your data in a spreadsheet-like interface. Sort, filter, and bulk edit nodes and links.</p>
+              <span class="feature-link">View full guide →</span>
             </div>
-            <div class="feature-card">
+            <div class="feature-card" data-guide-section="route-finder">
               <h4><span class="feature-icon">🛤️</span> Route Finder</h4>
               <p>Find optimal paths between nodes based on cost, latency, or other metrics. Highlight and compare routes.</p>
+              <span class="feature-link">View full guide →</span>
             </div>
-            <div class="feature-card">
+            <div class="feature-card" data-guide-section="cable-systems">
               <h4><span class="feature-icon">📐</span> Cable Systems</h4>
               <p>Define cable systems to group related links. Filter views by cable system and track system-wide metrics.</p>
+              <span class="feature-link">View full guide →</span>
             </div>
-            <div class="feature-card">
+            <div class="feature-card" data-guide-section="cost-model">
               <h4><span class="feature-icon">💰</span> Cost Analysis</h4>
               <p>Calculate costs based on distance, capacity tiers, and commercial models (Lease/IRU). Configure in Financial Settings.</p>
+              <span class="feature-link">View full guide →</span>
             </div>
-            <div class="feature-card">
+            <div class="feature-card" data-guide-section="library">
               <h4><span class="feature-icon">🎨</span> Style Library</h4>
               <p>Save and reuse node styles. Import custom SVG shapes. Format painter for quick style application.</p>
+              <span class="feature-link">View full guide →</span>
             </div>
-            <div class="feature-card">
+            <div class="feature-card" data-guide-section="import-export">
               <h4><span class="feature-icon">📤</span> Export Options</h4>
               <p>Export to SVG, PNG, JPG images or CSV data. Print directly or use Print Preview for fine-tuning.</p>
+              <span class="feature-link">View full guide →</span>
             </div>
           </div>
         </div>
@@ -38483,40 +38705,54 @@ function loadProjectObject(obj) {
           
           <div class="changelog-version">
             <div class="changelog-header">
-              <span class="changelog-badge latest">v57</span>
+              <span class="changelog-badge latest">v60</span>
               <span class="changelog-date">Latest Release</span>
             </div>
             <ul class="changelog-list">
-              <li><span class="change-type new">New</span> Help Center with tabbed interface and searchable content</li>
-              <li><span class="change-type new">New</span> Collapsible keyboard shortcuts organized by category</li>
-              <li><span class="change-type new">New</span> Getting Started guide for new users</li>
-              <li><span class="change-type new">New</span> Tips & Tricks section for power users</li>
-              <li><span class="change-type improved">Improved</span> F1 keyboard shortcut to open Help Center</li>
+              <li><span class="change-type new">New</span> Online User Guide - comprehensive documentation hosted on GitHub Pages</li>
+              <li><span class="change-type new">New</span> "Full Guide" button in Help Center links to online documentation</li>
+              <li><span class="change-type new">New</span> Bulk Price Reset from any capacity tier with configurable multipliers</li>
+              <li><span class="change-type new">New</span> IRU from MRC Multiplier setting for automated IRU fee calculation</li>
+              <li><span class="change-type improved">Improved</span> Selection Filter in Data Table - always visible and clickable</li>
+              <li><span class="change-type fixed">Fixed</span> Help Center layout and search functionality</li>
             </ul>
           </div>
           
           <div class="changelog-version">
             <div class="changelog-header">
-              <span class="changelog-badge">v56</span>
+              <span class="changelog-badge">v59</span>
               <span class="changelog-date">Previous Release</span>
             </div>
             <ul class="changelog-list">
-              <li><span class="change-type new">New</span> Enhanced Data Table with inline editing</li>
-              <li><span class="change-type new">New</span> Bulk edit operations for links and nodes</li>
-              <li><span class="change-type improved">Improved</span> Column visibility and sorting options</li>
-              <li><span class="change-type fixed">Fixed</span> Data table cell formatting issues</li>
+              <li><span class="change-type new">New</span> Physical Routing Diversity system for route protection</li>
+              <li><span class="change-type new">New</span> Build Your Own Protected Path (BYOPP) wizard</li>
+              <li><span class="change-type new">New</span> Save routes to existing Multilink Groups</li>
+              <li><span class="change-type improved">Improved</span> Route Finder with diversity enforcement options</li>
             </ul>
           </div>
           
           <div class="changelog-version">
             <div class="changelog-header">
-              <span class="changelog-badge">v55</span>
+              <span class="changelog-badge">v58</span>
               <span class="changelog-date">Previous Release</span>
             </div>
             <ul class="changelog-list">
+              <li><span class="change-type new">New</span> Capacity Tier Pricing with configurable multipliers</li>
+              <li><span class="change-type new">New</span> NPV calculations for IRU cost analysis</li>
+              <li><span class="change-type new">New</span> Financial Settings dialog with currency and discount rate</li>
+              <li><span class="change-type improved">Improved</span> Cost optimization in Route Finder (Latency/Cost/Balanced)</li>
+            </ul>
+          </div>
+          
+          <div class="changelog-version">
+            <div class="changelog-header">
+              <span class="changelog-badge">v57</span>
+              <span class="changelog-date">Previous Release</span>
+            </div>
+            <ul class="changelog-list">
+              <li><span class="change-type new">New</span> Help Center with searchable content</li>
+              <li><span class="change-type new">New</span> Data Table with inline editing and bulk operations</li>
               <li><span class="change-type new">New</span> MapLibre integration for dynamic geographic maps</li>
-              <li><span class="change-type new">New</span> Interactive map with OpenStreetMap tiles</li>
-              <li><span class="change-type improved">Improved</span> Geographic coordinate handling</li>
             </ul>
           </div>
         </div>
@@ -38645,14 +38881,57 @@ function loadProjectObject(obj) {
     });
   });
   
-  // Search functionality
+  // Search functionality - comprehensive searchable index
   const searchableContent = [
-    { section: 'getting-started', keywords: ['start', 'begin', 'new', 'create', 'node', 'connect', 'basic', 'workflow', 'canvas', 'pan', 'zoom', 'welcome'] },
-    { section: 'shortcuts', keywords: ['keyboard', 'shortcut', 'key', 'ctrl', 'alt', 'shift', 'copy', 'paste', 'undo', 'redo', 'delete', 'save', 'open', 'print', 'zoom', 'navigation'] },
-    { section: 'features', keywords: ['feature', 'node', 'link', 'container', 'tag', 'label', 'geo', 'map', 'route', 'path', 'cost', 'export', 'style', 'cable', 'system', 'data', 'table'] },
-    { section: 'tips', keywords: ['tip', 'trick', 'power', 'pro', 'fast', 'quick', 'productivity', 'format', 'painter', 'grid', 'snap', 'select', 'multi', 'tag', 'autosave', 'recovery', 'gps'] },
-    { section: 'faq', keywords: ['faq', 'question', 'how', 'connect', 'delete', 'import', 'export', 'excel', 'map', 'image', 'path', 'route', 'save'] },
-    { section: 'changelog', keywords: ['new', 'update', 'version', 'release', 'changelog', 'what', 'feature', 'improved', 'fixed'] }
+    // Nodes
+    { title: 'Creating Nodes', desc: 'Double-click on canvas to create nodes with customizable shapes, colors, and labels', section: 'nodes', keywords: ['node', 'create', 'double-click', 'shape', 'circle', 'square', 'point', 'location'], icon: '📍', category: 'Elements' },
+    { title: 'Node Properties', desc: 'Edit node name, code, tags, GPS coordinates, and appearance in the Inspector', section: 'nodes', keywords: ['node', 'property', 'inspector', 'name', 'code', 'gps', 'coordinate', 'latitude', 'longitude'], icon: '📍', category: 'Elements' },
+    
+    // Links
+    { title: 'Creating Links', desc: 'Click and drag from one node to another to create connections', section: 'links', keywords: ['link', 'connect', 'drag', 'connection', 'edge', 'line', 'cable'], icon: '🔗', category: 'Elements' },
+    { title: 'Link Properties', desc: 'Set latency, capacity, costs (NRC/MRC/IRU), and appearance for links', section: 'links', keywords: ['link', 'property', 'latency', 'capacity', 'cost', 'nrc', 'mrc', 'iru', 'price'], icon: '🔗', category: 'Elements' },
+    
+    // Containers
+    { title: 'Containers', desc: 'Group nodes together with containers for organization and transit costs', section: 'containers', keywords: ['container', 'group', 'box', 'region', 'area', 'transit'], icon: '📦', category: 'Elements' },
+    
+    // Tags
+    { title: 'Tags & Labels', desc: 'Add tags to elements for filtering and organization', section: 'tags', keywords: ['tag', 'label', 'filter', 'organize', 'category', 'group'], icon: '🏷️', category: 'Elements' },
+    
+    // Views
+    { title: 'Canvas View', desc: 'Schematic/diagrammatic view with free positioning and custom backgrounds', section: 'canvas-view', keywords: ['canvas', 'schematic', 'diagram', 'view', 'background', 'image'], icon: '🎨', category: 'Views' },
+    { title: 'Static Geo View', desc: 'Geographic view with GPS positioning on static map background', section: 'static-geo', keywords: ['geo', 'geographic', 'static', 'gps', 'map', 'position', 'coordinate'], icon: '🗺️', category: 'Views' },
+    { title: 'Dynamic Map', desc: 'Interactive OpenStreetMap with zoom, pan, and real-time navigation', section: 'dynamic-map', keywords: ['map', 'dynamic', 'interactive', 'openstreetmap', 'maplibre', 'zoom', 'pan'], icon: '🌍', category: 'Views' },
+    
+    // Data
+    { title: 'Data Table', desc: 'Spreadsheet view for bulk editing nodes, links, and costs', section: 'data-table', keywords: ['data', 'table', 'spreadsheet', 'bulk', 'edit', 'csv', 'export'], icon: '📊', category: 'Data' },
+    { title: 'Selection Filter', desc: 'Filter Data Table to show only selected items from canvas', section: 'data-table', keywords: ['selection', 'filter', 'selected', 'table'], icon: '📊', category: 'Data' },
+    { title: 'Heat Map', desc: 'Visualize capacity or price with color-coded links', section: 'heat-map', keywords: ['heat', 'heatmap', 'capacity', 'price', 'color', 'visualize'], icon: '🌡️', category: 'Data' },
+    
+    // Cable Systems & MLG
+    { title: 'Cable Systems', desc: 'Group links by physical infrastructure for diversity checking', section: 'cable-systems', keywords: ['cable', 'system', 'infrastructure', 'submarine', 'fiber', 'physical'], icon: '📐', category: 'Network' },
+    { title: 'Multilink Groups', desc: 'Create protected paths with working and protection routes', section: 'multilink', keywords: ['multilink', 'mlg', 'group', 'protected', 'path', 'working', 'protection'], icon: '🔀', category: 'Network' },
+    
+    // Routing
+    { title: 'Route Finder', desc: 'Find optimal paths by latency, cost, or balanced optimization', section: 'route-finder', keywords: ['route', 'path', 'find', 'optimal', 'latency', 'cost', 'dijkstra'], icon: '🛤️', category: 'Routing' },
+    { title: 'Path Diversity', desc: 'Ensure routes dont share physical infrastructure for resilience', section: 'diversity', keywords: ['diversity', 'diverse', 'separate', 'resilience', 'protection', 'redundant'], icon: '🛡️', category: 'Routing' },
+    
+    // Costs
+    { title: 'Cost Model', desc: 'Lease (NRC/MRC/ACV) and IRU pricing with NPV calculations', section: 'cost-model', keywords: ['cost', 'price', 'lease', 'nrc', 'mrc', 'acv', 'iru', 'npv', 'commercial'], icon: '💰', category: 'Commercial' },
+    { title: 'Financial Settings', desc: 'Configure currency, discount rate, and tier multipliers', section: 'financial-settings', keywords: ['financial', 'setting', 'currency', 'discount', 'rate', 'multiplier', 'tier'], icon: '⚙️', category: 'Commercial' },
+    { title: 'Bulk Price Reset', desc: 'Calculate all tier prices from a single source tier', section: 'price-reset', keywords: ['bulk', 'price', 'reset', 'tier', 'multiplier', 'calculate'], icon: '🔄', category: 'Commercial' },
+    
+    // Library
+    { title: 'Style Library', desc: 'Save and reuse node styles, import custom SVG icons', section: 'library', keywords: ['library', 'style', 'save', 'reuse', 'svg', 'icon', 'custom', 'format'], icon: '📚', category: 'Styling' },
+    
+    // Import/Export
+    { title: 'Import & Export', desc: 'Save projects, export images (PNG/SVG/JPG), and CSV data', section: 'import-export', keywords: ['import', 'export', 'save', 'png', 'svg', 'jpg', 'csv', 'print'], icon: '📤', category: 'Files' },
+    
+    // Shortcuts
+    { title: 'Keyboard Shortcuts', desc: 'Master shortcuts for faster workflow', section: 'shortcuts', keywords: ['keyboard', 'shortcut', 'key', 'ctrl', 'hotkey', 'accelerator'], icon: '⌨️', category: 'Reference' },
+    
+    // Interface
+    { title: 'Toolbar Buttons', desc: 'Overview of all toolbar buttons and panel toggles', section: 'toolbar', keywords: ['toolbar', 'button', 'panel', 'toggle', 'interface'], icon: '🔧', category: 'Interface' },
+    { title: 'Inspector Panel', desc: 'Edit properties of selected elements', section: 'interface', keywords: ['inspector', 'panel', 'property', 'edit', 'right'], icon: '📝', category: 'Interface' }
   ];
   
   helpSearchInput.addEventListener('input', () => {
@@ -38669,36 +38948,76 @@ function loadProjectObject(obj) {
       return;
     }
     
-    // Find matching sections
+    // Find matching items
     const matches = searchableContent.filter(item => 
-      item.keywords.some(keyword => keyword.includes(query) || query.includes(keyword))
+      item.keywords.some(keyword => keyword.includes(query) || query.includes(keyword)) ||
+      item.title.toLowerCase().includes(query) ||
+      item.desc.toLowerCase().includes(query)
     );
     
+    // Always show search results section
+    const resultsSection = document.getElementById('help-search-results');
+    const resultsContent = document.getElementById('searchResultsContent');
+    
     if (matches.length > 0) {
-      // Show first matching section
-      showSection(matches[0].section);
-      // Highlight nav item
-      helpNavItems.forEach(item => {
-        item.classList.toggle('active', item.dataset.section === matches[0].section);
+      // Group by category
+      const grouped = {};
+      matches.forEach(match => {
+        if (!grouped[match.category]) grouped[match.category] = [];
+        grouped[match.category].push(match);
       });
+      
+      let html = `
+        <div class="search-results-header">
+          <span class="results-count">${matches.length} result${matches.length > 1 ? 's' : ''}</span> for "<strong>${query}</strong>"
+        </div>
+        <div class="search-results-list">
+      `;
+      
+      for (const [category, items] of Object.entries(grouped)) {
+        html += `<div class="search-category">${category}</div>`;
+        items.forEach(item => {
+          html += `
+            <div class="search-result-item" data-section="${item.section}" onclick="window.open('${ONLINE_DOCS_URL}#${item.section}', '_blank')">
+              <div class="result-icon">${item.icon}</div>
+              <div class="result-content">
+                <div class="result-title">${item.title}</div>
+                <div class="result-desc">${item.desc}</div>
+              </div>
+              <div class="result-arrow">→</div>
+            </div>
+          `;
+        });
+      }
+      
+      html += `
+        </div>
+        <div class="search-results-footer">
+          <button onclick="window.open('${ONLINE_DOCS_URL}', '_blank')" class="search-full-guide-btn">
+            🌐 Browse Full Documentation
+          </button>
+        </div>
+      `;
+      
+      resultsContent.innerHTML = html;
     } else {
-      // Show no results with link to online docs
-      const resultsSection = document.getElementById('help-search-results');
-      const resultsContent = document.getElementById('searchResultsContent');
+      // No results found
       resultsContent.innerHTML = `
         <div class="help-no-results">
           <div class="no-results-icon">🔍</div>
           <p>No results found for "<strong>${query}</strong>"</p>
-          <p style="color:#aaa; font-size:12px; margin-top:8px;">Try different keywords or browse the sections on the left.</p>
-          <button onclick="window.open('${ONLINE_DOCS_URL}#' + encodeURIComponent('${query}'), '_blank')" style="margin-top:16px; padding:10px 20px; background:linear-gradient(135deg, #6366f1, #8b5cf6); color:white; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600; display:inline-flex; align-items:center; gap:8px;">
+          <p style="color:#888; font-size:12px; margin-top:8px;">Try different keywords or search the full documentation.</p>
+          <button onclick="window.open('${ONLINE_DOCS_URL}', '_blank')" class="search-full-guide-btn" style="margin-top:16px;">
             🌐 Search Online Documentation
           </button>
         </div>
       `;
-      helpSections.forEach(section => section.classList.remove('active'));
-      resultsSection.classList.add('active');
-      helpNavItems.forEach(item => item.classList.remove('active'));
     }
+    
+    // Show search results section
+    helpSections.forEach(section => section.classList.remove('active'));
+    resultsSection.classList.add('active');
+    helpNavItems.forEach(item => item.classList.remove('active'));
   });
   
   // Menu item handlers
@@ -38845,12 +39164,33 @@ function loadProjectObject(obj) {
     });
   }
   
-  // Quick start card actions
-  document.querySelectorAll('.quick-start-card').forEach(card => {
+  // Quick start card actions - open online documentation
+  document.querySelectorAll('.quick-start-card[data-guide-section]').forEach(card => {
     card.addEventListener('click', () => {
-      const action = card.dataset.action;
-      closeHelpCenter();
-      // Could add specific actions here like showing tooltips
+      const section = card.dataset.guideSection;
+      if (section) {
+        window.open(ONLINE_DOCS_URL + '#' + section, '_blank');
+      }
+    });
+  });
+  
+  // Help action buttons - open online documentation
+  document.querySelectorAll('.help-action-btn[data-guide-section]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const section = btn.dataset.guideSection;
+      if (section) {
+        window.open(ONLINE_DOCS_URL + '#' + section, '_blank');
+      }
+    });
+  });
+  
+  // Feature cards - open online documentation
+  document.querySelectorAll('.feature-card[data-guide-section]').forEach(card => {
+    card.addEventListener('click', () => {
+      const section = card.dataset.guideSection;
+      if (section) {
+        window.open(ONLINE_DOCS_URL + '#' + section, '_blank');
+      }
     });
   });
   
