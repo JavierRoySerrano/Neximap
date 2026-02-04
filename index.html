@@ -19694,6 +19694,8 @@ function loadProjectObject(obj) {
           rfs: meta.rfs || '',
           rfsYear: meta.rfs ? parseInt(meta.rfs) : null,
           owners: meta.owners || [],
+          ownersText: meta.owners ? meta.owners.join(', ') : 'TeleGeography',
+          description: props.name + ' submarine cable',
           length_km: meta.length ? parseFloat(meta.length.replace(/,/g, '').replace(' km', '')) : null,
           url: meta.url || null,
           geometry: feature.geometry,
@@ -20324,7 +20326,7 @@ function loadProjectObject(obj) {
     // Reset
     csBulkImportSelection.clear();
     csBulkImportCables = {};
-    updateCsBulkSelectedCount();
+    updateCsBulkImportCount();
     
     // Show loading
     const srcName = csBulkUseAPI ? 'TeleGeography API' : 'local database';
