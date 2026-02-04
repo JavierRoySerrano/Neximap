@@ -145,7 +145,27 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Lynn, Massachusetts \u2192 Le Porge",
+          "description": "Segment 1: Lynn, Massachusetts to Le Porge (~7984 km, 11 waypoints)",
+          "startPoint": "Lynn, Massachusetts",
+          "endPoint": "Le Porge",
+          "approxLength_km": 7984,
+          "waypointCount": 11
+        },
+        {
+          "index": 1,
+          "name": "Point (-10.8, 49.4) \u2192 Bude",
+          "description": "Segment 2: Point (-10.8, 49.4) to Bude (~728 km, 4 waypoints)",
+          "startPoint": "Point (-10.8, 49.4)",
+          "endPoint": "Bude",
+          "approxLength_km": 728,
+          "waypointCount": 4
+        }
+      ]
     },
     "marea": {
       "id": "marea",
@@ -363,7 +383,27 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Wall Township, New Jersey \u2192 Blaabjerg",
+          "description": "Segment 1: Wall Township, New Jersey to Blaabjerg (~9366 km, 7 waypoints)",
+          "startPoint": "Wall Township, New Jersey",
+          "endPoint": "Blaabjerg",
+          "approxLength_km": 9366,
+          "waypointCount": 7
+        },
+        {
+          "index": 1,
+          "name": "Point (0.0, 56.0) \u2192 Kristiansand",
+          "description": "Segment 2: Point (0.0, 56.0) to Kristiansand (~920 km, 3 waypoints)",
+          "startPoint": "Point (0.0, 56.0)",
+          "endPoint": "Kristiansand",
+          "approxLength_km": 920,
+          "waypointCount": 3
+        }
+      ]
     },
     "aec-1": {
       "id": "aec-1",
@@ -616,7 +656,27 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Marseille \u2192 Mumbai",
+          "description": "Segment 1: Marseille to Mumbai (~9376 km, 11 waypoints)",
+          "startPoint": "Marseille",
+          "endPoint": "Mumbai",
+          "approxLength_km": 9376,
+          "waypointCount": 11
+        },
+        {
+          "index": 1,
+          "name": "Point (40.0, 15.0) \u2192 Mtunzini",
+          "description": "Segment 2: Point (40.0, 15.0) to Mtunzini (~5102 km, 7 waypoints)",
+          "startPoint": "Point (40.0, 15.0)",
+          "endPoint": "Mtunzini",
+          "approxLength_km": 5102,
+          "waypointCount": 7
+        }
+      ]
     },
     "seamewe-4": {
       "id": "seamewe-4",
@@ -806,7 +866,27 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Marseille \u2192 Karachi",
+          "description": "Segment 1: Marseille to Karachi (~8482 km, 9 waypoints)",
+          "startPoint": "Marseille",
+          "endPoint": "Karachi",
+          "approxLength_km": 8482,
+          "waypointCount": 9
+        },
+        {
+          "index": 1,
+          "name": "Karachi \u2192 Singapore",
+          "description": "Segment 2: Karachi to Singapore (~5018 km, 5 waypoints)",
+          "startPoint": "Karachi",
+          "endPoint": "Singapore",
+          "approxLength_km": 5018,
+          "waypointCount": 5
+        }
+      ]
     },
     "seamewe-5": {
       "id": "seamewe-5",
@@ -1014,7 +1094,36 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Singapore \u2192 Marseille",
+          "description": "Segment 1: Singapore to Marseille (~15060 km, 15 waypoints)",
+          "startPoint": "Singapore",
+          "endPoint": "Marseille",
+          "approxLength_km": 15060,
+          "waypointCount": 15
+        },
+        {
+          "index": 1,
+          "name": "Point (75.0, 5.0) \u2192 Point (72.9, 19.1)",
+          "description": "Segment 2: Point (75.0, 5.0) to Point (72.9, 19.1) (~2086 km, 3 waypoints)",
+          "startPoint": "Point (75.0, 5.0)",
+          "endPoint": "Point (72.9, 19.1)",
+          "approxLength_km": 2086,
+          "waypointCount": 3
+        },
+        {
+          "index": 2,
+          "name": "Point (55.0, 25.0) \u2192 Point (58.4, 23.6)",
+          "description": "Segment 3: Point (55.0, 25.0) to Point (58.4, 23.6) (~410 km, 3 waypoints)",
+          "startPoint": "Point (55.0, 25.0)",
+          "endPoint": "Point (58.4, 23.6)",
+          "approxLength_km": 410,
+          "waypointCount": 3
+        }
+      ]
     },
     "imewe": {
       "id": "imewe",
@@ -1117,7 +1226,27 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Mumbai \u2192 Catania",
+          "description": "Segment 1: Mumbai to Catania (~8730 km, 11 waypoints)",
+          "startPoint": "Mumbai",
+          "endPoint": "Catania",
+          "approxLength_km": 8730,
+          "waypointCount": 11
+        },
+        {
+          "index": 1,
+          "name": "Catania \u2192 Marseille",
+          "description": "Segment 2: Catania to Marseille (~1260 km, 3 waypoints)",
+          "startPoint": "Catania",
+          "endPoint": "Marseille",
+          "approxLength_km": 1260,
+          "waypointCount": 3
+        }
+      ]
     },
     "aae-1": {
       "id": "aae-1",
@@ -1305,7 +1434,27 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Genoa \u2192 Muscat",
+          "description": "Segment 1: Genoa to Muscat (~7660 km, 11 waypoints)",
+          "startPoint": "Genoa",
+          "endPoint": "Muscat",
+          "approxLength_km": 7660,
+          "waypointCount": 11
+        },
+        {
+          "index": 1,
+          "name": "Point (35.0, 28.0) \u2192 Point (35.7, 27.4)",
+          "description": "Segment 2: Point (35.0, 28.0) to Point (35.7, 27.4) (~134 km, 3 waypoints)",
+          "startPoint": "Point (35.0, 28.0)",
+          "endPoint": "Point (35.7, 27.4)",
+          "approxLength_km": 134,
+          "waypointCount": 3
+        }
+      ]
     },
     "raman": {
       "id": "raman",
@@ -1539,7 +1688,36 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Mumbai \u2192 Point (43.1, 11.6)",
+          "description": "Segment 1: Mumbai to Point (43.1, 11.6) (~3577 km, 9 waypoints)",
+          "startPoint": "Mumbai",
+          "endPoint": "Point (43.1, 11.6)",
+          "approxLength_km": 3577,
+          "waypointCount": 9
+        },
+        {
+          "index": 1,
+          "name": "Point (55.0, 15.0) \u2192 Muscat",
+          "description": "Segment 2: Point (55.0, 15.0) to Muscat (~2719 km, 10 waypoints)",
+          "startPoint": "Point (55.0, 15.0)",
+          "endPoint": "Muscat",
+          "approxLength_km": 2719,
+          "waypointCount": 10
+        },
+        {
+          "index": 2,
+          "name": "Aqaba \u2192 Mumbai",
+          "description": "Segment 3: Aqaba to Mumbai (~5562 km, 27 waypoints)",
+          "startPoint": "Aqaba",
+          "endPoint": "Mumbai",
+          "approxLength_km": 5562,
+          "waypointCount": 27
+        }
+      ]
     },
     "iex": {
       "id": "iex",
@@ -1689,7 +1867,27 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Mumbai \u2192 Singapore",
+          "description": "Segment 1: Mumbai to Singapore (~4691 km, 6 waypoints)",
+          "startPoint": "Mumbai",
+          "endPoint": "Singapore",
+          "approxLength_km": 4691,
+          "waypointCount": 6
+        },
+        {
+          "index": 1,
+          "name": "Point (95.0, 5.0) \u2192 Sattahip",
+          "description": "Segment 2: Point (95.0, 5.0) to Sattahip (~1073 km, 2 waypoints)",
+          "startPoint": "Point (95.0, 5.0)",
+          "endPoint": "Sattahip",
+          "approxLength_km": 1073,
+          "waypointCount": 2
+        }
+      ]
     },
     "mist": {
       "id": "mist",
@@ -1839,7 +2037,36 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Mumbai \u2192 Chennai",
+          "description": "Segment 1: Mumbai to Chennai (~1130 km, 3 waypoints)",
+          "startPoint": "Mumbai",
+          "endPoint": "Chennai",
+          "approxLength_km": 1130,
+          "waypointCount": 3
+        },
+        {
+          "index": 1,
+          "name": "Chennai \u2192 Singapore",
+          "description": "Segment 2: Chennai to Singapore (~2935 km, 4 waypoints)",
+          "startPoint": "Chennai",
+          "endPoint": "Singapore",
+          "approxLength_km": 2935,
+          "waypointCount": 4
+        },
+        {
+          "index": 2,
+          "name": "Mumbai \u2192 Point (58.0, 23.5)",
+          "description": "Segment 3: Mumbai to Point (58.0, 23.5) (~1749 km, 3 waypoints)",
+          "startPoint": "Mumbai",
+          "endPoint": "Point (58.0, 23.5)",
+          "approxLength_km": 1749,
+          "waypointCount": 3
+        }
+      ]
     },
     "falcon": {
       "id": "falcon",
@@ -2435,7 +2662,27 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Singapore \u2192 Point (180.0, 27.0)",
+          "description": "Segment 1: Singapore to Point (180.0, 27.0) (~9141 km, 6 waypoints)",
+          "startPoint": "Singapore",
+          "endPoint": "Point (180.0, 27.0)",
+          "approxLength_km": 9141,
+          "waypointCount": 6
+        },
+        {
+          "index": 1,
+          "name": "Point (-180.0, 27.0) \u2192 USA",
+          "description": "Segment 2: Point (-180.0, 27.0) to USA (~6389 km, 4 waypoints)",
+          "startPoint": "Point (-180.0, 27.0)",
+          "endPoint": "USA",
+          "approxLength_km": 6389,
+          "waypointCount": 4
+        }
+      ]
     },
     "bifrost": {
       "id": "bifrost",
@@ -2532,7 +2779,27 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Singapore \u2192 Point (180.0, 27.1)",
+          "description": "Segment 1: Singapore to Point (180.0, 27.1) (~9622 km, 8 waypoints)",
+          "startPoint": "Singapore",
+          "endPoint": "Point (180.0, 27.1)",
+          "approxLength_km": 9622,
+          "waypointCount": 8
+        },
+        {
+          "index": 1,
+          "name": "Point (-180.0, 27.1) \u2192 USA",
+          "description": "Segment 2: Point (-180.0, 27.1) to USA (~6551 km, 6 waypoints)",
+          "startPoint": "Point (-180.0, 27.1)",
+          "endPoint": "USA",
+          "approxLength_km": 6551,
+          "waypointCount": 6
+        }
+      ]
     },
     "juno": {
       "id": "juno",
@@ -2618,7 +2885,27 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Japan \u2192 Point (180.0, 42.7)",
+          "description": "Segment 1: Japan to Point (180.0, 42.7) (~4936 km, 6 waypoints)",
+          "startPoint": "Japan",
+          "endPoint": "Point (180.0, 42.7)",
+          "approxLength_km": 4936,
+          "waypointCount": 6
+        },
+        {
+          "index": 1,
+          "name": "Point (-180.0, 42.7) \u2192 USA",
+          "description": "Segment 2: Point (-180.0, 42.7) to USA (~6481 km, 5 waypoints)",
+          "startPoint": "Point (-180.0, 42.7)",
+          "endPoint": "USA",
+          "approxLength_km": 6481,
+          "waypointCount": 5
+        }
+      ]
     },
     "jupiter": {
       "id": "jupiter",
@@ -2719,7 +3006,36 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Japan \u2192 Philippines",
+          "description": "Segment 1: Japan to Philippines (~4843 km, 5 waypoints)",
+          "startPoint": "Japan",
+          "endPoint": "Philippines",
+          "approxLength_km": 4843,
+          "waypointCount": 5
+        },
+        {
+          "index": 1,
+          "name": "Point (145.0, 20.0) \u2192 Point (180.0, 30.0)",
+          "description": "Segment 2: Point (145.0, 20.0) to Point (180.0, 30.0) (~4043 km, 3 waypoints)",
+          "startPoint": "Point (145.0, 20.0)",
+          "endPoint": "Point (180.0, 30.0)",
+          "approxLength_km": 4043,
+          "waypointCount": 3
+        },
+        {
+          "index": 2,
+          "name": "Point (-180.0, 30.0) \u2192 USA",
+          "description": "Segment 3: Point (-180.0, 30.0) to USA (~6932 km, 4 waypoints)",
+          "startPoint": "Point (-180.0, 30.0)",
+          "endPoint": "USA",
+          "approxLength_km": 6932,
+          "waypointCount": 4
+        }
+      ]
     },
     "faster": {
       "id": "faster",
@@ -2790,7 +3106,27 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Shima and Chikura \u2192 Point (180.0, 42.0)",
+          "description": "Segment 1: Shima and Chikura to Point (180.0, 42.0) (~4867 km, 4 waypoints)",
+          "startPoint": "Shima and Chikura",
+          "endPoint": "Point (180.0, 42.0)",
+          "approxLength_km": 4867,
+          "waypointCount": 4
+        },
+        {
+          "index": 1,
+          "name": "Point (-180.0, 42.0) \u2192 Oregon",
+          "description": "Segment 2: Point (-180.0, 42.0) to Oregon (~6220 km, 4 waypoints)",
+          "startPoint": "Point (-180.0, 42.0)",
+          "endPoint": "Oregon",
+          "approxLength_km": 6220,
+          "waypointCount": 4
+        }
+      ]
     },
     "tgn-pacific": {
       "id": "tgn-pacific",
@@ -2861,7 +3197,27 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Japan \u2192 Point (180.0, 43.0)",
+          "description": "Segment 1: Japan to Point (180.0, 43.0) (~4538 km, 4 waypoints)",
+          "startPoint": "Japan",
+          "endPoint": "Point (180.0, 43.0)",
+          "approxLength_km": 4538,
+          "waypointCount": 4
+        },
+        {
+          "index": 1,
+          "name": "Point (-180.0, 43.0) \u2192 USA",
+          "description": "Segment 2: Point (-180.0, 43.0) to USA (~6479 km, 4 waypoints)",
+          "startPoint": "Point (-180.0, 43.0)",
+          "endPoint": "USA",
+          "approxLength_km": 6479,
+          "waypointCount": 4
+        }
+      ]
     },
     "e2a": {
       "id": "e2a",
@@ -2994,7 +3350,45 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Taiwan \u2192 Point (180.0, 41.9)",
+          "description": "Segment 1: Taiwan to Point (180.0, 41.9) (~6812 km, 8 waypoints)",
+          "startPoint": "Taiwan",
+          "endPoint": "Point (180.0, 41.9)",
+          "approxLength_km": 6812,
+          "waypointCount": 8
+        },
+        {
+          "index": 1,
+          "name": "Point (129.0, 35.2) \u2192 Point (129.4, 28.4)",
+          "description": "Segment 2: Point (129.0, 35.2) to Point (129.4, 28.4) (~882 km, 3 waypoints)",
+          "startPoint": "Point (129.0, 35.2)",
+          "endPoint": "Point (129.4, 28.4)",
+          "approxLength_km": 882,
+          "waypointCount": 3
+        },
+        {
+          "index": 2,
+          "name": "Point (-180.0, 41.9) \u2192 USA",
+          "description": "Segment 3: Point (-180.0, 41.9) to USA (~6674 km, 5 waypoints)",
+          "startPoint": "Point (-180.0, 41.9)",
+          "endPoint": "USA",
+          "approxLength_km": 6674,
+          "waypointCount": 5
+        },
+        {
+          "index": 3,
+          "name": "Japan \u2192 Japan",
+          "description": "Segment 4: Japan to Japan (~429 km, 4 waypoints)",
+          "startPoint": "Japan",
+          "endPoint": "Japan",
+          "approxLength_km": 429,
+          "waypointCount": 4
+        }
+      ]
     },
     "unity": {
       "id": "unity",
@@ -3067,7 +3461,27 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Chikura \u2192 Point (180.0, 41.0)",
+          "description": "Segment 1: Chikura to Point (180.0, 41.0) (~4492 km, 4 waypoints)",
+          "startPoint": "Chikura",
+          "endPoint": "Point (180.0, 41.0)",
+          "approxLength_km": 4492,
+          "waypointCount": 4
+        },
+        {
+          "index": 1,
+          "name": "Point (-180.0, 41.0) \u2192 Los Angeles",
+          "description": "Segment 2: Point (-180.0, 41.0) to Los Angeles (~6932 km, 4 waypoints)",
+          "startPoint": "Point (-180.0, 41.0)",
+          "endPoint": "Los Angeles",
+          "approxLength_km": 6932,
+          "waypointCount": 4
+        }
+      ]
     },
     "ace": {
       "id": "ace",
@@ -3174,7 +3588,27 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Penmarch \u2192 Point (10.0, 0.0)",
+          "description": "Segment 1: Penmarch to Point (10.0, 0.0) (~7759 km, 11 waypoints)",
+          "startPoint": "Penmarch",
+          "endPoint": "Point (10.0, 0.0)",
+          "approxLength_km": 7759,
+          "waypointCount": 11
+        },
+        {
+          "index": 1,
+          "name": "Various African locations \u2192 Fortaleza",
+          "description": "Segment 2: Various African locations to Fortaleza (~3163 km, 4 waypoints)",
+          "startPoint": "Various African locations",
+          "endPoint": "Fortaleza",
+          "approxLength_km": 3163,
+          "waypointCount": 4
+        }
+      ]
     },
     "main-one": {
       "id": "main-one",
@@ -3544,7 +3978,36 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Point (-9.0, 38.7) \u2192 Point (72.0, 19.0)",
+          "description": "Segment 1: Point (-9.0, 38.7) to Point (72.0, 19.0) (~21056 km, 17 waypoints)",
+          "startPoint": "Point (-9.0, 38.7)",
+          "endPoint": "Point (72.0, 19.0)",
+          "approxLength_km": 21056,
+          "waypointCount": 17
+        },
+        {
+          "index": 1,
+          "name": "Point (45.0, 12.0) \u2192 Point (5.0, 43.0)",
+          "description": "Segment 2: Point (45.0, 12.0) to Point (5.0, 43.0) (~5828 km, 6 waypoints)",
+          "startPoint": "Point (45.0, 12.0)",
+          "endPoint": "Point (5.0, 43.0)",
+          "approxLength_km": 5828,
+          "waypointCount": 6
+        },
+        {
+          "index": 2,
+          "name": "Point (5.0, 43.0) \u2192 Point (-3.0, 43.5)",
+          "description": "Segment 3: Point (5.0, 43.0) to Point (-3.0, 43.5) (~934 km, 3 waypoints)",
+          "startPoint": "Point (5.0, 43.0)",
+          "endPoint": "Point (-3.0, 43.5)",
+          "approxLength_km": 934,
+          "waypointCount": 3
+        }
+      ]
     },
     "indigo-west": {
       "id": "indigo-west",
@@ -3802,7 +4265,36 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Sydney \u2192 Auckland",
+          "description": "Segment 1: Sydney to Auckland (~2634 km, 3 waypoints)",
+          "startPoint": "Sydney",
+          "endPoint": "Auckland",
+          "approxLength_km": 2634,
+          "waypointCount": 3
+        },
+        {
+          "index": 1,
+          "name": "Auckland \u2192 Point (180.0, -30.0)",
+          "description": "Segment 2: Auckland to Point (180.0, -30.0) (~957 km, 2 waypoints)",
+          "startPoint": "Auckland",
+          "endPoint": "Point (180.0, -30.0)",
+          "approxLength_km": 957,
+          "waypointCount": 2
+        },
+        {
+          "index": 2,
+          "name": "Point (-180.0, -30.0) \u2192 Los Angeles",
+          "description": "Segment 3: Point (-180.0, -30.0) to Los Angeles (~10520 km, 5 waypoints)",
+          "startPoint": "Point (-180.0, -30.0)",
+          "endPoint": "Los Angeles",
+          "approxLength_km": 10520,
+          "waypointCount": 5
+        }
+      ]
     },
     "sccn": {
       "id": "sccn",
@@ -3903,7 +4395,36 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Sydney \u2192 Auckland",
+          "description": "Segment 1: Sydney to Auckland (~2638 km, 3 waypoints)",
+          "startPoint": "Sydney",
+          "endPoint": "Auckland",
+          "approxLength_km": 2638,
+          "waypointCount": 3
+        },
+        {
+          "index": 1,
+          "name": "Auckland \u2192 Point (180.0, -10.0)",
+          "description": "Segment 2: Auckland to Point (180.0, -10.0) (~3038 km, 3 waypoints)",
+          "startPoint": "Auckland",
+          "endPoint": "Point (180.0, -10.0)",
+          "approxLength_km": 3038,
+          "waypointCount": 3
+        },
+        {
+          "index": 2,
+          "name": "Point (-180.0, -10.0) \u2192 USA",
+          "description": "Segment 3: Point (-180.0, -10.0) to USA (~8460 km, 5 waypoints)",
+          "startPoint": "Point (-180.0, -10.0)",
+          "endPoint": "USA",
+          "approxLength_km": 8460,
+          "waypointCount": 5
+        }
+      ]
     },
     "globe": {
       "id": "globe",
@@ -4503,7 +5024,54 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Myrtle Beach \u2192 Point (72.9, 19.1)",
+          "description": "Segment 1: Myrtle Beach to Point (72.9, 19.1) (~24414 km, 83 waypoints)",
+          "startPoint": "Myrtle Beach",
+          "endPoint": "Point (72.9, 19.1)",
+          "approxLength_km": 24414,
+          "waypointCount": 83
+        },
+        {
+          "index": 1,
+          "name": "Point (80.2, 13.1) \u2192 Point (180.0, 3.1)",
+          "description": "Segment 2: Point (80.2, 13.1) to Point (180.0, 3.1) (~13583 km, 21 waypoints)",
+          "startPoint": "Point (80.2, 13.1)",
+          "endPoint": "Point (180.0, 3.1)",
+          "approxLength_km": 13583,
+          "waypointCount": 21
+        },
+        {
+          "index": 2,
+          "name": "Point (-180.0, 3.1) \u2192 Point (-118.2, 34.0)",
+          "description": "Segment 3: Point (-180.0, 3.1) to Point (-118.2, 34.0) (~8074 km, 9 waypoints)",
+          "startPoint": "Point (-180.0, 3.1)",
+          "endPoint": "Point (-118.2, 34.0)",
+          "approxLength_km": 8074,
+          "waypointCount": 9
+        },
+        {
+          "index": 3,
+          "name": "Point (76.9, 0.8) \u2192 Point (87.3, -0.9)",
+          "description": "Segment 4: Point (76.9, 0.8) to Point (87.3, -0.9) (~1285 km, 4 waypoints)",
+          "startPoint": "Point (76.9, 0.8)",
+          "endPoint": "Point (87.3, -0.9)",
+          "approxLength_km": 1285,
+          "waypointCount": 4
+        },
+        {
+          "index": 4,
+          "name": "Point (87.7, -1.8) \u2192 Point (100.1, 6.6)",
+          "description": "Segment 5: Point (87.7, -1.8) to Point (100.1, 6.6) (~1788 km, 7 waypoints)",
+          "startPoint": "Point (87.7, -1.8)",
+          "endPoint": "Point (100.1, 6.6)",
+          "approxLength_km": 1788,
+          "waypointCount": 7
+        }
+      ]
     },
     "amx-1": {
       "id": "amx-1",
@@ -4590,7 +5158,27 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Multiple Americas locations \u2192 Point (-100.0, 20.0)",
+          "description": "Segment 1: Multiple Americas locations to Point (-100.0, 20.0) (~2814 km, 7 waypoints)",
+          "startPoint": "Multiple Americas locations",
+          "endPoint": "Point (-100.0, 20.0)",
+          "approxLength_km": 2814,
+          "waypointCount": 7
+        },
+        {
+          "index": 1,
+          "name": "Point (-85.0, 20.0) \u2192 Point (-50.0, -20.0)",
+          "description": "Segment 2: Point (-85.0, 20.0) to Point (-50.0, -20.0) (~6056 km, 7 waypoints)",
+          "startPoint": "Point (-85.0, 20.0)",
+          "endPoint": "Point (-50.0, -20.0)",
+          "approxLength_km": 6056,
+          "waypointCount": 7
+        }
+      ]
     },
     "brusa": {
       "id": "brusa",
@@ -4665,7 +5253,27 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Virginia Beach \u2192 San Juan",
+          "description": "Segment 1: Virginia Beach to San Juan (~2360 km, 3 waypoints)",
+          "startPoint": "Virginia Beach",
+          "endPoint": "San Juan",
+          "approxLength_km": 2360,
+          "waypointCount": 3
+        },
+        {
+          "index": 1,
+          "name": "San Juan \u2192 Rio de Janeiro",
+          "description": "Segment 2: San Juan to Rio de Janeiro (~5386 km, 4 waypoints)",
+          "startPoint": "San Juan",
+          "endPoint": "Rio de Janeiro",
+          "approxLength_km": 5386,
+          "waypointCount": 4
+        }
+      ]
     },
     "ellalink": {
       "id": "ellalink",
@@ -5090,7 +5698,144 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Point (-9.3, 38.7) \u2192 Point (32.3, 31.3)",
+          "description": "Segment 1: Point (-9.3, 38.7) to Point (32.3, 31.3) (~5215 km, 30 waypoints)",
+          "startPoint": "Point (-9.3, 38.7)",
+          "endPoint": "Point (32.3, 31.3)",
+          "approxLength_km": 5215,
+          "waypointCount": 30
+        },
+        {
+          "index": 1,
+          "name": "Point (-4.5, 35.8) \u2192 Point (-5.4, 35.6)",
+          "description": "Segment 2: Point (-4.5, 35.8) to Point (-5.4, 35.6) (~106 km, 3 waypoints)",
+          "startPoint": "Point (-4.5, 35.8)",
+          "endPoint": "Point (-5.4, 35.6)",
+          "approxLength_km": 106,
+          "waypointCount": 3
+        },
+        {
+          "index": 2,
+          "name": "Point (-2.2, 35.9) \u2192 Point (-2.9, 35.2)",
+          "description": "Segment 3: Point (-2.2, 35.9) to Point (-2.9, 35.2) (~113 km, 3 waypoints)",
+          "startPoint": "Point (-2.2, 35.9)",
+          "endPoint": "Point (-2.9, 35.2)",
+          "approxLength_km": 113,
+          "waypointCount": 3
+        },
+        {
+          "index": 3,
+          "name": "Various Mediterranean \u2192 Point (4.7, 38.6)",
+          "description": "Segment 4: Various Mediterranean to Point (4.7, 38.6) (~1043 km, 7 waypoints)",
+          "startPoint": "Various Mediterranean",
+          "endPoint": "Point (4.7, 38.6)",
+          "approxLength_km": 1043,
+          "waypointCount": 7
+        },
+        {
+          "index": 4,
+          "name": "Point (5.0, 41.2) \u2192 Point (2.2, 41.4)",
+          "description": "Segment 5: Point (5.0, 41.2) to Point (2.2, 41.4) (~313 km, 3 waypoints)",
+          "startPoint": "Point (5.0, 41.2)",
+          "endPoint": "Point (2.2, 41.4)",
+          "approxLength_km": 313,
+          "waypointCount": 3
+        },
+        {
+          "index": 5,
+          "name": "Point (2.2, 37.4) \u2192 Point (3.0, 36.8)",
+          "description": "Segment 6: Point (2.2, 37.4) to Point (3.0, 36.8) (~123 km, 3 waypoints)",
+          "startPoint": "Point (2.2, 37.4)",
+          "endPoint": "Point (3.0, 36.8)",
+          "approxLength_km": 123,
+          "waypointCount": 3
+        },
+        {
+          "index": 6,
+          "name": "Various Mediterranean \u2192 Various Mediterranean",
+          "description": "Segment 7: Various Mediterranean to Various Mediterranean (~218 km, 3 waypoints)",
+          "startPoint": "Various Mediterranean",
+          "endPoint": "Various Mediterranean",
+          "approxLength_km": 218,
+          "waypointCount": 3
+        },
+        {
+          "index": 7,
+          "name": "Various Mediterranean \u2192 Various Mediterranean",
+          "description": "Segment 8: Various Mediterranean to Various Mediterranean (~104 km, 3 waypoints)",
+          "startPoint": "Various Mediterranean",
+          "endPoint": "Various Mediterranean",
+          "approxLength_km": 104,
+          "waypointCount": 3
+        },
+        {
+          "index": 8,
+          "name": "Various Mediterranean \u2192 Various Mediterranean",
+          "description": "Segment 9: Various Mediterranean to Various Mediterranean (~122 km, 3 waypoints)",
+          "startPoint": "Various Mediterranean",
+          "endPoint": "Various Mediterranean",
+          "approxLength_km": 122,
+          "waypointCount": 3
+        },
+        {
+          "index": 9,
+          "name": "Point (22.9, 34.6) \u2192 Point (23.7, 38.0)",
+          "description": "Segment 10: Point (22.9, 34.6) to Point (23.7, 38.0) (~417 km, 5 waypoints)",
+          "startPoint": "Point (22.9, 34.6)",
+          "endPoint": "Point (23.7, 38.0)",
+          "approxLength_km": 417,
+          "waypointCount": 5
+        },
+        {
+          "index": 10,
+          "name": "Point (31.1, 32.9) \u2192 Point (32.5, 34.8)",
+          "description": "Segment 11: Point (31.1, 32.9) to Point (32.5, 34.8) (~262 km, 3 waypoints)",
+          "startPoint": "Point (31.1, 32.9)",
+          "endPoint": "Point (32.5, 34.8)",
+          "approxLength_km": 262,
+          "waypointCount": 3
+        },
+        {
+          "index": 11,
+          "name": "Point (14.4, 35.2) \u2192 Point (15.1, 32.4)",
+          "description": "Segment 12: Point (14.4, 35.2) to Point (15.1, 32.4) (~345 km, 3 waypoints)",
+          "startPoint": "Point (14.4, 35.2)",
+          "endPoint": "Point (15.1, 32.4)",
+          "approxLength_km": 345,
+          "waypointCount": 3
+        },
+        {
+          "index": 12,
+          "name": "Point (20.1, 32.1) \u2192 Point (19.4, 35.2)",
+          "description": "Segment 13: Point (20.1, 32.1) to Point (19.4, 35.2) (~362 km, 4 waypoints)",
+          "startPoint": "Point (20.1, 32.1)",
+          "endPoint": "Point (19.4, 35.2)",
+          "approxLength_km": 362,
+          "waypointCount": 4
+        },
+        {
+          "index": 13,
+          "name": "Various Mediterranean \u2192 Various Mediterranean",
+          "description": "Segment 14: Various Mediterranean to Various Mediterranean (~83 km, 2 waypoints)",
+          "startPoint": "Various Mediterranean",
+          "endPoint": "Various Mediterranean",
+          "approxLength_km": 83,
+          "waypointCount": 2
+        },
+        {
+          "index": 14,
+          "name": "Point (32.0, 34.4) \u2192 Point (35.9, 34.9)",
+          "description": "Segment 15: Point (32.0, 34.4) to Point (35.9, 34.9) (~436 km, 3 waypoints)",
+          "startPoint": "Point (32.0, 34.4)",
+          "endPoint": "Point (35.9, 34.9)",
+          "approxLength_km": 436,
+          "waypointCount": 3
+        }
+      ]
     },
     "ice-iv": {
       "id": "ice-iv",
@@ -5441,7 +6186,63 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Singapore \u2192 Point (32.6, 29.1)",
+          "description": "Segment 1: Singapore to Point (32.6, 29.1) (~10218 km, 46 waypoints)",
+          "startPoint": "Singapore",
+          "endPoint": "Point (32.6, 29.1)",
+          "approxLength_km": 10218,
+          "waypointCount": 46
+        },
+        {
+          "index": 1,
+          "name": "Point (71.5, 9.1) \u2192 Point (76.3, 9.9)",
+          "description": "Segment 2: Point (71.5, 9.1) to Point (76.3, 9.9) (~532 km, 3 waypoints)",
+          "startPoint": "Point (71.5, 9.1)",
+          "endPoint": "Point (76.3, 9.9)",
+          "approxLength_km": 532,
+          "waypointCount": 3
+        },
+        {
+          "index": 2,
+          "name": "Point (76.3, 9.9) \u2192 Point (80.2, 13.1)",
+          "description": "Segment 3: Point (76.3, 9.9) to Point (80.2, 13.1) (~560 km, 2 waypoints)",
+          "startPoint": "Point (76.3, 9.9)",
+          "endPoint": "Point (80.2, 13.1)",
+          "approxLength_km": 560,
+          "waypointCount": 2
+        },
+        {
+          "index": 3,
+          "name": "Point (65.8, 16.0) \u2192 Various Middle East",
+          "description": "Segment 4: Point (65.8, 16.0) to Various Middle East (~1641 km, 8 waypoints)",
+          "startPoint": "Point (65.8, 16.0)",
+          "endPoint": "Various Middle East",
+          "approxLength_km": 1641,
+          "waypointCount": 8
+        },
+        {
+          "index": 4,
+          "name": "Various Middle East \u2192 Various Middle East",
+          "description": "Segment 5: Various Middle East to Various Middle East (~191 km, 3 waypoints)",
+          "startPoint": "Various Middle East",
+          "endPoint": "Various Middle East",
+          "approxLength_km": 191,
+          "waypointCount": 3
+        },
+        {
+          "index": 5,
+          "name": "Singapore \u2192 Point (106.8, -6.2)",
+          "description": "Segment 6: Singapore to Point (106.8, -6.2) (~1017 km, 12 waypoints)",
+          "startPoint": "Singapore",
+          "endPoint": "Point (106.8, -6.2)",
+          "approxLength_km": 1017,
+          "waypointCount": 12
+        }
+      ]
     },
     "plcn": {
       "id": "plcn",
@@ -5542,7 +6343,36 @@
             ]
           ]
         ]
-      }
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Taiwan \u2192 Point (180.0, 32.0)",
+          "description": "Segment 1: Taiwan to Point (180.0, 32.0) (~6650 km, 5 waypoints)",
+          "startPoint": "Taiwan",
+          "endPoint": "Point (180.0, 32.0)",
+          "approxLength_km": 6650,
+          "waypointCount": 5
+        },
+        {
+          "index": 1,
+          "name": "Point (-180.0, 32.0) \u2192 USA",
+          "description": "Segment 2: Point (-180.0, 32.0) to USA (~6887 km, 4 waypoints)",
+          "startPoint": "Point (-180.0, 32.0)",
+          "endPoint": "USA",
+          "approxLength_km": 6887,
+          "waypointCount": 4
+        },
+        {
+          "index": 2,
+          "name": "Philippines \u2192 Point (130.0, 25.0)",
+          "description": "Segment 3: Philippines to Point (130.0, 25.0) (~1671 km, 4 waypoints)",
+          "startPoint": "Philippines",
+          "endPoint": "Point (130.0, 25.0)",
+          "approxLength_km": 1671,
+          "waypointCount": 4
+        }
+      ]
     },
     "tgn-wer": {
       "id": "tgn-wer",
@@ -5666,16 +6496,31 @@
       },
       "segments": [
         {
-          "name": "Portugal - Spain (Seixal to Bilbao)",
-          "index": 0
+          "index": 0,
+          "name": "Seixal \u2192 Bilbao",
+          "description": "Segment 1: Seixal to Bilbao (~1146 km, 6 waypoints)",
+          "startPoint": "Seixal",
+          "endPoint": "Bilbao",
+          "approxLength_km": 1146,
+          "waypointCount": 6
         },
         {
-          "name": "Spain - UK (Bilbao to Highbridge)",
-          "index": 1
+          "index": 1,
+          "name": "Bilbao \u2192 Highbridge",
+          "description": "Segment 2: Bilbao to Highbridge (~1010 km, 6 waypoints)",
+          "startPoint": "Bilbao",
+          "endPoint": "Highbridge",
+          "approxLength_km": 1010,
+          "waypointCount": 6
         },
         {
-          "name": "UK - Portugal (Highbridge to Seixal)",
-          "index": 2
+          "index": 2,
+          "name": "Highbridge \u2192 Seixal",
+          "description": "Segment 3: Highbridge to Seixal (~1763 km, 6 waypoints)",
+          "startPoint": "Highbridge",
+          "endPoint": "Seixal",
+          "approxLength_km": 1763,
+          "waypointCount": 6
         }
       ]
     },
@@ -5977,48 +6822,103 @@
       },
       "segments": [
         {
-          "name": "Singapore - Philippines (Changi to Batangas)",
-          "index": 0
+          "index": 0,
+          "name": "Changi \u2192 Batangas",
+          "description": "Segment 1: Changi to Batangas (~2475 km, 6 waypoints)",
+          "startPoint": "Changi",
+          "endPoint": "Batangas",
+          "approxLength_km": 2475,
+          "waypointCount": 6
         },
         {
-          "name": "Philippines - Hong Kong (Batangas to Lantau)",
-          "index": 1
+          "index": 1,
+          "name": "Batangas \u2192 Lantau Island",
+          "description": "Segment 2: Batangas to Lantau Island (~1344 km, 4 waypoints)",
+          "startPoint": "Batangas",
+          "endPoint": "Lantau Island",
+          "approxLength_km": 1344,
+          "waypointCount": 4
         },
         {
-          "name": "Hong Kong - China South (Lantau to Shantou)",
-          "index": 2
+          "index": 2,
+          "name": "Lantau Island \u2192 Shantou",
+          "description": "Segment 3: Lantau Island to Shantou (~327 km, 3 waypoints)",
+          "startPoint": "Lantau Island",
+          "endPoint": "Shantou",
+          "approxLength_km": 327,
+          "waypointCount": 3
         },
         {
-          "name": "China South - Taiwan (Shantou to Tanshui)",
-          "index": 3
+          "index": 3,
+          "name": "Shantou \u2192 Tanshui",
+          "description": "Segment 4: Shantou to Tanshui (~564 km, 3 waypoints)",
+          "startPoint": "Shantou",
+          "endPoint": "Tanshui",
+          "approxLength_km": 564,
+          "waypointCount": 3
         },
         {
-          "name": "Taiwan Internal (Tanshui to Toucheng)",
-          "index": 4
+          "index": 4,
+          "name": "Tanshui \u2192 Toucheng",
+          "description": "Segment 5: Tanshui to Toucheng (~56 km, 2 waypoints)",
+          "startPoint": "Tanshui",
+          "endPoint": "Toucheng",
+          "approxLength_km": 56,
+          "waypointCount": 2
         },
         {
-          "name": "Taiwan - China East (Toucheng to Chongming)",
-          "index": 5
+          "index": 5,
+          "name": "Toucheng \u2192 Chongming",
+          "description": "Segment 6: Toucheng to Chongming (~1110 km, 4 waypoints)",
+          "startPoint": "Toucheng",
+          "endPoint": "Chongming",
+          "approxLength_km": 1110,
+          "waypointCount": 4
         },
         {
-          "name": "China Internal (Chongming to Qingdao)",
-          "index": 6
+          "index": 6,
+          "name": "Chongming \u2192 Qingdao",
+          "description": "Segment 7: Chongming to Qingdao (~506 km, 2 waypoints)",
+          "startPoint": "Chongming",
+          "endPoint": "Qingdao",
+          "approxLength_km": 506,
+          "waypointCount": 2
         },
         {
-          "name": "China - Korea (Qingdao to Busan)",
-          "index": 7
+          "index": 7,
+          "name": "Qingdao \u2192 Busan",
+          "description": "Segment 8: Qingdao to Busan (~971 km, 3 waypoints)",
+          "startPoint": "Qingdao",
+          "endPoint": "Busan",
+          "approxLength_km": 971,
+          "waypointCount": 3
         },
         {
-          "name": "Korea - Japan West (Busan to Shima)",
-          "index": 8
+          "index": 8,
+          "name": "Busan \u2192 Shima",
+          "description": "Segment 9: Busan to Shima (~868 km, 3 waypoints)",
+          "startPoint": "Busan",
+          "endPoint": "Shima",
+          "approxLength_km": 868,
+          "waypointCount": 3
         },
         {
-          "name": "Japan Internal (Shima to Ajigaura)",
-          "index": 9
+          "index": 9,
+          "name": "Shima \u2192 Ajigaura",
+          "description": "Segment 10: Shima to Ajigaura (~485 km, 3 waypoints)",
+          "startPoint": "Shima",
+          "endPoint": "Ajigaura",
+          "approxLength_km": 485,
+          "waypointCount": 3
         },
         {
-          "name": "Japan - Philippines (Ajigaura to Batangas) - Ring closure",
-          "index": 10
+          "index": 10,
+          "name": "Ajigaura \u2192 Batangas",
+          "description": "Segment 11: Ajigaura to Batangas (~3589 km, 7 waypoints)",
+          "startPoint": "Ajigaura",
+          "endPoint": "Batangas",
+          "approxLength_km": 3589,
+          "waypointCount": 7
         }
       ]
     },
@@ -6310,52 +7210,112 @@
       },
       "segments": [
         {
-          "name": "Singapore - Philippines South (Changi to Nasugbu)",
-          "index": 0
+          "index": 0,
+          "name": "Changi \u2192 Nasugbu",
+          "description": "Segment 1: Changi to Nasugbu (~2327 km, 4 waypoints)",
+          "startPoint": "Changi",
+          "endPoint": "Nasugbu",
+          "approxLength_km": 2327,
+          "waypointCount": 4
         },
         {
-          "name": "Philippines Internal (Nasugbu to Cavite)",
-          "index": 1
+          "index": 1,
+          "name": "Nasugbu \u2192 Cavite",
+          "description": "Segment 2: Nasugbu to Cavite (~54 km, 2 waypoints)",
+          "startPoint": "Nasugbu",
+          "endPoint": "Cavite",
+          "approxLength_km": 54,
+          "waypointCount": 2
         },
         {
-          "name": "Philippines - Hong Kong (Cavite to Tseung Kwan O)",
-          "index": 2
+          "index": 2,
+          "name": "Cavite \u2192 Tseung Kwan O",
+          "description": "Segment 3: Cavite to Tseung Kwan O (~1139 km, 3 waypoints)",
+          "startPoint": "Cavite",
+          "endPoint": "Tseung Kwan O",
+          "approxLength_km": 1139,
+          "waypointCount": 3
         },
         {
-          "name": "Hong Kong - China (Tseung Kwan O to Shenzhen)",
-          "index": 3
+          "index": 3,
+          "name": "Tseung Kwan O \u2192 Shenzhen",
+          "description": "Segment 4: Tseung Kwan O to Shenzhen (~35 km, 2 waypoints)",
+          "startPoint": "Tseung Kwan O",
+          "endPoint": "Shenzhen",
+          "approxLength_km": 35,
+          "waypointCount": 2
         },
         {
-          "name": "China - Taiwan South (Shenzhen to Fangshan)",
-          "index": 4
+          "index": 4,
+          "name": "Shenzhen \u2192 Fangshan",
+          "description": "Segment 5: Shenzhen to Fangshan (~739 km, 3 waypoints)",
+          "startPoint": "Shenzhen",
+          "endPoint": "Fangshan",
+          "approxLength_km": 739,
+          "waypointCount": 3
         },
         {
-          "name": "Taiwan Internal (Fangshan to Toucheng)",
-          "index": 5
+          "index": 5,
+          "name": "Fangshan \u2192 Toucheng",
+          "description": "Segment 6: Fangshan to Toucheng (~325 km, 3 waypoints)",
+          "startPoint": "Fangshan",
+          "endPoint": "Toucheng",
+          "approxLength_km": 325,
+          "waypointCount": 3
         },
         {
-          "name": "Taiwan - Shanghai (Toucheng to Shanghai)",
-          "index": 6
+          "index": 6,
+          "name": "Toucheng \u2192 Shanghai",
+          "description": "Segment 7: Toucheng to Shanghai (~768 km, 3 waypoints)",
+          "startPoint": "Toucheng",
+          "endPoint": "Shanghai",
+          "approxLength_km": 768,
+          "waypointCount": 3
         },
         {
-          "name": "China Internal (Shanghai to Qingdao)",
-          "index": 7
+          "index": 7,
+          "name": "Shanghai \u2192 Qingdao",
+          "description": "Segment 8: Shanghai to Qingdao (~551 km, 2 waypoints)",
+          "startPoint": "Shanghai",
+          "endPoint": "Qingdao",
+          "approxLength_km": 551,
+          "waypointCount": 2
         },
         {
-          "name": "China - Korea (Qingdao to Busan)",
-          "index": 8
+          "index": 8,
+          "name": "Qingdao \u2192 Busan",
+          "description": "Segment 9: Qingdao to Busan (~970 km, 3 waypoints)",
+          "startPoint": "Qingdao",
+          "endPoint": "Busan",
+          "approxLength_km": 970,
+          "waypointCount": 3
         },
         {
-          "name": "Korea - Japan West (Busan to Shima)",
-          "index": 9
+          "index": 9,
+          "name": "Busan \u2192 Shima",
+          "description": "Segment 10: Busan to Shima (~879 km, 3 waypoints)",
+          "startPoint": "Busan",
+          "endPoint": "Shima",
+          "approxLength_km": 879,
+          "waypointCount": 3
         },
         {
-          "name": "Japan Internal (Shima to Ajigaura)",
-          "index": 10
+          "index": 10,
+          "name": "Shima \u2192 Ajigaura",
+          "description": "Segment 11: Shima to Ajigaura (~492 km, 3 waypoints)",
+          "startPoint": "Shima",
+          "endPoint": "Ajigaura",
+          "approxLength_km": 492,
+          "waypointCount": 3
         },
         {
-          "name": "Japan - Philippines (Ajigaura to Cavite) - Ring closure",
-          "index": 11
+          "index": 11,
+          "name": "Ajigaura \u2192 Cavite",
+          "description": "Segment 12: Ajigaura to Cavite (~3546 km, 6 waypoints)",
+          "startPoint": "Ajigaura",
+          "endPoint": "Cavite",
+          "approxLength_km": 3546,
+          "waypointCount": 6
         }
       ]
     },
@@ -6467,12 +7427,22 @@
       },
       "segments": [
         {
-          "name": "USA - UK (New York to Bude)",
-          "index": 0
+          "index": 0,
+          "name": "Bellport, New York \u2192 Bude",
+          "description": "Segment 1: Bellport, New York to Bude (~7714 km, 9 waypoints)",
+          "startPoint": "Bellport, New York",
+          "endPoint": "Bude",
+          "approxLength_km": 7714,
+          "waypointCount": 9
         },
         {
-          "name": "Branch to Spain (Bilbao)",
-          "index": 1
+          "index": 1,
+          "name": "Point (-25.0, 50.0) \u2192 Bilbao (Sopelana)",
+          "description": "Segment 2: Point (-25.0, 50.0) to Bilbao (Sopelana) (~2564 km, 6 waypoints)",
+          "startPoint": "Point (-25.0, 50.0)",
+          "endPoint": "Bilbao (Sopelana)",
+          "approxLength_km": 2564,
+          "waypointCount": 6
         }
       ]
     }
