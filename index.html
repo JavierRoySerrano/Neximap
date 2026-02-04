@@ -19055,6 +19055,20 @@ function loadProjectObject(obj) {
         const csId = parseInt(item.dataset.csId);
         selectCableSystem(csId);
       });
+      
+      // Double-click opens the Cable System Details panel
+      item.addEventListener('dblclick', () => {
+        const csId = parseInt(item.dataset.csId);
+        selectCableSystem(csId);
+        // Open the Cable System Details panel
+        const cableInspectorPanel = document.getElementById('cableSystemInspectorPanel');
+        const btnToggleCableInspector = document.getElementById('btnToggleCableInspector');
+        if (cableInspectorPanel) {
+          cableInspectorPanel.style.display = 'flex';
+          if (btnToggleCableInspector) btnToggleCableInspector.classList.add('active');
+          updateCableSystemInspector();
+        }
+      });
     });
   }
 
