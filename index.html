@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<!-- NexiMap Studio v61.16 - TGN-A SOUTH + CAPACITY EDITOR FILTER + LINK TAG - 2025-02-04 -->
+<!-- NexiMap Studio v61.17 - FIX DATA TABLE CABLE SYSTEM FIELD - 2025-02-04 -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -37579,8 +37579,8 @@ function loadProjectObject(obj) {
       // Also search in tags and cable system
       const edgeTags = getElementTags('edge', e.id);
       const tagsStr = Array.from(edgeTags).join(' ').toLowerCase();
-      const cableSystem = e.cableSystemUUID ? state.cableSystems.find(cs => cs.uuid === e.cableSystemUUID) : null;
-      const csName = cableSystem ? (cableSystem.name || cableSystem.code || '').toLowerCase() : '';
+      const cableSystem = e.cableSystemId ? findCableSystem(e.cableSystemId) : null;
+      const csName = cableSystem ? (cableSystem.name || cableSystem.shortName || '').toLowerCase() : '';
       return (e.code || '').toLowerCase().includes(search) ||
              (e.tag || '').toLowerCase().includes(search) ||
              tagsStr.includes(search) ||
@@ -37603,10 +37603,10 @@ function loadProjectObject(obj) {
             bVal = Array.from(getElementTags('edge', b.id)).join(','); 
             break;
           case 'cableSystem':
-            const csA = a.cableSystemUUID ? state.cableSystems.find(cs => cs.uuid === a.cableSystemUUID) : null;
-            const csB = b.cableSystemUUID ? state.cableSystems.find(cs => cs.uuid === b.cableSystemUUID) : null;
-            aVal = csA ? (csA.name || csA.code || '') : '';
-            bVal = csB ? (csB.name || csB.code || '') : '';
+            const csA = a.cableSystemId ? findCableSystem(a.cableSystemId) : null;
+            const csB = b.cableSystemId ? findCableSystem(b.cableSystemId) : null;
+            aVal = csA ? (csA.name || csA.shortName || '') : '';
+            bVal = csB ? (csB.name || csB.shortName || '') : '';
             break;
           case 'latency': aVal = a.latencyMs || 0; bVal = b.latencyMs || 0; break;
           case 'nrc': aVal = getValueForTier(a.leaseNRC, tier, 0); bVal = getValueForTier(b.leaseNRC, tier, 0); break;
@@ -37648,20 +37648,20 @@ function loadProjectObject(obj) {
       const tagsStr = Array.from(edgeTags).join(', ');
       
       // Get cable system
-      const cableSystem = e.cableSystemUUID ? state.cableSystems.find(cs => cs.uuid === e.cableSystemUUID) : null;
+      const cableSystem = e.cableSystemId ? findCableSystem(e.cableSystemId) : null;
       
       // Build cable system dropdown with current selection
       let csOptions = '<option value="">— None —</option>';
       state.cableSystems.forEach(cs => {
-        const selected = e.cableSystemUUID === cs.uuid ? 'selected' : '';
-        csOptions += `<option value="${cs.uuid}" ${selected}>${escapeHtml(cs.name || cs.code || 'Unnamed')}</option>`;
+        const selected = e.cableSystemId === cs.id ? 'selected' : '';
+        csOptions += `<option value="${cs.id}" ${selected}>${escapeHtml(cs.name || cs.shortName || 'Unnamed')}</option>`;
       });
       
       rows += `<tr data-id="${e.id}" data-type="edge">
         <td><input class="cell-edit" data-field="code" value="${escapeAttr(e.code || '')}" style="width:80px;" /></td>
         <td><input class="cell-edit" data-field="tag" value="${escapeAttr(e.tag || '')}" style="width:80px;" placeholder="Link tag" /></td>
         <td><input class="cell-edit tag-edit" data-field="tags" value="${escapeAttr(tagsStr)}" placeholder="tag1, tag2..." title="Comma-separated tags" /></td>
-        <td><select class="cell-edit" data-field="cableSystemUUID" style="font-size:11px; max-width:120px;">${csOptions}</select></td>
+        <td><select class="cell-edit" data-field="cableSystemId" style="font-size:11px; max-width:120px;">${csOptions}</select></td>
         <td>${aNode?.name || '?'}</td>
         <td>${bNode?.name || '?'}</td>
         <td><input class="cell-edit number" data-field="latencyMs" value="${e.latencyMs ?? ''}" style="width:60px; text-align:right;" /></td>`;
@@ -37700,27 +37700,12 @@ function loadProjectObject(obj) {
           } else if (field === 'code' || field === 'tag') {
             // String fields
             edge[field] = ev.target.value.trim();
-          } else if (field === 'cableSystemUUID') {
-            // Cable system assignment
-            const newUUID = ev.target.value || null;
-            // Remove from old cable system if exists
-            if (edge.cableSystemUUID) {
-              const oldCS = state.cableSystems.find(cs => cs.uuid === edge.cableSystemUUID);
-              if (oldCS && oldCS.linkIds) {
-                oldCS.linkIds = oldCS.linkIds.filter(id => id !== edgeId);
-              }
-            }
-            // Add to new cable system
-            edge.cableSystemUUID = newUUID;
-            if (newUUID) {
-              const newCS = state.cableSystems.find(cs => cs.uuid === newUUID);
-              if (newCS) {
-                if (!newCS.linkIds) newCS.linkIds = [];
-                if (!newCS.linkIds.includes(edgeId)) {
-                  newCS.linkIds.push(edgeId);
-                }
-              }
-            }
+          } else if (field === 'cableSystemId') {
+            // Cable system assignment - use numeric ID
+            const newId = ev.target.value ? parseInt(ev.target.value) : null;
+            edge.cableSystemId = newId;
+            // Also update the cable system navigator list
+            updateCableNavigatorList();
           } else if (field === 'latencyMs') {
             const val = ev.target.value.trim();
             edge.latencyMs = val === '' ? null : parseFloat(val);
@@ -38125,8 +38110,8 @@ function loadProjectObject(obj) {
         const oamInc = e.iruOamAnnualIncrement ?? defaultOAMInc;
         const iruNpv = calculateIRUNPV(e.iruFee || 1, e.iruTerm || 15, oamPct, oamInc, discountRate);
         const edgeTags = Array.from(getElementTags('edge', e.id)).join(';');
-        const cableSystem = e.cableSystemUUID ? state.cableSystems.find(cs => cs.uuid === e.cableSystemUUID) : null;
-        const csName = cableSystem ? (cableSystem.name || cableSystem.code || '') : '';
+        const cableSystem = e.cableSystemId ? findCableSystem(e.cableSystemId) : null;
+        const csName = cableSystem ? (cableSystem.name || cableSystem.shortName || '') : '';
         
         csv += `"${e.code || ''}","${e.tag || ''}","${edgeTags}","${csName}","${aNode?.name || ''}","${bNode?.name || ''}",${e.latencyMs ?? ''},${e.leaseNRC || 0},${e.leaseMRC || 1},${acv.toFixed(2)},${e.iruFee || 1},${e.iruTerm || 15},${oamPct},${oamInc},${iruNpv.toFixed(2)}\n`;
       });
