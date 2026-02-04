@@ -1,0 +1,5548 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-02-04",
+  "source": "TeleGeography SubmarineCableMap + Manual Enrichment",
+  "license": "Database structure by NexiMap Studio. Geometry data from TeleGeography (CC BY-NC-SA 3.0)",
+  "regionDefinitions": {
+    "continents": [
+      "North America",
+      "Central America",
+      "South America",
+      "Western Europe",
+      "Central Europe",
+      "Eastern Europe",
+      "Middle East",
+      "North Africa",
+      "Central Africa",
+      "South Africa",
+      "India",
+      "North Asia",
+      "South Asia",
+      "Oceania"
+    ],
+    "transitTypes": [
+      "Europe-North America",
+      "North Asia-North America",
+      "Europe-Asia",
+      "Europe-India",
+      "India-Asia",
+      "IntraEurope",
+      "IntraAsia",
+      "IntraIndia",
+      "Europe-Africa",
+      "Africa-Asia",
+      "Oceania-North America",
+      "Asia-Oceania",
+      "North America-South America",
+      "Europe-South America"
+    ]
+  },
+  "cables": {
+    "amitie": {
+      "id": "amitie",
+      "name": "Amitié",
+      "region": "Europe-North America",
+      "rfs": "2022",
+      "length_km": 6234,
+      "owners": [
+        "Microsoft",
+        "Meta",
+        "Aqua Comms"
+      ],
+      "fiberPairs": 16,
+      "designCapacity": "400+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Lynn, Massachusetts",
+          "country": "USA",
+          "coordinates": [
+            -70.95,
+            42.46
+          ]
+        },
+        {
+          "name": "Le Porge",
+          "country": "France",
+          "coordinates": [
+            -1.21,
+            44.89
+          ]
+        },
+        {
+          "name": "Bude",
+          "country": "UK",
+          "coordinates": [
+            -4.54,
+            50.83
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              -70.95027550281526,
+              42.46364601310954
+            ],
+            [
+              -69.29987667137726,
+              42.41235450073586
+            ],
+            [
+              -61.19988240948919,
+              41.74435878948223
+            ],
+            [
+              -50.39989006030513,
+              43.564400497117596
+            ],
+            [
+              -39.99999508453427,
+              46.17414676370763
+            ],
+            [
+              -23.399909187344846,
+              50.167261162927154
+            ],
+            [
+              -16.199914287888834,
+              50.167261162927154
+            ],
+            [
+              -10.799918113296759,
+              49.44120372312804
+            ],
+            [
+              -5.849921620516659,
+              46.99317357497891
+            ],
+            [
+              -3.149923533220666,
+              45.1197757996118
+            ],
+            [
+              -1.211824906187882,
+              44.89381187034425
+            ]
+          ],
+          [
+            [
+              -10.799918113296759,
+              49.44120372312804
+            ],
+            [
+              -7.199920663568708,
+              50.88245364291024
+            ],
+            [
+              -5.399921938704683,
+              51.02419288763878
+            ],
+            [
+              -4.544402544762735,
+              50.82820142743812
+            ]
+          ]
+        ]
+      }
+    },
+    "marea": {
+      "id": "marea",
+      "name": "MAREA",
+      "region": "Europe-North America",
+      "rfs": "2018",
+      "length_km": 6605,
+      "owners": [
+        "Microsoft",
+        "Meta",
+        "Telxius"
+      ],
+      "fiberPairs": 8,
+      "designCapacity": "224+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Virginia Beach",
+          "country": "USA",
+          "coordinates": [
+            -75.98,
+            36.85
+          ]
+        },
+        {
+          "name": "Bilbao",
+          "country": "Spain",
+          "coordinates": [
+            -2.93,
+            43.26
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -75.98,
+            36.85
+          ],
+          [
+            -70,
+            38.5
+          ],
+          [
+            -55,
+            41
+          ],
+          [
+            -40,
+            43.5
+          ],
+          [
+            -25,
+            44
+          ],
+          [
+            -10,
+            43.5
+          ],
+          [
+            -2.93,
+            43.26
+          ]
+        ]
+      }
+    },
+    "dunant": {
+      "id": "dunant",
+      "name": "Dunant",
+      "region": "Europe-North America",
+      "rfs": "2021",
+      "length_km": 6400,
+      "owners": [
+        "Google"
+      ],
+      "fiberPairs": 12,
+      "designCapacity": "250+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Virginia Beach",
+          "country": "USA",
+          "coordinates": [
+            -75.98,
+            36.85
+          ]
+        },
+        {
+          "name": "Saint-Hilaire-de-Riez",
+          "country": "France",
+          "coordinates": [
+            -1.94,
+            46.72
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -75.98,
+            36.85
+          ],
+          [
+            -65,
+            39
+          ],
+          [
+            -50,
+            42.5
+          ],
+          [
+            -35,
+            45
+          ],
+          [
+            -20,
+            46
+          ],
+          [
+            -10,
+            46.5
+          ],
+          [
+            -1.94,
+            46.72
+          ]
+        ]
+      }
+    },
+    "havfrue-aec-2": {
+      "id": "havfrue-aec-2",
+      "name": "Havfrue/AEC-2",
+      "region": "Europe-North America",
+      "rfs": "2020",
+      "length_km": 7200,
+      "owners": [
+        "Aqua Comms",
+        "Bulk Infrastructure",
+        "Google",
+        "Meta"
+      ],
+      "fiberPairs": 6,
+      "designCapacity": "108+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Wall Township, New Jersey",
+          "country": "USA",
+          "coordinates": [
+            -74.06,
+            40.16
+          ]
+        },
+        {
+          "name": "Blaabjerg",
+          "country": "Denmark",
+          "coordinates": [
+            8.18,
+            55.58
+          ]
+        },
+        {
+          "name": "Kristiansand",
+          "country": "Norway",
+          "coordinates": [
+            8,
+            58.15
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              -74.06,
+              40.16
+            ],
+            [
+              -60,
+              42
+            ],
+            [
+              -45,
+              48
+            ],
+            [
+              -30,
+              52
+            ],
+            [
+              -15,
+              55
+            ],
+            [
+              0,
+              56
+            ],
+            [
+              8.18,
+              55.58
+            ]
+          ],
+          [
+            [
+              0,
+              56
+            ],
+            [
+              5,
+              57.5
+            ],
+            [
+              8,
+              58.15
+            ]
+          ]
+        ]
+      }
+    },
+    "aec-1": {
+      "id": "aec-1",
+      "name": "AEC-1",
+      "region": "Europe-North America",
+      "rfs": "2016",
+      "length_km": 5536,
+      "owners": [
+        "Aqua Comms"
+      ],
+      "fiberPairs": 4,
+      "designCapacity": "60+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Shirley, New York",
+          "country": "USA",
+          "coordinates": [
+            -72.87,
+            40.77
+          ]
+        },
+        {
+          "name": "Killala",
+          "country": "Ireland",
+          "coordinates": [
+            -9.22,
+            54.21
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -72.87,
+            40.77
+          ],
+          [
+            -60,
+            43
+          ],
+          [
+            -45,
+            47
+          ],
+          [
+            -30,
+            51
+          ],
+          [
+            -20,
+            53
+          ],
+          [
+            -9.22,
+            54.21
+          ]
+        ]
+      }
+    },
+    "seabras-1": {
+      "id": "seabras-1",
+      "name": "SEABRAS-1",
+      "region": "North America-South America",
+      "rfs": "2018",
+      "length_km": 10800,
+      "owners": [
+        "Seaborn Networks"
+      ],
+      "fiberPairs": 4,
+      "designCapacity": "72+ Tbps",
+      "landingPoints": [
+        {
+          "name": "New York",
+          "country": "USA",
+          "coordinates": [
+            -73.94,
+            40.67
+          ]
+        },
+        {
+          "name": "Praia Grande",
+          "country": "Brazil",
+          "coordinates": [
+            -46.4,
+            -24
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -73.94,
+            40.67
+          ],
+          [
+            -70,
+            35
+          ],
+          [
+            -60,
+            20
+          ],
+          [
+            -50,
+            5
+          ],
+          [
+            -45,
+            -10
+          ],
+          [
+            -46.4,
+            -24
+          ]
+        ]
+      }
+    },
+    "seacom": {
+      "id": "seacom",
+      "name": "SEACOM",
+      "region": "Europe-Africa-India",
+      "rfs": "2009",
+      "length_km": 17000,
+      "owners": [
+        "SEACOM"
+      ],
+      "fiberPairs": 2,
+      "designCapacity": "1.28 Tbps",
+      "landingPoints": [
+        {
+          "name": "Marseille",
+          "country": "France",
+          "coordinates": [
+            5.37,
+            43.3
+          ]
+        },
+        {
+          "name": "Mumbai",
+          "country": "India",
+          "coordinates": [
+            72.88,
+            19.08
+          ]
+        },
+        {
+          "name": "Mombasa",
+          "country": "Kenya",
+          "coordinates": [
+            39.67,
+            -4.05
+          ]
+        },
+        {
+          "name": "Dar es Salaam",
+          "country": "Tanzania",
+          "coordinates": [
+            39.28,
+            -6.82
+          ]
+        },
+        {
+          "name": "Mtunzini",
+          "country": "South Africa",
+          "coordinates": [
+            31.74,
+            -28.95
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              5.37,
+              43.3
+            ],
+            [
+              10,
+              38
+            ],
+            [
+              15,
+              35
+            ],
+            [
+              25,
+              32
+            ],
+            [
+              32,
+              30
+            ],
+            [
+              35,
+              27
+            ],
+            [
+              40,
+              15
+            ],
+            [
+              45,
+              10
+            ],
+            [
+              55,
+              15
+            ],
+            [
+              65,
+              18
+            ],
+            [
+              72.88,
+              19.08
+            ]
+          ],
+          [
+            [
+              40,
+              15
+            ],
+            [
+              42,
+              5
+            ],
+            [
+              39.67,
+              -4.05
+            ],
+            [
+              39.28,
+              -6.82
+            ],
+            [
+              35,
+              -15
+            ],
+            [
+              32,
+              -25
+            ],
+            [
+              31.74,
+              -28.95
+            ]
+          ]
+        ]
+      }
+    },
+    "seamewe-4": {
+      "id": "seamewe-4",
+      "name": "SEA-ME-WE 4",
+      "region": "Europe-Middle East-Asia",
+      "rfs": "2005",
+      "length_km": 18800,
+      "owners": [
+        "SEA-ME-WE 4 Consortium"
+      ],
+      "fiberPairs": 2,
+      "designCapacity": "1.28 Tbps",
+      "landingPoints": [
+        {
+          "name": "Marseille",
+          "country": "France",
+          "coordinates": [
+            5.37,
+            43.3
+          ]
+        },
+        {
+          "name": "Singapore",
+          "country": "Singapore",
+          "coordinates": [
+            103.85,
+            1.29
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            5.37,
+            43.3
+          ],
+          [
+            10,
+            38
+          ],
+          [
+            20,
+            34
+          ],
+          [
+            30,
+            31
+          ],
+          [
+            35,
+            28
+          ],
+          [
+            45,
+            15
+          ],
+          [
+            55,
+            18
+          ],
+          [
+            65,
+            20
+          ],
+          [
+            72.88,
+            19.08
+          ],
+          [
+            80,
+            12
+          ],
+          [
+            90,
+            8
+          ],
+          [
+            98,
+            5
+          ],
+          [
+            103.85,
+            1.29
+          ]
+        ]
+      }
+    },
+    "peace": {
+      "id": "peace",
+      "name": "PEACE Cable",
+      "region": "Europe-Africa-Asia",
+      "rfs": "2022",
+      "length_km": 15000,
+      "owners": [
+        "PEACE Cable International Network"
+      ],
+      "fiberPairs": 6,
+      "designCapacity": "96 Tbps",
+      "landingPoints": [
+        {
+          "name": "Marseille",
+          "country": "France",
+          "coordinates": [
+            5.37,
+            43.3
+          ]
+        },
+        {
+          "name": "Singapore",
+          "country": "Singapore",
+          "coordinates": [
+            103.85,
+            1.29
+          ]
+        },
+        {
+          "name": "Karachi",
+          "country": "Pakistan",
+          "coordinates": [
+            67,
+            24.86
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              5.37,
+              43.3
+            ],
+            [
+              15,
+              35
+            ],
+            [
+              25,
+              32
+            ],
+            [
+              32.5,
+              30
+            ],
+            [
+              35,
+              27
+            ],
+            [
+              42,
+              15
+            ],
+            [
+              50,
+              15
+            ],
+            [
+              60,
+              20
+            ],
+            [
+              67,
+              24.86
+            ]
+          ],
+          [
+            [
+              67,
+              24.86
+            ],
+            [
+              72,
+              18
+            ],
+            [
+              80,
+              10
+            ],
+            [
+              95,
+              5
+            ],
+            [
+              103.85,
+              1.29
+            ]
+          ]
+        ]
+      }
+    },
+    "seamewe-5": {
+      "id": "seamewe-5",
+      "name": "SEA-ME-WE 5",
+      "region": "Europe-Middle East-Asia",
+      "rfs": "2016",
+      "length_km": 20000,
+      "owners": [
+        "SEA-ME-WE 5 Consortium"
+      ],
+      "fiberPairs": 3,
+      "designCapacity": "24+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Various Europe",
+          "country": "Multiple",
+          "coordinates": [
+            5,
+            43
+          ]
+        },
+        {
+          "name": "Singapore",
+          "country": "Singapore",
+          "coordinates": [
+            103.85,
+            1.29
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            5,
+            43
+          ],
+          [
+            12,
+            37
+          ],
+          [
+            25,
+            33
+          ],
+          [
+            32.5,
+            30
+          ],
+          [
+            40,
+            20
+          ],
+          [
+            50,
+            15
+          ],
+          [
+            60,
+            18
+          ],
+          [
+            70,
+            20
+          ],
+          [
+            80,
+            15
+          ],
+          [
+            92,
+            20
+          ],
+          [
+            95,
+            15
+          ],
+          [
+            103.85,
+            1.29
+          ]
+        ]
+      }
+    },
+    "seamewe-6": {
+      "id": "seamewe-6",
+      "name": "SEA-ME-WE 6",
+      "region": "Europe-Middle East-Asia",
+      "rfs": "2025",
+      "length_km": 21000,
+      "owners": [
+        "SEA-ME-WE 6 Consortium"
+      ],
+      "fiberPairs": 7,
+      "designCapacity": "100+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Singapore",
+          "country": "Singapore",
+          "coordinates": [
+            103.85,
+            1.29
+          ]
+        },
+        {
+          "name": "Marseille",
+          "country": "France",
+          "coordinates": [
+            5.37,
+            43.3
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              103.85,
+              1.29
+            ],
+            [
+              95,
+              5
+            ],
+            [
+              85,
+              0
+            ],
+            [
+              75,
+              5
+            ],
+            [
+              72,
+              18
+            ],
+            [
+              65,
+              22
+            ],
+            [
+              58,
+              24
+            ],
+            [
+              55,
+              25
+            ],
+            [
+              50,
+              27
+            ],
+            [
+              42,
+              13
+            ],
+            [
+              35,
+              28
+            ],
+            [
+              32.5,
+              30
+            ],
+            [
+              25,
+              32
+            ],
+            [
+              15,
+              36
+            ],
+            [
+              5.37,
+              43.3
+            ]
+          ],
+          [
+            [
+              75,
+              5
+            ],
+            [
+              80,
+              13
+            ],
+            [
+              72.88,
+              19.08
+            ]
+          ],
+          [
+            [
+              55,
+              25
+            ],
+            [
+              57,
+              24
+            ],
+            [
+              58.4,
+              23.58
+            ]
+          ]
+        ]
+      }
+    },
+    "imewe": {
+      "id": "imewe",
+      "name": "IMEWE",
+      "region": "Europe-Middle East-India",
+      "rfs": "2010",
+      "length_km": 12091,
+      "owners": [
+        "IMEWE Consortium"
+      ],
+      "fiberPairs": 5,
+      "designCapacity": "3.84 Tbps",
+      "landingPoints": [
+        {
+          "name": "Mumbai",
+          "country": "India",
+          "coordinates": [
+            72.88,
+            19.08
+          ]
+        },
+        {
+          "name": "Marseille",
+          "country": "France",
+          "coordinates": [
+            5.37,
+            43.3
+          ]
+        },
+        {
+          "name": "Catania",
+          "country": "Italy",
+          "coordinates": [
+            15.09,
+            37.5
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              72.88,
+              19.08
+            ],
+            [
+              65,
+              20
+            ],
+            [
+              58,
+              23.5
+            ],
+            [
+              50,
+              25
+            ],
+            [
+              42,
+              12
+            ],
+            [
+              35,
+              27
+            ],
+            [
+              32.5,
+              30
+            ],
+            [
+              30,
+              31.5
+            ],
+            [
+              25,
+              33
+            ],
+            [
+              20,
+              35
+            ],
+            [
+              15.09,
+              37.5
+            ]
+          ],
+          [
+            [
+              15.09,
+              37.5
+            ],
+            [
+              10,
+              40
+            ],
+            [
+              5.37,
+              43.3
+            ]
+          ]
+        ]
+      }
+    },
+    "aae-1": {
+      "id": "aae-1",
+      "name": "AAE-1",
+      "region": "Europe-Middle East-Asia",
+      "rfs": "2017",
+      "length_km": 25000,
+      "owners": [
+        "AAE-1 Consortium"
+      ],
+      "fiberPairs": 5,
+      "designCapacity": "40 Tbps",
+      "landingPoints": [
+        {
+          "name": "Hong Kong",
+          "country": "China",
+          "coordinates": [
+            114.17,
+            22.32
+          ]
+        },
+        {
+          "name": "Marseille",
+          "country": "France",
+          "coordinates": [
+            5.37,
+            43.3
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            114.17,
+            22.32
+          ],
+          [
+            108,
+            18
+          ],
+          [
+            103.85,
+            1.29
+          ],
+          [
+            95,
+            5
+          ],
+          [
+            85,
+            10
+          ],
+          [
+            72.88,
+            19.08
+          ],
+          [
+            65,
+            20
+          ],
+          [
+            55,
+            20
+          ],
+          [
+            45,
+            12
+          ],
+          [
+            35,
+            28
+          ],
+          [
+            32.5,
+            30
+          ],
+          [
+            25,
+            33
+          ],
+          [
+            15,
+            36
+          ],
+          [
+            5.37,
+            43.3
+          ]
+        ]
+      }
+    },
+    "blue": {
+      "id": "blue",
+      "name": "Blue Cable",
+      "region": "Europe-Middle East",
+      "rfs": "2024",
+      "length_km": 15500,
+      "owners": [
+        "Google",
+        "Telecom Italia Sparkle",
+        "Omantel"
+      ],
+      "fiberPairs": 16,
+      "designCapacity": "180+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Genoa",
+          "country": "Italy",
+          "coordinates": [
+            8.93,
+            44.41
+          ]
+        },
+        {
+          "name": "Muscat",
+          "country": "Oman",
+          "coordinates": [
+            58.41,
+            23.58
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              8.93,
+              44.41
+            ],
+            [
+              10,
+              40
+            ],
+            [
+              12,
+              38
+            ],
+            [
+              15,
+              36
+            ],
+            [
+              20,
+              34.5
+            ],
+            [
+              25,
+              33
+            ],
+            [
+              32.5,
+              30
+            ],
+            [
+              35,
+              28
+            ],
+            [
+              42,
+              13
+            ],
+            [
+              50,
+              20
+            ],
+            [
+              58.41,
+              23.58
+            ]
+          ],
+          [
+            [
+              35,
+              28
+            ],
+            [
+              35.1,
+              27.4
+            ],
+            [
+              35.7,
+              27.35
+            ]
+          ]
+        ]
+      }
+    },
+    "raman": {
+      "id": "raman",
+      "name": "Raman Cable",
+      "region": "Middle East-India",
+      "rfs": "2024",
+      "length_km": 4200,
+      "owners": [
+        "Google",
+        "Omantel"
+      ],
+      "fiberPairs": 16,
+      "designCapacity": "180+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Mumbai",
+          "country": "India",
+          "coordinates": [
+            72.88,
+            19.08
+          ]
+        },
+        {
+          "name": "Muscat",
+          "country": "Oman",
+          "coordinates": [
+            58.41,
+            23.58
+          ]
+        },
+        {
+          "name": "Aqaba",
+          "country": "Jordan",
+          "coordinates": [
+            35,
+            29.53
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              72.88,
+              19.08
+            ],
+            [
+              65,
+              20
+            ],
+            [
+              60,
+              16
+            ],
+            [
+              55,
+              15
+            ],
+            [
+              48.6,
+              12
+            ],
+            [
+              45.45,
+              11
+            ],
+            [
+              44.55,
+              11
+            ],
+            [
+              43.65,
+              11.4
+            ],
+            [
+              43.15,
+              11.59
+            ]
+          ],
+          [
+            [
+              55,
+              15
+            ],
+            [
+              58.95,
+              15
+            ],
+            [
+              60,
+              16
+            ],
+            [
+              65.75,
+              16
+            ],
+            [
+              65.5,
+              16.5
+            ],
+            [
+              65,
+              20.4
+            ],
+            [
+              63.45,
+              22.5
+            ],
+            [
+              59.85,
+              24.5
+            ],
+            [
+              58.5,
+              24
+            ],
+            [
+              57.89,
+              23.68
+            ]
+          ],
+          [
+            [
+              35.7,
+              27.35
+            ],
+            [
+              35.1,
+              27.5
+            ],
+            [
+              34.59,
+              26.56
+            ],
+            [
+              35.52,
+              26.56
+            ],
+            [
+              36.34,
+              25.75
+            ],
+            [
+              37.35,
+              24.12
+            ],
+            [
+              38.59,
+              22.05
+            ],
+            [
+              39.04,
+              20.94
+            ],
+            [
+              39.38,
+              20.38
+            ],
+            [
+              41.74,
+              16.53
+            ],
+            [
+              42.47,
+              14.8
+            ],
+            [
+              43,
+              13.93
+            ],
+            [
+              43.23,
+              13.05
+            ],
+            [
+              43.33,
+              12.83
+            ],
+            [
+              43.41,
+              12.62
+            ],
+            [
+              43.88,
+              12.4
+            ],
+            [
+              44.55,
+              11.57
+            ],
+            [
+              45.45,
+              11.52
+            ],
+            [
+              48.6,
+              12.3
+            ],
+            [
+              52.65,
+              13.27
+            ],
+            [
+              54,
+              13.6
+            ],
+            [
+              55.35,
+              13.71
+            ],
+            [
+              58.95,
+              15.02
+            ],
+            [
+              60.98,
+              16.75
+            ],
+            [
+              66.6,
+              18.68
+            ],
+            [
+              70.2,
+              18.89
+            ],
+            [
+              72.88,
+              19.07
+            ]
+          ]
+        ]
+      }
+    },
+    "iex": {
+      "id": "iex",
+      "name": "India Europe Xpress (IEX)",
+      "region": "Europe-India",
+      "rfs": "2024",
+      "length_km": 11000,
+      "owners": [
+        "Reliance Jio"
+      ],
+      "fiberPairs": 16,
+      "designCapacity": "200+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Mumbai",
+          "country": "India",
+          "coordinates": [
+            72.88,
+            19.08
+          ]
+        },
+        {
+          "name": "Savona",
+          "country": "Italy",
+          "coordinates": [
+            8.48,
+            44.31
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            72.88,
+            19.08
+          ],
+          [
+            65,
+            20
+          ],
+          [
+            55,
+            20
+          ],
+          [
+            45,
+            15
+          ],
+          [
+            35,
+            28
+          ],
+          [
+            32.5,
+            30
+          ],
+          [
+            25,
+            33
+          ],
+          [
+            15,
+            37
+          ],
+          [
+            8.48,
+            44.31
+          ]
+        ]
+      }
+    },
+    "iax": {
+      "id": "iax",
+      "name": "India Asia Xpress (IAX)",
+      "region": "India-Asia",
+      "rfs": "2024",
+      "length_km": 8400,
+      "owners": [
+        "Reliance Jio"
+      ],
+      "fiberPairs": 16,
+      "designCapacity": "200+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Mumbai",
+          "country": "India",
+          "coordinates": [
+            72.88,
+            19.08
+          ]
+        },
+        {
+          "name": "Singapore",
+          "country": "Singapore",
+          "coordinates": [
+            103.85,
+            1.29
+          ]
+        },
+        {
+          "name": "Sattahip",
+          "country": "Thailand",
+          "coordinates": [
+            100.89,
+            12.67
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              72.88,
+              19.08
+            ],
+            [
+              75,
+              10
+            ],
+            [
+              80,
+              5
+            ],
+            [
+              85,
+              2
+            ],
+            [
+              95,
+              5
+            ],
+            [
+              103.85,
+              1.29
+            ]
+          ],
+          [
+            [
+              95,
+              5
+            ],
+            [
+              100.89,
+              12.67
+            ]
+          ]
+        ]
+      }
+    },
+    "mist": {
+      "id": "mist",
+      "name": "MIST Cable",
+      "region": "India-Asia",
+      "rfs": "2021",
+      "length_km": 8700,
+      "owners": [
+        "GCX",
+        "Jio",
+        "NTT Communications"
+      ],
+      "fiberPairs": 8,
+      "designCapacity": "80+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Mumbai",
+          "country": "India",
+          "coordinates": [
+            72.88,
+            19.08
+          ]
+        },
+        {
+          "name": "Singapore",
+          "country": "Singapore",
+          "coordinates": [
+            103.85,
+            1.29
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            72.88,
+            19.08
+          ],
+          [
+            78,
+            12
+          ],
+          [
+            85,
+            8
+          ],
+          [
+            92,
+            15
+          ],
+          [
+            98,
+            8
+          ],
+          [
+            103.85,
+            1.29
+          ]
+        ]
+      }
+    },
+    "bbg": {
+      "id": "bbg",
+      "name": "Bay of Bengal Gateway (BBG)",
+      "region": "Middle East-India-Asia",
+      "rfs": "2016",
+      "length_km": 8100,
+      "owners": [
+        "Reliance Jio"
+      ],
+      "fiberPairs": 4,
+      "designCapacity": "16+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Mumbai",
+          "country": "India",
+          "coordinates": [
+            72.88,
+            19.08
+          ]
+        },
+        {
+          "name": "Chennai",
+          "country": "India",
+          "coordinates": [
+            80.25,
+            13.09
+          ]
+        },
+        {
+          "name": "Singapore",
+          "country": "Singapore",
+          "coordinates": [
+            103.85,
+            1.29
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              72.88,
+              19.08
+            ],
+            [
+              75,
+              15
+            ],
+            [
+              80.25,
+              13.09
+            ]
+          ],
+          [
+            [
+              80.25,
+              13.09
+            ],
+            [
+              85,
+              10
+            ],
+            [
+              95,
+              5
+            ],
+            [
+              103.85,
+              1.29
+            ]
+          ],
+          [
+            [
+              72.88,
+              19.08
+            ],
+            [
+              65,
+              20
+            ],
+            [
+              58,
+              23.5
+            ]
+          ]
+        ]
+      }
+    },
+    "falcon": {
+      "id": "falcon",
+      "name": "FALCON Cable",
+      "region": "Middle East-India",
+      "rfs": "2006",
+      "length_km": 9200,
+      "owners": [
+        "FLAG Telecom / Reliance"
+      ],
+      "fiberPairs": 4,
+      "designCapacity": "2.56 Tbps",
+      "landingPoints": [
+        {
+          "name": "Mumbai",
+          "country": "India",
+          "coordinates": [
+            72.88,
+            19.08
+          ]
+        },
+        {
+          "name": "Various Middle East",
+          "country": "Multiple",
+          "coordinates": [
+            55,
+            25
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            72.88,
+            19.08
+          ],
+          [
+            65,
+            20
+          ],
+          [
+            58,
+            23.5
+          ],
+          [
+            55,
+            25
+          ],
+          [
+            50,
+            27
+          ],
+          [
+            45,
+            15
+          ]
+        ]
+      }
+    },
+    "hawk": {
+      "id": "hawk",
+      "name": "HAWK Cable",
+      "region": "Middle East-Africa",
+      "rfs": "2017",
+      "length_km": 2000,
+      "owners": [
+        "Ooredoo"
+      ],
+      "fiberPairs": 2,
+      "designCapacity": "20 Tbps",
+      "landingPoints": [
+        {
+          "name": "Doha",
+          "country": "Qatar",
+          "coordinates": [
+            51.53,
+            25.29
+          ]
+        },
+        {
+          "name": "Djibouti",
+          "country": "Djibouti",
+          "coordinates": [
+            43.15,
+            11.59
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            51.53,
+            25.29
+          ],
+          [
+            50,
+            22
+          ],
+          [
+            45,
+            15
+          ],
+          [
+            43.15,
+            11.59
+          ]
+        ]
+      }
+    },
+    "tgn-gulf": {
+      "id": "tgn-gulf",
+      "name": "TGN-Gulf",
+      "region": "IntraMiddle East",
+      "rfs": "1999",
+      "length_km": 2000,
+      "owners": [
+        "Telia Carrier"
+      ],
+      "fiberPairs": 4,
+      "designCapacity": "640 Gbps",
+      "landingPoints": [
+        {
+          "name": "Various Gulf states",
+          "country": "Multiple",
+          "coordinates": [
+            52,
+            25
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            48,
+            29.5
+          ],
+          [
+            50,
+            27
+          ],
+          [
+            52,
+            26
+          ],
+          [
+            55,
+            25.5
+          ],
+          [
+            57,
+            24.5
+          ]
+        ]
+      }
+    },
+    "tic": {
+      "id": "tic",
+      "name": "TIC (Tata Indicom Cable)",
+      "region": "India-Asia",
+      "rfs": "2009",
+      "length_km": 4000,
+      "owners": [
+        "Tata Communications"
+      ],
+      "fiberPairs": 8,
+      "designCapacity": "5.12 Tbps",
+      "landingPoints": [
+        {
+          "name": "Chennai",
+          "country": "India",
+          "coordinates": [
+            80.25,
+            13.09
+          ]
+        },
+        {
+          "name": "Singapore",
+          "country": "Singapore",
+          "coordinates": [
+            103.85,
+            1.29
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            80.25,
+            13.09
+          ],
+          [
+            85,
+            10
+          ],
+          [
+            92,
+            8
+          ],
+          [
+            98,
+            5
+          ],
+          [
+            103.85,
+            1.29
+          ]
+        ]
+      }
+    },
+    "i2i": {
+      "id": "i2i",
+      "name": "i2i Cable",
+      "region": "India-Asia",
+      "rfs": "2002",
+      "length_km": 3200,
+      "owners": [
+        "Bharti Airtel",
+        "SingTel"
+      ],
+      "fiberPairs": 8,
+      "designCapacity": "8.4 Tbps",
+      "landingPoints": [
+        {
+          "name": "Chennai",
+          "country": "India",
+          "coordinates": [
+            80.25,
+            13.09
+          ]
+        },
+        {
+          "name": "Singapore",
+          "country": "Singapore",
+          "coordinates": [
+            103.85,
+            1.29
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            80.25,
+            13.09
+          ],
+          [
+            87,
+            8
+          ],
+          [
+            95,
+            4
+          ],
+          [
+            103.85,
+            1.29
+          ]
+        ]
+      }
+    },
+    "sjc2": {
+      "id": "sjc2",
+      "name": "SJC2 (South-East Asia Japan Cable 2)",
+      "region": "Asia-North Asia",
+      "rfs": "2023",
+      "length_km": 10500,
+      "owners": [
+        "SJC2 Consortium"
+      ],
+      "fiberPairs": 6,
+      "designCapacity": "144+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Singapore",
+          "country": "Singapore",
+          "coordinates": [
+            103.85,
+            1.29
+          ]
+        },
+        {
+          "name": "Shima",
+          "country": "Japan",
+          "coordinates": [
+            136.87,
+            34.34
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            103.85,
+            1.29
+          ],
+          [
+            108,
+            6
+          ],
+          [
+            115,
+            10
+          ],
+          [
+            120,
+            15
+          ],
+          [
+            125,
+            20
+          ],
+          [
+            130,
+            28
+          ],
+          [
+            136.87,
+            34.34
+          ]
+        ]
+      }
+    },
+    "tgn-ia": {
+      "id": "tgn-ia",
+      "name": "TGN-Intra Asia",
+      "region": "IntraAsia",
+      "rfs": "2002",
+      "length_km": 7000,
+      "owners": [
+        "Telia Carrier"
+      ],
+      "fiberPairs": 4,
+      "designCapacity": "2.56 Tbps",
+      "landingPoints": [
+        {
+          "name": "Hong Kong",
+          "country": "China",
+          "coordinates": [
+            114.17,
+            22.32
+          ]
+        },
+        {
+          "name": "Singapore",
+          "country": "Singapore",
+          "coordinates": [
+            103.85,
+            1.29
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            103.85,
+            1.29
+          ],
+          [
+            108,
+            5
+          ],
+          [
+            112,
+            10
+          ],
+          [
+            114.17,
+            22.32
+          ]
+        ]
+      }
+    },
+    "aag": {
+      "id": "aag",
+      "name": "Asia-America Gateway (AAG)",
+      "region": "North Asia-North America",
+      "rfs": "2009",
+      "length_km": 20000,
+      "owners": [
+        "AAG Consortium"
+      ],
+      "fiberPairs": 4,
+      "designCapacity": "2.88 Tbps",
+      "landingPoints": [
+        {
+          "name": "Various Asia",
+          "country": "Multiple",
+          "coordinates": [
+            114,
+            22
+          ]
+        },
+        {
+          "name": "USA",
+          "country": "USA",
+          "coordinates": [
+            -118,
+            34
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            114,
+            22
+          ],
+          [
+            125,
+            18
+          ],
+          [
+            145,
+            14
+          ],
+          [
+            160,
+            20
+          ],
+          [
+            180,
+            25
+          ],
+          [
+            -160,
+            30
+          ],
+          [
+            -140,
+            33
+          ],
+          [
+            -118,
+            34
+          ]
+        ]
+      }
+    },
+    "adc": {
+      "id": "adc",
+      "name": "Asia Direct Cable (ADC)",
+      "region": "IntraAsia",
+      "rfs": "2023",
+      "length_km": 9400,
+      "owners": [
+        "NTT",
+        "PLDT",
+        "Singtel",
+        "others"
+      ],
+      "fiberPairs": 6,
+      "designCapacity": "144+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Singapore",
+          "country": "Singapore",
+          "coordinates": [
+            103.85,
+            1.29
+          ]
+        },
+        {
+          "name": "Japan",
+          "country": "Japan",
+          "coordinates": [
+            140,
+            35
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            103.85,
+            1.29
+          ],
+          [
+            110,
+            8
+          ],
+          [
+            120,
+            15
+          ],
+          [
+            125,
+            22
+          ],
+          [
+            130,
+            28
+          ],
+          [
+            140,
+            35
+          ]
+        ]
+      }
+    },
+    "echo": {
+      "id": "echo",
+      "name": "Echo Cable",
+      "region": "North Asia-North America",
+      "rfs": "2024",
+      "length_km": 15000,
+      "owners": [
+        "Google",
+        "Meta",
+        "others"
+      ],
+      "fiberPairs": 16,
+      "designCapacity": "180+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Singapore",
+          "country": "Singapore",
+          "coordinates": [
+            103.85,
+            1.29
+          ]
+        },
+        {
+          "name": "Guam",
+          "country": "USA",
+          "coordinates": [
+            144.79,
+            13.44
+          ]
+        },
+        {
+          "name": "USA",
+          "country": "USA",
+          "coordinates": [
+            -124.16,
+            40.8
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              103.85,
+              1.29
+            ],
+            [
+              120,
+              10
+            ],
+            [
+              133,
+              8
+            ],
+            [
+              144.79,
+              13.44
+            ],
+            [
+              160,
+              21
+            ],
+            [
+              180,
+              27
+            ]
+          ],
+          [
+            [
+              -180,
+              27
+            ],
+            [
+              -160,
+              33
+            ],
+            [
+              -140,
+              37
+            ],
+            [
+              -124.16,
+              40.8
+            ]
+          ]
+        ]
+      }
+    },
+    "bifrost": {
+      "id": "bifrost",
+      "name": "Bifrost Cable",
+      "region": "North Asia-North America",
+      "rfs": "2024",
+      "length_km": 15000,
+      "owners": [
+        "Meta",
+        "Keppel",
+        "Telin"
+      ],
+      "fiberPairs": 12,
+      "designCapacity": "180+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Singapore",
+          "country": "Singapore",
+          "coordinates": [
+            103.85,
+            1.29
+          ]
+        },
+        {
+          "name": "USA",
+          "country": "USA",
+          "coordinates": [
+            -123.97,
+            45.15
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              103.85,
+              1.29
+            ],
+            [
+              112,
+              -4.4
+            ],
+            [
+              117.5,
+              -2.7
+            ],
+            [
+              119,
+              1
+            ],
+            [
+              126.5,
+              5.7
+            ],
+            [
+              144.65,
+              13.93
+            ],
+            [
+              144.78,
+              13.49
+            ],
+            [
+              180,
+              27.1
+            ]
+          ],
+          [
+            [
+              -180,
+              27.1
+            ],
+            [
+              -172.8,
+              30.3
+            ],
+            [
+              -163.8,
+              34.1
+            ],
+            [
+              -151.2,
+              37.7
+            ],
+            [
+              -138.6,
+              40.4
+            ],
+            [
+              -123.97,
+              45.15
+            ]
+          ]
+        ]
+      }
+    },
+    "juno": {
+      "id": "juno",
+      "name": "JUNO Cable",
+      "region": "North Asia-North America",
+      "rfs": "2025",
+      "length_km": 14000,
+      "owners": [
+        "NEC",
+        "KDDI",
+        "Meta",
+        "others"
+      ],
+      "fiberPairs": 16,
+      "designCapacity": "350+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Japan",
+          "country": "Japan",
+          "coordinates": [
+            136.87,
+            34.34
+          ]
+        },
+        {
+          "name": "USA",
+          "country": "USA",
+          "coordinates": [
+            -122.85,
+            34.63
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              136.87,
+              34.34
+            ],
+            [
+              143.1,
+              33.94
+            ],
+            [
+              149.4,
+              35.1
+            ],
+            [
+              160.2,
+              39
+            ],
+            [
+              172.8,
+              42.74
+            ],
+            [
+              180,
+              42.74
+            ]
+          ],
+          [
+            [
+              -180,
+              42.74
+            ],
+            [
+              -151.2,
+              42.74
+            ],
+            [
+              -138.8,
+              39.46
+            ],
+            [
+              -129.6,
+              35.73
+            ],
+            [
+              -122.85,
+              34.63
+            ]
+          ]
+        ]
+      }
+    },
+    "jupiter": {
+      "id": "jupiter",
+      "name": "Jupiter Cable",
+      "region": "North Asia-North America",
+      "rfs": "2020",
+      "length_km": 14000,
+      "owners": [
+        "Amazon",
+        "Facebook",
+        "NTT",
+        "PLDT",
+        "others"
+      ],
+      "fiberPairs": 8,
+      "designCapacity": "60+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Japan",
+          "country": "Japan",
+          "coordinates": [
+            137,
+            35
+          ]
+        },
+        {
+          "name": "Philippines",
+          "country": "Philippines",
+          "coordinates": [
+            121,
+            14
+          ]
+        },
+        {
+          "name": "USA",
+          "country": "USA",
+          "coordinates": [
+            -118,
+            34
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              137,
+              35
+            ],
+            [
+              140,
+              33
+            ],
+            [
+              145,
+              20
+            ],
+            [
+              140,
+              15
+            ],
+            [
+              121,
+              14
+            ]
+          ],
+          [
+            [
+              145,
+              20
+            ],
+            [
+              160,
+              25
+            ],
+            [
+              180,
+              30
+            ]
+          ],
+          [
+            [
+              -180,
+              30
+            ],
+            [
+              -150,
+              35
+            ],
+            [
+              -130,
+              35
+            ],
+            [
+              -118,
+              34
+            ]
+          ]
+        ]
+      }
+    },
+    "faster": {
+      "id": "faster",
+      "name": "FASTER Cable",
+      "region": "North Asia-North America",
+      "rfs": "2016",
+      "length_km": 9000,
+      "owners": [
+        "FASTER Consortium (Google, etc.)"
+      ],
+      "fiberPairs": 6,
+      "designCapacity": "60+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Shima and Chikura",
+          "country": "Japan",
+          "coordinates": [
+            136.87,
+            34.34
+          ]
+        },
+        {
+          "name": "Oregon",
+          "country": "USA",
+          "coordinates": [
+            -124,
+            43
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              136.87,
+              34.34
+            ],
+            [
+              145,
+              35
+            ],
+            [
+              160,
+              38
+            ],
+            [
+              180,
+              42
+            ]
+          ],
+          [
+            [
+              -180,
+              42
+            ],
+            [
+              -160,
+              43
+            ],
+            [
+              -140,
+              43.5
+            ],
+            [
+              -124,
+              43
+            ]
+          ]
+        ]
+      }
+    },
+    "tgn-pacific": {
+      "id": "tgn-pacific",
+      "name": "TGN-Pacific",
+      "region": "North Asia-North America",
+      "rfs": "2002",
+      "length_km": 18000,
+      "owners": [
+        "Telia Carrier"
+      ],
+      "fiberPairs": 4,
+      "designCapacity": "2.56 Tbps",
+      "landingPoints": [
+        {
+          "name": "Japan",
+          "country": "Japan",
+          "coordinates": [
+            140,
+            35
+          ]
+        },
+        {
+          "name": "USA",
+          "country": "USA",
+          "coordinates": [
+            -122,
+            37
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              140,
+              35
+            ],
+            [
+              150,
+              38
+            ],
+            [
+              170,
+              42
+            ],
+            [
+              180,
+              43
+            ]
+          ],
+          [
+            [
+              -180,
+              43
+            ],
+            [
+              -160,
+              42
+            ],
+            [
+              -140,
+              40
+            ],
+            [
+              -122,
+              37
+            ]
+          ]
+        ]
+      }
+    },
+    "e2a": {
+      "id": "e2a",
+      "name": "E2A Cable",
+      "region": "North Asia-North America",
+      "rfs": "2025",
+      "length_km": 14500,
+      "owners": [
+        "KDDI",
+        "Meta",
+        "SoftBank"
+      ],
+      "fiberPairs": 16,
+      "designCapacity": "400+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Japan",
+          "country": "Japan",
+          "coordinates": [
+            140,
+            35
+          ]
+        },
+        {
+          "name": "Taiwan",
+          "country": "Taiwan",
+          "coordinates": [
+            121.8,
+            24.86
+          ]
+        },
+        {
+          "name": "USA",
+          "country": "USA",
+          "coordinates": [
+            -120.85,
+            35.34
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              121.8,
+              24.86
+            ],
+            [
+              129.45,
+              28.38
+            ],
+            [
+              135.05,
+              28.82
+            ],
+            [
+              137.79,
+              29.49
+            ],
+            [
+              143.55,
+              32.82
+            ],
+            [
+              149.38,
+              35.1
+            ],
+            [
+              172.74,
+              41.93
+            ],
+            [
+              180,
+              41.93
+            ]
+          ],
+          [
+            [
+              128.99,
+              35.17
+            ],
+            [
+              127.23,
+              31.05
+            ],
+            [
+              129.45,
+              28.38
+            ]
+          ],
+          [
+            [
+              -180,
+              41.93
+            ],
+            [
+              -151.18,
+              41.93
+            ],
+            [
+              -138.88,
+              39.46
+            ],
+            [
+              -129.61,
+              35.73
+            ],
+            [
+              -120.85,
+              35.34
+            ]
+          ],
+          [
+            [
+              140,
+              35
+            ],
+            [
+              140.54,
+              34.74
+            ],
+            [
+              142.46,
+              32.88
+            ],
+            [
+              142.83,
+              32.41
+            ]
+          ]
+        ]
+      }
+    },
+    "unity": {
+      "id": "unity",
+      "name": "Unity Cable",
+      "region": "North Asia-North America",
+      "rfs": "2010",
+      "length_km": 9600,
+      "owners": [
+        "Google",
+        "KDDI",
+        "others"
+      ],
+      "fiberPairs": 5,
+      "designCapacity": "7.68 Tbps",
+      "landingPoints": [
+        {
+          "name": "Chikura",
+          "country": "Japan",
+          "coordinates": [
+            140,
+            35
+          ]
+        },
+        {
+          "name": "Los Angeles",
+          "country": "USA",
+          "coordinates": [
+            -118,
+            34
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              140,
+              35
+            ],
+            [
+              150,
+              37
+            ],
+            [
+              170,
+              40
+            ],
+            [
+              180,
+              41
+            ]
+          ],
+          [
+            [
+              -180,
+              41
+            ],
+            [
+              -160,
+              40
+            ],
+            [
+              -140,
+              37
+            ],
+            [
+              -118,
+              34
+            ]
+          ]
+        ]
+      }
+    },
+    "ace": {
+      "id": "ace",
+      "name": "ACE (Africa Coast to Europe)",
+      "region": "Europe-Africa",
+      "rfs": "2012",
+      "length_km": 17000,
+      "owners": [
+        "ACE Consortium"
+      ],
+      "fiberPairs": 2,
+      "designCapacity": "5.12 Tbps",
+      "landingPoints": [
+        {
+          "name": "Penmarch",
+          "country": "France",
+          "coordinates": [
+            -4.37,
+            47.8
+          ]
+        },
+        {
+          "name": "Various African locations",
+          "country": "Multiple",
+          "coordinates": [
+            -15,
+            12
+          ]
+        },
+        {
+          "name": "Fortaleza",
+          "country": "Brazil",
+          "coordinates": [
+            -38.5,
+            -3.73
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              -4.37,
+              47.8
+            ],
+            [
+              -10,
+              42
+            ],
+            [
+              -15,
+              35
+            ],
+            [
+              -18,
+              25
+            ],
+            [
+              -17,
+              15
+            ],
+            [
+              -15,
+              12
+            ],
+            [
+              -10,
+              6
+            ],
+            [
+              -5,
+              5
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              5,
+              2
+            ],
+            [
+              10,
+              0
+            ]
+          ],
+          [
+            [
+              -15,
+              12
+            ],
+            [
+              -25,
+              5
+            ],
+            [
+              -35,
+              0
+            ],
+            [
+              -38.5,
+              -3.73
+            ]
+          ]
+        ]
+      }
+    },
+    "main-one": {
+      "id": "main-one",
+      "name": "MainOne",
+      "region": "Europe-Africa",
+      "rfs": "2010",
+      "length_km": 7000,
+      "owners": [
+        "MainOne"
+      ],
+      "fiberPairs": 2,
+      "designCapacity": "1.92 Tbps",
+      "landingPoints": [
+        {
+          "name": "Seixal",
+          "country": "Portugal",
+          "coordinates": [
+            -9.1,
+            38.64
+          ]
+        },
+        {
+          "name": "Accra",
+          "country": "Ghana",
+          "coordinates": [
+            -0.19,
+            5.56
+          ]
+        },
+        {
+          "name": "Lagos",
+          "country": "Nigeria",
+          "coordinates": [
+            3.39,
+            6.45
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -9.1,
+            38.64
+          ],
+          [
+            -12,
+            30
+          ],
+          [
+            -15,
+            20
+          ],
+          [
+            -10,
+            10
+          ],
+          [
+            -0.19,
+            5.56
+          ],
+          [
+            3.39,
+            6.45
+          ]
+        ]
+      }
+    },
+    "wacs": {
+      "id": "wacs",
+      "name": "WACS (West Africa Cable System)",
+      "region": "Europe-Africa",
+      "rfs": "2012",
+      "length_km": 14530,
+      "owners": [
+        "WACS Consortium"
+      ],
+      "fiberPairs": 4,
+      "designCapacity": "5.12 Tbps",
+      "landingPoints": [
+        {
+          "name": "Highbridge",
+          "country": "UK",
+          "coordinates": [
+            -3,
+            51.22
+          ]
+        },
+        {
+          "name": "Various African locations",
+          "country": "Multiple",
+          "coordinates": [
+            -5,
+            5
+          ]
+        },
+        {
+          "name": "Cape Town",
+          "country": "South Africa",
+          "coordinates": [
+            18.42,
+            -33.93
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -3,
+            51.22
+          ],
+          [
+            -5,
+            45
+          ],
+          [
+            -10,
+            38
+          ],
+          [
+            -15,
+            28
+          ],
+          [
+            -18,
+            15
+          ],
+          [
+            -15,
+            5
+          ],
+          [
+            -5,
+            5
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            10,
+            -5
+          ],
+          [
+            12,
+            -10
+          ],
+          [
+            15,
+            -25
+          ],
+          [
+            18.42,
+            -33.93
+          ]
+        ]
+      }
+    },
+    "equiano": {
+      "id": "equiano",
+      "name": "Equiano",
+      "region": "Europe-Africa",
+      "rfs": "2022",
+      "length_km": 12000,
+      "owners": [
+        "Google"
+      ],
+      "fiberPairs": 12,
+      "designCapacity": "144+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Lisbon",
+          "country": "Portugal",
+          "coordinates": [
+            -9.14,
+            38.72
+          ]
+        },
+        {
+          "name": "Lagos",
+          "country": "Nigeria",
+          "coordinates": [
+            3.39,
+            6.45
+          ]
+        },
+        {
+          "name": "Cape Town",
+          "country": "South Africa",
+          "coordinates": [
+            18.42,
+            -33.93
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -9.14,
+            38.72
+          ],
+          [
+            -12,
+            30
+          ],
+          [
+            -15,
+            20
+          ],
+          [
+            -10,
+            10
+          ],
+          [
+            3.39,
+            6.45
+          ],
+          [
+            8,
+            0
+          ],
+          [
+            12,
+            -10
+          ],
+          [
+            18.42,
+            -33.93
+          ]
+        ]
+      }
+    },
+    "2africa": {
+      "id": "2africa",
+      "name": "2Africa",
+      "region": "Europe-Africa-Middle East-Asia",
+      "rfs": "2024",
+      "length_km": 45000,
+      "owners": [
+        "2Africa Consortium (Meta, MTN, Orange, etc.)"
+      ],
+      "fiberPairs": 16,
+      "designCapacity": "180+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Multiple landing points",
+          "country": "Multiple (Africa, Europe, Middle East)",
+          "coordinates": [
+            0,
+            0
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              -9,
+              38.7
+            ],
+            [
+              -12,
+              30
+            ],
+            [
+              -18,
+              20
+            ],
+            [
+              -17,
+              10
+            ],
+            [
+              -15,
+              5
+            ],
+            [
+              -5,
+              5
+            ],
+            [
+              5,
+              0
+            ],
+            [
+              12,
+              -10
+            ],
+            [
+              18,
+              -34
+            ],
+            [
+              30,
+              -30
+            ],
+            [
+              38,
+              -20
+            ],
+            [
+              40,
+              -5
+            ],
+            [
+              45,
+              12
+            ],
+            [
+              50,
+              25
+            ],
+            [
+              58,
+              23.5
+            ],
+            [
+              65,
+              20
+            ],
+            [
+              72,
+              19
+            ]
+          ],
+          [
+            [
+              45,
+              12
+            ],
+            [
+              35,
+              28
+            ],
+            [
+              32.5,
+              30
+            ],
+            [
+              25,
+              33
+            ],
+            [
+              15,
+              38
+            ],
+            [
+              5,
+              43
+            ]
+          ],
+          [
+            [
+              5,
+              43
+            ],
+            [
+              3,
+              42
+            ],
+            [
+              -3,
+              43.5
+            ]
+          ]
+        ]
+      }
+    },
+    "indigo-west": {
+      "id": "indigo-west",
+      "name": "Indigo West",
+      "region": "Asia-Oceania",
+      "rfs": "2019",
+      "length_km": 4600,
+      "owners": [
+        "AARNet",
+        "Google",
+        "Indosat",
+        "Singtel",
+        "others"
+      ],
+      "fiberPairs": 4,
+      "designCapacity": "36+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Singapore",
+          "country": "Singapore",
+          "coordinates": [
+            103.85,
+            1.29
+          ]
+        },
+        {
+          "name": "Perth",
+          "country": "Australia",
+          "coordinates": [
+            115.86,
+            -31.95
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            103.85,
+            1.29
+          ],
+          [
+            105,
+            -5
+          ],
+          [
+            110,
+            -15
+          ],
+          [
+            115.86,
+            -31.95
+          ]
+        ]
+      }
+    },
+    "indigo-central": {
+      "id": "indigo-central",
+      "name": "Indigo Central",
+      "region": "Asia-Oceania",
+      "rfs": "2019",
+      "length_km": 3600,
+      "owners": [
+        "AARNet",
+        "Google",
+        "Indosat",
+        "Singtel",
+        "others"
+      ],
+      "fiberPairs": 4,
+      "designCapacity": "36+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Jakarta",
+          "country": "Indonesia",
+          "coordinates": [
+            106.85,
+            -6.21
+          ]
+        },
+        {
+          "name": "Sydney",
+          "country": "Australia",
+          "coordinates": [
+            151.21,
+            -33.87
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            106.85,
+            -6.21
+          ],
+          [
+            115,
+            -10
+          ],
+          [
+            130,
+            -15
+          ],
+          [
+            145,
+            -25
+          ],
+          [
+            151.21,
+            -33.87
+          ]
+        ]
+      }
+    },
+    "asc": {
+      "id": "asc",
+      "name": "Australia Singapore Cable (ASC)",
+      "region": "Asia-Oceania",
+      "rfs": "2018",
+      "length_km": 4600,
+      "owners": [
+        "Vocus"
+      ],
+      "fiberPairs": 4,
+      "designCapacity": "40 Tbps",
+      "landingPoints": [
+        {
+          "name": "Singapore",
+          "country": "Singapore",
+          "coordinates": [
+            103.85,
+            1.29
+          ]
+        },
+        {
+          "name": "Perth",
+          "country": "Australia",
+          "coordinates": [
+            115.86,
+            -31.95
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            103.85,
+            1.29
+          ],
+          [
+            106,
+            -3
+          ],
+          [
+            110,
+            -10
+          ],
+          [
+            112,
+            -20
+          ],
+          [
+            115.86,
+            -31.95
+          ]
+        ]
+      }
+    },
+    "southern-cross-next": {
+      "id": "southern-cross-next",
+      "name": "Southern Cross NEXT",
+      "region": "Oceania-North America",
+      "rfs": "2022",
+      "length_km": 15000,
+      "owners": [
+        "Southern Cross Cables"
+      ],
+      "fiberPairs": 12,
+      "designCapacity": "72+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Sydney",
+          "country": "Australia",
+          "coordinates": [
+            151.21,
+            -33.87
+          ]
+        },
+        {
+          "name": "Auckland",
+          "country": "New Zealand",
+          "coordinates": [
+            174.76,
+            -36.85
+          ]
+        },
+        {
+          "name": "Los Angeles",
+          "country": "USA",
+          "coordinates": [
+            -118.24,
+            34.05
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              151.21,
+              -33.87
+            ],
+            [
+              160,
+              -35
+            ],
+            [
+              174.76,
+              -36.85
+            ]
+          ],
+          [
+            [
+              174.76,
+              -36.85
+            ],
+            [
+              180,
+              -30
+            ]
+          ],
+          [
+            [
+              -180,
+              -30
+            ],
+            [
+              -160,
+              -20
+            ],
+            [
+              -140,
+              -5
+            ],
+            [
+              -120,
+              15
+            ],
+            [
+              -118.24,
+              34.05
+            ]
+          ]
+        ]
+      }
+    },
+    "sccn": {
+      "id": "sccn",
+      "name": "Southern Cross Cable Network (SCCN)",
+      "region": "Oceania-North America",
+      "rfs": "2000",
+      "length_km": 30500,
+      "owners": [
+        "Southern Cross Cables"
+      ],
+      "fiberPairs": 4,
+      "designCapacity": "8.6 Tbps",
+      "landingPoints": [
+        {
+          "name": "Sydney",
+          "country": "Australia",
+          "coordinates": [
+            151.21,
+            -33.87
+          ]
+        },
+        {
+          "name": "Auckland",
+          "country": "New Zealand",
+          "coordinates": [
+            174.76,
+            -36.85
+          ]
+        },
+        {
+          "name": "Fiji",
+          "country": "Fiji",
+          "coordinates": [
+            178,
+            -18
+          ]
+        },
+        {
+          "name": "USA",
+          "country": "USA",
+          "coordinates": [
+            -118.24,
+            34.05
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              151.21,
+              -33.87
+            ],
+            [
+              165,
+              -35
+            ],
+            [
+              174.76,
+              -36.85
+            ]
+          ],
+          [
+            [
+              174.76,
+              -36.85
+            ],
+            [
+              178,
+              -18
+            ],
+            [
+              180,
+              -10
+            ]
+          ],
+          [
+            [
+              -180,
+              -10
+            ],
+            [
+              -170,
+              0
+            ],
+            [
+              -150,
+              15
+            ],
+            [
+              -130,
+              28
+            ],
+            [
+              -118.24,
+              34.05
+            ]
+          ]
+        ]
+      }
+    },
+    "globe": {
+      "id": "globe",
+      "name": "Globe Cable",
+      "region": "IntraOceania",
+      "rfs": "2023",
+      "length_km": 3000,
+      "owners": [
+        "Various"
+      ],
+      "fiberPairs": 8,
+      "designCapacity": "100+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Various Pacific",
+          "country": "Multiple",
+          "coordinates": [
+            170,
+            -10
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            165,
+            -20
+          ],
+          [
+            170,
+            -15
+          ],
+          [
+            175,
+            -10
+          ],
+          [
+            180,
+            -5
+          ]
+        ]
+      }
+    },
+    "firmina": {
+      "id": "firmina",
+      "name": "Firmina",
+      "region": "North America-South America",
+      "rfs": "2023",
+      "length_km": 14000,
+      "owners": [
+        "Google"
+      ],
+      "fiberPairs": 12,
+      "designCapacity": "180+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Myrtle Beach",
+          "country": "USA",
+          "coordinates": [
+            -78.88,
+            33.69
+          ]
+        },
+        {
+          "name": "Las Toninas",
+          "country": "Argentina",
+          "coordinates": [
+            -56.7,
+            -36.47
+          ]
+        },
+        {
+          "name": "Praia Grande",
+          "country": "Brazil",
+          "coordinates": [
+            -46.4,
+            -24
+          ]
+        },
+        {
+          "name": "Punta del Este",
+          "country": "Uruguay",
+          "coordinates": [
+            -55,
+            -34.95
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              -78.88,
+              33.69
+            ],
+            [
+              -74.24,
+              31.9
+            ],
+            [
+              -56.94,
+              23.62
+            ],
+            [
+              -52.11,
+              16.58
+            ],
+            [
+              -38.29,
+              1.43
+            ],
+            [
+              -37.83,
+              -1.24
+            ],
+            [
+              -38.55,
+              -3.72
+            ],
+            [
+              -35.95,
+              -3.06
+            ],
+            [
+              -34.02,
+              -3.47
+            ],
+            [
+              -31.65,
+              -4.86
+            ],
+            [
+              13.89,
+              -32.93
+            ],
+            [
+              16.89,
+              -34.32
+            ],
+            [
+              18.04,
+              -34.23
+            ],
+            [
+              18.42,
+              -33.92
+            ],
+            [
+              18.17,
+              -34.85
+            ],
+            [
+              18.75,
+              -35.77
+            ],
+            [
+              19.62,
+              -35.98
+            ],
+            [
+              23.41,
+              -35.98
+            ],
+            [
+              27.98,
+              -35.2
+            ],
+            [
+              38.62,
+              -29.15
+            ],
+            [
+              45.29,
+              -29.17
+            ],
+            [
+              47.34,
+              -28.67
+            ],
+            [
+              56.97,
+              -23.08
+            ],
+            [
+              62.53,
+              -14.51
+            ],
+            [
+              65.57,
+              -10.96
+            ],
+            [
+              74.66,
+              -5.45
+            ],
+            [
+              76.27,
+              -2.79
+            ],
+            [
+              76.86,
+              0.85
+            ],
+            [
+              76.05,
+              4.09
+            ],
+            [
+              75.64,
+              8.28
+            ],
+            [
+              73.91,
+              11.53
+            ],
+            [
+              73.9,
+              11.54
+            ],
+            [
+              73.89,
+              11.55
+            ],
+            [
+              73.88,
+              11.57
+            ],
+            [
+              73.86,
+              11.59
+            ],
+            [
+              73.84,
+              11.61
+            ],
+            [
+              73.81,
+              11.64
+            ],
+            [
+              73.78,
+              11.67
+            ],
+            [
+              73.75,
+              11.7
+            ],
+            [
+              73.72,
+              11.73
+            ],
+            [
+              73.68,
+              11.77
+            ],
+            [
+              73.64,
+              11.81
+            ],
+            [
+              73.6,
+              11.86
+            ],
+            [
+              73.55,
+              11.9
+            ],
+            [
+              73.51,
+              11.95
+            ],
+            [
+              73.46,
+              11.99
+            ],
+            [
+              73.41,
+              12.04
+            ],
+            [
+              73.36,
+              12.1
+            ],
+            [
+              73.3,
+              12.15
+            ],
+            [
+              73.25,
+              12.2
+            ],
+            [
+              73.19,
+              12.26
+            ],
+            [
+              73.14,
+              12.31
+            ],
+            [
+              73.08,
+              12.37
+            ],
+            [
+              73.03,
+              12.43
+            ],
+            [
+              72.97,
+              12.48
+            ],
+            [
+              72.91,
+              12.54
+            ],
+            [
+              72.85,
+              12.6
+            ],
+            [
+              72.8,
+              12.65
+            ],
+            [
+              72.74,
+              12.71
+            ],
+            [
+              72.69,
+              12.76
+            ],
+            [
+              72.63,
+              12.82
+            ],
+            [
+              72.58,
+              12.87
+            ],
+            [
+              72.52,
+              12.93
+            ],
+            [
+              72.47,
+              12.98
+            ],
+            [
+              72.42,
+              13.04
+            ],
+            [
+              72.37,
+              13.09
+            ],
+            [
+              72.32,
+              13.14
+            ],
+            [
+              72.28,
+              13.19
+            ],
+            [
+              72.23,
+              13.23
+            ],
+            [
+              72.19,
+              13.28
+            ],
+            [
+              72.16,
+              13.32
+            ],
+            [
+              72.12,
+              13.36
+            ],
+            [
+              72.09,
+              13.4
+            ],
+            [
+              72.06,
+              13.44
+            ],
+            [
+              72.04,
+              13.45
+            ],
+            [
+              72.02,
+              13.48
+            ],
+            [
+              71.99,
+              13.5
+            ],
+            [
+              71.98,
+              13.52
+            ],
+            [
+              71.97,
+              13.54
+            ],
+            [
+              71.96,
+              13.56
+            ],
+            [
+              71.96,
+              13.56
+            ],
+            [
+              71.96,
+              16.97
+            ],
+            [
+              72.88,
+              19.08
+            ]
+          ],
+          [
+            [
+              80.24,
+              13.06
+            ],
+            [
+              81.52,
+              11.83
+            ],
+            [
+              83.04,
+              9.56
+            ],
+            [
+              83.43,
+              7.87
+            ],
+            [
+              84.12,
+              5.77
+            ],
+            [
+              90.78,
+              -8.14
+            ],
+            [
+              94.73,
+              -10.34
+            ],
+            [
+              123.07,
+              -12.78
+            ],
+            [
+              129.87,
+              -12.38
+            ],
+            [
+              130.84,
+              -12.47
+            ],
+            [
+              131.68,
+              -11.67
+            ],
+            [
+              131.73,
+              -10.73
+            ],
+            [
+              132.75,
+              -10.24
+            ],
+            [
+              138.55,
+              -10.53
+            ],
+            [
+              142.13,
+              -9.85
+            ],
+            [
+              144.9,
+              -11.02
+            ],
+            [
+              147.26,
+              -11.67
+            ],
+            [
+              153.49,
+              -12.48
+            ],
+            [
+              160.99,
+              -12.48
+            ],
+            [
+              170,
+              -10
+            ],
+            [
+              180,
+              3.1
+            ]
+          ],
+          [
+            [
+              -180,
+              3.1
+            ],
+            [
+              -169.97,
+              16.18
+            ],
+            [
+              -161.61,
+              23.04
+            ],
+            [
+              -147.45,
+              30.26
+            ],
+            [
+              -127.79,
+              33.53
+            ],
+            [
+              -122.39,
+              33.48
+            ],
+            [
+              -120.62,
+              33.45
+            ],
+            [
+              -118.9,
+              33.83
+            ],
+            [
+              -118.25,
+              34.05
+            ]
+          ],
+          [
+            [
+              76.86,
+              0.85
+            ],
+            [
+              80.97,
+              1.87
+            ],
+            [
+              85.5,
+              -1.27
+            ],
+            [
+              87.29,
+              -0.86
+            ]
+          ],
+          [
+            [
+              87.72,
+              -1.76
+            ],
+            [
+              90.1,
+              -1.29
+            ],
+            [
+              92.74,
+              3.46
+            ],
+            [
+              94.32,
+              4.5
+            ],
+            [
+              95.47,
+              5.74
+            ],
+            [
+              97.43,
+              6.16
+            ],
+            [
+              100.06,
+              6.61
+            ]
+          ]
+        ]
+      }
+    },
+    "amx-1": {
+      "id": "amx-1",
+      "name": "AMX-1 (Americas-1)",
+      "region": "North America-Central America-South America",
+      "rfs": "2014",
+      "length_km": 17500,
+      "owners": [
+        "América Móvil"
+      ],
+      "fiberPairs": 4,
+      "designCapacity": "80+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Multiple Americas locations",
+          "country": "Multiple",
+          "coordinates": [
+            -80,
+            25
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              -80,
+              25
+            ],
+            [
+              -82,
+              23
+            ],
+            [
+              -85,
+              20
+            ],
+            [
+              -87,
+              18
+            ],
+            [
+              -90,
+              15
+            ],
+            [
+              -95,
+              18
+            ],
+            [
+              -100,
+              20
+            ]
+          ],
+          [
+            [
+              -85,
+              20
+            ],
+            [
+              -82,
+              15
+            ],
+            [
+              -80,
+              10
+            ],
+            [
+              -75,
+              5
+            ],
+            [
+              -70,
+              0
+            ],
+            [
+              -60,
+              -5
+            ],
+            [
+              -50,
+              -20
+            ]
+          ]
+        ]
+      }
+    },
+    "brusa": {
+      "id": "brusa",
+      "name": "BRUSA",
+      "region": "North America-South America",
+      "rfs": "2018",
+      "length_km": 11000,
+      "owners": [
+        "Telxius"
+      ],
+      "fiberPairs": 4,
+      "designCapacity": "138+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Virginia Beach",
+          "country": "USA",
+          "coordinates": [
+            -75.98,
+            36.85
+          ]
+        },
+        {
+          "name": "Rio de Janeiro",
+          "country": "Brazil",
+          "coordinates": [
+            -43.17,
+            -22.91
+          ]
+        },
+        {
+          "name": "San Juan",
+          "country": "Puerto Rico",
+          "coordinates": [
+            -66.11,
+            18.47
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              -75.98,
+              36.85
+            ],
+            [
+              -70,
+              30
+            ],
+            [
+              -66.11,
+              18.47
+            ]
+          ],
+          [
+            [
+              -66.11,
+              18.47
+            ],
+            [
+              -55,
+              5
+            ],
+            [
+              -45,
+              -10
+            ],
+            [
+              -43.17,
+              -22.91
+            ]
+          ]
+        ]
+      }
+    },
+    "ellalink": {
+      "id": "ellalink",
+      "name": "EllaLink",
+      "region": "Europe-South America",
+      "rfs": "2021",
+      "length_km": 6000,
+      "owners": [
+        "EllaLink"
+      ],
+      "fiberPairs": 4,
+      "designCapacity": "72+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Sines",
+          "country": "Portugal",
+          "coordinates": [
+            -8.87,
+            37.95
+          ]
+        },
+        {
+          "name": "Fortaleza",
+          "country": "Brazil",
+          "coordinates": [
+            -38.5,
+            -3.73
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -8.87,
+            37.95
+          ],
+          [
+            -15,
+            30
+          ],
+          [
+            -25,
+            15
+          ],
+          [
+            -35,
+            5
+          ],
+          [
+            -38.5,
+            -3.73
+          ]
+        ]
+      }
+    },
+    "medusa": {
+      "id": "medusa",
+      "name": "Medusa Cable",
+      "region": "IntraEurope-North Africa",
+      "rfs": "2025",
+      "length_km": 8700,
+      "owners": [
+        "Google",
+        "partners"
+      ],
+      "fiberPairs": 24,
+      "designCapacity": "200+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Various Mediterranean",
+          "country": "Multiple",
+          "coordinates": [
+            10,
+            38
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              -9.33,
+              38.69
+            ],
+            [
+              -9.45,
+              38.12
+            ],
+            [
+              -9.67,
+              37.23
+            ],
+            [
+              -9.56,
+              36.69
+            ],
+            [
+              -9,
+              36.33
+            ],
+            [
+              -5.84,
+              36.13
+            ],
+            [
+              -5.57,
+              36.29
+            ],
+            [
+              -5.25,
+              36.38
+            ],
+            [
+              -4.5,
+              35.79
+            ],
+            [
+              -2.25,
+              35.88
+            ],
+            [
+              2.25,
+              37.41
+            ],
+            [
+              4.73,
+              38.65
+            ],
+            [
+              6.08,
+              38.65
+            ],
+            [
+              8.1,
+              38.21
+            ],
+            [
+              9,
+              37.95
+            ],
+            [
+              10.35,
+              37.95
+            ],
+            [
+              10.91,
+              37.59
+            ],
+            [
+              11.81,
+              37.23
+            ],
+            [
+              12.99,
+              35.97
+            ],
+            [
+              14.4,
+              35.24
+            ],
+            [
+              16.65,
+              34.87
+            ],
+            [
+              19.35,
+              35.24
+            ],
+            [
+              22.05,
+              34.85
+            ],
+            [
+              23.4,
+              34.53
+            ],
+            [
+              25.2,
+              34.13
+            ],
+            [
+              27,
+              33.88
+            ],
+            [
+              31.05,
+              32.91
+            ],
+            [
+              31.95,
+              31.8
+            ],
+            [
+              32.29,
+              31.51
+            ],
+            [
+              32.28,
+              31.26
+            ]
+          ],
+          [
+            [
+              -4.5,
+              35.79
+            ],
+            [
+              -4.72,
+              35.6
+            ],
+            [
+              -5.39,
+              35.57
+            ]
+          ],
+          [
+            [
+              -2.25,
+              35.88
+            ],
+            [
+              -2.47,
+              35.45
+            ],
+            [
+              -2.93,
+              35.17
+            ]
+          ],
+          [
+            [
+              6.08,
+              38.65
+            ],
+            [
+              5.4,
+              41.74
+            ],
+            [
+              5.37,
+              43.29
+            ],
+            [
+              5.06,
+              41.74
+            ],
+            [
+              4.95,
+              41.18
+            ],
+            [
+              4.84,
+              40.04
+            ],
+            [
+              4.73,
+              38.65
+            ]
+          ],
+          [
+            [
+              4.95,
+              41.18
+            ],
+            [
+              2.7,
+              41.18
+            ],
+            [
+              2.17,
+              41.39
+            ]
+          ],
+          [
+            [
+              2.25,
+              37.41
+            ],
+            [
+              2.81,
+              37.23
+            ],
+            [
+              3.04,
+              36.76
+            ]
+          ],
+          [
+            [
+              8.1,
+              38.21
+            ],
+            [
+              6.98,
+              37.44
+            ],
+            [
+              6.56,
+              37
+            ]
+          ],
+          [
+            [
+              11.81,
+              37.23
+            ],
+            [
+              12.06,
+              37.55
+            ],
+            [
+              12.59,
+              37.65
+            ]
+          ],
+          [
+            [
+              9,
+              37.95
+            ],
+            [
+              9.56,
+              37.59
+            ],
+            [
+              9.87,
+              37.28
+            ]
+          ],
+          [
+            [
+              22.87,
+              34.65
+            ],
+            [
+              22.87,
+              35.26
+            ],
+            [
+              23.9,
+              36.29
+            ],
+            [
+              23.9,
+              37.1
+            ],
+            [
+              23.73,
+              37.97
+            ]
+          ],
+          [
+            [
+              31.05,
+              32.91
+            ],
+            [
+              31.61,
+              33.94
+            ],
+            [
+              32.47,
+              34.77
+            ]
+          ],
+          [
+            [
+              14.4,
+              35.24
+            ],
+            [
+              15.28,
+              33.69
+            ],
+            [
+              15.09,
+              32.37
+            ]
+          ],
+          [
+            [
+              20.06,
+              32.11
+            ],
+            [
+              19.8,
+              32.43
+            ],
+            [
+              19.69,
+              32.81
+            ],
+            [
+              19.35,
+              35.24
+            ]
+          ],
+          [
+            [
+              14.35,
+              35.95
+            ],
+            [
+              13.68,
+              35.61
+            ]
+          ],
+          [
+            [
+              32.05,
+              34.36
+            ],
+            [
+              34.2,
+              34.36
+            ],
+            [
+              35.9,
+              34.89
+            ]
+          ]
+        ]
+      }
+    },
+    "ice-iv": {
+      "id": "ice-iv",
+      "name": "ICE IV",
+      "region": "Asia-Middle East-Europe",
+      "rfs": "2024",
+      "length_km": 16000,
+      "owners": [
+        "Reliance Jio"
+      ],
+      "fiberPairs": 16,
+      "designCapacity": "200+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Singapore",
+          "country": "Singapore",
+          "coordinates": [
+            103.85,
+            1.29
+          ]
+        },
+        {
+          "name": "Mumbai",
+          "country": "India",
+          "coordinates": [
+            72.88,
+            19.08
+          ]
+        },
+        {
+          "name": "Various Middle East",
+          "country": "Multiple",
+          "coordinates": [
+            55,
+            25
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              103.85,
+              1.29
+            ],
+            [
+              103.5,
+              1.19
+            ],
+            [
+              103.34,
+              1.22
+            ],
+            [
+              102.68,
+              1.61
+            ],
+            [
+              102.15,
+              1.86
+            ],
+            [
+              101.25,
+              2.14
+            ],
+            [
+              99.88,
+              3.19
+            ],
+            [
+              98.44,
+              4.61
+            ],
+            [
+              97.76,
+              5.29
+            ],
+            [
+              97.43,
+              5.4
+            ],
+            [
+              95.44,
+              6.03
+            ],
+            [
+              94.28,
+              5.16
+            ],
+            [
+              92.7,
+              4.16
+            ],
+            [
+              90,
+              1.02
+            ],
+            [
+              85.5,
+              0.12
+            ],
+            [
+              81,
+              2.37
+            ],
+            [
+              79.65,
+              2.74
+            ],
+            [
+              78.3,
+              3.27
+            ],
+            [
+              74.59,
+              5.66
+            ],
+            [
+              73.8,
+              6.53
+            ],
+            [
+              71.54,
+              9.12
+            ],
+            [
+              69.86,
+              13.09
+            ],
+            [
+              65.75,
+              16.02
+            ],
+            [
+              58.95,
+              14.8
+            ],
+            [
+              55.35,
+              13.27
+            ],
+            [
+              54,
+              12.94
+            ],
+            [
+              52.65,
+              12.62
+            ],
+            [
+              48.6,
+              11.63
+            ],
+            [
+              45.45,
+              10.85
+            ],
+            [
+              44.55,
+              10.91
+            ],
+            [
+              43.2,
+              12.62
+            ],
+            [
+              43.12,
+              12.83
+            ],
+            [
+              42.78,
+              13.05
+            ],
+            [
+              42.08,
+              13.93
+            ],
+            [
+              41.57,
+              14.8
+            ],
+            [
+              40.05,
+              16.53
+            ],
+            [
+              39.04,
+              18.25
+            ],
+            [
+              37.8,
+              20.38
+            ],
+            [
+              37.01,
+              22.05
+            ],
+            [
+              35.78,
+              24.12
+            ],
+            [
+              34.76,
+              25.75
+            ],
+            [
+              34.34,
+              26.56
+            ],
+            [
+              33.75,
+              27.36
+            ],
+            [
+              33.34,
+              28.16
+            ],
+            [
+              32.82,
+              28.95
+            ],
+            [
+              32.65,
+              29.11
+            ]
+          ],
+          [
+            [
+              71.54,
+              9.12
+            ],
+            [
+              75.6,
+              9.8
+            ],
+            [
+              76.27,
+              9.94
+            ]
+          ],
+          [
+            [
+              76.27,
+              9.94
+            ],
+            [
+              80.24,
+              13.06
+            ]
+          ],
+          [
+            [
+              65.75,
+              16.02
+            ],
+            [
+              65.53,
+              16.46
+            ],
+            [
+              65.03,
+              20.38
+            ],
+            [
+              63.45,
+              22.47
+            ],
+            [
+              59.85,
+              24.53
+            ],
+            [
+              58.5,
+              24.81
+            ],
+            [
+              56.93,
+              24.97
+            ],
+            [
+              56.33,
+              25.12
+            ]
+          ],
+          [
+            [
+              59.85,
+              24.53
+            ],
+            [
+              58.95,
+              24
+            ],
+            [
+              58.41,
+              23.58
+            ]
+          ],
+          [
+            [
+              103.85,
+              1.29
+            ],
+            [
+              103.61,
+              1.02
+            ],
+            [
+              103.61,
+              0.79
+            ],
+            [
+              104.18,
+              0.34
+            ],
+            [
+              104.85,
+              0.24
+            ],
+            [
+              104.96,
+              0.12
+            ],
+            [
+              105.86,
+              -0.78
+            ],
+            [
+              106.65,
+              -2.13
+            ],
+            [
+              106.93,
+              -3.03
+            ],
+            [
+              106.76,
+              -4.6
+            ],
+            [
+              106.54,
+              -5.27
+            ],
+            [
+              106.83,
+              -6.17
+            ]
+          ]
+        ]
+      }
+    },
+    "plcn": {
+      "id": "plcn",
+      "name": "Pacific Light Cable Network (PLCN)",
+      "region": "Asia-North America",
+      "rfs": "2022",
+      "length_km": 13000,
+      "owners": [
+        "Google"
+      ],
+      "fiberPairs": 6,
+      "designCapacity": "144+ Tbps",
+      "landingPoints": [
+        {
+          "name": "Taiwan",
+          "country": "Taiwan",
+          "coordinates": [
+            121,
+            25
+          ]
+        },
+        {
+          "name": "Philippines",
+          "country": "Philippines",
+          "coordinates": [
+            121,
+            14
+          ]
+        },
+        {
+          "name": "USA",
+          "country": "USA",
+          "coordinates": [
+            -118,
+            34
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              121,
+              25
+            ],
+            [
+              130,
+              25
+            ],
+            [
+              145,
+              25
+            ],
+            [
+              160,
+              30
+            ],
+            [
+              180,
+              32
+            ]
+          ],
+          [
+            [
+              -180,
+              32
+            ],
+            [
+              -160,
+              33
+            ],
+            [
+              -140,
+              34
+            ],
+            [
+              -118,
+              34
+            ]
+          ],
+          [
+            [
+              121,
+              14
+            ],
+            [
+              125,
+              18
+            ],
+            [
+              130,
+              22
+            ],
+            [
+              130,
+              25
+            ]
+          ]
+        ]
+      }
+    }
+  }
+}
