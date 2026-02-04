@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "lastUpdated": "2025-02-04",
   "source": "TeleGeography SubmarineCableMap + Manual Enrichment",
   "license": "Database structure by NexiMap Studio. Geometry data from TeleGeography (CC BY-NC-SA 3.0)",
@@ -46,8 +46,9 @@
       "length_km": 6234,
       "owners": [
         "Microsoft",
-        "Meta",
-        "Aqua Comms"
+        "Facebook",
+        "Aqua Comms",
+        "Vodafone"
       ],
       "fiberPairs": 16,
       "designCapacity": "400+ Tbps",
@@ -165,7 +166,10 @@
           "approxLength_km": 728,
           "waypointCount": 4
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2022,
+      "capacityTbps": 400
     },
     "marea": {
       "id": "marea",
@@ -175,7 +179,7 @@
       "length_km": 6605,
       "owners": [
         "Microsoft",
-        "Meta",
+        "Facebook",
         "Telxius"
       ],
       "fiberPairs": 8,
@@ -230,7 +234,10 @@
             43.26
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2018,
+      "capacityTbps": 200
     },
     "dunant": {
       "id": "dunant",
@@ -293,7 +300,10 @@
             46.72
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2021,
+      "capacityTbps": 250
     },
     "havfrue-aec-2": {
       "id": "havfrue-aec-2",
@@ -302,12 +312,12 @@
       "rfs": "2020",
       "length_km": 7200,
       "owners": [
-        "Aqua Comms",
-        "Bulk Infrastructure",
         "Google",
-        "Meta"
+        "Facebook",
+        "Aqua Comms",
+        "Bulk Infrastructure"
       ],
-      "fiberPairs": 6,
+      "fiberPairs": 8,
       "designCapacity": "108+ Tbps",
       "landingPoints": [
         {
@@ -403,7 +413,10 @@
           "approxLength_km": 920,
           "waypointCount": 3
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2020,
+      "capacityTbps": 108
     },
     "aec-1": {
       "id": "aec-1",
@@ -414,7 +427,7 @@
       "owners": [
         "Aqua Comms"
       ],
-      "fiberPairs": 4,
+      "fiberPairs": 8,
       "designCapacity": "60+ Tbps",
       "landingPoints": [
         {
@@ -462,7 +475,10 @@
             54.21
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2022,
+      "capacityTbps": 100
     },
     "seabras-1": {
       "id": "seabras-1",
@@ -521,7 +537,10 @@
             -24
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2018,
+      "capacityTbps": 72
     },
     "seacom": {
       "id": "seacom",
@@ -676,7 +695,10 @@
           "approxLength_km": 5102,
           "waypointCount": 7
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2009,
+      "capacityTbps": 1.5
     },
     "seamewe-4": {
       "id": "seamewe-4",
@@ -763,7 +785,10 @@
             1.29
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2005,
+      "capacityTbps": 1.28
     },
     "peace": {
       "id": "peace",
@@ -772,7 +797,8 @@
       "rfs": "2022",
       "length_km": 15000,
       "owners": [
-        "PEACE Cable International Network"
+        "PCCW",
+        "Hengtong"
       ],
       "fiberPairs": 6,
       "designCapacity": "96 Tbps",
@@ -886,7 +912,10 @@
           "approxLength_km": 5018,
           "waypointCount": 5
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2022,
+      "capacityTbps": 96
     },
     "seamewe-5": {
       "id": "seamewe-5",
@@ -969,7 +998,10 @@
             1.29
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2016,
+      "capacityTbps": 24
     },
     "seamewe-6": {
       "id": "seamewe-6",
@@ -1123,7 +1155,10 @@
           "approxLength_km": 410,
           "waypointCount": 3
         }
-      ]
+      ],
+      "status": "Under Construction",
+      "rfsYear": 2025,
+      "capacityTbps": 126
     },
     "imewe": {
       "id": "imewe",
@@ -1246,7 +1281,10 @@
           "approxLength_km": 1260,
           "waypointCount": 3
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2010,
+      "capacityTbps": 3.84
     },
     "aae-1": {
       "id": "aae-1",
@@ -1337,7 +1375,10 @@
             43.3
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2017,
+      "capacityTbps": 40
     },
     "blue": {
       "id": "blue",
@@ -1347,10 +1388,9 @@
       "length_km": 15500,
       "owners": [
         "Google",
-        "Telecom Italia Sparkle",
-        "Omantel"
+        "Sparkle"
       ],
-      "fiberPairs": 16,
+      "fiberPairs": 24,
       "designCapacity": "180+ Tbps",
       "landingPoints": [
         {
@@ -1454,7 +1494,10 @@
           "approxLength_km": 134,
           "waypointCount": 3
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2022,
+      "capacityTbps": 500
     },
     "raman": {
       "id": "raman",
@@ -1464,7 +1507,7 @@
       "length_km": 4200,
       "owners": [
         "Google",
-        "Omantel"
+        "Sparkle"
       ],
       "fiberPairs": 16,
       "designCapacity": "180+ Tbps",
@@ -1717,7 +1760,10 @@
           "approxLength_km": 5562,
           "waypointCount": 27
         }
-      ]
+      ],
+      "status": "Under Construction",
+      "rfsYear": 2025,
+      "capacityTbps": 200
     },
     "iex": {
       "id": "iex",
@@ -1788,7 +1834,10 @@
             44.31
           ]
         ]
-      }
+      },
+      "status": "Under Construction",
+      "rfsYear": 2025,
+      "capacityTbps": 200
     },
     "iax": {
       "id": "iax",
@@ -1799,7 +1848,7 @@
       "owners": [
         "Reliance Jio"
       ],
-      "fiberPairs": 16,
+      "fiberPairs": 12,
       "designCapacity": "200+ Tbps",
       "landingPoints": [
         {
@@ -1887,7 +1936,10 @@
           "approxLength_km": 1073,
           "waypointCount": 2
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2023,
+      "capacityTbps": 200
     },
     "mist": {
       "id": "mist",
@@ -1896,9 +1948,7 @@
       "rfs": "2021",
       "length_km": 8700,
       "owners": [
-        "GCX",
-        "Jio",
-        "NTT Communications"
+        "MIST Cable Consortium"
       ],
       "fiberPairs": 8,
       "designCapacity": "80+ Tbps",
@@ -1948,7 +1998,10 @@
             1.29
           ]
         ]
-      }
+      },
+      "status": "Planned",
+      "rfsYear": 2026,
+      "capacityTbps": 80
     },
     "bbg": {
       "id": "bbg",
@@ -1957,9 +2010,10 @@
       "rfs": "2016",
       "length_km": 8100,
       "owners": [
-        "Reliance Jio"
+        "RTI Connectivity",
+        "Bangladesh govt"
       ],
-      "fiberPairs": 4,
+      "fiberPairs": 8,
       "designCapacity": "16+ Tbps",
       "landingPoints": [
         {
@@ -2066,7 +2120,10 @@
           "approxLength_km": 1749,
           "waypointCount": 3
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2019,
+      "capacityTbps": 16
     },
     "falcon": {
       "id": "falcon",
@@ -2075,7 +2132,7 @@
       "rfs": "2006",
       "length_km": 9200,
       "owners": [
-        "FLAG Telecom / Reliance"
+        "FLAG Telecom"
       ],
       "fiberPairs": 4,
       "designCapacity": "2.56 Tbps",
@@ -2125,7 +2182,10 @@
             15
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2006,
+      "capacityTbps": 2.56
     },
     "hawk": {
       "id": "hawk",
@@ -2134,7 +2194,7 @@
       "rfs": "2017",
       "length_km": 2000,
       "owners": [
-        "Ooredoo"
+        "GBI"
       ],
       "fiberPairs": 2,
       "designCapacity": "20 Tbps",
@@ -2176,7 +2236,10 @@
             11.59
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2019,
+      "capacityTbps": 6.0
     },
     "tgn-gulf": {
       "id": "tgn-gulf",
@@ -2185,7 +2248,7 @@
       "rfs": "1999",
       "length_km": 2000,
       "owners": [
-        "Telia Carrier"
+        "Telia"
       ],
       "fiberPairs": 4,
       "designCapacity": "640 Gbps",
@@ -2223,7 +2286,10 @@
             24.5
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2003,
+      "capacityTbps": 1.28
     },
     "tic": {
       "id": "tic",
@@ -2278,7 +2344,10 @@
             1.29
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2008,
+      "capacityTbps": 10
     },
     "i2i": {
       "id": "i2i",
@@ -2287,7 +2356,7 @@
       "rfs": "2002",
       "length_km": 3200,
       "owners": [
-        "Bharti Airtel",
+        "Tata Communications",
         "SingTel"
       ],
       "fiberPairs": 8,
@@ -2330,7 +2399,10 @@
             1.29
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2003,
+      "capacityTbps": 8.4
     },
     "sjc2": {
       "id": "sjc2",
@@ -2393,7 +2465,10 @@
             34.34
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2021,
+      "capacityTbps": 126
     },
     "tgn-ia": {
       "id": "tgn-ia",
@@ -2402,7 +2477,7 @@
       "rfs": "2002",
       "length_km": 7000,
       "owners": [
-        "Telia Carrier"
+        "Telia"
       ],
       "fiberPairs": 4,
       "designCapacity": "2.56 Tbps",
@@ -2444,7 +2519,10 @@
             22.32
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2002,
+      "capacityTbps": 2.56
     },
     "aag": {
       "id": "aag",
@@ -2511,7 +2589,10 @@
             34
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2009,
+      "capacityTbps": 2.88
     },
     "adc": {
       "id": "adc",
@@ -2521,9 +2602,9 @@
       "length_km": 9400,
       "owners": [
         "NTT",
-        "PLDT",
-        "Singtel",
-        "others"
+        "SoftBank",
+        "Facebook",
+        "PLDC"
       ],
       "fiberPairs": 6,
       "designCapacity": "144+ Tbps",
@@ -2573,7 +2654,10 @@
             35
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2022,
+      "capacityTbps": 140
     },
     "echo": {
       "id": "echo",
@@ -2583,10 +2667,9 @@
       "length_km": 15000,
       "owners": [
         "Google",
-        "Meta",
-        "others"
+        "Facebook"
       ],
-      "fiberPairs": 16,
+      "fiberPairs": 12,
       "designCapacity": "180+ Tbps",
       "landingPoints": [
         {
@@ -2682,7 +2765,10 @@
           "approxLength_km": 6389,
           "waypointCount": 4
         }
-      ]
+      ],
+      "status": "Under Construction",
+      "rfsYear": 2026,
+      "capacityTbps": 144
     },
     "bifrost": {
       "id": "bifrost",
@@ -2691,7 +2777,7 @@
       "rfs": "2024",
       "length_km": 15000,
       "owners": [
-        "Meta",
+        "Facebook",
         "Keppel",
         "Telin"
       ],
@@ -2799,7 +2885,10 @@
           "approxLength_km": 6551,
           "waypointCount": 6
         }
-      ]
+      ],
+      "status": "Under Construction",
+      "rfsYear": 2025,
+      "capacityTbps": 144
     },
     "juno": {
       "id": "juno",
@@ -2808,10 +2897,7 @@
       "rfs": "2025",
       "length_km": 14000,
       "owners": [
-        "NEC",
-        "KDDI",
-        "Meta",
-        "others"
+        "NEC"
       ],
       "fiberPairs": 16,
       "designCapacity": "350+ Tbps",
@@ -2905,7 +2991,10 @@
           "approxLength_km": 6481,
           "waypointCount": 5
         }
-      ]
+      ],
+      "status": "Planned",
+      "rfsYear": 2026,
+      "capacityTbps": 350
     },
     "jupiter": {
       "id": "jupiter",
@@ -2917,8 +3006,9 @@
         "Amazon",
         "Facebook",
         "NTT",
+        "PCCW",
         "PLDT",
-        "others"
+        "SoftBank"
       ],
       "fiberPairs": 8,
       "designCapacity": "60+ Tbps",
@@ -3035,7 +3125,10 @@
           "approxLength_km": 6932,
           "waypointCount": 4
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2020,
+      "capacityTbps": 60
     },
     "faster": {
       "id": "faster",
@@ -3044,7 +3137,12 @@
       "rfs": "2016",
       "length_km": 9000,
       "owners": [
-        "FASTER Consortium (Google, etc.)"
+        "Google",
+        "China Mobile",
+        "China Telecom",
+        "Global Transit",
+        "KDDI",
+        "SingTel"
       ],
       "fiberPairs": 6,
       "designCapacity": "60+ Tbps",
@@ -3126,7 +3224,10 @@
           "approxLength_km": 6220,
           "waypointCount": 4
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2016,
+      "capacityTbps": 60
     },
     "tgn-pacific": {
       "id": "tgn-pacific",
@@ -3135,7 +3236,7 @@
       "rfs": "2002",
       "length_km": 18000,
       "owners": [
-        "Telia Carrier"
+        "Telia"
       ],
       "fiberPairs": 4,
       "designCapacity": "2.56 Tbps",
@@ -3217,7 +3318,10 @@
           "approxLength_km": 6479,
           "waypointCount": 4
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2002,
+      "capacityTbps": 2.56
     },
     "e2a": {
       "id": "e2a",
@@ -3226,11 +3330,10 @@
       "rfs": "2025",
       "length_km": 14500,
       "owners": [
-        "KDDI",
-        "Meta",
-        "SoftBank"
+        "Google",
+        "Alcatel Submarine Networks"
       ],
-      "fiberPairs": 16,
+      "fiberPairs": 12,
       "designCapacity": "400+ Tbps",
       "landingPoints": [
         {
@@ -3388,7 +3491,10 @@
           "approxLength_km": 429,
           "waypointCount": 4
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2025,
+      "capacityTbps": 108
     },
     "unity": {
       "id": "unity",
@@ -3399,7 +3505,10 @@
       "owners": [
         "Google",
         "KDDI",
-        "others"
+        "Bharti Airtel",
+        "Global Transit",
+        "Pacnet",
+        "SingTel"
       ],
       "fiberPairs": 5,
       "designCapacity": "7.68 Tbps",
@@ -3481,7 +3590,10 @@
           "approxLength_km": 6932,
           "waypointCount": 4
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2010,
+      "capacityTbps": 7.68
     },
     "ace": {
       "id": "ace",
@@ -3608,7 +3720,10 @@
           "approxLength_km": 3163,
           "waypointCount": 4
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2012,
+      "capacityTbps": 12.8
     },
     "main-one": {
       "id": "main-one",
@@ -3675,7 +3790,10 @@
             6.45
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2010,
+      "capacityTbps": 10
     },
     "wacs": {
       "id": "wacs",
@@ -3766,7 +3884,10 @@
             -33.93
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2012,
+      "capacityTbps": 14.5
     },
     "equiano": {
       "id": "equiano",
@@ -3841,7 +3962,10 @@
             -33.93
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2022,
+      "capacityTbps": 200
     },
     "2africa": {
       "id": "2africa",
@@ -3850,7 +3974,14 @@
       "rfs": "2024",
       "length_km": 45000,
       "owners": [
-        "2Africa Consortium (Meta, MTN, Orange, etc.)"
+        "Facebook",
+        "MTN",
+        "Orange",
+        "STC",
+        "Telecom Egypt",
+        "Vodafone",
+        "WIOCC",
+        "China Mobile"
       ],
       "fiberPairs": 16,
       "designCapacity": "180+ Tbps",
@@ -4007,7 +4138,10 @@
           "approxLength_km": 934,
           "waypointCount": 3
         }
-      ]
+      ],
+      "status": "Under Construction",
+      "rfsYear": 2024,
+      "capacityTbps": 180
     },
     "indigo-west": {
       "id": "indigo-west",
@@ -4016,11 +4150,11 @@
       "rfs": "2019",
       "length_km": 4600,
       "owners": [
-        "AARNet",
         "Google",
+        "AARNet",
         "Indosat",
-        "Singtel",
-        "others"
+        "SingTel",
+        "SubPartners"
       ],
       "fiberPairs": 4,
       "designCapacity": "36+ Tbps",
@@ -4062,7 +4196,10 @@
             -31.95
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2019,
+      "capacityTbps": 36
     },
     "indigo-central": {
       "id": "indigo-central",
@@ -4071,11 +4208,11 @@
       "rfs": "2019",
       "length_km": 3600,
       "owners": [
-        "AARNet",
         "Google",
+        "AARNet",
         "Indosat",
-        "Singtel",
-        "others"
+        "SingTel",
+        "SubPartners"
       ],
       "fiberPairs": 4,
       "designCapacity": "36+ Tbps",
@@ -4121,7 +4258,10 @@
             -33.87
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2019,
+      "capacityTbps": 36
     },
     "asc": {
       "id": "asc",
@@ -4130,7 +4270,8 @@
       "rfs": "2018",
       "length_km": 4600,
       "owners": [
-        "Vocus"
+        "Vocus",
+        "Superloop"
       ],
       "fiberPairs": 4,
       "designCapacity": "40 Tbps",
@@ -4176,7 +4317,10 @@
             -31.95
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2018,
+      "capacityTbps": 40
     },
     "southern-cross-next": {
       "id": "southern-cross-next",
@@ -4294,7 +4438,10 @@
           "approxLength_km": 10520,
           "waypointCount": 5
         }
-      ]
+      ],
+      "status": "Under Construction",
+      "rfsYear": 2025,
+      "capacityTbps": 72
     },
     "sccn": {
       "id": "sccn",
@@ -4305,7 +4452,7 @@
       "owners": [
         "Southern Cross Cables"
       ],
-      "fiberPairs": 4,
+      "fiberPairs": 3,
       "designCapacity": "8.6 Tbps",
       "landingPoints": [
         {
@@ -4424,7 +4571,10 @@
           "approxLength_km": 8460,
           "waypointCount": 5
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2000,
+      "capacityTbps": 2.4
     },
     "globe": {
       "id": "globe",
@@ -4433,7 +4583,7 @@
       "rfs": "2023",
       "length_km": 3000,
       "owners": [
-        "Various"
+        "Globe Telecom"
       ],
       "fiberPairs": 8,
       "designCapacity": "100+ Tbps",
@@ -4467,7 +4617,10 @@
             -5
           ]
         ]
-      }
+      },
+      "status": "Under Construction",
+      "rfsYear": 2025,
+      "capacityTbps": 80
     },
     "firmina": {
       "id": "firmina",
@@ -5071,7 +5224,10 @@
           "approxLength_km": 1788,
           "waypointCount": 7
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2023,
+      "capacityTbps": 144
     },
     "amx-1": {
       "id": "amx-1",
@@ -5080,9 +5236,9 @@
       "rfs": "2014",
       "length_km": 17500,
       "owners": [
-        "Am\u00e9rica M\u00f3vil"
+        "America Movil"
       ],
-      "fiberPairs": 4,
+      "fiberPairs": 3,
       "designCapacity": "80+ Tbps",
       "landingPoints": [
         {
@@ -5178,7 +5334,10 @@
           "approxLength_km": 6056,
           "waypointCount": 7
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2014,
+      "capacityTbps": 55
     },
     "brusa": {
       "id": "brusa",
@@ -5187,6 +5346,7 @@
       "rfs": "2018",
       "length_km": 11000,
       "owners": [
+        "Telefonica",
         "Telxius"
       ],
       "fiberPairs": 4,
@@ -5273,7 +5433,10 @@
           "approxLength_km": 5386,
           "waypointCount": 4
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2018,
+      "capacityTbps": 70
     },
     "ellalink": {
       "id": "ellalink",
@@ -5328,7 +5491,10 @@
             -3.73
           ]
         ]
-      }
+      },
+      "status": "Active",
+      "rfsYear": 2021,
+      "capacityTbps": 100
     },
     "medusa": {
       "id": "medusa",
@@ -5337,8 +5503,7 @@
       "rfs": "2025",
       "length_km": 8700,
       "owners": [
-        "Google",
-        "partners"
+        "AFR-IX"
       ],
       "fiberPairs": 24,
       "designCapacity": "200+ Tbps",
@@ -5835,7 +6000,10 @@
           "approxLength_km": 436,
           "waypointCount": 3
         }
-      ]
+      ],
+      "status": "Under Construction",
+      "rfsYear": 2025,
+      "capacityTbps": 240
     },
     "ice-iv": {
       "id": "ice-iv",
@@ -5844,9 +6012,9 @@
       "rfs": "2024",
       "length_km": 16000,
       "owners": [
-        "Reliance Jio"
+        "ICE Cable"
       ],
-      "fiberPairs": 16,
+      "fiberPairs": 8,
       "designCapacity": "200+ Tbps",
       "landingPoints": [
         {
@@ -6242,7 +6410,10 @@
           "approxLength_km": 1017,
           "waypointCount": 12
         }
-      ]
+      ],
+      "status": "Planned",
+      "rfsYear": 2027,
+      "capacityTbps": 80
     },
     "plcn": {
       "id": "plcn",
@@ -6251,7 +6422,8 @@
       "rfs": "2022",
       "length_km": 13000,
       "owners": [
-        "Google"
+        "Google",
+        "Facebook"
       ],
       "fiberPairs": 6,
       "designCapacity": "144+ Tbps",
@@ -6372,7 +6544,10 @@
           "approxLength_km": 1671,
           "waypointCount": 4
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2022,
+      "capacityTbps": 144
     },
     "tgn-wer": {
       "id": "tgn-wer",
@@ -6381,7 +6556,7 @@
       "rfs": "2002",
       "length_km": 3578,
       "owners": [
-        "Tata Communications"
+        "Telia"
       ],
       "fiberPairs": 4,
       "designCapacity": "3.84 Tbps",
@@ -6522,7 +6697,10 @@
           "approxLength_km": 1763,
           "waypointCount": 6
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2002,
+      "capacityTbps": 5.12
     },
     "apcn-2": {
       "id": "apcn-2",
@@ -6531,7 +6709,7 @@
       "rfs": "2001",
       "length_km": 19000,
       "owners": [
-        "Consortium (AT&T, BT, China Telecom, China Unicom, Chunghwa Telecom, KDDI, KT, NTT, PLDT, SingTel, Telstra, Verizon)"
+        "Consortium"
       ],
       "fiberPairs": 4,
       "designCapacity": "2.56 Tbps",
@@ -6920,7 +7098,10 @@
           "approxLength_km": 3589,
           "waypointCount": 7
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2001,
+      "capacityTbps": 2.56
     },
     "eac-c2c": {
       "id": "eac-c2c",
@@ -6929,9 +7110,9 @@
       "rfs": "2002",
       "length_km": 36800,
       "owners": [
-        "Telstra"
+        "EAC Consortium"
       ],
-      "fiberPairs": 8,
+      "fiberPairs": 3,
       "designCapacity": "30.72 Tbps",
       "landingPoints": [
         {
@@ -7317,7 +7498,10 @@
           "approxLength_km": 3546,
           "waypointCount": 6
         }
-      ]
+      ],
+      "status": "Active",
+      "rfsYear": 2008,
+      "capacityTbps": 17.92
     },
     "grace-hopper": {
       "id": "grace-hopper",
@@ -7443,6 +7627,129 @@
           "endPoint": "Bilbao (Sopelana)",
           "approxLength_km": 2564,
           "waypointCount": 6
+        }
+      ],
+      "status": "Active",
+      "rfsYear": 2022,
+      "capacityTbps": 352
+    },
+    "tgn-a-south": {
+      "id": "tgn-a-south",
+      "name": "TGN-Atlantic South",
+      "region": "Europe-South America",
+      "rfs": "2001",
+      "length_km": 9500,
+      "owners": [
+        "Tata Communications"
+      ],
+      "fiberPairs": 4,
+      "designCapacity": "2.56 Tbps",
+      "capacityTbps": 2.56,
+      "landingPoints": [
+        {
+          "name": "Highbridge",
+          "country": "UK",
+          "coordinates": [
+            -2.98,
+            51.22
+          ]
+        },
+        {
+          "name": "Rio de Janeiro",
+          "country": "Brazil",
+          "coordinates": [
+            -43.17,
+            -22.91
+          ]
+        },
+        {
+          "name": "Fortaleza",
+          "country": "Brazil",
+          "coordinates": [
+            -38.52,
+            -3.72
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              -2.98,
+              51.22
+            ],
+            [
+              -10.0,
+              48.0
+            ],
+            [
+              -15.0,
+              40.0
+            ],
+            [
+              -18.0,
+              30.0
+            ],
+            [
+              -22.0,
+              20.0
+            ],
+            [
+              -28.0,
+              10.0
+            ],
+            [
+              -35.0,
+              0.0
+            ],
+            [
+              -38.52,
+              -3.72
+            ]
+          ],
+          [
+            [
+              -38.52,
+              -3.72
+            ],
+            [
+              -38.0,
+              -8.0
+            ],
+            [
+              -37.0,
+              -12.0
+            ],
+            [
+              -40.0,
+              -18.0
+            ],
+            [
+              -43.17,
+              -22.91
+            ]
+          ]
+        ]
+      },
+      "segments": [
+        {
+          "index": 0,
+          "name": "Highbridge \u2192 Fortaleza",
+          "description": "Segment 1: UK to Northeast Brazil (~7500 km, 8 waypoints)",
+          "startPoint": "Highbridge",
+          "endPoint": "Fortaleza",
+          "approxLength_km": 7500,
+          "waypointCount": 8
+        },
+        {
+          "index": 1,
+          "name": "Fortaleza \u2192 Rio de Janeiro",
+          "description": "Segment 2: Brazilian coastal route (~2000 km, 5 waypoints)",
+          "startPoint": "Fortaleza",
+          "endPoint": "Rio de Janeiro",
+          "approxLength_km": 2000,
+          "waypointCount": 5
         }
       ]
     }
