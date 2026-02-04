@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<!-- NexiMap Studio v61.15 - CABLE SYSTEM NAME TO LINK TAGS - 2025-02-04 -->
+<!-- NexiMap Studio v61.16 - TGN-A SOUTH + CAPACITY EDITOR FILTER + LINK TAG - 2025-02-04 -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -36881,15 +36881,24 @@ function loadProjectObject(obj) {
     const countSpan = document.getElementById('capacityEditorSelectionCount');
     
     if (filterLabel && filterCheckbox && countSpan) {
+      // Always keep the filter visible
+      countSpan.textContent = `(${selectedEdges.size})`;
+      
       if (selectedEdges.size > 0) {
-        filterLabel.style.display = 'flex';
-        countSpan.textContent = `(${selectedEdges.size})`;
+        // Style as having active selection
+        filterLabel.style.opacity = '1';
+        filterLabel.style.background = '#ecfdf5';
+        // Auto-enable filter when there's a selection
         filterCheckbox.checked = true;
         capacityEditorState.filterBySelection = true;
       } else {
-        filterLabel.style.display = 'none';
-        filterCheckbox.checked = false;
-        capacityEditorState.filterBySelection = false;
+        // No selection - keep visible but style subtly different
+        filterLabel.style.opacity = '0.8';
+        filterLabel.style.background = '#f8fdfb';
+        // Don't auto-disable if user had it checked
+        if (!filterCheckbox.checked) {
+          capacityEditorState.filterBySelection = false;
+        }
       }
     }
   }
@@ -36911,19 +36920,24 @@ function loadProjectObject(obj) {
     const countSpan = document.getElementById('capacityEditorSelectionCount');
     
     if (filterLabel && filterCheckbox && countSpan) {
+      // Always update count
+      countSpan.textContent = `(${selectedEdges.size})`;
+      
       if (selectedEdges.size > 0) {
-        filterLabel.style.display = 'flex';
-        countSpan.textContent = `(${selectedEdges.size})`;
-        if (capacityEditorState.filterBySelection) {
+        filterLabel.style.opacity = '1';
+        filterLabel.style.background = '#ecfdf5';
+        
+        // If filter mode is enabled, refresh
+        if (capacityEditorState.filterBySelection || filterCheckbox.checked) {
+          filterCheckbox.checked = true;
+          capacityEditorState.filterBySelection = true;
           renderCapacityEditor();
         }
       } else {
-        filterLabel.style.display = 'none';
-        if (capacityEditorState.filterBySelection) {
-          capacityEditorState.filterBySelection = false;
-          filterCheckbox.checked = false;
-          renderCapacityEditor();
-        }
+        filterLabel.style.opacity = '0.8';
+        filterLabel.style.background = '#f8fdfb';
+        // Keep filter state as-is, just re-render
+        renderCapacityEditor();
       }
     }
   }
@@ -36961,8 +36975,10 @@ function loadProjectObject(obj) {
       const bNode = findNode(e.b);
       const aName = aNode?.name || '';
       const bName = bNode?.name || '';
+      const linkTag = e.tag || '';
       
       return (e.code || '').toLowerCase().includes(search) ||
+             linkTag.toLowerCase().includes(search) ||
              aName.toLowerCase().includes(search) ||
              bName.toLowerCase().includes(search);
     });
@@ -36998,6 +37014,7 @@ function loadProjectObject(obj) {
       html += `
         <tr data-edge-id="${e.id}" style="border-bottom:1px solid #f1f5f9;">
           <td style="padding:8px 12px; color:#374151; font-weight:500;">${escapeHtml(e.code || `L-${e.id}`)}</td>
+          <td style="padding:8px 12px; color:#6b7280; font-size:11px;">${escapeHtml(e.tag || '')}</td>
           <td style="padding:8px 12px; color:#6b7280;">${escapeHtml(aName)}</td>
           <td style="padding:8px 12px; color:#6b7280;">${escapeHtml(bName)}</td>
           <td style="padding:8px 8px; text-align:center; background:#f0fdf4;">
@@ -40238,7 +40255,6 @@ function loadProjectObject(obj) {
         border: 1px solid #a7f3d0;
         border-radius: 6px;
         cursor: pointer;
-        display: none;
       ">
         <input type="checkbox" id="capacityEditorSelectionFilter" style="width:14px; height:14px; accent-color:#059669;" />
         <span>📍 Selection only</span>
@@ -40283,6 +40299,7 @@ function loadProjectObject(obj) {
         ">
           <tr>
             <th style="padding:10px 12px; text-align:left; font-weight:600; color:#475569; border-bottom:2px solid #e2e8f0; min-width:80px;">Code</th>
+            <th style="padding:10px 12px; text-align:left; font-weight:600; color:#475569; border-bottom:2px solid #e2e8f0; min-width:100px;">Link Tag</th>
             <th style="padding:10px 12px; text-align:left; font-weight:600; color:#475569; border-bottom:2px solid #e2e8f0; min-width:100px;">A-End</th>
             <th style="padding:10px 12px; text-align:left; font-weight:600; color:#475569; border-bottom:2px solid #e2e8f0; min-width:100px;">B-End</th>
             <th style="padding:10px 8px; text-align:center; font-weight:600; color:#475569; border-bottom:2px solid #e2e8f0; background:#ecfdf5; min-width:70px;">1G</th>
