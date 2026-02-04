@@ -792,7 +792,7 @@
     },
     "peace": {
       "id": "peace",
-      "name": "PEACE Cable",
+      "name": "PEACE",
       "region": "Europe-Africa-Asia",
       "rfs": "2022",
       "length_km": 15000,
@@ -1382,7 +1382,7 @@
     },
     "blue": {
       "id": "blue",
-      "name": "Blue Cable",
+      "name": "Blue",
       "region": "Europe-Middle East",
       "rfs": "2024",
       "length_km": 15500,
@@ -1501,7 +1501,7 @@
     },
     "raman": {
       "id": "raman",
-      "name": "Raman Cable",
+      "name": "Raman",
       "region": "Middle East-India",
       "rfs": "2024",
       "length_km": 4200,
@@ -1767,7 +1767,7 @@
     },
     "iex": {
       "id": "iex",
-      "name": "India Europe Xpress (IEX)",
+      "name": "IEX",
       "region": "Europe-India",
       "rfs": "2024",
       "length_km": 11000,
@@ -1841,7 +1841,7 @@
     },
     "iax": {
       "id": "iax",
-      "name": "India Asia Xpress (IAX)",
+      "name": "IAX",
       "region": "India-Asia",
       "rfs": "2024",
       "length_km": 8400,
@@ -1943,7 +1943,7 @@
     },
     "mist": {
       "id": "mist",
-      "name": "MIST Cable",
+      "name": "MIST",
       "region": "India-Asia",
       "rfs": "2021",
       "length_km": 8700,
@@ -2005,7 +2005,7 @@
     },
     "bbg": {
       "id": "bbg",
-      "name": "Bay of Bengal Gateway (BBG)",
+      "name": "BBG",
       "region": "Middle East-India-Asia",
       "rfs": "2016",
       "length_km": 8100,
@@ -2127,7 +2127,7 @@
     },
     "falcon": {
       "id": "falcon",
-      "name": "FALCON Cable",
+      "name": "FALCON",
       "region": "Middle East-India",
       "rfs": "2006",
       "length_km": 9200,
@@ -2189,7 +2189,7 @@
     },
     "hawk": {
       "id": "hawk",
-      "name": "HAWK Cable",
+      "name": "HAWK",
       "region": "Middle East-Africa",
       "rfs": "2017",
       "length_km": 2000,
@@ -2293,7 +2293,7 @@
     },
     "tic": {
       "id": "tic",
-      "name": "TIC (Tata Indicom Cable)",
+      "name": "TIC",
       "region": "India-Asia",
       "rfs": "2009",
       "length_km": 4000,
@@ -2351,7 +2351,7 @@
     },
     "i2i": {
       "id": "i2i",
-      "name": "i2i Cable",
+      "name": "i2i",
       "region": "India-Asia",
       "rfs": "2002",
       "length_km": 3200,
@@ -2406,7 +2406,7 @@
     },
     "sjc2": {
       "id": "sjc2",
-      "name": "SJC2 (South-East Asia Japan Cable 2)",
+      "name": "SJC2",
       "region": "Asia-North Asia",
       "rfs": "2023",
       "length_km": 10500,
@@ -2526,7 +2526,7 @@
     },
     "aag": {
       "id": "aag",
-      "name": "Asia-America Gateway (AAG)",
+      "name": "AAG",
       "region": "North Asia-North America",
       "rfs": "2009",
       "length_km": 20000,
@@ -2596,7 +2596,7 @@
     },
     "adc": {
       "id": "adc",
-      "name": "Asia Direct Cable (ADC)",
+      "name": "ADC",
       "region": "IntraAsia",
       "rfs": "2023",
       "length_km": 9400,
@@ -2661,7 +2661,7 @@
     },
     "echo": {
       "id": "echo",
-      "name": "Echo Cable",
+      "name": "Echo",
       "region": "North Asia-North America",
       "rfs": "2024",
       "length_km": 15000,
@@ -2772,7 +2772,7 @@
     },
     "bifrost": {
       "id": "bifrost",
-      "name": "Bifrost Cable",
+      "name": "Bifrost",
       "region": "North Asia-North America",
       "rfs": "2024",
       "length_km": 15000,
@@ -2892,7 +2892,7 @@
     },
     "juno": {
       "id": "juno",
-      "name": "JUNO Cable",
+      "name": "JUNO",
       "region": "North Asia-North America",
       "rfs": "2025",
       "length_km": 14000,
@@ -2998,7 +2998,7 @@
     },
     "jupiter": {
       "id": "jupiter",
-      "name": "Jupiter Cable",
+      "name": "Jupiter",
       "region": "North Asia-North America",
       "rfs": "2020",
       "length_km": 14000,
@@ -3132,7 +3132,7 @@
     },
     "faster": {
       "id": "faster",
-      "name": "FASTER Cable",
+      "name": "FASTER",
       "region": "North Asia-North America",
       "rfs": "2016",
       "length_km": 9000,
@@ -3325,7 +3325,7 @@
     },
     "e2a": {
       "id": "e2a",
-      "name": "E2A Cable",
+      "name": "E2A",
       "region": "North Asia-North America",
       "rfs": "2025",
       "length_km": 14500,
@@ -3498,7 +3498,7 @@
     },
     "unity": {
       "id": "unity",
-      "name": "Unity Cable",
+      "name": "Unity",
       "region": "North Asia-North America",
       "rfs": "2010",
       "length_km": 9600,
@@ -3597,7 +3597,7 @@
     },
     "ace": {
       "id": "ace",
-      "name": "ACE (Africa Coast to Europe)",
+      "name": "ACE",
       "region": "Europe-Africa",
       "rfs": "2012",
       "length_km": 17000,
@@ -3797,7 +3797,7 @@
     },
     "wacs": {
       "id": "wacs",
-      "name": "WACS (West Africa Cable System)",
+      "name": "WACS",
       "region": "Europe-Africa",
       "rfs": "2012",
       "length_km": 14530,
@@ -4265,7 +4265,7 @@
     },
     "asc": {
       "id": "asc",
-      "name": "Australia Singapore Cable (ASC)",
+      "name": "ASC",
       "region": "Asia-Oceania",
       "rfs": "2018",
       "length_km": 4600,
@@ -4445,7 +4445,7 @@
     },
     "sccn": {
       "id": "sccn",
-      "name": "Southern Cross Cable Network (SCCN)",
+      "name": "SCCN",
       "region": "Oceania-North America",
       "rfs": "2000",
       "length_km": 30500,
@@ -4578,7 +4578,7 @@
     },
     "globe": {
       "id": "globe",
-      "name": "Globe Cable",
+      "name": "Globe",
       "region": "IntraOceania",
       "rfs": "2023",
       "length_km": 3000,
@@ -5231,7 +5231,7 @@
     },
     "amx-1": {
       "id": "amx-1",
-      "name": "AMX-1 (Americas-1)",
+      "name": "AMX-1",
       "region": "North America-Central America-South America",
       "rfs": "2014",
       "length_km": 17500,
@@ -5498,7 +5498,7 @@
     },
     "medusa": {
       "id": "medusa",
-      "name": "Medusa Cable",
+      "name": "Medusa",
       "region": "IntraEurope-North Africa",
       "rfs": "2025",
       "length_km": 8700,
@@ -6417,7 +6417,7 @@
     },
     "plcn": {
       "id": "plcn",
-      "name": "Pacific Light Cable Network (PLCN)",
+      "name": "PLCN",
       "region": "Asia-North America",
       "rfs": "2022",
       "length_km": 13000,
@@ -6704,7 +6704,7 @@
     },
     "apcn-2": {
       "id": "apcn-2",
-      "name": "APCN-2 (Asia Pacific Cable Network 2)",
+      "name": "APCN-2",
       "region": "IntraAsia",
       "rfs": "2001",
       "length_km": 19000,
@@ -7105,7 +7105,7 @@
     },
     "eac-c2c": {
       "id": "eac-c2c",
-      "name": "EAC-C2C (East Asia Crossing / City-to-City)",
+      "name": "EAC-C2C",
       "region": "IntraAsia",
       "rfs": "2002",
       "length_km": 36800,
