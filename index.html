@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<!-- NexiMap Studio v61.21 - MULTI-SELECT + BULK DELETE CABLE SYSTEMS - 2025-02-04 -->
+<!-- NexiMap Studio v61.24 - CLOUDFLARE WORKER API PROXY FOR TELEGEOGRAPHY - 2025-02-04 -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19517,6 +19517,9 @@ function loadProjectObject(obj) {
     if (!panel) return;
     panel.classList.add('show');
     
+    // Initialize draggable on first show
+    initCableVisorDraggable();
+    
     // Load cable database first, then init map
     loadCableVisorData().then(() => {
       // Initialize map after data is loaded
@@ -19611,9 +19614,19 @@ function loadProjectObject(obj) {
     const listEl = document.getElementById('cableVisorCableList');
     if (listEl) listEl.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">Loading cable database...</div>';
     
+    const useTeleGeography = document.getElementById('visorUseTeleGeography')?.checked || false;
+    
     try {
-      // Load the submarine cable database
-      const db = await loadSubmarineCableDb();
+      let db;
+      
+      if (useTeleGeography) {
+        // Load directly from TeleGeography API
+        db = await loadFromTeleGeographyAPI();
+      } else {
+        // Load from local database
+        db = await loadSubmarineCableDb();
+      }
+      
       console.log('[CableVisor] Database loaded:', db ? Object.keys(db.cables || {}).length : 0, 'cables');
       
       if (db && db.cables) {
@@ -19627,6 +19640,121 @@ function loadProjectObject(obj) {
       console.error('[CableVisor] Failed to load cable database:', err);
       if (listEl) listEl.innerHTML = '<div style="padding:20px; text-align:center; color:#c00;">Error: ' + err.message + '</div>';
     }
+  }
+  
+  // Cloudflare Worker proxy URL for TeleGeography API
+  const CABLE_API_PROXY = 'https://submarine-cable-api.fcoroyse-spam.workers.dev';
+  
+  // Load cable data from TeleGeography API via Cloudflare Worker proxy
+  async function loadFromTeleGeographyAPI() {
+    const listEl = document.getElementById('cableVisorCableList');
+    if (listEl) listEl.innerHTML = '<div style="padding:20px; text-align:center; color:#0077b6;">🌐 Loading from TeleGeography API via proxy...</div>';
+    
+    try {
+      // Fetch cable GeoJSON via Cloudflare Worker proxy
+      const geoResponse = await fetch(`${CABLE_API_PROXY}/cable-geo`);
+      if (!geoResponse.ok) throw new Error(`Failed to fetch cable geometry: ${geoResponse.status}`);
+      const geoData = await geoResponse.json();
+      
+      // Fetch cable metadata via proxy
+      const metaResponse = await fetch(`${CABLE_API_PROXY}/cables`);
+      let metaData = {};
+      if (metaResponse.ok) {
+        const metaJson = await metaResponse.json();
+        // Index by cable ID
+        metaJson.forEach(cable => {
+          metaData[cable.id] = cable;
+        });
+      }
+      
+      // Convert to our database format
+      const cables = {};
+      geoData.features.forEach(feature => {
+        const props = feature.properties;
+        const meta = metaData[props.id] || {};
+        
+        cables[props.id] = {
+          id: props.id,
+          name: props.name,
+          shortName: props.name.length > 20 ? props.name.substring(0, 18) + '...' : props.name,
+          color: props.color || '#939597',
+          region: inferRegionFromCoordinates(feature.geometry),
+          rfs: meta.rfs || '',
+          rfsYear: meta.rfs ? parseInt(meta.rfs) : null,
+          owners: meta.owners || [],
+          length_km: meta.length ? parseFloat(meta.length.replace(/,/g, '').replace(' km', '')) : null,
+          url: meta.url || null,
+          geometry: feature.geometry,
+          source: 'TeleGeography API'
+        };
+      });
+      
+      return {
+        version: '1.0',
+        lastUpdated: new Date().toISOString().split('T')[0],
+        source: 'TeleGeography SubmarineCableMap API',
+        cables: cables
+      };
+      
+    } catch (err) {
+      console.error('[CableVisor] TeleGeography API error:', err);
+      throw err;
+    }
+  }
+  
+  // Infer region from cable coordinates
+  function inferRegionFromCoordinates(geometry) {
+    if (!geometry || !geometry.coordinates) return 'Unknown';
+    
+    // Get first coordinate
+    let coords = geometry.coordinates;
+    if (geometry.type === 'MultiLineString' && coords[0] && coords[0][0]) {
+      coords = coords[0][0];
+    } else if (geometry.type === 'LineString' && coords[0]) {
+      coords = coords[0];
+    }
+    
+    if (!Array.isArray(coords) || coords.length < 2) return 'Unknown';
+    
+    const lon = coords[0];
+    const lat = coords[1];
+    
+    // Simple region inference based on coordinates
+    if (lat > 60) return 'Arctic';
+    if (lat < -50) return 'Antarctic';
+    
+    if (lon >= -30 && lon <= 60) {
+      if (lat >= 35) return 'Europe';
+      if (lat >= 0) return 'Africa';
+      return 'Africa';
+    }
+    
+    if (lon >= 60 && lon <= 150) {
+      if (lat >= 25) return 'Asia';
+      if (lat >= -10) return 'Southeast Asia';
+      return 'Oceania';
+    }
+    
+    if (lon >= 150 || lon <= -150) {
+      if (lat >= 0) return 'Pacific';
+      return 'Oceania';
+    }
+    
+    if (lon >= -130 && lon <= -30) {
+      if (lat >= 15) return 'North America';
+      if (lat >= -15) return 'Central America';
+      return 'South America';
+    }
+    
+    return 'Transatlantic';
+  }
+  
+  // Reload visor data with new source
+  function reloadCableVisorData() {
+    cableVisorState.cableDatabase = null;
+    // Clear all selected cables from map
+    clearAllVisorCables();
+    loadCableVisorData();
   }
   
   function populateCableVisorRegionFilter(db) {
@@ -19955,10 +20083,17 @@ function loadProjectObject(obj) {
   }
   
   // Make Cable Visor draggable
-  (function initCableVisorDraggable() {
+  // Initialize Cable Visor draggable - called when visor is first shown
+  let cableVisorDraggableInitialized = false;
+  function initCableVisorDraggable() {
+    if (cableVisorDraggableInitialized) return;
+    
     const panel = document.getElementById('cableVisorPanel');
     const header = document.getElementById('cableVisorHeader');
-    if (!panel || !header) return;
+    if (!panel || !header) {
+      console.log('[CableVisor] Draggable init failed - elements not found');
+      return;
+    }
     
     let isDragging = false;
     let startX, startY, startLeft, startTop;
@@ -19972,6 +20107,7 @@ function loadProjectObject(obj) {
       startLeft = rect.left;
       startTop = rect.top;
       panel.style.transition = 'none';
+      panel.style.right = 'auto'; // Remove right positioning to allow left to work
       e.preventDefault();
     });
     
@@ -19989,22 +20125,44 @@ function loadProjectObject(obj) {
         panel.style.transition = '';
       }
     });
-  })();
+    
+    cableVisorDraggableInitialized = true;
+    console.log('[CableVisor] Draggable initialized');
+  }
   
-  // Initialize Cable Visor event handlers
-  document.getElementById('btnOpenCableVisor')?.addEventListener('click', showCableVisor);
-  document.getElementById('btnCableVisorClose')?.addEventListener('click', hideCableVisor);
-  document.getElementById('btnCableVisorMaximize')?.addEventListener('click', toggleCableVisorMaximize);
-  document.getElementById('btnVisorSelectAll')?.addEventListener('click', selectAllVisorCables);
-  document.getElementById('btnVisorClearAll')?.addEventListener('click', clearAllVisorCables);
+  // Initialize Cable Visor event handlers (called after DOM ready)
+  function initCableVisorEventHandlers() {
+    const closeBtn = document.getElementById('btnCableVisorClose');
+    const maxBtn = document.getElementById('btnCableVisorMaximize');
+    const openBtn = document.getElementById('btnOpenCableVisor');
+    const selectAllBtn = document.getElementById('btnVisorSelectAll');
+    const clearAllBtn = document.getElementById('btnVisorClearAll');
+    const searchInput = document.getElementById('cableVisorSearch');
+    const regionFilter = document.getElementById('cableVisorRegionFilter');
+    
+    if (openBtn) openBtn.addEventListener('click', showCableVisor);
+    if (closeBtn) closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      hideCableVisor();
+    });
+    if (maxBtn) maxBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleCableVisorMaximize();
+    });
+    if (selectAllBtn) selectAllBtn.addEventListener('click', selectAllVisorCables);
+    if (clearAllBtn) clearAllBtn.addEventListener('click', clearAllVisorCables);
+    if (searchInput) searchInput.addEventListener('input', () => renderCableVisorList());
+    if (regionFilter) regionFilter.addEventListener('change', () => renderCableVisorList());
+    
+    console.log('[CableVisor] Event handlers initialized');
+  }
   
-  document.getElementById('cableVisorSearch')?.addEventListener('input', () => {
-    renderCableVisorList();
-  });
-  
-  document.getElementById('cableVisorRegionFilter')?.addEventListener('change', () => {
-    renderCableVisorList();
-  });
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCableVisorEventHandlers);
+  } else {
+    initCableVisorEventHandlers();
+  }
   
   // Add handler for group by region checkbox
   document.getElementById('cableNavGroupByRegion')?.addEventListener('change', () => {
