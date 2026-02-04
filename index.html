@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<!-- NexiMap Studio v61.13 - LIVE SEGMENT EDITOR + DESCRIPTIONS - 2025-02-04 -->
+<!-- NexiMap Studio v61.14 - CABLE SYSTEM BULK IMPORT WITH ENRICHED METADATA - 2025-02-04 -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -6633,12 +6633,51 @@
       <div id="cableSystemList" style="flex:1; overflow-y:auto; padding:4px;">
         <div class="muted" style="padding:12px; text-align:center;">No cable systems defined.<br/>Click "New" to create one.</div>
       </div>
-      <div style="padding:8px 12px; border-top:1px solid #e0e0e0; display:flex; gap:8px;">
-        <button class="btn primary" id="btnNewCableSystem" style="flex:1;">+ New</button>
-        <button class="btn" id="btnDeleteCableSystem" style="flex:1;">Delete</button>
+      <div style="padding:8px 12px; border-top:1px solid #e0e0e0; display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn primary" id="btnNewCableSystem" style="flex:1; min-width:60px;">+ New</button>
+        <button class="btn" id="btnImportCableSystems" style="flex:1; min-width:60px;" title="Bulk import cable systems from database">📥 Import</button>
+        <button class="btn" id="btnDeleteCableSystem" style="flex:1; min-width:60px;">Delete</button>
       </div>
     </div>
   </aside>
+
+  <!-- Cable System Bulk Import Modal -->
+  <div id="csBulkImportModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:11000; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:12px; width:90%; max-width:800px; max-height:85vh; display:flex; flex-direction:column; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+      <div style="padding:16px 20px; border-bottom:1px solid #e0e0e0; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h3 style="margin:0; font-size:18px;">📥 Import Cable Systems from Database</h3>
+          <div style="font-size:12px; color:#666; margin-top:4px;">Select cables to create as Cable System objects with full metadata</div>
+        </div>
+        <button id="btnCloseCsBulkImport" style="background:none; border:none; font-size:24px; cursor:pointer; color:#666; padding:0 8px;">&times;</button>
+      </div>
+      
+      <div style="padding:12px 20px; border-bottom:1px solid #e0e0e0; display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <input type="text" id="csBulkSearchInput" placeholder="Search cables..." style="flex:1; min-width:200px; padding:8px 12px; border:1px solid #d0d0d0; border-radius:6px; font-size:13px;" />
+        <select id="csBulkRegionFilter" style="padding:8px 12px; border:1px solid #d0d0d0; border-radius:6px; font-size:13px;">
+          <option value="">All Regions</option>
+        </select>
+        <div style="display:flex; gap:8px;">
+          <button id="btnCsBulkSelectAll" class="btn" style="padding:6px 12px; font-size:12px;">✓ Select All</button>
+          <button id="btnCsBulkSelectNone" class="btn" style="padding:6px 12px; font-size:12px;">✗ Clear All</button>
+        </div>
+      </div>
+      
+      <div id="csBulkCableList" style="flex:1; overflow-y:auto; padding:12px 20px;">
+        <div style="text-align:center; padding:40px; color:#666;">Loading cable database...</div>
+      </div>
+      
+      <div style="padding:12px 20px; border-top:1px solid #e0e0e0; display:flex; justify-content:space-between; align-items:center; background:#f8f9fa;">
+        <div style="font-size:13px;">
+          <span id="csBulkSelectedCount">0</span> cables selected
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button id="btnCsBulkCancel" class="btn" style="padding:8px 20px;">Cancel</button>
+          <button id="btnCsBulkImport" class="btn primary" style="padding:8px 20px;" disabled>📥 Import Selected</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Multilink Group Manager Panel -->
   <aside id="multilinkManager" style="display:none;">
@@ -18954,6 +18993,14 @@ function loadProjectObject(obj) {
     });
   }
 
+  // Import cable systems button
+  const btnImportCableSystems = document.getElementById('btnImportCableSystems');
+  if (btnImportCableSystems) {
+    btnImportCableSystems.addEventListener('click', () => {
+      showCableSystemBulkImportModal();
+    });
+  }
+
   // Delete cable system button
   if (btnDeleteCableSystem) {
     btnDeleteCableSystem.addEventListener('click', () => {
@@ -19096,6 +19143,330 @@ function loadProjectObject(obj) {
     state._highlightedNodes = null;
     render();
   }
+
+  // ========== CABLE SYSTEM BULK IMPORT ==========
+  let csBulkImportSelection = new Set();
+  let csBulkImportCables = {};
+
+  async function showCableSystemBulkImportModal() {
+    const modal = document.getElementById('csBulkImportModal');
+    const cableList = document.getElementById('csBulkCableList');
+    const regionFilter = document.getElementById('csBulkRegionFilter');
+    const searchInput = document.getElementById('csBulkSearchInput');
+    
+    if (!modal) return;
+    
+    // Reset state
+    csBulkImportSelection.clear();
+    csBulkImportCables = {};
+    
+    // Show modal
+    modal.style.display = 'flex';
+    
+    // Show loading
+    cableList.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">Loading cable database...</div>';
+    
+    try {
+      // Load cable database
+      const cables = await loadSubmarineCableDb();
+      csBulkImportCables = cables;
+      
+      // Get unique regions
+      const regions = [...new Set(Object.values(cables).map(c => c.region))].sort();
+      
+      // Populate region filter
+      regionFilter.innerHTML = '<option value="">All Regions</option>' + 
+        regions.map(r => `<option value="${r}">${r}</option>`).join('');
+      
+      // Render cable list
+      renderCsBulkImportList();
+      
+    } catch (error) {
+      cableList.innerHTML = `<div style="color:#ef4444; padding:20px; text-align:center;">
+        ⚠️ Failed to load cable database: ${error.message}
+        <br><br>
+        <button onclick="showCableSystemBulkImportModal()" class="btn">🔄 Retry</button>
+      </div>`;
+    }
+  }
+
+  function renderCsBulkImportList() {
+    const cableList = document.getElementById('csBulkCableList');
+    const regionFilter = document.getElementById('csBulkRegionFilter');
+    const searchInput = document.getElementById('csBulkSearchInput');
+    
+    if (!cableList) return;
+    
+    const searchTerm = (searchInput?.value || '').toLowerCase();
+    const selectedRegion = regionFilter?.value || '';
+    
+    // Filter cables
+    const filteredCables = Object.entries(csBulkImportCables).filter(([key, cable]) => {
+      // Region filter
+      if (selectedRegion && cable.region !== selectedRegion) return false;
+      
+      // Search filter
+      if (searchTerm) {
+        const searchable = `${cable.name} ${cable.ownersText} ${cable.description}`.toLowerCase();
+        if (!searchable.includes(searchTerm)) return false;
+      }
+      
+      return true;
+    });
+    
+    // Group by region
+    const byRegion = {};
+    filteredCables.forEach(([key, cable]) => {
+      if (!byRegion[cable.region]) byRegion[cable.region] = [];
+      byRegion[cable.region].push({ key, cable });
+    });
+    
+    // Sort regions
+    const sortedRegions = Object.keys(byRegion).sort();
+    
+    if (sortedRegions.length === 0) {
+      cableList.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">No cables match your search.</div>';
+      return;
+    }
+    
+    // Build HTML
+    let html = '';
+    for (const region of sortedRegions) {
+      const cables = byRegion[region];
+      const allSelected = cables.every(c => csBulkImportSelection.has(c.key));
+      const someSelected = cables.some(c => csBulkImportSelection.has(c.key));
+      
+      html += `
+        <div class="cs-bulk-region" style="margin-bottom:16px;">
+          <div style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:#f3f4f6; border-radius:8px 8px 0 0; border:1px solid #e0e0e0; border-bottom:none;">
+            <input type="checkbox" class="cs-bulk-region-cb" data-region="${region}" 
+              ${allSelected ? 'checked' : ''} ${someSelected && !allSelected ? 'style="opacity:0.5"' : ''} />
+            <span style="font-weight:600; flex:1;">${region}</span>
+            <span style="font-size:11px; color:#666;">${cables.length} cable${cables.length > 1 ? 's' : ''}</span>
+          </div>
+          <div style="border:1px solid #e0e0e0; border-radius:0 0 8px 8px; background:white;">
+            ${cables.map(({ key, cable }) => {
+              const isSelected = csBulkImportSelection.has(key);
+              const statusIcon = getStatusIcon(cable.rfs, cable.status);
+              // Use enriched capacityTbps if available, otherwise fallback to designCapacity
+              const capacityInfo = cable.capacityTbps ? `${cable.capacityTbps} Tbps` : (cable.designCapacity !== 'Unknown' ? cable.designCapacity : '');
+              const fpInfo = cable.fiberPairs > 0 ? `${cable.fiberPairs} FP` : '';
+              // Use rfsYear if available, otherwise rfs string
+              const rfsInfo = cable.rfsYear ? `RFS ${cable.rfsYear}` : (cable.rfs !== 'Unknown' ? cable.rfs : '');
+              const metaInfo = [cable.status || '', rfsInfo, fpInfo, capacityInfo].filter(Boolean).join(' · ');
+              
+              return `
+                <label class="cs-bulk-item" data-key="${key}" style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; cursor:pointer; border-bottom:1px solid #f0f0f0; ${isSelected ? 'background:#f0fdf4;' : ''}">
+                  <input type="checkbox" class="cs-bulk-cable-cb" data-key="${key}" ${isSelected ? 'checked' : ''} style="margin-top:3px;" />
+                  <div style="flex:1; min-width:0;">
+                    <div style="font-weight:500; display:flex; align-items:center; gap:6px;">
+                      ${statusIcon} ${cable.name}
+                      ${cable.isMultiSegment ? '<span style="font-size:10px; background:#e0e7ff; color:#3730a3; padding:1px 4px; border-radius:3px;">Multi-segment</span>' : ''}
+                    </div>
+                    <div style="font-size:11px; color:#666; margin-top:2px;">${metaInfo}</div>
+                    <div style="font-size:10px; color:#888; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cable.ownersText}</div>
+                  </div>
+                  <div style="font-size:10px; color:#888; text-align:right; min-width:70px;">
+                    ${cable.length_km ? cable.length_km.toLocaleString() + ' km' : ''}
+                  </div>
+                </label>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+    
+    cableList.innerHTML = html;
+    updateCsBulkImportCount();
+    
+    // Attach event handlers
+    cableList.querySelectorAll('.cs-bulk-cable-cb').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        const key = e.target.dataset.key;
+        if (e.target.checked) {
+          csBulkImportSelection.add(key);
+        } else {
+          csBulkImportSelection.delete(key);
+        }
+        renderCsBulkImportList();
+      });
+    });
+    
+    cableList.querySelectorAll('.cs-bulk-region-cb').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        const region = e.target.dataset.region;
+        const cables = byRegion[region] || [];
+        if (e.target.checked) {
+          cables.forEach(c => csBulkImportSelection.add(c.key));
+        } else {
+          cables.forEach(c => csBulkImportSelection.delete(c.key));
+        }
+        renderCsBulkImportList();
+      });
+    });
+  }
+
+  function getStatusIcon(rfs, status) {
+    // Use direct status if available from enriched database
+    if (status) {
+      if (status === 'Active') return '🟢';           // In service
+      if (status === 'Under Construction') return '🟡'; // Being built
+      if (status === 'Planned') return '🔵';          // Future
+    }
+    // Fallback to RFS-based inference
+    if (!rfs || rfs === 'Unknown') return '❓';
+    const year = parseInt(rfs);
+    const currentYear = new Date().getFullYear();
+    if (year > currentYear) return '🔵'; // Planned
+    if (year === currentYear) return '🟡'; // Under construction
+    return '🟢'; // In service
+  }
+
+  function updateCsBulkImportCount() {
+    const countEl = document.getElementById('csBulkSelectedCount');
+    const importBtn = document.getElementById('btnCsBulkImport');
+    
+    if (countEl) countEl.textContent = csBulkImportSelection.size;
+    if (importBtn) importBtn.disabled = csBulkImportSelection.size === 0;
+  }
+
+  function closeCsBulkImportModal() {
+    const modal = document.getElementById('csBulkImportModal');
+    if (modal) modal.style.display = 'none';
+    csBulkImportSelection.clear();
+  }
+
+  function executeCsBulkImport() {
+    if (csBulkImportSelection.size === 0) return;
+    
+    const currentYear = new Date().getFullYear();
+    let importedCount = 0;
+    
+    for (const cableKey of csBulkImportSelection) {
+      const cable = csBulkImportCables[cableKey];
+      if (!cable) continue;
+      
+      // Generate short name (abbreviation or truncated name)
+      let shortName = cable.name;
+      // If name has dashes, use as-is for short names like SEA-ME-WE
+      if (shortName.length > 15 && !shortName.includes('-')) {
+        // Create acronym from first letters
+        const words = shortName.split(/\s+/);
+        if (words.length > 1) {
+          shortName = words.map(w => w[0].toUpperCase()).join('');
+          if (shortName.length < 3) shortName = cable.name.substring(0, 12);
+        } else {
+          shortName = shortName.substring(0, 12);
+        }
+      }
+      
+      // Use status from enriched database metadata, with fallback to RFS-based inference
+      let status = 'planned';
+      if (cable.status === 'Active') {
+        status = 'operational';
+      } else if (cable.status === 'Under Construction') {
+        status = 'planned'; // Treat under construction as planned
+      } else if (cable.status === 'Planned') {
+        status = 'planned';
+      } else {
+        // Fallback: infer from RFS year if status not available
+        const rfsYear = cable.rfsYear || parseInt(cable.rfs);
+        if (!isNaN(rfsYear) && rfsYear <= currentYear) {
+          status = 'operational';
+        }
+      }
+      
+      // Use RFS year from enriched metadata
+      const rfsYear = cable.rfsYear || parseInt(cable.rfs) || (currentYear + 1);
+      
+      // Use capacity from enriched metadata, with fallback to parsed designCapacity
+      let capacityTbps = cable.capacityTbps || 0;
+      if (!capacityTbps && cable.designCapacity && cable.designCapacity !== 'Unknown') {
+        const capMatch = cable.designCapacity.match(/([\d.]+)/);
+        if (capMatch) capacityTbps = parseFloat(capMatch[1]);
+      }
+      
+      // Build notes from landing points
+      const landingPointNotes = cable.landingPoints?.map(lp => `${lp.name}, ${lp.country}`).join(' → ') || '';
+      const notes = [
+        cable.length_km ? `Length: ${cable.length_km.toLocaleString()} km` : '',
+        cable.status ? `Status: ${cable.status}` : '',
+        landingPointNotes ? `Route: ${landingPointNotes}` : '',
+        cable.isMultiSegment ? `Multi-segment cable (${cable.segmentCount} segments)` : '',
+        `Source: Submarine Cable Database`
+      ].filter(Boolean).join('\n');
+      
+      // Build filter tags
+      const filterTags = ['submarine', cable.region];
+      if (cable.name) filterTags.push(cable.name.toLowerCase().replace(/[^a-z0-9]/g, '-'));
+      
+      // Create the cable system object with enriched metadata
+      const id = state.nextCableSystem++;
+      const cs = {
+        id,
+        uuid: generateUUID(),
+        shortName: shortName,
+        name: cable.name,
+        type: 'wet',
+        rfsYear: !isNaN(rfsYear) ? rfsYear : currentYear + 1,
+        fiberPairs: cable.fiberPairs || 8,
+        status: status,
+        capacityTbps: capacityTbps || 100,
+        owners: cable.owners?.join(', ') || '',
+        filterTags: filterTags,
+        notes: notes,
+        // Store reference to original cable data for potential path import
+        _sourceDbId: cableKey
+      };
+      
+      state.cableSystems.push(cs);
+      importedCount++;
+    }
+    
+    if (importedCount > 0) {
+      commit();
+      updateCableNavigatorList();
+      showToast(`Imported ${importedCount} cable system${importedCount > 1 ? 's' : ''} from database.`);
+    }
+    
+    closeCsBulkImportModal();
+  }
+
+  // Set up bulk import modal event handlers
+  document.getElementById('btnCloseCsBulkImport')?.addEventListener('click', closeCsBulkImportModal);
+  document.getElementById('btnCsBulkCancel')?.addEventListener('click', closeCsBulkImportModal);
+  document.getElementById('btnCsBulkImport')?.addEventListener('click', executeCsBulkImport);
+  
+  document.getElementById('btnCsBulkSelectAll')?.addEventListener('click', () => {
+    // Select all visible cables
+    const searchTerm = (document.getElementById('csBulkSearchInput')?.value || '').toLowerCase();
+    const selectedRegion = document.getElementById('csBulkRegionFilter')?.value || '';
+    
+    Object.entries(csBulkImportCables).forEach(([key, cable]) => {
+      if (selectedRegion && cable.region !== selectedRegion) return;
+      if (searchTerm) {
+        const searchable = `${cable.name} ${cable.ownersText} ${cable.description}`.toLowerCase();
+        if (!searchable.includes(searchTerm)) return;
+      }
+      csBulkImportSelection.add(key);
+    });
+    renderCsBulkImportList();
+  });
+  
+  document.getElementById('btnCsBulkSelectNone')?.addEventListener('click', () => {
+    csBulkImportSelection.clear();
+    renderCsBulkImportList();
+  });
+  
+  document.getElementById('csBulkSearchInput')?.addEventListener('input', renderCsBulkImportList);
+  document.getElementById('csBulkRegionFilter')?.addEventListener('change', renderCsBulkImportList);
+  
+  // Close modal on backdrop click
+  document.getElementById('csBulkImportModal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'csBulkImportModal') closeCsBulkImportModal();
+  });
+  // ========== END CABLE SYSTEM BULK IMPORT ==========
 
   // Update inspector to show cable system details
   function updateCableSystemInspector() {
@@ -32499,7 +32870,11 @@ function loadProjectObject(obj) {
         geometry: cable.geometry,
         segments: cable.segments || null, // Named segments if available
         isMultiSegment: isMultiSegment,
-        segmentCount: isMultiSegment ? cable.geometry.coordinates.length : 1
+        segmentCount: isMultiSegment ? cable.geometry.coordinates.length : 1,
+        // New enriched metadata fields from v1.1 database
+        status: cable.status || 'Unknown',           // 'Active', 'Under Construction', 'Planned'
+        rfsYear: cable.rfsYear || null,              // Numeric year (e.g., 2022)
+        capacityTbps: cable.capacityTbps || null     // Total capacity in Tbps (e.g., 200)
       };
     }
     
