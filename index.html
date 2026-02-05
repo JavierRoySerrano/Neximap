@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<!-- NexiMap Studio v61.24 - CLOUDFLARE WORKER API PROXY FOR TELEGEOGRAPHY - 2025-02-04 -->
+<!-- NexiMap Studio v61.34 - FIBERATLANTIC LIVE STATUS + CABLE VISOR DETAIL PANEL - 2025-02-05 -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -742,6 +742,64 @@
     .cs-status-badge.planned { background: #3b82f6; box-shadow: 0 0 4px rgba(59, 130, 246, 0.5); }
     .cs-status-badge.under-construction { background: #f59e0b; box-shadow: 0 0 4px rgba(245, 158, 11, 0.5); }
     .cs-status-badge.decommissioned { background: #6b7280; }
+    .cs-status-badge.live-active { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.7); animation: pulse-green 2s infinite; }
+    .cs-status-badge.live-issue { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.7); animation: pulse-red 2s infinite; }
+    .cs-status-badge.live-unknown { background: #94a3b8; }
+    @keyframes pulse-green { 0%,100% { box-shadow: 0 0 4px rgba(34,197,94,0.5); } 50% { box-shadow: 0 0 8px rgba(34,197,94,0.9); } }
+    @keyframes pulse-red { 0%,100% { box-shadow: 0 0 4px rgba(239,68,68,0.5); } 50% { box-shadow: 0 0 8px rgba(239,68,68,0.9); } }
+    
+    /* FiberAtlantic link badge in navigator */
+    .fa-link-badge {
+      font-size: 9px; padding: 1px 4px; border-radius: 3px;
+      background: #f0fdf4; border: 1px solid #86efac; color: #166534;
+      cursor: help; white-space: nowrap;
+    }
+    .fa-link-badge.unlinked { background: #f8fafc; border-color: #cbd5e1; color: #94a3b8; }
+    
+    /* Cable Visor Detail Panel (below map, above list) */
+    #cableVisorDetailPanel {
+      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+      border-top: 1px solid #e0e0e0;
+      border-bottom: 1px solid #e0e0e0;
+      max-height: 220px;
+      overflow-y: auto;
+      display: none;
+      padding: 12px 14px;
+      font-size: 12px;
+    }
+    #cableVisorDetailPanel.show { display: block; }
+    .visor-detail-header {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+    }
+    .visor-detail-header h4 { margin: 0; font-size: 14px; font-weight: 600; color: #1e293b; flex: 1; }
+    .visor-detail-status {
+      display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px;
+      border-radius: 12px; font-size: 11px; font-weight: 600;
+    }
+    .visor-detail-status.active { background: #dcfce7; color: #166534; }
+    .visor-detail-status.issue { background: #fee2e2; color: #991b1b; }
+    .visor-detail-status.unknown { background: #f1f5f9; color: #64748b; }
+    .visor-detail-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px; margin-bottom: 10px;
+    }
+    .visor-detail-item { background: #f8fafc; padding: 8px 10px; border-radius: 6px; border: 1px solid #e2e8f0; }
+    .visor-detail-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+    .visor-detail-value { font-size: 13px; font-weight: 500; color: #1e293b; }
+    .visor-landing-points { margin-top: 8px; }
+    .visor-landing-points h5 { margin: 0 0 6px; font-size: 11px; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+    .visor-lp-list { display: flex; flex-wrap: wrap; gap: 4px; }
+    .visor-lp-tag {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 3px 8px; background: #eff6ff; border: 1px solid #bfdbfe;
+      border-radius: 4px; font-size: 10px; color: #1e40af;
+    }
+    .visor-lp-tag .lp-dot { width: 5px; height: 5px; border-radius: 50%; background: #3b82f6; }
+    .visor-detail-close {
+      background: none; border: none; color: #94a3b8; cursor: pointer;
+      font-size: 16px; padding: 2px 6px; border-radius: 4px;
+    }
+    .visor-detail-close:hover { background: #f1f5f9; color: #475569; }
     
     /* Cable Visor Panel - Floating Draggable */
     #cableVisorPanel {
@@ -6777,6 +6835,20 @@
             <textarea id="csFilterTags" placeholder="default, submarine, Asia" style="height:40px;"></textarea>
           </div>
 
+          <div class="sep" style="margin:8px 0; border-top:1px dashed #e0e0e0;"></div>
+          
+          <div class="row">
+            <label style="display:flex; align-items:center; gap:6px;">
+              🔗 FiberAtlantic Link
+              <span class="fa-link-badge" id="csFaLinkStatus">Not linked</span>
+            </label>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <input id="csFiberAtlanticId" placeholder="FiberAtlantic cable ID or name" style="flex:1;" />
+              <button class="mini-btn" id="btnAutoMatchFA" title="Auto-match with FiberAtlantic" style="padding:4px 8px; font-size:10px;">🔍 Auto</button>
+            </div>
+            <div id="csFaMatchInfo" style="font-size:10px; color:#64748b; margin-top:4px;"></div>
+          </div>
+
           <div class="row">
             <label>Notes</label>
             <textarea id="csNotes" placeholder="Additional notes..." style="height:60px;"></textarea>
@@ -6868,6 +6940,9 @@
         <button class="btn" id="btnImportCableSystems" style="flex:1; min-width:50px;" title="Import cable systems from database or API">📥 Import</button>
         <button class="btn" id="btnExportCableSystems" style="flex:1; min-width:50px;" title="Export cable systems to JSON">📤 Export</button>
         <button class="btn" id="btnDeleteCableSystem" style="flex:1; min-width:50px;">Delete</button>
+      </div>
+      <div style="padding:4px 12px 8px; display:flex; gap:8px;">
+        <button class="btn" id="btnBatchAutoMatchFA" style="flex:1; font-size:10px; padding:4px 8px; background:#f0fdf4; border-color:#86efac; color:#166534;" title="Auto-match all cable systems with FiberAtlantic for live status">🔗 Link All to FiberAtlantic</button>
       </div>
     </div>
   </aside>
@@ -19323,6 +19398,7 @@ function loadProjectObject(obj) {
             </div>
           </div>
           <div style="display:flex; align-items:center; gap:6px;">
+            ${cs.fiberAtlanticId ? '<span class="fa-link-badge" title="Linked to FiberAtlantic: ' + escapeHtml(cs.fiberAtlanticName || cs.fiberAtlanticId) + '">FA</span>' : ''}
             <button class="btn-show-visor" data-cs-id="${cs.id}" title="Show in Cable Visor" style="padding:2px 6px; font-size:10px; background:#e0f2fe; border:1px solid #7dd3fc; border-radius:3px; cursor:pointer;">🌐</button>
             <div class="cs-count">${linkCount}L / ${nodeCount}N</div>
           </div>
@@ -19527,6 +19603,30 @@ function loadProjectObject(obj) {
   document.getElementById('btnCsSelectAll')?.addEventListener('click', selectAllCableSystems);
   document.getElementById('btnCsSelectNone')?.addEventListener('click', deselectAllCableSystems);
   document.getElementById('btnCsDeleteSelected')?.addEventListener('click', deleteSelectedCableSystems);
+  
+  // Batch auto-match all cable systems with FiberAtlantic
+  document.getElementById('btnBatchAutoMatchFA')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btnBatchAutoMatchFA');
+    if (!btn) return;
+    
+    if (state.cableSystems.length === 0) {
+      showToast('No cable systems to match', 'warning');
+      return;
+    }
+    
+    btn.disabled = true;
+    btn.textContent = '⏳ Matching...';
+    
+    try {
+      const result = await autoMatchAllCableSystems();
+      showToast(`Linked ${result.matched} of ${result.total} cable systems to FiberAtlantic`, 'success');
+    } catch (err) {
+      showToast('Auto-match failed: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🔗 Link All to FiberAtlantic';
+    }
+  });
 
   // ======================
   // Cable Visor Panel
@@ -19539,6 +19639,211 @@ function loadProjectObject(obj) {
     initialized: false,
     mapReady: false
   };
+  
+  // ======================
+  // FiberAtlantic Live Cable Status Integration
+  // ======================
+  const FIBER_ATLANTIC_WORKER_URL = 'https://submarine-cable-api.fcoroyse-spam.workers.dev';
+  const fiberAtlanticCache = {
+    cables: null,       // Cached cable list from FiberAtlantic
+    details: {},        // Cached individual cable details by FA ID
+    lastFetch: 0,       // Timestamp of last fetch
+    cacheTTL: 3600000,  // 1 hour cache
+    loading: false,
+    error: null
+  };
+  
+  // Fetch FiberAtlantic cable list
+  async function fetchFiberAtlanticCables(forceRefresh = false) {
+    if (!forceRefresh && fiberAtlanticCache.cables && (Date.now() - fiberAtlanticCache.lastFetch < fiberAtlanticCache.cacheTTL)) {
+      return fiberAtlanticCache.cables;
+    }
+    if (fiberAtlanticCache.loading) return fiberAtlanticCache.cables;
+    
+    fiberAtlanticCache.loading = true;
+    fiberAtlanticCache.error = null;
+    
+    try {
+      const response = await fetch(`${FIBER_ATLANTIC_WORKER_URL}/cables`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      fiberAtlanticCache.cables = data.cables || data;
+      fiberAtlanticCache.lastFetch = Date.now();
+      console.log('[FiberAtlantic] Fetched cable list:', Array.isArray(fiberAtlanticCache.cables) ? fiberAtlanticCache.cables.length : 'object');
+      return fiberAtlanticCache.cables;
+    } catch (err) {
+      console.warn('[FiberAtlantic] Failed to fetch cables:', err.message);
+      fiberAtlanticCache.error = err.message;
+      return null;
+    } finally {
+      fiberAtlanticCache.loading = false;
+    }
+  }
+  
+  // Fetch details for a specific FiberAtlantic cable
+  async function fetchFiberAtlanticDetail(faId) {
+    if (fiberAtlanticCache.details[faId]) return fiberAtlanticCache.details[faId];
+    
+    try {
+      const response = await fetch(`${FIBER_ATLANTIC_WORKER_URL}/cable/${faId}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      fiberAtlanticCache.details[faId] = data;
+      return data;
+    } catch (err) {
+      console.warn('[FiberAtlantic] Failed to fetch detail for', faId, ':', err.message);
+      return null;
+    }
+  }
+  
+  // Auto-match a cable system name against FiberAtlantic cable list
+  function autoMatchFiberAtlantic(csName, csList) {
+    if (!csName || !csList) return null;
+    const name = csName.trim().toLowerCase();
+    const cables = Array.isArray(csList) ? csList : Object.values(csList);
+    
+    // Pass 1: Exact match
+    let match = cables.find(c => (c.name || '').toLowerCase() === name);
+    if (match) return { match, confidence: 'exact' };
+    
+    // Pass 2: Normalize and match (remove dashes, spaces, etc.)
+    const normalize = s => s.toLowerCase().replace(/[-_\s.()]/g, '').replace(/cable(system)?/gi, '');
+    const normName = normalize(csName);
+    match = cables.find(c => normalize(c.name || '') === normName);
+    if (match) return { match, confidence: 'normalized' };
+    
+    // Pass 3: Contains match (either direction)
+    match = cables.find(c => {
+      const cName = (c.name || '').toLowerCase();
+      return cName.includes(name) || name.includes(cName);
+    });
+    if (match) return { match, confidence: 'contains' };
+    
+    // Pass 4: Abbreviation match (e.g., "SMW5" matches "SEA-ME-WE 5")
+    const abbrevMatch = cables.find(c => {
+      const cAbbrev = (c.name || '').replace(/[^A-Z0-9]/g, '');
+      const csAbbrev = csName.replace(/[^A-Z0-9]/g, '');
+      return cAbbrev.length > 2 && csAbbrev.length > 2 && 
+             (cAbbrev.includes(csAbbrev) || csAbbrev.includes(cAbbrev));
+    });
+    if (abbrevMatch) return { match: abbrevMatch, confidence: 'abbreviation' };
+    
+    return null;
+  }
+  
+  // Run auto-match for all cable systems and update their fiberAtlanticId
+  async function autoMatchAllCableSystems() {
+    const cables = await fetchFiberAtlanticCables();
+    if (!cables) {
+      showToast('Could not reach FiberAtlantic API', 'warning');
+      return { matched: 0, total: state.cableSystems.length };
+    }
+    
+    let matched = 0;
+    state.cableSystems.forEach(cs => {
+      if (cs.fiberAtlanticId) { matched++; return; } // Already linked
+      
+      // Try matching by name, then shortName
+      let result = autoMatchFiberAtlantic(cs.name, cables);
+      if (!result) result = autoMatchFiberAtlantic(cs.shortName, cables);
+      
+      if (result) {
+        cs.fiberAtlanticId = result.match.id || result.match.slug || result.match.name;
+        cs.fiberAtlanticName = result.match.name;
+        cs.fiberAtlanticConfidence = result.confidence;
+        matched++;
+      }
+    });
+    
+    commit();
+    updateCableNavigatorList();
+    return { matched, total: state.cableSystems.length };
+  }
+  
+  // Get live status for a cable system via FiberAtlantic
+  function getFiberAtlanticStatus(cs) {
+    if (!cs.fiberAtlanticId) return { status: 'unlinked', label: 'Not linked', cssClass: 'live-unknown' };
+    const detail = fiberAtlanticCache.details[cs.fiberAtlanticId];
+    if (!detail) return { status: 'unknown', label: 'Loading...', cssClass: 'live-unknown' };
+    
+    const rawStatus = (detail.status || detail.cable_status || '').toLowerCase();
+    if (rawStatus.includes('active') || rawStatus.includes('in service') || rawStatus.includes('operational')) {
+      return { status: 'active', label: 'Active', cssClass: 'live-active' };
+    } else if (rawStatus.includes('fault') || rawStatus.includes('down') || rawStatus.includes('outage') || rawStatus.includes('repair')) {
+      return { status: 'issue', label: 'Issue Reported', cssClass: 'live-issue' };
+    } else if (rawStatus.includes('construction') || rawStatus.includes('planned')) {
+      return { status: 'planned', label: rawStatus, cssClass: 'live-unknown' };
+    }
+    return { status: 'unknown', label: detail.status || 'Unknown', cssClass: 'live-unknown' };
+  }
+  
+  // Show detail panel for a cable in the Visor
+  function showVisorCableDetail(cableId) {
+    const db = cableVisorState.cableDatabase;
+    if (!db || !db.cables || !db.cables[cableId]) return;
+    
+    const cable = db.cables[cableId];
+    const detailPanel = document.getElementById('cableVisorDetailPanel');
+    if (!detailPanel) return;
+    
+    // Header
+    document.getElementById('visorDetailName').textContent = cable.name || cable.shortName || cableId;
+    
+    // Status badge
+    const statusBadge = document.getElementById('visorDetailStatusBadge');
+    const statusText = cable.status || 'Unknown';
+    let statusCss = 'unknown';
+    if (statusText.toLowerCase().includes('active') || statusText.toLowerCase().includes('service')) statusCss = 'active';
+    else if (statusText.toLowerCase().includes('issue') || statusText.toLowerCase().includes('fault')) statusCss = 'issue';
+    statusBadge.className = `visor-detail-status ${statusCss}`;
+    statusBadge.innerHTML = `<span class="cs-status-badge live-${statusCss}" style="width:8px;height:8px;"></span> ${escapeHtml(statusText)}`;
+    
+    // Detail grid
+    const grid = document.getElementById('visorDetailGrid');
+    const items = [
+      cable.region ? { label: 'Region', value: cable.region } : null,
+      cable.rfs ? { label: 'RFS', value: cable.rfs } : null,
+      cable.length_km ? { label: 'Length', value: `${Math.round(cable.length_km).toLocaleString()} km` } : null,
+      cable.fiberPairs ? { label: 'Fiber Pairs', value: cable.fiberPairs } : null,
+      cable.designCapacity && cable.designCapacity !== 'Unknown' ? { label: 'Capacity', value: cable.designCapacity } : 
+        (cable.capacityTbps ? { label: 'Capacity', value: `${cable.capacityTbps} Tbps` } : null),
+      cable.ownersText ? { label: 'Owners', value: cable.ownersText } :
+        (cable.owners && cable.owners.length ? { label: 'Owners', value: Array.isArray(cable.owners) ? cable.owners.join(', ') : cable.owners } : null),
+    ].filter(Boolean);
+    
+    grid.innerHTML = items.map(item => `
+      <div class="visor-detail-item">
+        <div class="visor-detail-label">${item.label}</div>
+        <div class="visor-detail-value">${escapeHtml(String(item.value))}</div>
+      </div>
+    `).join('');
+    
+    // Landing points / CLS
+    const lpContainer = document.getElementById('visorLandingPoints');
+    const lpList = document.getElementById('visorLpList');
+    if (cable.landingPoints && cable.landingPoints.length > 0) {
+      lpContainer.style.display = 'block';
+      lpList.innerHTML = cable.landingPoints.map(lp => `
+        <span class="visor-lp-tag" title="${lp.lat ? `${lp.lat}, ${lp.lon}` : ''}">
+          <span class="lp-dot"></span>
+          ${escapeHtml(lp.name)}${lp.country ? ', ' + escapeHtml(lp.country) : ''}
+        </span>
+      `).join('');
+    } else {
+      lpContainer.style.display = 'none';
+    }
+    
+    // Show panel
+    detailPanel.classList.add('show');
+  }
+  
+  function hideVisorCableDetail() {
+    const panel = document.getElementById('cableVisorDetailPanel');
+    if (panel) panel.classList.remove('show');
+  }
+  
+  // Setup detail panel close button
+  document.getElementById('btnCloseVisorDetail')?.addEventListener('click', hideVisorCableDetail);
   
   function showCableVisor() {
     const panel = document.getElementById('cableVisorPanel');
@@ -19959,6 +20264,8 @@ function loadProjectObject(obj) {
         if (e.target.type === 'checkbox') return; // Let checkbox handle itself
         const cableId = item.dataset.cableId;
         toggleCableVisorSelection(cableId);
+        // Show detail panel for this cable
+        showVisorCableDetail(cableId);
       });
       
       // Checkbox change
@@ -19968,6 +20275,7 @@ function loadProjectObject(obj) {
           e.stopPropagation();
           const cableId = item.dataset.cableId;
           toggleCableVisorSelection(cableId);
+          showVisorCableDetail(cableId);
         });
       }
       
@@ -20842,6 +21150,24 @@ function loadProjectObject(obj) {
     document.getElementById('csFilterTags').value = (cs.filterTags || []).join(', ');
     document.getElementById('csNotes').value = cs.notes || '';
     
+    // FiberAtlantic link field
+    const faIdInput = document.getElementById('csFiberAtlanticId');
+    const faStatus = document.getElementById('csFaLinkStatus');
+    const faMatchInfo = document.getElementById('csFaMatchInfo');
+    if (faIdInput) faIdInput.value = cs.fiberAtlanticId || '';
+    if (faStatus) {
+      if (cs.fiberAtlanticId) {
+        faStatus.textContent = cs.fiberAtlanticName || cs.fiberAtlanticId;
+        faStatus.className = 'fa-link-badge';
+      } else {
+        faStatus.textContent = 'Not linked';
+        faStatus.className = 'fa-link-badge unlinked';
+      }
+    }
+    if (faMatchInfo) {
+      faMatchInfo.textContent = cs.fiberAtlanticConfidence ? `Match: ${cs.fiberAtlanticConfidence}` : '';
+    }
+    
     // Update member lists
     const links = getCableSystemLinks(cs.id);
     const nodes = getCableSystemNodes(cs.id);
@@ -21157,6 +21483,57 @@ function loadProjectObject(obj) {
     });
   }
 
+  // FiberAtlantic auto-match button for individual cable system
+  document.getElementById('btnAutoMatchFA')?.addEventListener('click', async () => {
+    if (!state.selectedCableSystem) return;
+    const cs = findCableSystem(state.selectedCableSystem);
+    if (!cs) return;
+    
+    const btn = document.getElementById('btnAutoMatchFA');
+    const info = document.getElementById('csFaMatchInfo');
+    btn.disabled = true;
+    btn.textContent = '⏳ Matching...';
+    if (info) info.textContent = 'Contacting FiberAtlantic...';
+    
+    try {
+      const cables = await fetchFiberAtlanticCables();
+      if (!cables) {
+        if (info) info.textContent = '⚠️ Could not reach FiberAtlantic API';
+        return;
+      }
+      
+      let result = autoMatchFiberAtlantic(cs.name, cables);
+      if (!result) result = autoMatchFiberAtlantic(cs.shortName, cables);
+      
+      if (result) {
+        cs.fiberAtlanticId = result.match.id || result.match.slug || result.match.name;
+        cs.fiberAtlanticName = result.match.name;
+        cs.fiberAtlanticConfidence = result.confidence;
+        
+        const faIdInput = document.getElementById('csFiberAtlanticId');
+        if (faIdInput) faIdInput.value = cs.fiberAtlanticId;
+        
+        const faStatus = document.getElementById('csFaLinkStatus');
+        if (faStatus) {
+          faStatus.textContent = cs.fiberAtlanticName || cs.fiberAtlanticId;
+          faStatus.className = 'fa-link-badge';
+        }
+        if (info) info.textContent = `✅ Matched (${result.confidence}): ${result.match.name}`;
+        
+        commit();
+        updateCableNavigatorList();
+        showToast(`Linked "${cs.shortName}" → "${result.match.name}" (${result.confidence})`, 'success');
+      } else {
+        if (info) info.textContent = `❌ No match found for "${cs.name}" or "${cs.shortName}"`;
+      }
+    } catch (err) {
+      if (info) info.textContent = `⚠️ Error: ${err.message}`;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🔍 Auto';
+    }
+  });
+
   function showApplyCSNameDialog() {
     const cs = findCableSystem(state.selectedCableSystem);
     if (!cs) return;
@@ -21293,7 +21670,7 @@ function loadProjectObject(obj) {
 
   // Add event listeners for cable system inspector fields
   const csFields = ['csShortName', 'csName', 'csType', 'csStatus', 'csRfsYear', 
-                    'csFiberPairs', 'csCapacity', 'csOwners', 'csFilterTags', 'csNotes'];
+                    'csFiberPairs', 'csCapacity', 'csOwners', 'csFilterTags', 'csNotes', 'csFiberAtlanticId'];
   
   csFields.forEach(fieldId => {
     const el = document.getElementById(fieldId);
@@ -21315,6 +21692,23 @@ function loadProjectObject(obj) {
         case 'csOwners': cs.owners = el.value; break;
         case 'csFilterTags': 
           cs.filterTags = el.value.split(',').map(t => t.trim()).filter(Boolean);
+          break;
+        case 'csNotes': cs.notes = el.value; break;
+        case 'csFiberAtlanticId': 
+          cs.fiberAtlanticId = el.value.trim() || null;
+          if (!cs.fiberAtlanticId) { cs.fiberAtlanticName = null; cs.fiberAtlanticConfidence = null; }
+          // Update status badge
+          const faStatus = document.getElementById('csFaLinkStatus');
+          if (faStatus) {
+            if (cs.fiberAtlanticId) {
+              faStatus.textContent = cs.fiberAtlanticId;
+              faStatus.className = 'fa-link-badge';
+            } else {
+              faStatus.textContent = 'Not linked';
+              faStatus.className = 'fa-link-badge unlinked';
+            }
+          }
+          break;
           if (!cs.filterTags.some(t => t.toLowerCase() === 'default')) {
             cs.filterTags.unshift('default');
           }
@@ -42267,6 +42661,20 @@ function loadProjectObject(obj) {
     <div id="cableVisorMapLoading" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:#666;">
       <div style="font-size:24px; margin-bottom:8px;">🌐</div>
       <div>Loading map...</div>
+    </div>
+  </div>
+  <div id="cableVisorDetailPanel">
+    <div class="visor-detail-header">
+      <h4 id="visorDetailName">Cable Name</h4>
+      <span id="visorDetailStatusBadge" class="visor-detail-status unknown">
+        <span class="cs-status-badge live-unknown" style="width:8px;height:8px;"></span> Unknown
+      </span>
+      <button class="visor-detail-close" id="btnCloseVisorDetail" title="Close details">✕</button>
+    </div>
+    <div class="visor-detail-grid" id="visorDetailGrid"></div>
+    <div class="visor-landing-points" id="visorLandingPoints" style="display:none;">
+      <h5>📍 Landing Stations (CLS)</h5>
+      <div class="visor-lp-list" id="visorLpList"></div>
     </div>
   </div>
   <div id="cableVisorList">
