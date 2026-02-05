@@ -6896,7 +6896,9 @@
               <label>Status</label>
               <select id="csStatus">
                 <option value="planned">Planned</option>
+                <option value="under-construction">Under Construction</option>
                 <option value="operational">In Operation</option>
+                <option value="decommissioned">Decommissioned</option>
               </select>
             </div>
           </div>
@@ -18854,6 +18856,14 @@ function loadProjectObject(obj) {
         csItem.status = 'operational';
       }
     }
+    // If status is 'planned' but rfsYear is in the past, the cable is already in service
+    if (csItem.status === 'planned' && csItem.rfsYear && csItem.rfsYear <= migrationYear) {
+      csItem.status = 'operational';
+    }
+    // If status is 'planned' but rfsYear is within 2 years, mark as under-construction
+    if (csItem.status === 'planned' && csItem.rfsYear && csItem.rfsYear > migrationYear && csItem.rfsYear <= migrationYear + 2) {
+      csItem.status = 'under-construction';
+    }
     // If status is 'operational' but rfsYear is in the future, rfsYear was guessed wrong — clear it
     if (csItem.status === 'operational' && csItem.rfsYear && csItem.rfsYear > migrationYear) {
       csItem.rfsYear = null;
@@ -19510,20 +19520,21 @@ function loadProjectObject(obj) {
     // Helper to get status class based on RFS year
     function getStatusClass(cs) {
       const currentYear = new Date().getFullYear();
-      // Check explicit status first
+      // Check explicit status first (but only trust non-planned statuses blindly)
       if (cs.status === 'decommissioned') return 'decommissioned';
       if (cs.status === 'operational' || cs.status === 'Active') return 'operational';
       if (cs.status === 'under-construction' || cs.status === 'Under Construction') return 'under-construction';
-      // Then check rfsYear
+      // For 'planned' or unknown status, ALWAYS cross-check against rfsYear
+      // A cable with rfsYear <= currentYear should be operational regardless of stored status
       const rfsYear = cs.rfsYear;
-      if (rfsYear === null || rfsYear === undefined) {
-        // No RFS data — infer from status string if possible
-        if (cs.status === 'planned' || cs.status === 'Planned') return 'planned';
-        return 'planned'; // Default for unknown
+      if (rfsYear !== null && rfsYear !== undefined && !isNaN(rfsYear)) {
+        if (rfsYear <= currentYear) return 'operational';
+        if (rfsYear <= currentYear + 2) return 'under-construction';
+        return 'planned';
       }
-      if (rfsYear <= currentYear) return 'operational';
-      if (rfsYear <= currentYear + 2) return 'under-construction';
-      return 'planned';
+      // No RFS data available — trust the stored status
+      if (cs.status === 'planned' || cs.status === 'Planned') return 'planned';
+      return 'planned'; // Default for unknown
     }
 
     const multiSelectMode = document.getElementById('cableNavMultiSelect')?.checked || false;
@@ -21463,6 +21474,17 @@ function loadProjectObject(obj) {
         const rfsCheck = cable.rfsYear || parseInt(cable.rfs);
         if (!isNaN(rfsCheck) && rfsCheck <= currentYear) {
           status = 'operational';
+        }
+      }
+
+      // Safety net: ALWAYS cross-check — if RFS year is in the past, cable must be operational
+      // This catches cases where the DB has status='Unknown' or 'Planned' but rfs='2010'
+      if (status === 'planned') {
+        const rfsCheck = cable.rfsYear || parseInt(cable.rfs);
+        if (!isNaN(rfsCheck) && rfsCheck <= currentYear) {
+          status = 'operational';
+        } else if (!isNaN(rfsCheck) && rfsCheck <= currentYear + 2) {
+          status = 'under-construction';
         }
       }
 
@@ -35416,6 +35438,20 @@ function loadProjectObject(obj) {
       const isMultiSegment = cable.geometry?.type === 'MultiLineString' &&
                              cable.geometry?.coordinates?.length > 1;
 
+      // Resolve status: if 'Unknown' or missing, infer from RFS year
+      let resolvedStatus = cable.status || 'Unknown';
+      if (resolvedStatus === 'Unknown' || resolvedStatus === '') {
+        const rfsCheck = cable.rfsYear || parseInt(cable.rfs);
+        const curYear = new Date().getFullYear();
+        if (!isNaN(rfsCheck) && rfsCheck <= curYear) {
+          resolvedStatus = 'Active';
+        } else if (!isNaN(rfsCheck) && rfsCheck <= curYear + 2) {
+          resolvedStatus = 'Under Construction';
+        } else if (!isNaN(rfsCheck)) {
+          resolvedStatus = 'Planned';
+        }
+      }
+
       cables[key] = {
         id: cable.id || key,
         name: cable.name,
@@ -35434,8 +35470,8 @@ function loadProjectObject(obj) {
         segments: cable.segments || null, // Named segments if available
         isMultiSegment: isMultiSegment,
         segmentCount: isMultiSegment ? cable.geometry.coordinates.length : 1,
-        // New enriched metadata fields from v1.1 database
-        status: cable.status || 'Unknown',           // 'Active', 'Under Construction', 'Planned'
+        // Enriched metadata fields
+        status: resolvedStatus,                      // 'Active', 'Under Construction', 'Planned'
         rfsYear: cable.rfsYear || null,              // Numeric year (e.g., 2022)
         capacityTbps: cable.capacityTbps || null     // Total capacity in Tbps (e.g., 200)
       };
