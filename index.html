@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<!-- NexiMap Studio v61.35 - LIVE OPERATIONAL STATUS + CABLE VISOR DETAIL PANEL - 2025-02-05 -->
+<!-- NexiMap Studio v61.35 - FIBERATLANTIC API FIX + SEPARATED WORKER URLS - 2025-02-05 -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -748,19 +748,7 @@
     @keyframes pulse-green { 0%,100% { box-shadow: 0 0 4px rgba(34,197,94,0.5); } 50% { box-shadow: 0 0 8px rgba(34,197,94,0.9); } }
     @keyframes pulse-red { 0%,100% { box-shadow: 0 0 4px rgba(239,68,68,0.5); } 50% { box-shadow: 0 0 8px rgba(239,68,68,0.9); } }
     
-    /* Live status button in CS list */
-    .btn-live-status {
-      transition: all 0.2s;
-      font-family: inherit;
-      line-height: 1;
-    }
-    .btn-live-status:hover {
-      background: #d1fae5 !important;
-      border-color: #34d399 !important;
-      transform: scale(1.05);
-    }
-    
-    /* Live status link badge in navigator */
+    /* FiberAtlantic link badge in navigator */
     .fa-link-badge {
       font-size: 9px; padding: 1px 4px; border-radius: 3px;
       background: #f0fdf4; border: 1px solid #86efac; color: #166534;
@@ -6851,13 +6839,19 @@
           
           <div class="row">
             <label style="display:flex; align-items:center; gap:6px;">
-              📡 Live Operational Status
+              🔗 FiberAtlantic Link
               <span class="fa-link-badge" id="csFaLinkStatus">Not linked</span>
             </label>
             <div style="display:flex; gap:6px; align-items:center;">
-              <input id="csFiberAtlanticId" placeholder="Cable ID or name in public database" style="flex:1;" />
-              <button class="mini-btn" id="btnAutoMatchFA" title="Auto-match with public cable database" style="padding:4px 8px; font-size:10px;">🔍 Auto</button>
+              <div style="flex:1; position:relative;">
+                <input id="csFaSearchInput" placeholder="Search FiberAtlantic cables..." style="width:100%; padding-right:24px; font-size:11px;" autocomplete="off" />
+                <span id="csFaSearchClear" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:14px; color:#999; display:none;" title="Clear selection">×</span>
+                <div id="csFaDropdown" style="display:none; position:absolute; top:100%; left:0; right:0; max-height:200px; overflow-y:auto; background:white; border:1px solid #d0d0d0; border-top:none; border-radius:0 0 6px 6px; box-shadow:0 4px 12px rgba(0,0,0,0.15); z-index:1000; font-size:11px;">
+                </div>
+              </div>
+              <button class="mini-btn" id="btnAutoMatchFA" title="Auto-match with FiberAtlantic" style="padding:4px 8px; font-size:10px;">🔍 Auto</button>
             </div>
+            <input type="hidden" id="csFiberAtlanticId" />
             <div id="csFaMatchInfo" style="font-size:10px; color:#64748b; margin-top:4px;"></div>
           </div>
 
@@ -6927,13 +6921,10 @@
             Multi-select
           </label>
           <div style="flex:1;"></div>
-          <div style="display:flex; gap:4px; font-size:9px; flex-wrap:wrap;">
-            <span title="Operational (RFS year reached)" style="display:flex; align-items:center; gap:2px;"><span class="cs-status-badge operational"></span>RFS</span>
+          <div style="display:flex; gap:4px; font-size:9px;">
+            <span title="Operational" style="display:flex; align-items:center; gap:2px;"><span class="cs-status-badge operational"></span>RFS</span>
             <span title="Under Construction" style="display:flex; align-items:center; gap:2px;"><span class="cs-status-badge under-construction"></span>WIP</span>
             <span title="Planned" style="display:flex; align-items:center; gap:2px;"><span class="cs-status-badge planned"></span>Plan</span>
-            <span style="color:#cbd5e1;">|</span>
-            <span title="Live: Active (from public DB)" style="display:flex; align-items:center; gap:2px;"><span class="cs-status-badge live-active" style="animation:none;"></span>Up</span>
-            <span title="Live: Issue reported (from public DB)" style="display:flex; align-items:center; gap:2px;"><span class="cs-status-badge live-issue" style="animation:none;"></span>Fault</span>
           </div>
         </div>
       </div>
@@ -6957,7 +6948,7 @@
         <button class="btn" id="btnDeleteCableSystem" style="flex:1; min-width:50px;">Delete</button>
       </div>
       <div style="padding:4px 12px 8px; display:flex; gap:8px;">
-        <button class="btn" id="btnBatchAutoMatchFA" style="flex:1; font-size:10px; padding:4px 8px; background:#f0fdf4; border-color:#86efac; color:#166534;" title="Auto-match all cable systems with public database for live status">📡 Link All to Live Status</button>
+        <button class="btn" id="btnBatchAutoMatchFA" style="flex:1; font-size:10px; padding:4px 8px; background:#f0fdf4; border-color:#86efac; color:#166534;" title="Auto-match all cable systems with FiberAtlantic for live status">🔗 Link All to FiberAtlantic</button>
       </div>
     </div>
   </aside>
@@ -19253,8 +19244,6 @@ function loadProjectObject(obj) {
         cableNavigator.style.display = 'flex';
         btnToggleCableNavigator.classList.add('active');
         updateCableNavigatorList();
-        // Start live status refresh when panel opens
-        startLiveStatusRefresh();
       } else {
         cableNavigator.style.display = 'none';
         btnToggleCableNavigator.classList.remove('active');
@@ -19262,8 +19251,6 @@ function loadProjectObject(obj) {
         state.selectedCableSystem = null;
         updateCableSystemInspector();
         render();
-        // Stop live status refresh when panel closes
-        stopLiveStatusRefresh();
       }
     });
   }
@@ -19400,38 +19387,24 @@ function loadProjectObject(obj) {
       const nodeCount = getCableSystemNodes(cs.id).length;
       const isSelected = state.selectedCableSystem === cs.id;
       const isMultiSelected = state.multiSelectedCableSystems?.has(cs.id) || false;
-      
-      // Use live status when linked to public DB, otherwise fallback to RFS-based status
-      let statusClass, statusTitle;
-      if (cs.fiberAtlanticId) {
-        const liveStatus = getFiberAtlanticStatus(cs);
-        statusClass = liveStatus.cssClass;
-        statusTitle = liveStatus.label;
-      } else {
-        statusClass = getStatusClass(cs);
-        statusTitle = statusClass;
-      }
+      const statusClass = getStatusClass(cs);
       const rfsText = cs.rfsYear ? cs.rfsYear : '';
       
       const checkboxHtml = multiSelectMode ? 
         `<input type="checkbox" class="cs-multi-checkbox" data-cs-id="${cs.id}" ${isMultiSelected ? 'checked' : ''} style="width:14px; height:14px; accent-color:#0077b6; cursor:pointer;" />` : '';
       
-      // Live status button when linked to public DB
-      const liveStatusBtn = cs.fiberAtlanticId ? 
-        `<button class="btn-live-status" data-cs-id="${cs.id}" title="Live status: ${escapeHtml(cs.fiberAtlanticName || cs.fiberAtlanticId)}&#10;Click to refresh" style="padding:2px 6px; font-size:9px; background:#ecfdf5; border:1px solid #86efac; border-radius:3px; cursor:pointer; display:flex; align-items:center; gap:3px;">📡<span style="font-size:8px;">LIVE</span></button>` : '';
-      
       return `
         <div class="cable-system-item ${isSelected ? 'selected' : ''} ${isMultiSelected ? 'multi-selected' : ''}" data-cs-id="${cs.id}">
           <div style="display:flex; align-items:center; gap:6px; min-width:0; flex:1;">
             ${checkboxHtml}
-            <span class="cs-status-badge ${statusClass}" title="${statusTitle}"></span>
+            <span class="cs-status-badge ${statusClass}" title="${statusClass}"></span>
             <div style="min-width:0; flex:1;">
               <div class="cs-name">${escapeHtml(cs.shortName || cs.name)}</div>
               <div class="cs-fullname">${escapeHtml(cs.name)}${rfsText ? ` (${rfsText})` : ''}</div>
             </div>
           </div>
           <div style="display:flex; align-items:center; gap:6px;">
-            ${liveStatusBtn}
+            ${cs.fiberAtlanticId ? '<span class="fa-link-badge" title="Linked to FiberAtlantic: ' + escapeHtml(cs.fiberAtlanticName || cs.fiberAtlanticId) + '">FA</span>' : ''}
             <button class="btn-show-visor" data-cs-id="${cs.id}" title="Show in Cable Visor" style="padding:2px 6px; font-size:10px; background:#e0f2fe; border:1px solid #7dd3fc; border-radius:3px; cursor:pointer;">🌐</button>
             <div class="cs-count">${linkCount}L / ${nodeCount}N</div>
           </div>
@@ -19637,7 +19610,7 @@ function loadProjectObject(obj) {
   document.getElementById('btnCsSelectNone')?.addEventListener('click', deselectAllCableSystems);
   document.getElementById('btnCsDeleteSelected')?.addEventListener('click', deleteSelectedCableSystems);
   
-  // Batch auto-match all cable systems with public cable database
+  // Batch auto-match all cable systems with FiberAtlantic
   document.getElementById('btnBatchAutoMatchFA')?.addEventListener('click', async () => {
     const btn = document.getElementById('btnBatchAutoMatchFA');
     if (!btn) return;
@@ -19652,15 +19625,12 @@ function loadProjectObject(obj) {
     
     try {
       const result = await autoMatchAllCableSystems();
-      // After matching, fetch live details for all linked systems
-      await fetchAllLinkedCableDetails();
-      showToast(`Linked ${result.matched} of ${result.total} cable systems to live status`, 'success');
-      updateCableNavigatorList();
+      showToast(`Linked ${result.matched} of ${result.total} cable systems to FiberAtlantic`, 'success');
     } catch (err) {
       showToast('Auto-match failed: ' + err.message, 'error');
     } finally {
       btn.disabled = false;
-      btn.textContent = '📡 Link All to Live Status';
+      btn.textContent = '🔗 Link All to FiberAtlantic';
     }
   });
 
@@ -19677,19 +19647,22 @@ function loadProjectObject(obj) {
   };
   
   // ======================
-  // Live Cable Status Integration (public cable database API)
+  // FiberAtlantic Live Cable Status Integration
   // ======================
-  const FIBER_ATLANTIC_WORKER_URL = 'https://submarine-cable-api.fcoroyse-spam.workers.dev';
+  // Dedicated FA worker proxying fiberatlantic.com for live operational status
+  // Endpoints: /cablelist, /cable/:id, /status-summary, /search/:name
+  // Statuses: 'online', 'outage', 'in development', 'proposal', 'project'
+  const FIBER_ATLANTIC_WORKER_URL = 'https://fiberatlantic-api.fcoroyse-spam.workers.dev';
   const fiberAtlanticCache = {
-    cables: null,       // Cached cable list from public DB
-    details: {},        // Cached individual cable details by ID
+    cables: null,       // Cached cable list from FiberAtlantic
+    details: {},        // Cached individual cable details by FA ID
     lastFetch: 0,       // Timestamp of last fetch
     cacheTTL: 3600000,  // 1 hour cache
     loading: false,
     error: null
   };
   
-  // Fetch cable list from public database
+  // Fetch FiberAtlantic cable list (live status data from fiberatlantic.com)
   async function fetchFiberAtlanticCables(forceRefresh = false) {
     if (!forceRefresh && fiberAtlanticCache.cables && (Date.now() - fiberAtlanticCache.lastFetch < fiberAtlanticCache.cacheTTL)) {
       return fiberAtlanticCache.cables;
@@ -19700,15 +19673,17 @@ function loadProjectObject(obj) {
     fiberAtlanticCache.error = null;
     
     try {
-      const response = await fetch(`${FIBER_ATLANTIC_WORKER_URL}/cables`);
+      // FA worker endpoint: /cablelist — returns array of {id, name, status, ...}
+      const response = await fetch(`${FIBER_ATLANTIC_WORKER_URL}/cablelist`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
-      fiberAtlanticCache.cables = data.cables || data;
+      // Response is a direct array of cable objects
+      fiberAtlanticCache.cables = Array.isArray(data) ? data : (data.cables || []);
       fiberAtlanticCache.lastFetch = Date.now();
-      console.log('[LiveStatus] Fetched cable list:', Array.isArray(fiberAtlanticCache.cables) ? fiberAtlanticCache.cables.length : 'object');
+      console.log('[FiberAtlantic] Fetched cable list:', fiberAtlanticCache.cables.length, 'cables');
       return fiberAtlanticCache.cables;
     } catch (err) {
-      console.warn('[LiveStatus] Failed to fetch cables:', err.message);
+      console.warn('[FiberAtlantic] Failed to fetch cables:', err.message);
       fiberAtlanticCache.error = err.message;
       return null;
     } finally {
@@ -19716,7 +19691,8 @@ function loadProjectObject(obj) {
     }
   }
   
-  // Fetch details for a specific cable from public database
+  // Fetch details for a specific FiberAtlantic cable
+  // FA worker endpoint: /cable/:id — returns merged basicInfo + MsgPack-decoded details
   async function fetchFiberAtlanticDetail(faId) {
     if (fiberAtlanticCache.details[faId]) return fiberAtlanticCache.details[faId];
     
@@ -19724,84 +19700,23 @@ function loadProjectObject(obj) {
       const response = await fetch(`${FIBER_ATLANTIC_WORKER_URL}/cable/${faId}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
+      // The 'details' field comes as a JSON string from the MsgPack decode — parse it
+      if (data.details && typeof data.details === 'string') {
+        try {
+          data.details = JSON.parse(data.details);
+        } catch (e) {
+          console.warn('[FiberAtlantic] Could not parse details string for', faId);
+        }
+      }
       fiberAtlanticCache.details[faId] = data;
       return data;
     } catch (err) {
-      console.warn('[LiveStatus] Failed to fetch detail for', faId, ':', err.message);
+      console.warn('[FiberAtlantic] Failed to fetch detail for', faId, ':', err.message);
       return null;
     }
   }
   
-  // Fetch details for ALL linked cable systems (call after batch match or on panel open)
-  async function fetchAllLinkedCableDetails() {
-    const linked = state.cableSystems.filter(cs => cs.fiberAtlanticId);
-    if (linked.length === 0) return;
-    
-    const promises = linked.map(cs => fetchFiberAtlanticDetail(cs.fiberAtlanticId));
-    await Promise.allSettled(promises);
-    console.log('[LiveStatus] Fetched details for', linked.length, 'linked cable systems');
-  }
-  
-  // Periodic refresh of live status (every 5 min when CS List panel is visible)
-  let liveStatusRefreshInterval = null;
-  
-  function startLiveStatusRefresh() {
-    if (liveStatusRefreshInterval) return;
-    // Fetch immediately on start, then every 5 min
-    fetchAllLinkedCableDetails().then(() => updateCableNavigatorList());
-    liveStatusRefreshInterval = setInterval(async () => {
-      const panel = document.getElementById('cableNavPanel');
-      if (!panel || !panel.classList.contains('show')) {
-        stopLiveStatusRefresh();
-        return;
-      }
-      // Clear cached details to force re-fetch
-      const linked = state.cableSystems.filter(cs => cs.fiberAtlanticId);
-      linked.forEach(cs => { delete fiberAtlanticCache.details[cs.fiberAtlanticId]; });
-      await fetchAllLinkedCableDetails();
-      updateCableNavigatorList();
-      console.log('[LiveStatus] Periodic refresh complete');
-    }, 5 * 60 * 1000);
-  }
-  
-  function stopLiveStatusRefresh() {
-    if (liveStatusRefreshInterval) {
-      clearInterval(liveStatusRefreshInterval);
-      liveStatusRefreshInterval = null;
-    }
-  }
-  
-  // Handle click on LIVE status button in CS list
-  document.addEventListener('click', async (e) => {
-    const liveBtn = e.target.closest('.btn-live-status');
-    if (!liveBtn) return;
-    e.stopPropagation();
-    
-    const csId = parseInt(liveBtn.dataset.csId);
-    const cs = findCableSystem(csId);
-    if (!cs || !cs.fiberAtlanticId) return;
-    
-    // Refresh this specific cable's status
-    liveBtn.style.opacity = '0.5';
-    liveBtn.innerHTML = '⏳';
-    
-    // Clear cached detail to force re-fetch
-    delete fiberAtlanticCache.details[cs.fiberAtlanticId];
-    const detail = await fetchFiberAtlanticDetail(cs.fiberAtlanticId);
-    
-    liveBtn.style.opacity = '1';
-    liveBtn.innerHTML = '📡<span style="font-size:8px;">LIVE</span>';
-    
-    if (detail) {
-      const liveStatus = getFiberAtlanticStatus(cs);
-      showToast(`${cs.shortName || cs.name}: ${liveStatus.label}`, liveStatus.status === 'issue' ? 'error' : 'success');
-      updateCableNavigatorList();
-    } else {
-      showToast(`Could not reach live status API for ${cs.shortName || cs.name}`, 'warning');
-    }
-  });
-  
-  // Auto-match a cable system name against public cable database list
+  // Auto-match a cable system name against FiberAtlantic cable list
   function autoMatchFiberAtlantic(csName, csList) {
     if (!csName || !csList) return null;
     const name = csName.trim().toLowerCase();
@@ -19840,7 +19755,7 @@ function loadProjectObject(obj) {
   async function autoMatchAllCableSystems() {
     const cables = await fetchFiberAtlanticCables();
     if (!cables) {
-      showToast('Could not reach live status API', 'warning');
+      showToast('Could not reach FiberAtlantic API', 'warning');
       return { matched: 0, total: state.cableSystems.length };
     }
     
@@ -19865,84 +19780,27 @@ function loadProjectObject(obj) {
     return { matched, total: state.cableSystems.length };
   }
   
-  // Get live operational status for a cable system via public database
+  // Get live status for a cable system via FiberAtlantic
+  // FA statuses: 'online', 'outage', 'in development', 'proposal', 'project', or empty
   function getFiberAtlanticStatus(cs) {
     if (!cs.fiberAtlanticId) return { status: 'unlinked', label: 'Not linked', cssClass: 'live-unknown' };
     const detail = fiberAtlanticCache.details[cs.fiberAtlanticId];
     if (!detail) return { status: 'unknown', label: 'Loading...', cssClass: 'live-unknown' };
     
-    // Debug: log the full response structure on first check
-    if (!detail._logged) {
-      console.log('[LiveStatus] Cable detail for', cs.fiberAtlanticId, ':', JSON.stringify(detail).substring(0, 500));
-      detail._logged = true;
-    }
+    // FA worker returns {id, name, status, ..., details: {...}} 
+    // The status field comes from the top-level cable list data
+    const rawStatus = (detail.status || '').toLowerCase().trim();
     
-    // Collect all possible status strings from the response (search deeply)
-    const statusCandidates = [];
-    const addCandidate = (val) => { if (val && typeof val === 'string') statusCandidates.push(val.toLowerCase()); };
-    
-    // Direct fields
-    addCandidate(detail.status);
-    addCandidate(detail.cable_status);
-    addCandidate(detail.cableStatus);
-    addCandidate(detail.operational_status);
-    addCandidate(detail.operationalStatus);
-    addCandidate(detail.state);
-    addCandidate(detail.condition);
-    addCandidate(detail.alert);
-    addCandidate(detail.alertLevel);
-    addCandidate(detail.alert_level);
-    addCandidate(detail.health);
-    addCandidate(detail.currentStatus);
-    addCandidate(detail.current_status);
-    
-    // Nested in cable/info objects
-    if (detail.cable) {
-      addCandidate(detail.cable.status);
-      addCandidate(detail.cable.cable_status);
-      addCandidate(detail.cable.alert);
-      addCandidate(detail.cable.state);
-      addCandidate(detail.cable.health);
-    }
-    if (detail.info) {
-      addCandidate(detail.info.status);
-      addCandidate(detail.info.alert);
-    }
-    
-    // Check if there are any alerts/incidents arrays
-    const hasAlerts = (detail.alerts && detail.alerts.length > 0) || 
-                      (detail.incidents && detail.incidents.length > 0) ||
-                      (detail.faults && detail.faults.length > 0) ||
-                      (detail.outages && detail.outages.length > 0);
-    if (hasAlerts) {
-      statusCandidates.push('fault');
-    }
-    
-    // Also check if the response has an is_active / isActive boolean
-    if (detail.is_active === true || detail.isActive === true) statusCandidates.push('active');
-    if (detail.is_active === false || detail.isActive === false) statusCandidates.push('fault');
-    
-    // Check if any boolean flag indicates alert/issue
-    if (detail.has_alert === true || detail.hasAlert === true || detail.alert === true) statusCandidates.push('fault');
-    
-    const combined = statusCandidates.join(' ');
-    
-    // Check for fault/issue indicators (check FIRST since source shows ⚠️ alerts)
-    if (combined.includes('fault') || combined.includes('down') || combined.includes('outage') || 
-        combined.includes('repair') || combined.includes('issue') || combined.includes('alert') ||
-        combined.includes('degraded') || combined.includes('impaired') || combined.includes('warning') ||
-        combined.includes('disruption') || combined.includes('incident') || combined.includes('maintenance')) {
-      return { status: 'issue', label: 'Issue Reported', cssClass: 'live-issue' };
-    }
-    // Check for active/operational
-    if (combined.includes('active') || combined.includes('in service') || combined.includes('operational') ||
-        combined.includes('ok') || combined.includes('normal') || combined.includes('healthy') ||
-        combined.includes('ready for service') || combined.includes('rfs') || combined.includes('working')) {
-      return { status: 'active', label: 'Active', cssClass: 'live-active' };
-    }
-    // Check for planned/construction
-    if (combined.includes('construction') || combined.includes('planned') || combined.includes('proposed')) {
-      return { status: 'planned', label: combined, cssClass: 'live-unknown' };
+    if (rawStatus === 'online') {
+      return { status: 'active', label: 'Online', cssClass: 'live-active' };
+    } else if (rawStatus === 'outage') {
+      return { status: 'issue', label: 'Outage', cssClass: 'live-issue' };
+    } else if (rawStatus === 'in development') {
+      return { status: 'planned', label: 'In Development', cssClass: 'live-unknown' };
+    } else if (rawStatus === 'proposal') {
+      return { status: 'planned', label: 'Proposal', cssClass: 'live-unknown' };
+    } else if (rawStatus === 'project') {
+      return { status: 'planned', label: 'Project', cssClass: 'live-unknown' };
     }
     return { status: 'unknown', label: detail.status || 'Unknown', cssClass: 'live-unknown' };
   }
@@ -21320,16 +21178,23 @@ function loadProjectObject(obj) {
     document.getElementById('csFilterTags').value = (cs.filterTags || []).join(', ');
     document.getElementById('csNotes').value = cs.notes || '';
     
-    // Live status link field
+    // FiberAtlantic link field
     const faIdInput = document.getElementById('csFiberAtlanticId');
+    const faSearchInput = document.getElementById('csFaSearchInput');
+    const faClearBtn = document.getElementById('csFaSearchClear');
     const faStatus = document.getElementById('csFaLinkStatus');
     const faMatchInfo = document.getElementById('csFaMatchInfo');
+    const faDropdown = document.getElementById('csFaDropdown');
     if (faIdInput) faIdInput.value = cs.fiberAtlanticId || '';
+    if (faSearchInput) {
+      faSearchInput.value = cs.fiberAtlanticName || '';
+      faSearchInput.style.fontWeight = cs.fiberAtlanticId ? '600' : 'normal';
+    }
+    if (faClearBtn) faClearBtn.style.display = cs.fiberAtlanticId ? 'block' : 'none';
+    if (faDropdown) faDropdown.style.display = 'none';
     if (faStatus) {
       if (cs.fiberAtlanticId) {
-        const liveStatus = getFiberAtlanticStatus(cs);
-        const statusIcon = liveStatus.status === 'active' ? '🟢' : liveStatus.status === 'issue' ? '🔴' : '⚪';
-        faStatus.textContent = `${statusIcon} ${liveStatus.label} — ${cs.fiberAtlanticName || cs.fiberAtlanticId}`;
+        faStatus.textContent = cs.fiberAtlanticName || cs.fiberAtlanticId;
         faStatus.className = 'fa-link-badge';
       } else {
         faStatus.textContent = 'Not linked';
@@ -21655,7 +21520,7 @@ function loadProjectObject(obj) {
     });
   }
 
-  // Auto-match button for individual cable system (live status)
+  // FiberAtlantic auto-match button for individual cable system
   document.getElementById('btnAutoMatchFA')?.addEventListener('click', async () => {
     if (!state.selectedCableSystem) return;
     const cs = findCableSystem(state.selectedCableSystem);
@@ -21665,12 +21530,12 @@ function loadProjectObject(obj) {
     const info = document.getElementById('csFaMatchInfo');
     btn.disabled = true;
     btn.textContent = '⏳ Matching...';
-    if (info) info.textContent = 'Contacting live status database...';
+    if (info) info.textContent = 'Contacting FiberAtlantic...';
     
     try {
       const cables = await fetchFiberAtlanticCables();
       if (!cables) {
-        if (info) info.textContent = '⚠️ Could not reach live status API';
+        if (info) info.textContent = '⚠️ Could not reach FiberAtlantic API';
         return;
       }
       
@@ -21685,6 +21550,13 @@ function loadProjectObject(obj) {
         const faIdInput = document.getElementById('csFiberAtlanticId');
         if (faIdInput) faIdInput.value = cs.fiberAtlanticId;
         
+        const faSearchInput = document.getElementById('csFaSearchInput');
+        if (faSearchInput) { faSearchInput.value = result.match.name; faSearchInput.style.fontWeight = '600'; }
+        const faClearBtn = document.getElementById('csFaSearchClear');
+        if (faClearBtn) faClearBtn.style.display = 'block';
+        const faDropdown = document.getElementById('csFaDropdown');
+        if (faDropdown) faDropdown.style.display = 'none';
+        
         const faStatus = document.getElementById('csFaLinkStatus');
         if (faStatus) {
           faStatus.textContent = cs.fiberAtlanticName || cs.fiberAtlanticId;
@@ -21693,9 +21565,6 @@ function loadProjectObject(obj) {
         if (info) info.textContent = `✅ Matched (${result.confidence}): ${result.match.name}`;
         
         commit();
-        
-        // Fetch live detail for this cable to populate status immediately
-        await fetchFiberAtlanticDetail(cs.fiberAtlanticId);
         updateCableNavigatorList();
         showToast(`Linked "${cs.shortName}" → "${result.match.name}" (${result.confidence})`, 'success');
       } else {
@@ -21708,6 +21577,160 @@ function loadProjectObject(obj) {
       btn.textContent = '🔍 Auto';
     }
   });
+
+  // ======================
+  // FiberAtlantic Manual Dropdown Search/Select
+  // ======================
+  // Preloaded FA cable list for the dropdown (lazy-loaded on first focus)
+  let faDropdownCablesLoaded = false;
+  let faDropdownCables = [];
+  
+  // Status indicator colors for dropdown items
+  function faStatusDot(status) {
+    const colors = { online: '#22c55e', outage: '#ef4444', 'in development': '#f59e0b', proposal: '#3b82f6', project: '#8b5cf6' };
+    const color = colors[(status || '').toLowerCase()] || '#d1d5db';
+    return `<span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${color}; margin-right:6px; flex-shrink:0;"></span>`;
+  }
+  
+  // Load FA cable list into dropdown cache
+  async function ensureFaDropdownLoaded() {
+    if (faDropdownCablesLoaded) return faDropdownCables;
+    const searchInput = document.getElementById('csFaSearchInput');
+    if (searchInput) searchInput.placeholder = 'Loading FA cables...';
+    
+    const cables = await fetchFiberAtlanticCables();
+    if (cables && Array.isArray(cables)) {
+      faDropdownCables = cables.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      faDropdownCablesLoaded = true;
+    }
+    if (searchInput) searchInput.placeholder = 'Search FiberAtlantic cables...';
+    return faDropdownCables;
+  }
+  
+  // Render filtered dropdown items
+  function renderFaDropdown(filter = '') {
+    const dropdown = document.getElementById('csFaDropdown');
+    if (!dropdown) return;
+    
+    const term = filter.toLowerCase().trim();
+    const filtered = term 
+      ? faDropdownCables.filter(c => (c.name || '').toLowerCase().includes(term))
+      : faDropdownCables;
+    
+    if (filtered.length === 0) {
+      dropdown.innerHTML = '<div style="padding:8px 12px; color:#999; font-style:italic;">No cables match your search</div>';
+      dropdown.style.display = 'block';
+      return;
+    }
+    
+    // Limit to 50 for performance, show count if more
+    const shown = filtered.slice(0, 50);
+    const remaining = filtered.length - shown.length;
+    
+    dropdown.innerHTML = shown.map(c => `
+      <div class="fa-dropdown-item" data-fa-id="${c.id}" data-fa-name="${escapeHtml(c.name)}" data-fa-status="${escapeHtml(c.status || '')}"
+           style="padding:6px 12px; cursor:pointer; display:flex; align-items:center; border-bottom:1px solid #f0f0f0;"
+           onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background='white'">
+        ${faStatusDot(c.status)}
+        <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(c.name)}</span>
+        <span style="font-size:9px; color:#999; margin-left:8px; flex-shrink:0;">${escapeHtml(c.status || '')}</span>
+      </div>
+    `).join('') + (remaining > 0 ? `<div style="padding:6px 12px; color:#999; font-size:10px; text-align:center; background:#f9fafb;">+ ${remaining} more — keep typing to filter</div>` : '');
+    
+    dropdown.style.display = 'block';
+    
+    // Add click handlers to items
+    dropdown.querySelectorAll('.fa-dropdown-item').forEach(item => {
+      item.addEventListener('click', () => {
+        selectFaDropdownItem(item.dataset.faId, item.dataset.faName, item.dataset.faStatus);
+      });
+    });
+  }
+  
+  // Handle selection from dropdown
+  function selectFaDropdownItem(faId, faName, faStatus) {
+    const cs = findCableSystem(state.selectedCableSystem);
+    if (!cs) return;
+    
+    // Update the cable system
+    cs.fiberAtlanticId = faId;
+    cs.fiberAtlanticName = faName;
+    cs.fiberAtlanticConfidence = 'manual';
+    
+    // Update UI
+    const searchInput = document.getElementById('csFaSearchInput');
+    const hiddenInput = document.getElementById('csFiberAtlanticId');
+    const clearBtn = document.getElementById('csFaSearchClear');
+    const dropdown = document.getElementById('csFaDropdown');
+    const faStatusEl = document.getElementById('csFaLinkStatus');
+    const info = document.getElementById('csFaMatchInfo');
+    
+    if (searchInput) { searchInput.value = faName; searchInput.style.fontWeight = '600'; }
+    if (hiddenInput) hiddenInput.value = faId;
+    if (clearBtn) clearBtn.style.display = 'block';
+    if (dropdown) dropdown.style.display = 'none';
+    if (faStatusEl) { faStatusEl.textContent = faName; faStatusEl.className = 'fa-link-badge'; }
+    if (info) info.textContent = `✅ Manually linked — Status: ${faStatus || 'unknown'}`;
+    
+    commit();
+    updateCableNavigatorList();
+    showToast(`Linked "${cs.shortName}" → "${faName}" (manual)`, 'success');
+    
+    // Fetch detail to get live status
+    fetchFiberAtlanticDetail(faId);
+  }
+  
+  // Clear FA link
+  function clearFaSelection() {
+    const cs = findCableSystem(state.selectedCableSystem);
+    if (!cs) return;
+    
+    cs.fiberAtlanticId = null;
+    cs.fiberAtlanticName = null;
+    cs.fiberAtlanticConfidence = null;
+    
+    const searchInput = document.getElementById('csFaSearchInput');
+    const hiddenInput = document.getElementById('csFiberAtlanticId');
+    const clearBtn = document.getElementById('csFaSearchClear');
+    const faStatusEl = document.getElementById('csFaLinkStatus');
+    const info = document.getElementById('csFaMatchInfo');
+    
+    if (searchInput) { searchInput.value = ''; searchInput.style.fontWeight = 'normal'; }
+    if (hiddenInput) hiddenInput.value = '';
+    if (clearBtn) clearBtn.style.display = 'none';
+    if (faStatusEl) { faStatusEl.textContent = 'Not linked'; faStatusEl.className = 'fa-link-badge unlinked'; }
+    if (info) info.textContent = '';
+    
+    commit();
+    updateCableNavigatorList();
+  }
+  
+  // Wire up search input events
+  document.getElementById('csFaSearchInput')?.addEventListener('focus', async () => {
+    await ensureFaDropdownLoaded();
+    renderFaDropdown(document.getElementById('csFaSearchInput')?.value || '');
+  });
+  
+  document.getElementById('csFaSearchInput')?.addEventListener('input', (e) => {
+    renderFaDropdown(e.target.value);
+    // If user clears the input text, don't auto-clear the link yet
+    if (!e.target.value.trim()) {
+      const dropdown = document.getElementById('csFaDropdown');
+      if (dropdown) renderFaDropdown('');
+    }
+  });
+  
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    const dropdown = document.getElementById('csFaDropdown');
+    const searchInput = document.getElementById('csFaSearchInput');
+    if (dropdown && searchInput && !searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.style.display = 'none';
+    }
+  });
+  
+  // Clear button
+  document.getElementById('csFaSearchClear')?.addEventListener('click', clearFaSelection);
 
   function showApplyCSNameDialog() {
     const cs = findCableSystem(state.selectedCableSystem);
