@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<!-- NexiMap Studio v61.46 - Fix collapsible detail panel click handler - 2025-02-05 -->
+<!-- NexiMap Studio v61.47 - Draggable map resize handle in Cable Visor - 2025-02-05 -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -1012,8 +1012,31 @@
     }
     #cableVisorMap {
       flex: 1;
+      min-height: 80px;
       background: #e0e7ef;
       position: relative;
+    }
+    #cableVisorMapResizeHandle {
+      height: 7px;
+      background: linear-gradient(180deg, #e0e0e0 0%, #d0d0d0 100%);
+      cursor: ns-resize;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      user-select: none;
+      border-top: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+    }
+    #cableVisorMapResizeHandle:hover, #cableVisorMapResizeHandle.dragging {
+      background: linear-gradient(180deg, #b8d8e8 0%, #90c4d8 100%);
+    }
+    #cableVisorMapResizeHandle .resize-grip {
+      width: 30px; height: 3px;
+      border-top: 1px solid #999; border-bottom: 1px solid #999;
+    }
+    #cableVisorMapResizeHandle:hover .resize-grip, #cableVisorMapResizeHandle.dragging .resize-grip {
+      border-color: #0077b6;
     }
     #cableVisorList {
       height: 180px;
@@ -4512,7 +4535,7 @@
       </svg>
       <span style="font-weight:600; font-size:15px; color:#5a67d8; letter-spacing:-0.3px;">NexiMap</span>
       <span style="font-weight:400; font-size:15px; color:#666; letter-spacing:-0.3px;">Studio</span>
-      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v61.46</span>
+      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v61.47</span>
     </div>
     <button class="menu-item" id="btnFile" type="button">File</button>
     <button class="menu-item" id="btnEditMenu" type="button">Edit</button>
@@ -20414,6 +20437,50 @@ function loadProjectObject(obj) {
       hideVisorCableDetail();
     }
   });
+
+  // Map resize handle drag logic
+  (function() {
+    let dragging = false;
+    let startY = 0;
+    let startHeight = 0;
+
+    document.addEventListener('mousedown', (e) => {
+      if (!e.target.closest('#cableVisorMapResizeHandle')) return;
+      const mapEl = document.getElementById('cableVisorMap');
+      if (!mapEl) return;
+      dragging = true;
+      startY = e.clientY;
+      startHeight = mapEl.getBoundingClientRect().height;
+      e.target.closest('#cableVisorMapResizeHandle').classList.add('dragging');
+      document.body.style.cursor = 'ns-resize';
+      document.body.style.userSelect = 'none';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      const mapEl = document.getElementById('cableVisorMap');
+      if (!mapEl) return;
+      const delta = e.clientY - startY;
+      const newHeight = Math.max(80, startHeight + delta);
+      mapEl.style.flex = 'none';
+      mapEl.style.height = newHeight + 'px';
+      // Resize maplibre map if active
+      if (cableVisorState.map) cableVisorState.map.resize();
+      e.preventDefault();
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (!dragging) return;
+      dragging = false;
+      const handle = document.getElementById('cableVisorMapResizeHandle');
+      if (handle) handle.classList.remove('dragging');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      // Final map resize
+      if (cableVisorState.map) cableVisorState.map.resize();
+    });
+  })();
 
   function showCableVisor() {
     const panel = document.getElementById('cableVisorPanel');
@@ -43762,6 +43829,9 @@ function loadProjectObject(obj) {
       <div>Loading map...</div>
     </div>
   </div>
+  <div id="cableVisorMapResizeHandle" title="Drag to resize map">
+    <div class="resize-grip"></div>
+  </div>
   <div id="cableVisorDetailPanel">
     <div class="visor-detail-header" id="visorDetailHeaderToggle" title="Click to expand/collapse details">
       <span class="visor-detail-toggle" id="visorDetailChevron">▼</span>
@@ -44501,7 +44571,7 @@ function loadProjectObject(obj) {
         <circle cx="24" cy="24" r="2.5" fill="white"/>
       </svg>
       <h2 style="margin:0 0 4px; font-size:20px; color:#333;">NexiMap Studio</h2>
-      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 61.46 <span style="color:#b0b0b0; font-size:11px;">• Build 2025-02-05</span></p>
+      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 61.47 <span style="color:#b0b0b0; font-size:11px;">• Build 2025-02-05</span></p>
       <p style="margin:0 0 20px; color:#555; font-size:13px; line-height:1.6;">
         Professional network topology and diagram design tool with geographic mapping, cost analysis, and route optimization.
       </p>
