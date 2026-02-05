@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<!-- NexiMap Studio v61.35 - FIBERATLANTIC API FIX + SEPARATED WORKER URLS - 2025-02-05 -->
+<!-- NexiMap Studio v61.36 - DUAL STATUS INDICATORS (RFS + LIVE) - 2025-02-05 -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -729,7 +729,7 @@
     .cs-region-items { }
     .cs-region-items.collapsed { display: none; }
     
-    /* RFS Status Badges */
+    /* RFS Status Badges (left dot - static lifecycle status) */
     .cs-status-badge {
       display: inline-block;
       width: 10px;
@@ -737,18 +737,72 @@
       border-radius: 50%;
       margin-right: 6px;
       flex-shrink: 0;
+      background: #d1d5db;
     }
     .cs-status-badge.operational { background: #22c55e; box-shadow: 0 0 4px rgba(34, 197, 94, 0.5); }
     .cs-status-badge.planned { background: #3b82f6; box-shadow: 0 0 4px rgba(59, 130, 246, 0.5); }
     .cs-status-badge.under-construction { background: #f59e0b; box-shadow: 0 0 4px rgba(245, 158, 11, 0.5); }
     .cs-status-badge.decommissioned { background: #6b7280; }
-    .cs-status-badge.live-active { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.7); animation: pulse-green 2s infinite; }
-    .cs-status-badge.live-issue { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.7); animation: pulse-red 2s infinite; }
+
+    /* Live Status Badge (right side - real-time from FiberAtlantic) */
+    .cs-live-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 9px; font-weight: 600; padding: 1px 5px 1px 3px;
+      border-radius: 3px; white-space: nowrap; cursor: help;
+      line-height: 1.2;
+    }
+    .cs-live-badge .live-dot {
+      display: inline-block; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    }
+    /* Online / Active */
+    .cs-live-badge.live-online {
+      background: #f0fdf4; border: 1px solid #86efac; color: #166534;
+    }
+    .cs-live-badge.live-online .live-dot {
+      background: #22c55e; box-shadow: 0 0 4px rgba(34,197,94,0.7);
+      animation: pulse-green-dot 2s infinite;
+    }
+    /* Outage / Issue */
+    .cs-live-badge.live-outage {
+      background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b;
+    }
+    .cs-live-badge.live-outage .live-dot {
+      background: #ef4444; box-shadow: 0 0 4px rgba(239,68,68,0.7);
+      animation: pulse-red-dot 1.5s infinite;
+    }
+    /* Degraded / Partial */
+    .cs-live-badge.live-degraded {
+      background: #fffbeb; border: 1px solid #fcd34d; color: #92400e;
+    }
+    .cs-live-badge.live-degraded .live-dot {
+      background: #f59e0b; box-shadow: 0 0 4px rgba(245,158,11,0.7);
+      animation: pulse-amber-dot 2s infinite;
+    }
+    /* Unknown / Loading / Unlinked */
+    .cs-live-badge.live-unknown {
+      background: #f8fafc; border: 1px solid #cbd5e1; color: #64748b;
+    }
+    .cs-live-badge.live-unknown .live-dot {
+      background: #94a3b8;
+    }
+    /* Not linked (no FA) — subtle, doesn't distract */
+    .cs-live-badge.live-none {
+      background: #f9fafb; border: 1px solid #e5e7eb; color: #9ca3af;
+    }
+    .cs-live-badge.live-none .live-dot {
+      background: #d1d5db;
+    }
+
+    @keyframes pulse-green-dot { 0%,100% { box-shadow: 0 0 3px rgba(34,197,94,0.4); } 50% { box-shadow: 0 0 7px rgba(34,197,94,0.9); } }
+    @keyframes pulse-red-dot { 0%,100% { box-shadow: 0 0 3px rgba(239,68,68,0.4); } 50% { box-shadow: 0 0 8px rgba(239,68,68,1); } }
+    @keyframes pulse-amber-dot { 0%,100% { box-shadow: 0 0 3px rgba(245,158,11,0.4); } 50% { box-shadow: 0 0 7px rgba(245,158,11,0.9); } }
+
+    /* Legacy live classes kept for visor detail panel */
+    .cs-status-badge.live-active { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.7); animation: pulse-green-dot 2s infinite; }
+    .cs-status-badge.live-issue { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.7); animation: pulse-red-dot 1.5s infinite; }
     .cs-status-badge.live-unknown { background: #94a3b8; }
-    @keyframes pulse-green { 0%,100% { box-shadow: 0 0 4px rgba(34,197,94,0.5); } 50% { box-shadow: 0 0 8px rgba(34,197,94,0.9); } }
-    @keyframes pulse-red { 0%,100% { box-shadow: 0 0 4px rgba(239,68,68,0.5); } 50% { box-shadow: 0 0 8px rgba(239,68,68,0.9); } }
     
-    /* FiberAtlantic link badge in navigator */
+    /* FiberAtlantic link indicator in inspector */
     .fa-link-badge {
       font-size: 9px; padding: 1px 4px; border-radius: 3px;
       background: #f0fdf4; border: 1px solid #86efac; color: #166534;
@@ -6921,10 +6975,13 @@
             Multi-select
           </label>
           <div style="flex:1;"></div>
-          <div style="display:flex; gap:4px; font-size:9px;">
-            <span title="Operational" style="display:flex; align-items:center; gap:2px;"><span class="cs-status-badge operational"></span>RFS</span>
-            <span title="Under Construction" style="display:flex; align-items:center; gap:2px;"><span class="cs-status-badge under-construction"></span>WIP</span>
-            <span title="Planned" style="display:flex; align-items:center; gap:2px;"><span class="cs-status-badge planned"></span>Plan</span>
+          <div style="display:flex; gap:4px; font-size:9px; flex-wrap:wrap;">
+            <span title="Operational / Ready for Service" style="display:flex; align-items:center; gap:2px;"><span class="cs-status-badge operational" style="width:8px;height:8px;margin:0;"></span>RFS</span>
+            <span title="Under Construction" style="display:flex; align-items:center; gap:2px;"><span class="cs-status-badge under-construction" style="width:8px;height:8px;margin:0;"></span>WIP</span>
+            <span title="Planned" style="display:flex; align-items:center; gap:2px;"><span class="cs-status-badge planned" style="width:8px;height:8px;margin:0;"></span>Plan</span>
+            <span style="color:#cbd5e1; margin:0 1px;">|</span>
+            <span title="Live: Online (from FiberAtlantic)" style="display:flex; align-items:center; gap:1px;"><span class="cs-live-badge live-online" style="padding:0 3px;font-size:8px;"><span class="live-dot" style="width:5px;height:5px;"></span>Up</span></span>
+            <span title="Live: Outage (from FiberAtlantic)" style="display:flex; align-items:center; gap:1px;"><span class="cs-live-badge live-outage" style="padding:0 3px;font-size:8px;"><span class="live-dot" style="width:5px;height:5px;"></span>Fault</span></span>
           </div>
         </div>
       </div>
@@ -6949,6 +7006,7 @@
       </div>
       <div style="padding:4px 12px 8px; display:flex; gap:8px;">
         <button class="btn" id="btnBatchAutoMatchFA" style="flex:1; font-size:10px; padding:4px 8px; background:#f0fdf4; border-color:#86efac; color:#166534;" title="Auto-match all cable systems with FiberAtlantic for live status">🔗 Link All to FiberAtlantic</button>
+        <button class="btn" id="btnRefreshLiveStatus" style="flex:1; font-size:10px; padding:4px 8px; background:#eff6ff; border-color:#93c5fd; color:#1e40af;" title="Refresh live status from FiberAtlantic for all linked cables">🔄 Refresh Live</button>
       </div>
     </div>
   </aside>
@@ -19393,18 +19451,21 @@ function loadProjectObject(obj) {
       const checkboxHtml = multiSelectMode ? 
         `<input type="checkbox" class="cs-multi-checkbox" data-cs-id="${cs.id}" ${isMultiSelected ? 'checked' : ''} style="width:14px; height:14px; accent-color:#0077b6; cursor:pointer;" />` : '';
       
+      // Live status badge (from FiberAtlantic)
+      const liveBadgeHtml = renderLiveStatusBadge(cs);
+      
       return `
         <div class="cable-system-item ${isSelected ? 'selected' : ''} ${isMultiSelected ? 'multi-selected' : ''}" data-cs-id="${cs.id}">
           <div style="display:flex; align-items:center; gap:6px; min-width:0; flex:1;">
             ${checkboxHtml}
-            <span class="cs-status-badge ${statusClass}" title="${statusClass}"></span>
+            <span class="cs-status-badge ${statusClass}" title="RFS: ${statusClass}"></span>
             <div style="min-width:0; flex:1;">
               <div class="cs-name">${escapeHtml(cs.shortName || cs.name)}</div>
               <div class="cs-fullname">${escapeHtml(cs.name)}${rfsText ? ` (${rfsText})` : ''}</div>
             </div>
           </div>
-          <div style="display:flex; align-items:center; gap:6px;">
-            ${cs.fiberAtlanticId ? '<span class="fa-link-badge" title="Linked to FiberAtlantic: ' + escapeHtml(cs.fiberAtlanticName || cs.fiberAtlanticId) + '">FA</span>' : ''}
+          <div style="display:flex; align-items:center; gap:4px;">
+            ${liveBadgeHtml}
             <button class="btn-show-visor" data-cs-id="${cs.id}" title="Show in Cable Visor" style="padding:2px 6px; font-size:10px; background:#e0f2fe; border:1px solid #7dd3fc; border-radius:3px; cursor:pointer;">🌐</button>
             <div class="cs-count">${linkCount}L / ${nodeCount}N</div>
           </div>
@@ -19634,6 +19695,54 @@ function loadProjectObject(obj) {
     }
   });
 
+  // Refresh live status for all linked cable systems from FiberAtlantic
+  document.getElementById('btnRefreshLiveStatus')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btnRefreshLiveStatus');
+    if (!btn) return;
+    
+    const linkedCables = state.cableSystems.filter(cs => cs.fiberAtlanticId);
+    if (linkedCables.length === 0) {
+      showToast('No cable systems linked to FiberAtlantic yet. Use "Link All" first.', 'warning');
+      return;
+    }
+    
+    btn.disabled = true;
+    btn.textContent = '⏳ Refreshing...';
+    
+    try {
+      // Force-refresh the cable list to get latest statuses
+      const cables = await fetchFiberAtlanticCables(true);
+      if (!cables) {
+        showToast('Could not reach FiberAtlantic API', 'warning');
+        return;
+      }
+      
+      let updated = 0;
+      linkedCables.forEach(cs => {
+        // Find matching FA cable by id
+        const faMatch = cables.find(c => (c.id || c.slug || c.name) === cs.fiberAtlanticId);
+        if (faMatch && faMatch.status) {
+          const newStatus = faMatch.status.toLowerCase().trim();
+          if (newStatus !== (cs.faLiveStatus || '').toLowerCase().trim()) {
+            cs.faLiveStatus = faMatch.status;
+            updated++;
+          } else {
+            cs.faLiveStatus = faMatch.status; // Ensure it's stored even if unchanged
+          }
+        }
+      });
+      
+      commit();
+      updateCableNavigatorList();
+      showToast(`Refreshed live status for ${linkedCables.length} cables (${updated} changed)`, 'success');
+    } catch (err) {
+      showToast('Refresh failed: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🔄 Refresh Live';
+    }
+  });
+
   // ======================
   // Cable Visor Panel
   // ======================
@@ -19661,6 +19770,49 @@ function loadProjectObject(obj) {
     loading: false,
     error: null
   };
+
+  // Render a compact live-status badge for the cable navigator list
+  // Sources (in priority order): cs.faLiveStatus, fiberAtlanticCache.details, unlinked
+  function renderLiveStatusBadge(cs) {
+    if (!cs.fiberAtlanticId) return ''; // No FA link — show nothing
+    
+    // Get status: first from stored faLiveStatus, then from cache details
+    let rawStatus = (cs.faLiveStatus || '').toLowerCase().trim();
+    if (!rawStatus) {
+      const detail = fiberAtlanticCache.details[cs.fiberAtlanticId];
+      if (detail) rawStatus = (detail.status || '').toLowerCase().trim();
+    }
+    
+    let badgeClass, label, title;
+    if (rawStatus === 'online' || rawStatus === 'active') {
+      badgeClass = 'live-online';
+      label = 'UP';
+      title = 'Live Status: Online (FiberAtlantic)';
+    } else if (rawStatus === 'outage' || rawStatus === 'fault' || rawStatus === 'down') {
+      badgeClass = 'live-outage';
+      label = 'OUT';
+      title = 'Live Status: OUTAGE (FiberAtlantic)';
+    } else if (rawStatus === 'degraded' || rawStatus === 'partial') {
+      badgeClass = 'live-degraded';
+      label = 'DEG';
+      title = 'Live Status: Degraded (FiberAtlantic)';
+    } else if (rawStatus === 'in development' || rawStatus === 'proposal' || rawStatus === 'project') {
+      badgeClass = 'live-unknown';
+      label = rawStatus === 'in development' ? 'DEV' : rawStatus === 'proposal' ? 'PRO' : 'PRJ';
+      title = `Live Status: ${rawStatus} (FiberAtlantic)`;
+    } else if (rawStatus) {
+      badgeClass = 'live-unknown';
+      label = 'FA';
+      title = `Live Status: ${rawStatus} (FiberAtlantic)`;
+    } else {
+      // Linked but no status fetched yet
+      badgeClass = 'live-none';
+      label = 'FA';
+      title = 'Linked to FiberAtlantic — status pending';
+    }
+    
+    return `<span class="cs-live-badge ${badgeClass}" title="${title}"><span class="live-dot"></span>${label}</span>`;
+  }
   
   // Fetch FiberAtlantic cable list (live status data from fiberatlantic.com)
   async function fetchFiberAtlanticCables(forceRefresh = false) {
@@ -19771,7 +19923,17 @@ function loadProjectObject(obj) {
         cs.fiberAtlanticId = result.match.id || result.match.slug || result.match.name;
         cs.fiberAtlanticName = result.match.name;
         cs.fiberAtlanticConfidence = result.confidence;
+        // Store live status directly from cable list (no extra API call needed!)
+        cs.faLiveStatus = result.match.status || '';
         matched++;
+      }
+    });
+    
+    // Also update faLiveStatus for already-linked cables that might not have it stored yet
+    state.cableSystems.forEach(cs => {
+      if (cs.fiberAtlanticId && !cs.faLiveStatus) {
+        const faMatch = cables.find(c => (c.id || c.slug || c.name) === cs.fiberAtlanticId);
+        if (faMatch) cs.faLiveStatus = faMatch.status || '';
       }
     });
     
@@ -19784,17 +19946,24 @@ function loadProjectObject(obj) {
   // FA statuses: 'online', 'outage', 'in development', 'proposal', 'project', or empty
   function getFiberAtlanticStatus(cs) {
     if (!cs.fiberAtlanticId) return { status: 'unlinked', label: 'Not linked', cssClass: 'live-unknown' };
-    const detail = fiberAtlanticCache.details[cs.fiberAtlanticId];
-    if (!detail) return { status: 'unknown', label: 'Loading...', cssClass: 'live-unknown' };
     
-    // FA worker returns {id, name, status, ..., details: {...}} 
-    // The status field comes from the top-level cable list data
-    const rawStatus = (detail.status || '').toLowerCase().trim();
+    // Primary: use stored faLiveStatus from cable list (fast, always available after linking)
+    let rawStatus = (cs.faLiveStatus || '').toLowerCase().trim();
     
-    if (rawStatus === 'online') {
+    // Fallback: check cache details
+    if (!rawStatus) {
+      const detail = fiberAtlanticCache.details[cs.fiberAtlanticId];
+      if (detail) rawStatus = (detail.status || '').toLowerCase().trim();
+    }
+    
+    if (!rawStatus) return { status: 'unknown', label: 'Linked (status pending)', cssClass: 'live-unknown' };
+    
+    if (rawStatus === 'online' || rawStatus === 'active') {
       return { status: 'active', label: 'Online', cssClass: 'live-active' };
-    } else if (rawStatus === 'outage') {
+    } else if (rawStatus === 'outage' || rawStatus === 'fault' || rawStatus === 'down') {
       return { status: 'issue', label: 'Outage', cssClass: 'live-issue' };
+    } else if (rawStatus === 'degraded' || rawStatus === 'partial') {
+      return { status: 'degraded', label: 'Degraded', cssClass: 'live-issue' };
     } else if (rawStatus === 'in development') {
       return { status: 'planned', label: 'In Development', cssClass: 'live-unknown' };
     } else if (rawStatus === 'proposal') {
@@ -19802,7 +19971,7 @@ function loadProjectObject(obj) {
     } else if (rawStatus === 'project') {
       return { status: 'planned', label: 'Project', cssClass: 'live-unknown' };
     }
-    return { status: 'unknown', label: detail.status || 'Unknown', cssClass: 'live-unknown' };
+    return { status: 'unknown', label: rawStatus || 'Unknown', cssClass: 'live-unknown' };
   }
   
   // Show detail panel for a cable in the Visor
@@ -20995,7 +21164,11 @@ function loadProjectObject(obj) {
         url: cs.url || null,
         geometry: cs.geometry || null,
         description: cs.description || '',
-        source: cs.source || 'NexiMap'
+        source: cs.source || 'NexiMap',
+        fiberAtlanticId: cs.fiberAtlanticId || null,
+        fiberAtlanticName: cs.fiberAtlanticName || null,
+        fiberAtlanticConfidence: cs.fiberAtlanticConfidence || null,
+        faLiveStatus: cs.faLiveStatus || null
       };
     });
     
@@ -21546,6 +21719,7 @@ function loadProjectObject(obj) {
         cs.fiberAtlanticId = result.match.id || result.match.slug || result.match.name;
         cs.fiberAtlanticName = result.match.name;
         cs.fiberAtlanticConfidence = result.confidence;
+        cs.faLiveStatus = result.match.status || ''; // Store live status from cable list
         
         const faIdInput = document.getElementById('csFiberAtlanticId');
         if (faIdInput) faIdInput.value = cs.fiberAtlanticId;
@@ -21656,6 +21830,7 @@ function loadProjectObject(obj) {
     cs.fiberAtlanticId = faId;
     cs.fiberAtlanticName = faName;
     cs.fiberAtlanticConfidence = 'manual';
+    cs.faLiveStatus = faStatus || ''; // Store live status from cable list
     
     // Update UI
     const searchInput = document.getElementById('csFaSearchInput');
@@ -21688,6 +21863,7 @@ function loadProjectObject(obj) {
     cs.fiberAtlanticId = null;
     cs.fiberAtlanticName = null;
     cs.fiberAtlanticConfidence = null;
+    cs.faLiveStatus = null;
     
     const searchInput = document.getElementById('csFaSearchInput');
     const hiddenInput = document.getElementById('csFiberAtlanticId');
