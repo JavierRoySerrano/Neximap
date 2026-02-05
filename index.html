@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<!-- NexiMap Studio v61.40 - RFS STATUS + FIBERATLANTIC CROSS-CHECK (tg-cablesystem-rfs-metadata + fiberatlantic-api) - 2025-02-05 -->
+<!-- NexiMap Studio v61.41 - DECOMMISSIONED STATUS for 20+ year old cables - 2025-02-05 -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -7019,6 +7019,7 @@
             <span title="Operational / Ready for Service" style="display:flex; align-items:center; gap:2px;"><span class="cs-status-badge operational" style="width:8px;height:8px;margin:0;"></span>RFS</span>
             <span title="Under Construction" style="display:flex; align-items:center; gap:2px;"><span class="cs-status-badge under-construction" style="width:8px;height:8px;margin:0;"></span>WIP</span>
             <span title="Planned" style="display:flex; align-items:center; gap:2px;"><span class="cs-status-badge planned" style="width:8px;height:8px;margin:0;"></span>Plan</span>
+            <span title="Decommissioned (20+ years)" style="display:flex; align-items:center; gap:2px;"><span class="cs-status-badge decommissioned" style="width:8px;height:8px;margin:0;"></span>EOL</span>
             <span style="color:#cbd5e1; margin:0 1px;">|</span>
             <span title="Live: Online (from FiberAtlantic)" style="display:flex; align-items:center; gap:1px;"><span class="cs-live-badge live-online" style="padding:0 3px;font-size:8px;"><span class="live-dot" style="width:5px;height:5px;"></span>Up</span></span>
             <span title="Live: Outage (from FiberAtlantic)" style="display:flex; align-items:center; gap:1px;"><span class="cs-live-badge live-outage" style="padding:0 3px;font-size:8px;"><span class="live-dot" style="width:5px;height:5px;"></span>Fault</span></span>
@@ -18865,9 +18866,13 @@ function loadProjectObject(obj) {
         csItem.status = 'operational';
       }
     }
-    // If status is 'planned' but rfsYear is in the past, the cable is already in service
+    // If status is 'planned' but rfsYear is in the past, the cable is already in service (or decommissioned if 20+ years)
     if (csItem.status === 'planned' && csItem.rfsYear && csItem.rfsYear <= migrationYear) {
-      csItem.status = 'operational';
+      if ((migrationYear - csItem.rfsYear) >= 20) {
+        csItem.status = 'decommissioned';
+      } else {
+        csItem.status = 'operational';
+      }
     }
     // If status is 'planned' but rfsYear is within 2 years, mark as under-construction
     if (csItem.status === 'planned' && csItem.rfsYear && csItem.rfsYear > migrationYear && csItem.rfsYear <= migrationYear + 2) {
@@ -19542,7 +19547,11 @@ function loadProjectObject(obj) {
         if (!isNaN(parsed) && parsed > 1990 && parsed < 2100) rfsYear = parsed;
       }
       if (rfsYear !== null && rfsYear !== undefined && !isNaN(rfsYear)) {
-        if (rfsYear <= currentYear) return 'operational';
+        if (rfsYear <= currentYear) {
+          // If cable is 20+ years old, likely decommissioned
+          if ((currentYear - rfsYear) >= 20) return 'decommissioned';
+          return 'operational';
+        }
         if (rfsYear <= currentYear + 2) return 'under-construction';
         return 'planned';
       }
@@ -20671,8 +20680,33 @@ function loadProjectObject(obj) {
         let faMatchName = null;
 
         if (rfsYear && rfsYear < currentYear) {
-          status = 'operational';
-          statusSource = 'rfs_year < current';
+          // Check if cable is 20+ years old AND not in FiberAtlantic → likely decommissioned
+          const cableAge = currentYear - rfsYear;
+          if (cableAge >= 20) {
+            // Cross-check with FiberAtlantic to see if it's still active
+            let faStillActive = false;
+            if (faCables) {
+              const faMatch = autoMatchFiberAtlantic(props.name, faCables);
+              if (faMatch && faMatch.match) {
+                const faS = (faMatch.match.status || '').toLowerCase().trim();
+                if (faS === 'online' || faS === 'active' || faS === 'outage') {
+                  faStillActive = true;
+                  faMatchName = faMatch.match.name;
+                  faStatus = faS;
+                }
+              }
+            }
+            if (faStillActive) {
+              status = 'operational';
+              statusSource = `rfs_year=${rfsYear} (${cableAge}yr old, FA confirms active)`;
+            } else {
+              status = 'decommissioned';
+              statusSource = `rfs_year=${rfsYear} (${cableAge}yr old, no FA match → decommissioned)`;
+            }
+          } else {
+            status = 'operational';
+            statusSource = 'rfs_year < current';
+          }
         } else if (rfsYear && rfsYear > currentYear) {
           status = 'planned';
           statusSource = 'rfs_year > current';
@@ -20786,7 +20820,8 @@ function loadProjectObject(obj) {
       const opCount = Object.values(cables).filter(c => c.status === 'operational').length;
       const ucCount = Object.values(cables).filter(c => c.status === 'under-construction').length;
       const plCount = Object.values(cables).filter(c => c.status === 'planned').length;
-      console.log(`[CableVisor] Status summary: ${opCount} operational, ${ucCount} under-construction/pending, ${plCount} planned`);
+      const dcCount = Object.values(cables).filter(c => c.status === 'decommissioned').length;
+      console.log(`[CableVisor] Status summary: ${opCount} operational, ${ucCount} under-construction/pending, ${plCount} planned, ${dcCount} decommissioned`);
 
       return {
         version: '1.0',
@@ -20913,6 +20948,7 @@ function loadProjectObject(obj) {
 
     // Get status class — status is already computed by loadFromTeleGeographyAPI
     function getStatusClass(cable) {
+      if (cable.status === 'decommissioned') return 'decommissioned';
       if (cable.status === 'operational') return 'operational';
       if (cable.status === 'under-construction') return 'under-construction';
       return 'planned';
@@ -21736,7 +21772,7 @@ function loadProjectObject(obj) {
       if (status === 'planned') {
         const rfsCheck = cable.rfsYear || parseInt(cable.rfs);
         if (!isNaN(rfsCheck) && rfsCheck <= currentYear) {
-          status = 'operational';
+          status = (currentYear - rfsCheck) >= 20 ? 'decommissioned' : 'operational';
         } else if (!isNaN(rfsCheck) && rfsCheck <= currentYear + 2) {
           status = 'under-construction';
         }
