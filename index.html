@@ -19871,13 +19871,78 @@ function loadProjectObject(obj) {
     const detail = fiberAtlanticCache.details[cs.fiberAtlanticId];
     if (!detail) return { status: 'unknown', label: 'Loading...', cssClass: 'live-unknown' };
     
-    const rawStatus = (detail.status || detail.cable_status || '').toLowerCase();
-    if (rawStatus.includes('active') || rawStatus.includes('in service') || rawStatus.includes('operational')) {
-      return { status: 'active', label: 'Active', cssClass: 'live-active' };
-    } else if (rawStatus.includes('fault') || rawStatus.includes('down') || rawStatus.includes('outage') || rawStatus.includes('repair')) {
+    // Debug: log the full response structure on first check
+    if (!detail._logged) {
+      console.log('[LiveStatus] Cable detail for', cs.fiberAtlanticId, ':', JSON.stringify(detail).substring(0, 500));
+      detail._logged = true;
+    }
+    
+    // Collect all possible status strings from the response (search deeply)
+    const statusCandidates = [];
+    const addCandidate = (val) => { if (val && typeof val === 'string') statusCandidates.push(val.toLowerCase()); };
+    
+    // Direct fields
+    addCandidate(detail.status);
+    addCandidate(detail.cable_status);
+    addCandidate(detail.cableStatus);
+    addCandidate(detail.operational_status);
+    addCandidate(detail.operationalStatus);
+    addCandidate(detail.state);
+    addCandidate(detail.condition);
+    addCandidate(detail.alert);
+    addCandidate(detail.alertLevel);
+    addCandidate(detail.alert_level);
+    addCandidate(detail.health);
+    addCandidate(detail.currentStatus);
+    addCandidate(detail.current_status);
+    
+    // Nested in cable/info objects
+    if (detail.cable) {
+      addCandidate(detail.cable.status);
+      addCandidate(detail.cable.cable_status);
+      addCandidate(detail.cable.alert);
+      addCandidate(detail.cable.state);
+      addCandidate(detail.cable.health);
+    }
+    if (detail.info) {
+      addCandidate(detail.info.status);
+      addCandidate(detail.info.alert);
+    }
+    
+    // Check if there are any alerts/incidents arrays
+    const hasAlerts = (detail.alerts && detail.alerts.length > 0) || 
+                      (detail.incidents && detail.incidents.length > 0) ||
+                      (detail.faults && detail.faults.length > 0) ||
+                      (detail.outages && detail.outages.length > 0);
+    if (hasAlerts) {
+      statusCandidates.push('fault');
+    }
+    
+    // Also check if the response has an is_active / isActive boolean
+    if (detail.is_active === true || detail.isActive === true) statusCandidates.push('active');
+    if (detail.is_active === false || detail.isActive === false) statusCandidates.push('fault');
+    
+    // Check if any boolean flag indicates alert/issue
+    if (detail.has_alert === true || detail.hasAlert === true || detail.alert === true) statusCandidates.push('fault');
+    
+    const combined = statusCandidates.join(' ');
+    
+    // Check for fault/issue indicators (check FIRST since source shows ⚠️ alerts)
+    if (combined.includes('fault') || combined.includes('down') || combined.includes('outage') || 
+        combined.includes('repair') || combined.includes('issue') || combined.includes('alert') ||
+        combined.includes('degraded') || combined.includes('impaired') || combined.includes('warning') ||
+        combined.includes('disruption') || combined.includes('incident') || combined.includes('maintenance')) {
       return { status: 'issue', label: 'Issue Reported', cssClass: 'live-issue' };
-    } else if (rawStatus.includes('construction') || rawStatus.includes('planned')) {
-      return { status: 'planned', label: rawStatus, cssClass: 'live-unknown' };
+    }
+    // Check for active/operational
+    if (combined.includes('active') || combined.includes('in service') || combined.includes('operational') ||
+        combined.includes('ok') || combined.includes('normal') || combined.includes('healthy') ||
+        combined.includes('ready for service') || combined.includes('rfs') || combined.includes('working')) {
+      return { status: 'active', label: 'Active', cssClass: 'live-active' };
+    }
+    // Check for planned/construction
+    if (combined.includes('construction') || combined.includes('planned') || combined.includes('proposed')) {
+      return { status: 'planned', label: combined, cssClass: 'live-unknown' };
     }
     return { status: 'unknown', label: detail.status || 'Unknown', cssClass: 'live-unknown' };
   }
