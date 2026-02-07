@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<!-- NexiMap Studio v61.48 - Nominatim geocoding API + expanded address fields - 2025-02-05 -->
+<!-- NexiMap Studio v61.49 - Fix shape tool + KML path view + fix encoding - 2025-02-06 -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -4535,7 +4535,7 @@
       </svg>
       <span style="font-weight:600; font-size:15px; color:#5a67d8; letter-spacing:-0.3px;">NexiMap</span>
       <span style="font-weight:400; font-size:15px; color:#666; letter-spacing:-0.3px;">Studio</span>
-      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v61.48</span>
+      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v61.49</span>
     </div>
     <button class="menu-item" id="btnFile" type="button">File</button>
     <button class="menu-item" id="btnEditMenu" type="button">Edit</button>
@@ -9597,6 +9597,9 @@
   const shapeButtons = document.querySelectorAll('.shape-tool');
   function setActiveShape(shape){
     state.defaultNodeShape = shape;
+    if (state.defaultNodeStyle) {
+      state.defaultNodeStyle.shape = shape;
+    }
     shapeButtons.forEach(b=>{
       b.classList.toggle('active', b.dataset.shape === shape);
     });
@@ -37218,8 +37221,8 @@ function loadProjectObject(obj) {
           // Determine coordinates - use pathGeometry if available and paths mode is enabled
           let edgeCoordinates;
           if (mapLibreState.pathRenderMode === 'paths' && e.pathGeometry && e.pathGeometry.length > 0) {
-            // Use the path geometry - prepend source, append target
-            edgeCoordinates = [offsetFrom, ...e.pathGeometry, offsetTo];
+            // Use only the path geometry without node endpoint segments
+            edgeCoordinates = [...e.pathGeometry];
           } else {
             // Use straight line
             edgeCoordinates = [offsetFrom, offsetTo];
@@ -44791,7 +44794,7 @@ function loadProjectObject(obj) {
         <circle cx="24" cy="24" r="2.5" fill="white"/>
       </svg>
       <h2 style="margin:0 0 4px; font-size:20px; color:#333;">NexiMap Studio</h2>
-      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 61.48 <span style="color:#b0b0b0; font-size:11px;">• Build 2025-02-05</span></p>
+      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 61.49 <span style="color:#b0b0b0; font-size:11px;">• Build 2025-02-06</span></p>
       <p style="margin:0 0 20px; color:#555; font-size:13px; line-height:1.6;">
         Professional network topology and diagram design tool with geographic mapping, cost analysis, and route optimization.
       </p>
