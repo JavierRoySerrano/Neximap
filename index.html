@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<!-- NexiMap Studio v61.49 - Fix shape tool + KML path view + fix encoding - 2025-02-06 -->
+<!-- NexiMap Studio v61.52 - Cable system drag-drop assignment with geometry import - 2025-02-10 -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -3761,6 +3761,45 @@
       background: #e0e0e0;
       margin: 4px 0;
     }
+    .context-menu-header {
+      padding: 6px 14px 4px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      pointer-events: none;
+    }
+    .context-menu-item.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    /* Drag-drop cable system assignment */
+    .cable-system-item[draggable="true"] { cursor: grab; }
+    .cable-system-item[draggable="true"]:active { cursor: grabbing; opacity: 0.7; }
+    .edge-drop-highlight path, .edge-drop-highlight line { filter: drop-shadow(0 0 6px #0096D6) drop-shadow(0 0 12px #0096D6); }
+    #cableGeometryAssignDialog {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: white; border-radius: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      z-index: 10002; min-width: 380px; max-width: 500px; max-height: 80vh; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    #cableGeometryAssignDialog .dialog-header {
+      padding: 14px 18px; border-bottom: 1px solid #e5e7eb; background: #f8f9fa;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    #cableGeometryAssignDialog .dialog-body { padding: 14px 18px; overflow-y: auto; flex: 1; }
+    #cableGeometryAssignDialog .dialog-footer {
+      padding: 12px 18px; border-top: 1px solid #e5e7eb; display: flex; gap: 8px; justify-content: flex-end;
+    }
+    .geo-segment-list { max-height: 200px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px; background: #fafafa; }
+    .geo-segment-item { display: flex; align-items: center; gap: 8px; padding: 5px 4px; font-size: 11px; cursor: pointer; border-radius: 4px; }
+    .geo-segment-item:hover { background: #f0f7ff; }
+    .geo-segment-item .seg-info { flex: 1; min-width: 0; }
+    .geo-segment-item .seg-name { font-weight: 500; color: #111; }
+    .geo-segment-item .seg-detail { font-size: 9px; color: #888; }
+    #cableGeoOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 10001; }
 
     /* Canvas resize handle */
     #canvasResizeHandle {
@@ -4535,7 +4574,7 @@
       </svg>
       <span style="font-weight:600; font-size:15px; color:#5a67d8; letter-spacing:-0.3px;">NexiMap</span>
       <span style="font-weight:400; font-size:15px; color:#666; letter-spacing:-0.3px;">Studio</span>
-      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v61.49</span>
+      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v61.52</span>
     </div>
     <button class="menu-item" id="btnFile" type="button">File</button>
     <button class="menu-item" id="btnEditMenu" type="button">Edit</button>
@@ -19682,7 +19721,7 @@ function loadProjectObject(obj) {
       }
 
       return `
-        <div class="cable-system-item ${isSelected ? 'selected' : ''} ${isMultiSelected ? 'multi-selected' : ''}" data-cs-id="${cs.id}">
+        <div class="cable-system-item ${isSelected ? 'selected' : ''} ${isMultiSelected ? 'multi-selected' : ''}" data-cs-id="${cs.id}" draggable="true">
           <div style="display:flex; align-items:center; gap:6px; min-width:0; flex:1;">
             ${checkboxHtml}
             <span class="cs-status-badge ${statusClass}" title="RFS: ${statusClass}"></span>
@@ -26043,63 +26082,624 @@ function loadProjectObject(obj) {
     showToast(`Created "${shape.name}" container`);
   }
 
-  // Right-click context menu on nodes for "Add to Library"
-  svg.addEventListener('contextmenu', (e) => {
-    // Check if right-clicked on a node
-    const target = e.target.closest('.node-circle');
-    if (!target) return;
+  // ============== CONTEXT MENU SYSTEM ==============
 
+  // Shared clipboard for copy/paste style
+  let _ctxStyleClipboard = null;
+
+  function showContextMenu(e, items) {
     e.preventDefault();
-
-    const nodeId = parseInt(target.closest('g')?.dataset?.nodeId);
-    const node = findNode(nodeId);
-    if (!node) return;
-
-    // Remove existing menu
+    e.stopPropagation();
     document.querySelectorAll('.context-menu').forEach(m => m.remove());
 
     const menu = document.createElement('div');
     menu.className = 'context-menu';
-    menu.innerHTML = `
-      <div class="context-menu-item" data-action="add-to-library">📚 Add to Library</div>
-      <div class="context-menu-sep"></div>
-      <div class="context-menu-item" data-action="duplicate">📋 Duplicate</div>
-      <div class="context-menu-item danger" data-action="delete">🗑️ Delete</div>
-    `;
+    menu.innerHTML = items.map(item => {
+      if (item === '---') return '<div class="context-menu-sep"></div>';
+      if (item.header) return `<div class="context-menu-header">${item.header}</div>`;
+      const cls = ['context-menu-item'];
+      if (item.danger) cls.push('danger');
+      if (item.disabled) cls.push('disabled');
+      return `<div class="${cls.join(' ')}" data-action="${item.action}">${item.icon || ''} ${item.label}</div>`;
+    }).join('');
 
+    // Position with viewport bounds check
     menu.style.left = e.clientX + 'px';
     menu.style.top = e.clientY + 'px';
     document.body.appendChild(menu);
 
+    // Adjust if overflowing viewport
+    const rect = menu.getBoundingClientRect();
+    if (rect.right > window.innerWidth) menu.style.left = (e.clientX - rect.width) + 'px';
+    if (rect.bottom > window.innerHeight) menu.style.top = (e.clientY - rect.height) + 'px';
+
+    return menu;
+  }
+
+  function bindContextMenu(menu, handler) {
     menu.addEventListener('click', (ev) => {
-      const action = ev.target.dataset.action;
-
-      switch (action) {
-        case 'add-to-library':
-          saveNodeToLibrary(node);
-          break;
-        case 'duplicate':
-          const newNode = { ...node, id: state.nextNode++, x: node.x + 30, y: node.y + 30 };
-          state.nodes.push(newNode);
-          state.selected = { type: 'node', id: newNode.id };
-          commit(); render();
-          showToast('Node duplicated');
-          break;
-        case 'delete':
-          deleteNode(node.id);
-          break;
-      }
-
+      const item = ev.target.closest('.context-menu-item');
+      if (!item || item.classList.contains('disabled')) return;
+      const action = item.dataset.action;
+      if (action) handler(action);
       menu.remove();
     });
-
     setTimeout(() => {
       document.addEventListener('click', function closeMenu() {
         menu.remove();
         document.removeEventListener('click', closeMenu);
       }, { once: true });
     }, 0);
+  }
+
+  // ---- NODE CONTEXT MENU ----
+  function showNodeContextMenu(e, node) {
+    const connectedEdges = state.edges.filter(ed => ed.a === node.id || ed.b === node.id);
+    const hasPasteStyle = _ctxStyleClipboard && _ctxStyleClipboard.type === 'node';
+
+    const items = [
+      { header: node.name || 'Node' },
+      { action: 'connect', icon: '\u{1F517}', label: 'Start Link from Here' },
+      { action: 'select-links', icon: '\u{21C4}', label: `Select Connected Links (${connectedEdges.length})`, disabled: connectedEdges.length === 0 },
+      '---',
+      { action: 'duplicate', icon: '\u{1F4CB}', label: 'Duplicate' },
+      { action: 'add-to-library', icon: '\u{1F4DA}', label: 'Add to Library' },
+      '---',
+      { action: 'copy-style', icon: '\u{1F3A8}', label: 'Copy Style' },
+      { action: 'paste-style', icon: '\u{1F58C}\u{FE0F}', label: 'Paste Style', disabled: !hasPasteStyle },
+      '---',
+      { action: 'geocode', icon: '\u{1F30D}', label: 'Geocode Address' },
+      '---',
+      { action: 'delete', icon: '\u{1F5D1}\u{FE0F}', label: 'Delete', danger: true }
+    ];
+
+    const menu = showContextMenu(e, items);
+    bindContextMenu(menu, (action) => {
+      switch (action) {
+        case 'connect':
+          linkMode = true;
+          window.linkMode = true;
+          linkSourceNode = node.id;
+          window.linkSourceNode = node.id;
+          state.connectFrom = node.id;
+          const btn = document.getElementById('btnCreateLink');
+          if (btn) btn.classList.add('primary');
+          select({ type: 'node', id: node.id });
+          showToast(`Link source: ${node.name || 'N' + node.id} \u{2192} Click target node`);
+          render();
+          break;
+        case 'select-links':
+          connectedEdges.forEach(ed => state.selection.edges.add(ed.id));
+          state.selected = null;
+          render();
+          showToast(`Selected ${connectedEdges.length} connected link(s)`);
+          break;
+        case 'duplicate': {
+          const dn = { ...node, id: state.nextNode++, uuid: generateUUID(), x: node.x + 30, y: node.y + 30, name: node.name + ' (copy)' };
+          state.nodes.push(dn);
+          select({ type: 'node', id: dn.id });
+          commit(); render();
+          showToast('Node duplicated');
+          break;
+        }
+        case 'add-to-library':
+          saveNodeToLibrary(node);
+          break;
+        case 'copy-style':
+          _ctxStyleClipboard = { type: 'node', style: pickStyle('node', node) };
+          showToast('Node style copied');
+          break;
+        case 'paste-style':
+          if (_ctxStyleClipboard && _ctxStyleClipboard.type === 'node') {
+            applyStyle('node', node, _ctxStyleClipboard.style);
+            commit(); render();
+            showToast('Style pasted');
+          }
+          break;
+        case 'geocode':
+          select({ type: 'node', id: node.id });
+          render();
+          setTimeout(() => useAddressForGps(), 100);
+          break;
+        case 'delete':
+          select({ type: 'node', id: node.id });
+          deleteSelected();
+          break;
+      }
+    });
+  }
+
+  // ---- EDGE CONTEXT MENU ----
+  function showEdgeContextMenu(e, edge) {
+    const nodeA = findNode(edge.a);
+    const nodeB = findNode(edge.b);
+    const hasPath = edge.pathGeometry && edge.pathGeometry.length > 0;
+    const hasPasteStyle = _ctxStyleClipboard && _ctxStyleClipboard.type === 'edge';
+
+    const items = [
+      { header: edge.label || edge.name || ('Link ' + edge.id) },
+      { action: 'select-endpoints', icon: '\u{1F4CD}', label: 'Select Both Endpoints' },
+      { action: 'edit-path', icon: '\u{1F5FA}\u{FE0F}', label: hasPath ? 'Edit Path Geometry' : 'Add Path Geometry' },
+      { action: 'duplicate', icon: '\u{1F4CB}', label: 'Duplicate' },
+      '---',
+      { action: 'copy-style', icon: '\u{1F3A8}', label: 'Copy Style' },
+      { action: 'paste-style', icon: '\u{1F58C}\u{FE0F}', label: 'Paste Style', disabled: !hasPasteStyle },
+      '---',
+      { action: 'exclude-route', icon: '\u{1F6AB}', label: 'Add to Route Exclusions' },
+      { action: 'must-use-route', icon: '\u{2705}', label: 'Add to Must-Use Links' },
+      '---',
+      { action: 'delete', icon: '\u{1F5D1}\u{FE0F}', label: 'Delete', danger: true }
+    ];
+
+    const menu = showContextMenu(e, items);
+    bindContextMenu(menu, (action) => {
+      switch (action) {
+        case 'select-endpoints':
+          if (nodeA) state.selection.nodes.add(nodeA.id);
+          if (nodeB) state.selection.nodes.add(nodeB.id);
+          state.selected = null;
+          render();
+          showToast('Selected both endpoints');
+          break;
+        case 'edit-path':
+          select({ type: 'edge', id: edge.id });
+          render();
+          setTimeout(() => enterPathEditMode(edge.id), 100);
+          break;
+        case 'duplicate': {
+          const de = { ...edge, id: state.nextEdge++, label: (edge.label || '') + ' (copy)', name: (edge.name || '') + ' (copy)' };
+          if (de.pathGeometry) de.pathGeometry = [...de.pathGeometry];
+          state.edges.push(de);
+          select({ type: 'edge', id: de.id });
+          commit(); render();
+          showToast('Link duplicated');
+          break;
+        }
+        case 'copy-style':
+          _ctxStyleClipboard = { type: 'edge', style: pickStyle('edge', edge) };
+          showToast('Link style copied');
+          break;
+        case 'paste-style':
+          if (_ctxStyleClipboard && _ctxStyleClipboard.type === 'edge') {
+            applyStyle('edge', edge, _ctxStyleClipboard.style);
+            commit(); render();
+            showToast('Style pasted');
+          }
+          break;
+        case 'exclude-route':
+          addExcludedLink(edge.id);
+          break;
+        case 'must-use-route':
+          addMustUseLink(edge.id);
+          break;
+        case 'delete':
+          select({ type: 'edge', id: edge.id });
+          deleteSelected();
+          break;
+      }
+    });
+  }
+
+  // ---- GROUP CONTEXT MENU ----
+  function showGroupContextMenu(e, group) {
+    const nodesInside = state.nodes.filter(n => n.groupId === group.id);
+    const hasPasteStyle = _ctxStyleClipboard && _ctxStyleClipboard.type === 'group';
+
+    const items = [
+      { header: group.label || group.name || 'Container' },
+      { action: 'rename', icon: '\u{270F}\u{FE0F}', label: 'Rename' },
+      { action: 'select-nodes', icon: '\u{1F4E6}', label: `Select All Nodes Inside (${nodesInside.length})`, disabled: nodesInside.length === 0 },
+      { action: 'fit-contents', icon: '\u{1F4D0}', label: 'Fit to Contents', disabled: nodesInside.length === 0 },
+      '---',
+      { action: 'duplicate', icon: '\u{1F4CB}', label: 'Duplicate' },
+      { action: 'change-type', icon: '\u{1F3F7}\u{FE0F}', label: group.type === 'country' ? 'Change to Region' : 'Change to Country' },
+      '---',
+      { action: 'copy-style', icon: '\u{1F3A8}', label: 'Copy Style' },
+      { action: 'paste-style', icon: '\u{1F58C}\u{FE0F}', label: 'Paste Style', disabled: !hasPasteStyle },
+      '---',
+      { action: 'delete', icon: '\u{1F5D1}\u{FE0F}', label: 'Delete', danger: true }
+    ];
+
+    const menu = showContextMenu(e, items);
+    bindContextMenu(menu, (action) => {
+      switch (action) {
+        case 'rename': {
+          select({ type: 'group', id: group.id });
+          render();
+          // Focus the label input in inspector
+          setTimeout(() => {
+            const inp = document.getElementById('grpLabel');
+            if (inp) { inp.focus(); inp.select(); }
+          }, 150);
+          break;
+        }
+        case 'select-nodes':
+          nodesInside.forEach(n => state.selection.nodes.add(n.id));
+          state.selected = null;
+          render();
+          showToast(`Selected ${nodesInside.length} node(s) inside container`);
+          break;
+        case 'fit-contents': {
+          if (nodesInside.length === 0) break;
+          const pad = 40;
+          let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+          nodesInside.forEach(n => {
+            const r = n.r || 24;
+            minX = Math.min(minX, n.x - r);
+            minY = Math.min(minY, n.y - r - 20);
+            maxX = Math.max(maxX, n.x + r);
+            maxY = Math.max(maxY, n.y + r);
+          });
+          group.x = minX - pad;
+          group.y = minY - pad;
+          group.w = (maxX - minX) + pad * 2;
+          group.h = (maxY - minY) + pad * 2;
+          commit(); render();
+          showToast('Container fitted to contents');
+          break;
+        }
+        case 'duplicate': {
+          const dg = { ...group, id: state.nextGroup++, x: group.x + 30, y: group.y + 30, label: (group.label || '') + ' (copy)', name: (group.name || '') + ' (copy)' };
+          state.groups.push(dg);
+          select({ type: 'group', id: dg.id });
+          commit(); render();
+          showToast('Container duplicated');
+          break;
+        }
+        case 'change-type':
+          group.type = group.type === 'country' ? 'region' : 'country';
+          commit(); render();
+          showToast(`Changed to ${group.type}`);
+          break;
+        case 'copy-style':
+          _ctxStyleClipboard = { type: 'group', style: pickStyle('group', group) };
+          showToast('Container style copied');
+          break;
+        case 'paste-style':
+          if (_ctxStyleClipboard && _ctxStyleClipboard.type === 'group') {
+            applyStyle('group', group, _ctxStyleClipboard.style);
+            commit(); render();
+            showToast('Style pasted');
+          }
+          break;
+        case 'delete':
+          select({ type: 'group', id: group.id });
+          deleteSelected();
+          break;
+      }
+    });
+  }
+
+  // ---- UNIFIED SVG CONTEXTMENU HANDLER ----
+  svg.addEventListener('contextmenu', (e) => {
+    // 1. Check for node
+    const nodeTarget = e.target.closest('.node-circle') || e.target.closest('polygon.node-circle');
+    if (nodeTarget) {
+      const nodeId = parseInt(nodeTarget.closest('g')?.dataset?.nodeId);
+      const node = findNode(nodeId);
+      if (node) { showNodeContextMenu(e, node); return; }
+    }
+
+    // 2. Check for edge (hit area or visible path/line)
+    const edgeTarget = e.target.closest('[data-edge-id]');
+    if (edgeTarget) {
+      const edgeId = parseInt(edgeTarget.getAttribute('data-edge-id'));
+      const edge = findEdge(edgeId);
+      if (edge) { showEdgeContextMenu(e, edge); return; }
+    }
+    // Also check transparent hit areas (no data-edge-id but near an edge)
+    if (e.target.tagName === 'path' || e.target.tagName === 'line') {
+      // Check if it is a hit area sitting next to an edge with data-edge-id
+      const sibling = e.target.previousElementSibling || e.target.nextElementSibling;
+      if (sibling && sibling.getAttribute('data-edge-id')) {
+        const edgeId = parseInt(sibling.getAttribute('data-edge-id'));
+        const edge = findEdge(edgeId);
+        if (edge) { showEdgeContextMenu(e, edge); return; }
+      }
+    }
+
+    // 3. Check for group (container rect)
+    const groupRect = e.target.closest('.group-rect');
+    if (groupRect) {
+      const grpEl = groupRect.closest('g');
+      if (grpEl) {
+        // Find group by matching position
+        const rx = parseFloat(groupRect.getAttribute('x'));
+        const ry = parseFloat(groupRect.getAttribute('y'));
+        const grp = state.groups.find(g => Math.abs(g.x - rx) < 1 && Math.abs(g.y - ry) < 1);
+        if (grp) { showGroupContextMenu(e, grp); return; }
+      }
+    }
+    // Also check group title text
+    const groupTitle = e.target.closest('.group-title');
+    if (groupTitle) {
+      const grpEl = groupTitle.closest('g');
+      if (grpEl) {
+        const rect = grpEl.querySelector('.group-rect');
+        if (rect) {
+          const rx = parseFloat(rect.getAttribute('x'));
+          const ry = parseFloat(rect.getAttribute('y'));
+          const grp = state.groups.find(g => Math.abs(g.x - rx) < 1 && Math.abs(g.y - ry) < 1);
+          if (grp) { showGroupContextMenu(e, grp); return; }
+        }
+      }
+    }
   });
+
+  // ============== CABLE SYSTEM DRAG-DROP ASSIGNMENT ==============
+
+  // Drag start on cable system items
+  document.addEventListener('dragstart', (e) => {
+    const csItem = e.target.closest('.cable-system-item[draggable="true"]');
+    if (!csItem) return;
+    const csId = csItem.dataset.csId;
+    if (!csId) return;
+    e.dataTransfer.setData('text/plain', 'cable-system:' + csId);
+    e.dataTransfer.effectAllowed = 'link';
+    csItem.style.opacity = '0.5';
+    // Store for cleanup
+    window._draggedCSItem = csItem;
+    window._dragCSId = parseInt(csId);
+  });
+
+  document.addEventListener('dragend', (e) => {
+    if (window._draggedCSItem) {
+      window._draggedCSItem.style.opacity = '';
+      window._draggedCSItem = null;
+    }
+    // Remove all highlights
+    document.querySelectorAll('.edge-drop-highlight').forEach(el => el.classList.remove('edge-drop-highlight'));
+    window._dragCSId = null;
+  });
+
+  // Allow drop on SVG edges
+  svg.addEventListener('dragover', (e) => {
+    if (!window._dragCSId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'link';
+  });
+
+  svg.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const transferData = e.dataTransfer.getData('text/plain');
+    if (!transferData || !transferData.startsWith('cable-system:')) return;
+
+    const csId = parseInt(transferData.split(':')[1]);
+    const cs = findCableSystem(csId);
+    if (!cs) { showToast('Cable system not found', 'error'); return; }
+
+    // Find which edge was dropped on (check hit areas and visible paths)
+    const dropX = e.clientX;
+    const dropY = e.clientY;
+    const elements = document.elementsFromPoint(dropX, dropY);
+    let targetEdge = null;
+
+    for (const el of elements) {
+      // Check for edge data attribute
+      const edgeEl = el.closest('[data-edge-id]');
+      if (edgeEl) {
+        const edgeId = parseInt(edgeEl.getAttribute('data-edge-id'));
+        targetEdge = findEdge(edgeId);
+        if (targetEdge) break;
+      }
+      // Check hit areas (siblings of edges)
+      if ((el.tagName === 'path' || el.tagName === 'line') && el.style.cursor === 'pointer') {
+        const sibling = el.previousElementSibling || el.nextElementSibling;
+        if (sibling && sibling.getAttribute('data-edge-id')) {
+          targetEdge = findEdge(parseInt(sibling.getAttribute('data-edge-id')));
+          if (targetEdge) break;
+        }
+      }
+    }
+
+    if (!targetEdge) {
+      showToast('Drop on a link to assign cable system', 'warning');
+      return;
+    }
+
+    // Show the assignment dialog
+    showCableAssignmentDialog(cs, targetEdge);
+  });
+
+  // Cable assignment dialog with optional geometry import
+  function showCableAssignmentDialog(cs, edge) {
+    // Remove any existing dialog
+    document.getElementById('cableGeoOverlay')?.remove();
+    document.getElementById('cableGeometryAssignDialog')?.remove();
+
+    const nodeA = findNode(edge.a);
+    const nodeB = findNode(edge.b);
+    const linkLabel = edge.label || edge.name || `Link ${edge.id}`;
+    const linkEndpoints = `${nodeA?.name || '?'} \u{2194} ${nodeB?.name || '?'}`;
+
+    // Check if cable system has geometry available (from visor DB or loaded data)
+    let hasGeometry = false;
+    let geometryData = null;
+
+    // Check visor database for this cable
+    if (cableVisorState.cableDatabase) {
+      const db = cableVisorState.cableDatabase;
+      // Try to find by name match
+      for (const [key, cable] of Object.entries(db.cables || {})) {
+        if (cable.name === cs.name || cable.shortName === cs.shortName ||
+            cable.name === cs.shortName || cable.shortName === cs.name) {
+          if (cable.geometry && cable.geometry.coordinates) {
+            hasGeometry = true;
+            geometryData = cable;
+            break;
+          }
+        }
+      }
+    }
+
+    // Build dialog HTML
+    const overlay = document.createElement('div');
+    overlay.id = 'cableGeoOverlay';
+    document.body.appendChild(overlay);
+
+    const dialog = document.createElement('div');
+    dialog.id = 'cableGeometryAssignDialog';
+
+    let geometrySection = '';
+    if (hasGeometry && geometryData) {
+      const isMultiLine = geometryData.geometry.type === 'MultiLineString';
+      const segCount = isMultiLine ? geometryData.geometry.coordinates.length : 1;
+
+      if (isMultiLine && segCount > 1) {
+        let segListHtml = '';
+        for (let i = 0; i < segCount; i++) {
+          const coords = geometryData.geometry.coordinates[i];
+          const ptCount = coords.length;
+          const segName = geometryData.segments?.[i]?.name || '';
+
+          // Get first and last point to show endpoints
+          const startPt = coords[0];
+          const endPt = coords[coords.length - 1];
+          const startLabel = startPt ? `${startPt[1].toFixed(2)}, ${startPt[0].toFixed(2)}` : '?';
+          const endLabel = endPt ? `${endPt[1].toFixed(2)}, ${endPt[0].toFixed(2)}` : '?';
+          const endpointText = segName || `(${startLabel}) \u{2192} (${endLabel})`;
+
+          segListHtml += `
+            <label class="geo-segment-item">
+              <input type="checkbox" class="geo-seg-cb" data-seg-index="${i}" checked>
+              <div class="seg-info">
+                <div class="seg-name">Segment ${i + 1}</div>
+                <div class="seg-detail">${endpointText} \u{2022} ${ptCount} pts</div>
+              </div>
+            </label>`;
+        }
+
+        geometrySection = `
+          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-bottom: 8px;">
+              <input type="checkbox" id="geoAssignGeometry" checked>
+              <strong>\u{1F5FA}\u{FE0F} Also assign path geometry to link</strong>
+            </label>
+            <div id="geoSegmentSection">
+              <div style="font-size: 11px; color: #374151; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                \u{1F500} MultiLineString with ${segCount} segments \u{2014} select which to import:
+                <button id="btnGeoSegAll" style="font-size: 9px; padding: 1px 6px; border: 1px solid #ccc; border-radius: 3px; background: #fff; cursor: pointer;">All</button>
+                <button id="btnGeoSegNone" style="font-size: 9px; padding: 1px 6px; border: 1px solid #ccc; border-radius: 3px; background: #fff; cursor: pointer;">None</button>
+              </div>
+              <div class="geo-segment-list">${segListHtml}</div>
+            </div>
+          </div>`;
+      } else {
+        // Single LineString
+        const ptCount = isMultiLine ? geometryData.geometry.coordinates[0].length : geometryData.geometry.coordinates.length;
+        geometrySection = `
+          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="checkbox" id="geoAssignGeometry" checked>
+              <strong>\u{1F5FA}\u{FE0F} Also assign path geometry to link</strong>
+              <span style="font-size: 10px; color: #888;">(${ptCount} waypoints)</span>
+            </label>
+          </div>`;
+      }
+    }
+
+    dialog.innerHTML = `
+      <div class="dialog-header">
+        <div>
+          <div style="font-weight: 600; font-size: 14px;">\u{1F4E6} Assign Cable System to Link</div>
+          <div style="font-size: 11px; color: #666; margin-top: 2px;">Drag & drop assignment</div>
+        </div>
+        <button id="btnGeoAssignClose" style="background:none; border:none; font-size:18px; cursor:pointer; color:#999; padding:4px;">\u{2715}</button>
+      </div>
+      <div class="dialog-body">
+        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
+          <div style="flex: 1;">
+            <div style="font-size: 11px; color: #888;">Cable System</div>
+            <div style="font-weight: 600; font-size: 13px;">${cs.shortName || cs.name}</div>
+            <div style="font-size: 10px; color: #666;">${cs.name}</div>
+          </div>
+          <div style="font-size: 20px;">\u{27A1}</div>
+          <div style="flex: 1;">
+            <div style="font-size: 11px; color: #888;">Link</div>
+            <div style="font-weight: 600; font-size: 13px;">${linkLabel}</div>
+            <div style="font-size: 10px; color: #666;">${linkEndpoints}</div>
+          </div>
+        </div>
+        ${edge.cableSystemId ? '<div style="padding: 8px; background: #fef3c7; border-radius: 6px; font-size: 11px; color: #92400e; margin-bottom: 8px;">\u{26A0} This link already has a cable system assigned. It will be replaced.</div>' : ''}
+        ${!hasGeometry ? '<div style="font-size: 11px; color: #888; margin-top: 8px;">\u{2139}\u{FE0F} No geometry available for this cable. Load cable data in the Cable Visor to enable geometry assignment.</div>' : ''}
+        ${geometrySection}
+      </div>
+      <div class="dialog-footer">
+        <button id="btnGeoAssignCancel" style="padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 6px; background: white; cursor: pointer; font-size: 12px;">Cancel</button>
+        <button id="btnGeoAssignConfirm" style="padding: 8px 16px; border: none; border-radius: 6px; background: #0096D6; color: white; cursor: pointer; font-size: 12px; font-weight: 500;">Assign</button>
+      </div>
+    `;
+    document.body.appendChild(dialog);
+
+    // Wire up events
+    const closeDialog = () => { overlay.remove(); dialog.remove(); };
+    overlay.addEventListener('click', closeDialog);
+    document.getElementById('btnGeoAssignClose').addEventListener('click', closeDialog);
+    document.getElementById('btnGeoAssignCancel').addEventListener('click', closeDialog);
+
+    // Toggle geometry section visibility
+    const geoCheckbox = document.getElementById('geoAssignGeometry');
+    const segSection = document.getElementById('geoSegmentSection');
+    if (geoCheckbox && segSection) {
+      geoCheckbox.addEventListener('change', () => {
+        segSection.style.display = geoCheckbox.checked ? 'block' : 'none';
+      });
+    }
+
+    // Segment All/None buttons
+    document.getElementById('btnGeoSegAll')?.addEventListener('click', () => {
+      dialog.querySelectorAll('.geo-seg-cb').forEach(cb => cb.checked = true);
+    });
+    document.getElementById('btnGeoSegNone')?.addEventListener('click', () => {
+      dialog.querySelectorAll('.geo-seg-cb').forEach(cb => cb.checked = false);
+    });
+
+    // Confirm button
+    document.getElementById('btnGeoAssignConfirm').addEventListener('click', () => {
+      // 1. Assign cable system
+      edge.cableSystemId = cs.id;
+
+      // 2. Optionally assign geometry
+      if (geoCheckbox && geoCheckbox.checked && hasGeometry && geometryData) {
+        // Get selected segments
+        const segCheckboxes = dialog.querySelectorAll('.geo-seg-cb');
+        let selectedSegs = null;
+        if (segCheckboxes.length > 0) {
+          selectedSegs = [];
+          segCheckboxes.forEach(cb => {
+            if (cb.checked) selectedSegs.push(parseInt(cb.dataset.segIndex));
+          });
+        }
+
+        // Extract coordinates
+        const coords = extractCoordinatesFromGeometry(geometryData.geometry, selectedSegs);
+        if (coords.length > 0) {
+          // Reduce waypoints if needed
+          const reduced = reduceWaypoints(coords, 200);
+          edge.pathGeometry = reduced;
+          showToast(`Assigned "${cs.shortName}" + geometry (${reduced.length} waypoints) to ${linkLabel}`);
+        } else {
+          showToast(`Assigned "${cs.shortName}" to ${linkLabel} (no geometry segments selected)`);
+        }
+      } else {
+        showToast(`Assigned "${cs.shortName}" to ${linkLabel}`);
+      }
+
+      // Update inspector if this edge is selected
+      if (state.selected?.type === 'edge' && state.selected.id === edge.id) {
+        const edgeCableSystemEl = document.getElementById('edgeCableSystem');
+        if (edgeCableSystemEl) edgeCableSystemEl.value = cs.id;
+      }
+
+      select({ type: 'edge', id: edge.id });
+      commit(); render();
+      closeDialog();
+    });
+  }
+
+  // ============== END CABLE SYSTEM DRAG-DROP ==============
+
+  // ============== END CONTEXT MENU SYSTEM ==============
 
   // Load library on startup
   loadShapeLibrary();
@@ -44794,7 +45394,7 @@ function loadProjectObject(obj) {
         <circle cx="24" cy="24" r="2.5" fill="white"/>
       </svg>
       <h2 style="margin:0 0 4px; font-size:20px; color:#333;">NexiMap Studio</h2>
-      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 61.49 <span style="color:#b0b0b0; font-size:11px;">• Build 2025-02-06</span></p>
+      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 61.52 <span style="color:#b0b0b0; font-size:11px;">• Build 2025-02-10</span></p>
       <p style="margin:0 0 20px; color:#555; font-size:13px; line-height:1.6;">
         Professional network topology and diagram design tool with geographic mapping, cost analysis, and route optimization.
       </p>
