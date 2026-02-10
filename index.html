@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<!-- NexiMap Studio v61.55 - Fix marquee selection cleared by subsequent click event - 2025-02-10 -->
+<!-- NexiMap Studio v61.56 - Fix Alt+drag marquee on grid lines and Alt key timing - 2025-02-10 -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -4574,7 +4574,7 @@
       </svg>
       <span style="font-weight:600; font-size:15px; color:#5a67d8; letter-spacing:-0.3px;">NexiMap</span>
       <span style="font-weight:400; font-size:15px; color:#666; letter-spacing:-0.3px;">Studio</span>
-      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v61.55</span>
+      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v61.56</span>
     </div>
     <button class="menu-item" id="btnFile" type="button">File</button>
     <button class="menu-item" id="btnEditMenu" type="button">Edit</button>
@@ -16481,8 +16481,10 @@ if (groupTitleFontInline) {
 
   // Track if spacebar is held for pan mode
   let spacebarHeld = false;
+  let _altKeyHeld = false;
 
   window.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Alt') _altKeyHeld = true;
     if (ev.code === 'Space' && !ev.repeat && !spacebarHeld) {
       // Don't activate space-pan if focus is in a text input
       const tag = document.activeElement?.tagName?.toLowerCase();
@@ -16495,6 +16497,7 @@ if (groupTitleFontInline) {
   });
 
   window.addEventListener('keyup', (ev) => {
+    if (ev.key === 'Alt') _altKeyHeld = false;
     if (ev.code === 'Space') {
       spacebarHeld = false;
       if (!state.dragging || state.dragging.type !== 'canvasPan') {
@@ -16502,6 +16505,8 @@ if (groupTitleFontInline) {
       }
     }
   });
+
+  window.addEventListener('blur', () => { _altKeyHeld = false; });
 
   svg.addEventListener('mousedown', (ev) => {
     // For geo view, clear selection on mousedown if clicking on empty space
@@ -16577,7 +16582,10 @@ if (groupTitleFontInline) {
                                ev.target.closest('#geoMapGroup');
 
     // Check if clicking on empty space or geo map background
-    if (ev.target !== svg && !isGeoMapBackground) {
+    // Allow Alt+drag marquee to start on any SVG child (grid lines, edge hit areas, etc.)
+    const isAltHeld = ev.altKey || _altKeyHeld;
+    const isInsideSvg = ev.target === svg || svg.contains(ev.target);
+    if (ev.target !== svg && !isGeoMapBackground && !(isAltHeld && isInsideSvg)) {
       return;
     }
 
@@ -16585,7 +16593,7 @@ if (groupTitleFontInline) {
     state.lastMouse = { x: m.x, y: m.y };
 
     // Alt+drag for marquee selection (disabled in calculation mode and geo view)
-    if (ev.altKey && !inGeoView && !(window.routeFinderState && window.routeFinderState.active)) {
+    if (isAltHeld && !inGeoView && !(window.routeFinderState && window.routeFinderState.active)) {
       state.marquee = { x0: m.x, y0: m.y, x: m.x, y: m.y, w: 0, h: 0, additive: ev.shiftKey };
       if (!state.marquee.additive) clearSelection();
       state.connectFrom = null;
@@ -45404,7 +45412,7 @@ function loadProjectObject(obj) {
         <circle cx="24" cy="24" r="2.5" fill="white"/>
       </svg>
       <h2 style="margin:0 0 4px; font-size:20px; color:#333;">NexiMap Studio</h2>
-      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 61.55 <span style="color:#b0b0b0; font-size:11px;">• Build 2025-02-10</span></p>
+      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 61.56 <span style="color:#b0b0b0; font-size:11px;">• Build 2025-02-10</span></p>
       <p style="margin:0 0 20px; color:#555; font-size:13px; line-height:1.6;">
         Professional network topology and diagram design tool with geographic mapping, cost analysis, and route optimization.
       </p>
