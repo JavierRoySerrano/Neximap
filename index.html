@@ -10,7 +10,7 @@
   If encoding breaks, start over from the clean source file.
   ===============================================================
 -->
-<!-- NexiMap Studio v61.59 - Add encoding guardrail + snap-to-nearest-point - 2025-02-12 -->
+<!-- NexiMap Studio v61.60 - Segment-chaining for multi-segment GeoJSON/KML import - 2025-02-12 -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -4584,7 +4584,7 @@
       </svg>
       <span style="font-weight:600; font-size:15px; color:#5a67d8; letter-spacing:-0.3px;">NexiMap</span>
       <span style="font-weight:400; font-size:15px; color:#666; letter-spacing:-0.3px;">Studio</span>
-      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v61.59</span>
+      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v61.60</span>
     </div>
     <button class="menu-item" id="btnFile" type="button">File</button>
     <button class="menu-item" id="btnEditMenu" type="button">Edit</button>
@@ -36701,7 +36701,133 @@ function loadProjectObject(obj) {
   }
 
   // Handle KML/GeoJSON file import
-  function handlePathKmlImport(e) {
+  
+  /**
+   * chainSegmentsIntoPath(segments)
+   * Takes an array of segments (each segment is [[lon,lat], [lon,lat], ...])
+   * and chains them into a single ordered polyline by matching endpoints.
+   * Uses greedy nearest-neighbor: pick a segment, extend from either end
+   * by finding the segment whose endpoint is closest to the current chain's end.
+   * Tolerance-based matching with fallback to best available match.
+   */
+  function chainSegmentsIntoPath(segments) {
+    if (!segments || segments.length === 0) return [];
+    if (segments.length === 1) return segments[0];
+
+    // Helper: distance squared between two [lon,lat] points
+    function distSq(a, b) {
+      const dlat = (a[1] - b[1]);
+      const dlon = (a[0] - b[0]) * Math.cos((a[1] + b[1]) * Math.PI / 360);
+      return dlat * dlat + dlon * dlon;
+    }
+
+    // Build array of segment objects with start/end references
+    const segs = segments.map((coords, i) => ({
+      id: i,
+      coords: coords,
+      start: coords[0],
+      end: coords[coords.length - 1],
+      used: false
+    }));
+
+    // Start with the longest segment as seed (often the main trunk)
+    let seedIdx = 0;
+    let maxLen = 0;
+    for (let i = 0; i < segs.length; i++) {
+      if (segs[i].coords.length > maxLen) {
+        maxLen = segs[i].coords.length;
+        seedIdx = i;
+      }
+    }
+
+    // Build a chain from the seed
+    let chain = [...segs[seedIdx].coords];
+    segs[seedIdx].used = true;
+    let usedCount = 1;
+
+    // Tolerance for endpoint matching: ~50 meters in degrees
+    const TOLERANCE_SQ = 0.0005 * 0.0005; // ~55m at equator
+
+    // Extend from both ends of the chain
+    let changed = true;
+    while (changed && usedCount < segs.length) {
+      changed = false;
+      const chainStart = chain[0];
+      const chainEnd = chain[chain.length - 1];
+
+      // Find best match to extend from chain END
+      let bestEndIdx = -1, bestEndDist = Infinity, bestEndReverse = false;
+      for (let i = 0; i < segs.length; i++) {
+        if (segs[i].used) continue;
+        const dStartToEnd = distSq(chainEnd, segs[i].start);
+        const dEndToEnd = distSq(chainEnd, segs[i].end);
+        const minD = Math.min(dStartToEnd, dEndToEnd);
+        if (minD < bestEndDist) {
+          bestEndDist = minD;
+          bestEndIdx = i;
+          bestEndReverse = dEndToEnd < dStartToEnd;
+        }
+      }
+
+      // Find best match to extend from chain START
+      let bestStartIdx = -1, bestStartDist = Infinity, bestStartReverse = false;
+      for (let i = 0; i < segs.length; i++) {
+        if (segs[i].used) continue;
+        const dEndToStart = distSq(chainStart, segs[i].end);
+        const dStartToStart = distSq(chainStart, segs[i].start);
+        const minD = Math.min(dEndToStart, dStartToStart);
+        if (minD < bestStartDist) {
+          bestStartDist = minD;
+          bestStartIdx = i;
+          bestStartReverse = dStartToStart < dEndToStart;
+        }
+      }
+
+      // Extend whichever end has the closer match (prefer within tolerance)
+      if (bestEndIdx >= 0 && bestEndDist <= TOLERANCE_SQ && (bestEndDist <= bestStartDist || bestStartDist > TOLERANCE_SQ)) {
+        const seg = segs[bestEndIdx];
+        const coords = bestEndReverse ? [...seg.coords].reverse() : seg.coords;
+        // Skip first point if it's essentially the same as chain end (avoid duplicates)
+        const startI = (distSq(chain[chain.length - 1], coords[0]) < TOLERANCE_SQ) ? 1 : 0;
+        for (let j = startI; j < coords.length; j++) chain.push(coords[j]);
+        seg.used = true;
+        usedCount++;
+        changed = true;
+      } else if (bestStartIdx >= 0 && bestStartDist <= TOLERANCE_SQ) {
+        const seg = segs[bestStartIdx];
+        const coords = bestStartReverse ? [...seg.coords].reverse() : seg.coords;
+        const endI = (distSq(chain[0], coords[coords.length - 1]) < TOLERANCE_SQ) ? coords.length - 1 : coords.length;
+        const prepend = coords.slice(0, endI);
+        chain = [...prepend, ...chain];
+        seg.used = true;
+        usedCount++;
+        changed = true;
+      } else if (bestEndIdx >= 0 || bestStartIdx >= 0) {
+        // No match within tolerance - try larger jump (for disconnected sub-paths)
+        // Use the closer of the two
+        if (bestEndDist <= bestStartDist && bestEndIdx >= 0) {
+          const seg = segs[bestEndIdx];
+          const coords = bestEndReverse ? [...seg.coords].reverse() : seg.coords;
+          for (const c of coords) chain.push(c);
+          seg.used = true;
+          usedCount++;
+          changed = true;
+        } else if (bestStartIdx >= 0) {
+          const seg = segs[bestStartIdx];
+          const coords = bestStartReverse ? [...seg.coords].reverse() : seg.coords;
+          chain = [...coords, ...chain];
+          seg.used = true;
+          usedCount++;
+          changed = true;
+        }
+      }
+    }
+
+    console.log('[PATH IMPORT] Chained ' + usedCount + '/' + segments.length + ' segments into path of ' + chain.length + ' points');
+    return chain;
+  }
+
+function handlePathKmlImport(e) {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -36715,39 +36841,50 @@ function loadProjectObject(obj) {
           const parser = new DOMParser();
           const kmlDoc = parser.parseFromString(event.target.result, 'text/xml');
 
-          // Extract coordinates from KML
+          // Extract coordinates from KML - collect segments for chaining
+          const kmlSegments = [];
           const coordElements = kmlDoc.querySelectorAll('coordinates');
           coordElements.forEach(coordEl => {
             const coordText = coordEl.textContent.trim();
             const points = coordText.split(/\s+/);
+            const segment = [];
             points.forEach(point => {
               const parts = point.split(',');
               if (parts.length >= 2) {
                 const lon = parseFloat(parts[0]);
                 const lat = parseFloat(parts[1]);
                 if (isFinite(lon) && isFinite(lat)) {
-                  coordinates.push([lon, lat]);
+                  segment.push([lon, lat]);
                 }
               }
             });
+            if (segment.length >= 2) kmlSegments.push(segment);
           });
+          // Chain KML segments into a connected path
+          if (kmlSegments.length > 1) {
+            console.log('[PATH IMPORT] KML: Found ' + kmlSegments.length + ' segments, chaining...');
+            coordinates = chainSegmentsIntoPath(kmlSegments);
+          } else if (kmlSegments.length === 1) {
+            coordinates = kmlSegments[0];
+          }
         } else {
-          // Parse GeoJSON
+          // Parse GeoJSON - collect individual segments for chaining
           const geojson = JSON.parse(event.target.result);
+          const segments = []; // Array of arrays of [lon,lat]
 
-          // Recursive coordinate extractor for any geometry type
-          function extractCoords(geom) {
+          // Recursive segment extractor - keeps LineStrings as separate segments
+          function extractSegments(geom) {
             if (!geom) return;
             switch (geom.type) {
               case 'LineString':
-                coordinates = coordinates.concat(geom.coordinates);
+                if (geom.coordinates.length >= 2) segments.push(geom.coordinates);
                 break;
               case 'MultiLineString':
               case 'Polygon':
-                geom.coordinates.forEach(ring => { coordinates = coordinates.concat(ring); });
+                geom.coordinates.forEach(ring => { if (ring.length >= 2) segments.push(ring); });
                 break;
               case 'MultiPolygon':
-                geom.coordinates.forEach(poly => { poly.forEach(ring => { coordinates = coordinates.concat(ring); }); });
+                geom.coordinates.forEach(poly => { poly.forEach(ring => { if (ring.length >= 2) segments.push(ring); }); });
                 break;
               case 'Point':
                 coordinates.push(geom.coordinates);
@@ -36756,18 +36893,27 @@ function loadProjectObject(obj) {
                 coordinates = coordinates.concat(geom.coordinates);
                 break;
               case 'GeometryCollection':
-                (geom.geometries || []).forEach(g => extractCoords(g));
+                (geom.geometries || []).forEach(g => extractSegments(g));
                 break;
             }
           }
 
           if (geojson.type === 'FeatureCollection') {
-            (geojson.features || []).forEach(f => extractCoords(f.geometry));
+            (geojson.features || []).forEach(f => extractSegments(f.geometry));
           } else if (geojson.type === 'Feature') {
-            extractCoords(geojson.geometry);
+            extractSegments(geojson.geometry);
           } else {
-            extractCoords(geojson);
+            extractSegments(geojson);
           }
+
+          // Chain segments into a connected path if multiple segments found
+          if (segments.length > 1) {
+            console.log('[PATH IMPORT] Found ' + segments.length + ' segments, chaining...');
+            coordinates = chainSegmentsIntoPath(segments);
+          } else if (segments.length === 1) {
+            coordinates = segments[0];
+          }
+          // Points (if any) were already pushed to coordinates above
         }
 
         if (coordinates.length === 0) {
@@ -45515,7 +45661,7 @@ function loadProjectObject(obj) {
         <circle cx="24" cy="24" r="2.5" fill="white"/>
       </svg>
       <h2 style="margin:0 0 4px; font-size:20px; color:#333;">NexiMap Studio</h2>
-      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 61.59 <span style="color:#b0b0b0; font-size:11px;">• Build 2025-02-12</span></p>
+      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 61.60 <span style="color:#b0b0b0; font-size:11px;">• Build 2025-02-12</span></p>
       <p style="margin:0 0 20px; color:#555; font-size:13px; line-height:1.6;">
         Professional network topology and diagram design tool with geographic mapping, cost analysis, and route optimization.
       </p>
