@@ -10,7 +10,7 @@
   If encoding breaks, start over from the clean source file.
   ===============================================================
 -->
-<!-- NexiMap Studio v61.62 - GeoJSON export for selected cables in Cable System List - 2025-02-12 -->
+<!-- NexiMap Studio v61.63 - GeoJSON export for selected cables in Cable System List - 2025-02-12 -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -4584,7 +4584,7 @@
       </svg>
       <span style="font-weight:600; font-size:15px; color:#5a67d8; letter-spacing:-0.3px;">NexiMap</span>
       <span style="font-weight:400; font-size:15px; color:#666; letter-spacing:-0.3px;">Studio</span>
-      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v61.62</span>
+      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v61.63</span>
     </div>
     <button class="menu-item" id="btnFile" type="button">File</button>
     <button class="menu-item" id="btnEditMenu" type="button">Edit</button>
@@ -5210,7 +5210,7 @@
       <div class="menu" id="linkStyleMenu" hidden style="min-width:160px;">
         <div style="padding:6px 12px; font-size:11px; color:#666; border-bottom:1px solid #e0e0e0;">Link Style</div>
         <div class="item link-style-item" data-style="straight">― Straight</div>
-        <div class="item link-style-item" data-style="orthogonal">┌ Orthogonal (90Â°)</div>
+        <div class="item link-style-item" data-style="orthogonal">┌ Orthogonal (90°)</div>
         <div class="item link-style-item" data-style="curve">∿ Curved</div>
         <div class="sep"></div>
         <div style="padding:6px 12px; font-size:11px; color:#666;">Orthogonal Direction</div>
@@ -5999,7 +5999,7 @@
             <label style="font-size:10px;">Latitude (Y)</label>
             <div style="display:flex; gap:4px; align-items:center;">
               <input id="nodeLatDeg" type="number" min="-90" max="90" placeholder="40" style="width:45px; font-size:11px; text-align:center;" />
-              <span style="font-size:10px;">Â°</span>
+              <span style="font-size:10px;">°</span>
               <input id="nodeLatMin" type="number" min="0" max="59" placeholder="42" style="width:40px; font-size:11px; text-align:center;" />
               <span style="font-size:10px;">'</span>
               <input id="nodeLatSec" type="number" min="0" max="59.99" step="0.01" placeholder="46" style="width:50px; font-size:11px; text-align:center;" />
@@ -6014,7 +6014,7 @@
             <label style="font-size:10px;">Longitude (X)</label>
             <div style="display:flex; gap:4px; align-items:center;">
               <input id="nodeLonDeg" type="number" min="-180" max="180" placeholder="74" style="width:45px; font-size:11px; text-align:center;" />
-              <span style="font-size:10px;">Â°</span>
+              <span style="font-size:10px;">°</span>
               <input id="nodeLonMin" type="number" min="0" max="59" placeholder="0" style="width:40px; font-size:11px; text-align:center;" />
               <span style="font-size:10px;">'</span>
               <input id="nodeLonSec" type="number" min="0" max="59.99" step="0.01" placeholder="21" style="width:50px; font-size:11px; text-align:center;" />
@@ -6479,7 +6479,7 @@
               <label>Line Style</label>
               <select id="edgeStyle">
                 <option value="straight">Straight</option>
-                <option value="orthogonal">90Â° Orthogonal</option>
+                <option value="orthogonal">90° Orthogonal</option>
                 <option value="curve">Curve (Bezier)</option>
               </select>
             </div>
@@ -20702,7 +20702,7 @@ function loadProjectObject(obj) {
               type: 'raster',
               tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
               tileSize: 256,
-              attribution: 'Â© OpenStreetMap contributors'
+              attribution: '© OpenStreetMap contributors'
             }
           },
           layers: [{
@@ -21943,7 +21943,7 @@ function loadProjectObject(obj) {
               const fpInfo = cable.fiberPairs > 0 ? `${cable.fiberPairs} FP` : '';
               // Use rfsYear if available, otherwise rfs string
               const rfsInfo = cable.rfsYear ? `RFS ${cable.rfsYear}` : (cable.rfs !== 'Unknown' ? cable.rfs : '');
-              const metaInfo = [cable.status || '', rfsInfo, fpInfo, capacityInfo].filter(Boolean).join(' Â· ');
+              const metaInfo = [cable.status || '', rfsInfo, fpInfo, capacityInfo].filter(Boolean).join(' · ');
 
               return `
                 <label class="cs-bulk-item" data-key="${key}" style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; cursor:pointer; border-bottom:1px solid #f0f0f0; ${isSelected ? 'background:#f0fdf4;' : ''}">
@@ -24251,7 +24251,7 @@ function loadProjectObject(obj) {
             <span class="mlg-type ${mlg.type}">${typeLabel}</span>
           </div>
           <div class="mlg-info">
-            ${mlg.segments.length} segment${mlg.segments.length !== 1 ? 's' : ''} Â· ${mlg.totalLatency || 0} ms
+            ${mlg.segments.length} segment${mlg.segments.length !== 1 ? 's' : ''} · ${mlg.totalLatency || 0} ms
           </div>
           <div class="mlg-route">${origin} → ${dest}</div>
           ${warnings.length > 0 ? `<div class="mlg-warnings">⛠️ ${warnings.length} warning${warnings.length !== 1 ? 's' : ''}</div>` : ''}
@@ -33797,7 +33797,7 @@ function loadProjectObject(obj) {
       [52, -7], [53, -6], [54, -6], [55, -6]
     ],
 
-    // Iberian Peninsula (Spain and Portugal) - accurate for Madrid at 40.4Â°N, 3.7Â°W
+    // Iberian Peninsula (Spain and Portugal) - accurate for Madrid at 40.4°N, 3.7°W
     iberia: [
       // Northern coast (Galicia to Basque)
       [43.8, -7.9], [43.5, -8], [43.3, -6], [43.5, -4], [43.4, -2], [43.3, -1.5],
@@ -33805,7 +33805,7 @@ function loadProjectObject(obj) {
       [42.7, -0.5], [42.5, 0.5], [42.5, 2], [42, 3.2], [41.5, 2.5], [41, 1.5],
       // East coast (Catalonia to Valencia to Murcia)
       [40.5, 0.8], [39.5, 0.2], [38.5, -0.2], [38, -0.5], [37.5, -1],
-      // Southeast (AlmerÃ­a) to Gibraltar
+      // Southeast (Almería) to Gibraltar
       [37, -2], [36.8, -3], [36.5, -4.5], [36.1, -5.5], [36, -5.6],
       // Southwest coast (Cadiz, Huelva)
       [36.5, -6.3], [37, -7], [37.2, -7.5],
@@ -34080,7 +34080,7 @@ function loadProjectObject(obj) {
       text.setAttribute('x', p.x);
       text.setAttribute('y', p.y + 15);
       text.setAttribute('text-anchor', 'middle');
-      text.textContent = lon + 'Â°';
+      text.textContent = lon + '°';
       labels.appendChild(text);
     }
 
@@ -34091,7 +34091,7 @@ function loadProjectObject(obj) {
       text.setAttribute('x', p.x - 5);
       text.setAttribute('y', p.y + 4);
       text.setAttribute('text-anchor', 'end');
-      text.textContent = lat + 'Â°';
+      text.textContent = lat + '°';
       labels.appendChild(text);
     }
 
@@ -34646,13 +34646,13 @@ function loadProjectObject(obj) {
     'panama city': { lat: 8.9824, lon: -79.5199, name: 'Panama City, Panama' },
 
     // South America
-    'sao paulo': { lat: -23.5505, lon: -46.6333, name: 'SÃ£o Paulo, Brazil' },
-    'sÃ£o paulo': { lat: -23.5505, lon: -46.6333, name: 'SÃ£o Paulo, Brazil' },
+    'sao paulo': { lat: -23.5505, lon: -46.6333, name: 'São Paulo, Brazil' },
+    'são paulo': { lat: -23.5505, lon: -46.6333, name: 'São Paulo, Brazil' },
     'rio de janeiro': { lat: -22.9068, lon: -43.1729, name: 'Rio de Janeiro, Brazil' },
     'rio': { lat: -22.9068, lon: -43.1729, name: 'Rio de Janeiro, Brazil' },
     'buenos aires': { lat: -34.6037, lon: -58.3816, name: 'Buenos Aires, Argentina' },
-    'bogota': { lat: 4.7110, lon: -74.0721, name: 'BogotÃ¡, Colombia' },
-    'bogotÃ¡': { lat: 4.7110, lon: -74.0721, name: 'BogotÃ¡, Colombia' },
+    'bogota': { lat: 4.7110, lon: -74.0721, name: 'Bogotá, Colombia' },
+    'bogotá': { lat: 4.7110, lon: -74.0721, name: 'Bogotá, Colombia' },
     'lima': { lat: -12.0464, lon: -77.0428, name: 'Lima, Peru' },
     'santiago': { lat: -33.4489, lon: -70.6693, name: 'Santiago, Chile' },
     'caracas': { lat: 10.4806, lon: -66.9036, name: 'Caracas, Venezuela' },
@@ -34684,8 +34684,8 @@ function loadProjectObject(obj) {
     'frankfurt': { lat: 50.1109, lon: 8.6821, name: 'Frankfurt, Germany' },
     'hamburg': { lat: 53.5511, lon: 9.9937, name: 'Hamburg, Germany' },
     'cologne': { lat: 50.9375, lon: 6.9603, name: 'Cologne, Germany' },
-    'dÃ¼sseldorf': { lat: 51.2277, lon: 6.7735, name: 'DÃ¼sseldorf, Germany' },
-    'dusseldorf': { lat: 51.2277, lon: 6.7735, name: 'DÃ¼sseldorf, Germany' },
+    'düsseldorf': { lat: 51.2277, lon: 6.7735, name: 'Düsseldorf, Germany' },
+    'dusseldorf': { lat: 51.2277, lon: 6.7735, name: 'Düsseldorf, Germany' },
     'stuttgart': { lat: 48.7758, lon: 9.1829, name: 'Stuttgart, Germany' },
 
     // Iberian Peninsula
@@ -34975,7 +34975,7 @@ function loadProjectObject(obj) {
         <div class="location-result" data-lat="${loc.lat}" data-lon="${loc.lon}" data-name="${loc.name}"
              style="padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.1s;">
           <div style="font-weight: 500;">${loc.name}</div>
-          <div style="font-size: 11px; color: #888; font-family: monospace;">${loc.lat.toFixed(4)}Â°, ${loc.lon.toFixed(4)}Â°</div>
+          <div style="font-size: 11px; color: #888; font-family: monospace;">${loc.lat.toFixed(4)}°, ${loc.lon.toFixed(4)}°</div>
         </div>
       `).join('');
 
@@ -34992,7 +34992,7 @@ function loadProjectObject(obj) {
             name: el.dataset.name
           };
           selectedName.textContent = selectedLocation.name;
-          selectedCoords.textContent = `Lat: ${selectedLocation.lat.toFixed(4)}Â°  Lon: ${selectedLocation.lon.toFixed(4)}Â°`;
+          selectedCoords.textContent = `Lat: ${selectedLocation.lat.toFixed(4)}°  Lon: ${selectedLocation.lon.toFixed(4)}°`;
           selectedDiv.style.display = 'block';
           resultsDiv.style.display = 'none';
           searchInput.value = selectedLocation.name;
@@ -38296,7 +38296,7 @@ function handlePathKmlImport(e) {
             if (state.ui.showLatency && typeof e.latencyMs === 'number' && isFinite(e.latencyMs)) {
               labelParts.push(e.latencyMs + ' ms');
             }
-            const labelText = labelParts.join(' Â· ');
+            const labelText = labelParts.join(' · ');
 
 
 
@@ -38534,7 +38534,7 @@ function handlePathKmlImport(e) {
           <div style="font-weight: 600; margin-bottom: 4px;">${n.name || n.id}</div>
           ${n.code ? `<div style="color: #666; font-size: 11px;">Code: ${n.code}</div>` : ''}
           <div style="color: #888; font-size: 10px; margin-top: 4px;">
-            📍 ${n.gpsLat.toFixed(4)}Â°, ${n.gpsLon.toFixed(4)}Â°
+            📍 ${n.gpsLat.toFixed(4)}°, ${n.gpsLon.toFixed(4)}°
           </div>
           ${mapLibreState.pathFinderActive ? `<button class="ml-pathfinder-btn" data-node-id="${n.id}" style="margin-top:6px; padding:4px 8px; font-size:10px; cursor:pointer; background:#10b981; color:white; border:none; border-radius:3px;">Select for Path</button>` : ''}
         </div>
@@ -39702,7 +39702,7 @@ function handlePathKmlImport(e) {
 
   // Currency symbol mapping
   const currencySymbols = {
-    USD: '$', EUR: '€', GBP: 'Â£', JPY: 'Â¥', CNY: 'Â¥',
+    USD: '$', EUR: '€', GBP: '£', JPY: '¥', CNY: '¥',
     SGD: 'S$', HKD: 'HK$', AUD: 'A$', CHF: 'Fr', CAD: 'C$',
     INR: '₹', KRW: '₩', BRL: 'R$', MXN: 'Mex$', AED: 'Ø¯.Ø¥', SAR: '﷼'
   };
@@ -45793,7 +45793,7 @@ function handlePathKmlImport(e) {
         <circle cx="24" cy="24" r="2.5" fill="white"/>
       </svg>
       <h2 style="margin:0 0 4px; font-size:20px; color:#333;">NexiMap Studio</h2>
-      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 61.62 <span style="color:#b0b0b0; font-size:11px;">• Build 2025-02-12</span></p>
+      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 61.63 <span style="color:#b0b0b0; font-size:11px;">• Build 2025-02-12</span></p>
       <p style="margin:0 0 20px; color:#555; font-size:13px; line-height:1.6;">
         Professional network topology and diagram design tool with geographic mapping, cost analysis, and route optimization.
       </p>
