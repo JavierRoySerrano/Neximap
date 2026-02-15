@@ -8814,6 +8814,7 @@
       linkId: null,
       originalPath: null,      // For cancel/restore
       currentPath: [],         // Working coordinates [[lng,lat], ...]
+      importedSegments: null,  // Array of segments for MultiLineString rendering (null = single LineString)
       hasUnsavedChanges: false,
       editMethod: null,        // 'manual' | 'telegeography' | 'kml-import'
       selectedSegments: [],    // For Cable Database multilinestring selection
@@ -36245,10 +36246,10 @@ function loadProjectObject(obj) {
     if (save && edge) {
       // Save the path as unified cableGeometry (GeoJSON format)
       if (state.pathEditMode.currentPath && state.pathEditMode.currentPath.length > 0) {
-        edge.cableGeometry = {
-          type: 'LineString',
-          coordinates: [...state.pathEditMode.currentPath]
-        };
+        const importedSegs = state.pathEditMode.importedSegments;
+        edge.cableGeometry = importedSegs
+          ? { type: 'MultiLineString', coordinates: importedSegs.map(s => [...s]) }
+          : { type: 'LineString', coordinates: [...state.pathEditMode.currentPath] };
         edge.pathSource = state.pathEditMode.editMethod || 'manual';
       } else {
         edge.cableGeometry = null;
@@ -36285,6 +36286,7 @@ function loadProjectObject(obj) {
     state.pathEditMode.linkId = null;
     state.pathEditMode.originalPath = null;
     state.pathEditMode.currentPath = [];
+    state.pathEditMode.importedSegments = null;
     state.pathEditMode.hasUnsavedChanges = false;
     state.pathEditMode.editMethod = null;
     state.pathEditMode._boundsFitted = false;
@@ -36608,9 +36610,14 @@ function loadProjectObject(obj) {
       }
 
       // === CURRENT EDITING PATH (blue) ===
+      // Use MultiLineString if imported segments exist (avoids cross-segment connecting lines)
+      const importedSegs = state.pathEditMode.importedSegments;
+      const pathGeometry = importedSegs
+        ? { type: 'MultiLineString', coordinates: importedSegs }
+        : { type: 'LineString', coordinates: pathCoords };
       const pathData = {
         type: 'Feature',
-        geometry: { type: 'LineString', coordinates: pathCoords }
+        geometry: pathGeometry
       };
 
       if (map.getSource('path-edit-current')) {
@@ -36732,6 +36739,7 @@ function loadProjectObject(obj) {
             isDragging = false;
             const lngLat = this.getLngLat();
             state.pathEditMode.currentPath[idx] = [lngLat.lng, lngLat.lat];
+            state.pathEditMode.importedSegments = null; // Manual edit invalidates segment structure
             state.pathEditMode.hasUnsavedChanges = true;
             updatePathEditStatus();
             // Update the path line using stored coordinates
@@ -36906,65 +36914,72 @@ function handlePathKmlImport(e) {
     const reader = new FileReader();
     reader.onload = function(event) {
       try {
-        let coordinates = [];
+        const segments = []; // Each segment is an array of [lon,lat] coordinates
 
         if (file.name.endsWith('.kml')) {
-          // Convert KML to GeoJSON (simplified parsing)
+          // Extract each KML <coordinates> block as a separate segment
           const parser = new DOMParser();
           const kmlDoc = parser.parseFromString(event.target.result, 'text/xml');
 
-          // Extract all coordinates from KML as-is, preserving document order
           const coordElements = kmlDoc.querySelectorAll('coordinates');
           coordElements.forEach(coordEl => {
             const coordText = coordEl.textContent.trim();
             const points = coordText.split(/\s+/);
+            const segment = [];
             points.forEach(point => {
               const parts = point.split(',');
               if (parts.length >= 2) {
                 const lon = parseFloat(parts[0]);
                 const lat = parseFloat(parts[1]);
                 if (isFinite(lon) && isFinite(lat)) {
-                  coordinates.push([lon, lat]);
+                  segment.push([lon, lat]);
                 }
               }
             });
+            if (segment.length > 0) segments.push(segment);
           });
         } else {
-          // Parse GeoJSON - extract all coordinates as-is, preserving original order
+          // Parse GeoJSON - extract each geometry as a separate segment
           const geojson = JSON.parse(event.target.result);
 
-          function extractCoords(geom) {
+          function extractSegments(geom) {
             if (!geom) return;
             switch (geom.type) {
               case 'LineString':
-                geom.coordinates.forEach(c => coordinates.push(c));
+                if (geom.coordinates.length > 0) segments.push(geom.coordinates.map(c => [c[0], c[1]]));
                 break;
               case 'MultiLineString':
               case 'Polygon':
-                geom.coordinates.forEach(ring => ring.forEach(c => coordinates.push(c)));
+                geom.coordinates.forEach(ring => { if (ring.length > 0) segments.push(ring.map(c => [c[0], c[1]])); });
                 break;
               case 'MultiPolygon':
-                geom.coordinates.forEach(poly => poly.forEach(ring => ring.forEach(c => coordinates.push(c))));
+                geom.coordinates.forEach(poly => poly.forEach(ring => { if (ring.length > 0) segments.push(ring.map(c => [c[0], c[1]])); }));
                 break;
               case 'Point':
-                coordinates.push(geom.coordinates);
+                segments.push([[geom.coordinates[0], geom.coordinates[1]]]);
                 break;
               case 'MultiPoint':
-                geom.coordinates.forEach(c => coordinates.push(c));
+                geom.coordinates.forEach(c => segments.push([[c[0], c[1]]]));
                 break;
               case 'GeometryCollection':
-                (geom.geometries || []).forEach(g => extractCoords(g));
+                (geom.geometries || []).forEach(g => extractSegments(g));
                 break;
             }
           }
 
           if (geojson.type === 'FeatureCollection') {
-            (geojson.features || []).forEach(f => extractCoords(f.geometry));
+            (geojson.features || []).forEach(f => extractSegments(f.geometry));
           } else if (geojson.type === 'Feature') {
-            extractCoords(geojson.geometry);
+            extractSegments(geojson.geometry);
           } else {
-            extractCoords(geojson);
+            extractSegments(geojson);
           }
+        }
+
+        // Flatten segments into a single coordinate array for waypoint markers/editing
+        const coordinates = [];
+        for (const seg of segments) {
+          for (const c of seg) coordinates.push(c);
         }
 
         if (coordinates.length === 0) {
@@ -36973,13 +36988,16 @@ function handlePathKmlImport(e) {
         }
 
         state.pathEditMode.currentPath = coordinates;
+        // Store segments separately so renderer can use MultiLineString (no cross-segment lines)
+        state.pathEditMode.importedSegments = segments.length > 1 ? segments : null;
         state.pathEditMode.hasUnsavedChanges = true;
         state.pathEditMode.editMethod = 'kml-import';
 
         // Update instructions to show success and allow re-import
         const instructions = document.getElementById('pathEditInstructions');
         if (instructions) {
-          instructions.innerHTML = '<strong>Imported:</strong> ' + coordinates.length + ' waypoints from <em>' + file.name + '</em>. <a href="#" id="pathReImportLink" style="color:#0369a1; text-decoration:underline;">Import another file</a>';
+          const segInfo = segments.length > 1 ? ' (' + segments.length + ' segments)' : '';
+          instructions.innerHTML = '<strong>Imported:</strong> ' + coordinates.length + ' waypoints' + segInfo + ' from <em>' + file.name + '</em>. <a href="#" id="pathReImportLink" style="color:#0369a1; text-decoration:underline;">Import another file</a>';
           document.getElementById('pathReImportLink')?.addEventListener('click', (ev) => {
             ev.preventDefault();
             const reInput = document.createElement('input');
@@ -36999,7 +37017,8 @@ function handlePathKmlImport(e) {
         updateWaypointCount();
         renderPathEditingView();
 
-        showToast(`Imported ${coordinates.length} waypoints from ${file.name}`);
+        const segToast = segments.length > 1 ? ` (${segments.length} segments)` : '';
+        showToast(`Imported ${coordinates.length} waypoints${segToast} from ${file.name}`);
       } catch (err) {
         console.error('[PATH EDIT] Error parsing file:', err);
         showToast('Error parsing file: ' + err.message);
@@ -46442,6 +46461,7 @@ function handlePathKmlImport(e) {
     if (window.state?.pathEditMode?.currentPath?.length > 0) {
       if (confirm('Clear all waypoints from this path?')) {
         window.state.pathEditMode.currentPath = [];
+        window.state.pathEditMode.importedSegments = null;
         window.state.pathEditMode.hasUnsavedChanges = true;
         if (window.updatePathEditStatus) window.updatePathEditStatus();
         if (window.updateWaypointCount) window.updateWaypointCount();
