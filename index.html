@@ -16258,6 +16258,7 @@ if (groupTitleFontInline) {
       commercialCostMode: 'lease',
       // Path geometry fields (for geographic cable routing)
       pathGeometry: null,       // GeoJSON coordinates array [[lng,lat], ...] or null
+      cableGeometry: null,      // Original GeoJSON geometry object {type, coordinates} for full-fidelity rendering
       pathSource: null,         // 'manual' | 'telegeography' | 'kml-import' | null
       pathCableRef: null        // Reference name if from Cable Database
     };
@@ -18969,6 +18970,7 @@ function loadProjectObject(obj) {
     commercialCostMode: e.commercialCostMode || 'lease',
     // Path geometry (for geographic cable routing on map)
     pathGeometry: Array.isArray(e.pathGeometry) ? e.pathGeometry : null,
+    cableGeometry: (e.cableGeometry && e.cableGeometry.type && e.cableGeometry.coordinates) ? e.cableGeometry : null,
     pathSource: e.pathSource || null
   }));
 
@@ -26396,6 +26398,7 @@ function loadProjectObject(obj) {
         case 'duplicate': {
           const de = { ...edge, id: state.nextEdge++, label: (edge.label || '') + ' (copy)', name: (edge.name || '') + ' (copy)' };
           if (de.pathGeometry) de.pathGeometry = [...de.pathGeometry];
+          if (de.cableGeometry) de.cableGeometry = JSON.parse(JSON.stringify(de.cableGeometry));
           state.edges.push(de);
           select({ type: 'edge', id: de.id });
           commit(); render();
@@ -26827,9 +26830,23 @@ function loadProjectObject(obj) {
         // Extract coordinates
         const coords = extractCoordinatesFromGeometry(geometryData.geometry, selectedSegs);
         if (coords.length > 0) {
-          // Reduce waypoints if needed
+          // Reduce waypoints for editing path (simplified)
           const reduced = reduceWaypoints(coords, 200);
           edge.pathGeometry = reduced;
+
+          // Store original full-fidelity GeoJSON geometry for map rendering
+          // If specific segments were selected, build a filtered geometry; otherwise use as-is
+          if (selectedSegs && geometryData.geometry.type === 'MultiLineString') {
+            const filteredCoords = selectedSegs
+              .filter(i => i >= 0 && i < geometryData.geometry.coordinates.length)
+              .map(i => geometryData.geometry.coordinates[i]);
+            edge.cableGeometry = filteredCoords.length === 1
+              ? { type: 'LineString', coordinates: filteredCoords[0] }
+              : { type: 'MultiLineString', coordinates: filteredCoords };
+          } else {
+            edge.cableGeometry = JSON.parse(JSON.stringify(geometryData.geometry));
+          }
+
           showToast(`Assigned "${cs.shortName}" + geometry (${reduced.length} waypoints) to ${linkLabel}`);
         } else {
           showToast(`Assigned "${cs.shortName}" to ${linkLabel} (no geometry segments selected)`);
@@ -35365,7 +35382,7 @@ function loadProjectObject(obj) {
       }
 
       // Count links with paths
-      const linksWithPaths = state.edges.filter(e => e.pathGeometry && e.pathGeometry.length > 0).length;
+      const linksWithPaths = state.edges.filter(e => e.cableGeometry || (e.pathGeometry && e.pathGeometry.length > 0)).length;
 
       if (isPathsMode) {
         showToast(`Showing cable paths (${linksWithPaths} link${linksWithPaths !== 1 ? 's' : ''} with paths)`);
@@ -36778,6 +36795,7 @@ function loadProjectObject(obj) {
     if (!edge) return;
 
     edge.pathGeometry = null;
+    edge.cableGeometry = null;
     edge.pathSource = null;
     edge.pathCableRef = null;
 
@@ -37587,6 +37605,17 @@ function handlePathKmlImport(e) {
       if (segmentsToUse) {
         edge.pathCableSegments = segmentsToUse;
       }
+      // Store original full-fidelity geometry for map rendering
+      if (segmentsToUse && cable.geometry.type === 'MultiLineString') {
+        const filteredCoords = segmentsToUse
+          .filter(i => i >= 0 && i < cable.geometry.coordinates.length)
+          .map(i => cable.geometry.coordinates[i]);
+        edge.cableGeometry = filteredCoords.length === 1
+          ? { type: 'LineString', coordinates: filteredCoords[0] }
+          : { type: 'MultiLineString', coordinates: filteredCoords };
+      } else {
+        edge.cableGeometry = JSON.parse(JSON.stringify(cable.geometry));
+      }
     }
 
     // Update UI
@@ -37755,6 +37784,18 @@ function handlePathKmlImport(e) {
     const edge = findEdge(state.pathEditMode.linkId);
     if (edge) {
       edge.pathCableSegments = currentSelectedSegments.length > 0 ? [...currentSelectedSegments] : null;
+      // Update full-fidelity geometry for map rendering
+      const segsToUse = currentSelectedSegments.length > 0 ? currentSelectedSegments : null;
+      if (segsToUse && cable.geometry.type === 'MultiLineString') {
+        const filteredCoords = segsToUse
+          .filter(i => i >= 0 && i < cable.geometry.coordinates.length)
+          .map(i => cable.geometry.coordinates[i]);
+        edge.cableGeometry = filteredCoords.length === 1
+          ? { type: 'LineString', coordinates: filteredCoords[0] }
+          : { type: 'MultiLineString', coordinates: filteredCoords };
+      } else {
+        edge.cableGeometry = JSON.parse(JSON.stringify(cable.geometry));
+      }
     }
 
     // Update UI
@@ -38221,14 +38262,23 @@ function handlePathKmlImport(e) {
 
           const edgeId = e.id || `edge-${idx}`;
 
-          // Determine coordinates - use pathGeometry if available and paths mode is enabled
-          let edgeCoordinates;
-          if (mapLibreState.pathRenderMode === 'paths' && e.pathGeometry && e.pathGeometry.length > 0) {
-            // Smart connection: connect nodes to nearest point on path, trimming excess
-            edgeCoordinates = buildSmartPathCoords(fromCoords, toCoords, e.pathGeometry);
+          // Determine geometry - prefer full-fidelity cableGeometry (preserves MultiLineString)
+          let edgeGeometry;
+          if (mapLibreState.pathRenderMode === 'paths' && e.cableGeometry && e.cableGeometry.coordinates) {
+            // Use original cable geometry directly (supports MultiLineString natively)
+            edgeGeometry = e.cableGeometry;
+          } else if (mapLibreState.pathRenderMode === 'paths' && e.pathGeometry && e.pathGeometry.length > 0) {
+            // Fallback to simplified pathGeometry with smart connection
+            edgeGeometry = {
+              type: 'LineString',
+              coordinates: buildSmartPathCoords(fromCoords, toCoords, e.pathGeometry)
+            };
           } else {
             // Use straight line
-            edgeCoordinates = [offsetFrom, offsetTo];
+            edgeGeometry = {
+              type: 'LineString',
+              coordinates: [offsetFrom, offsetTo]
+            };
           }
 
           // Add selection glow feature FIRST (rendered behind) if selected
@@ -38242,10 +38292,7 @@ function handlePathKmlImport(e) {
                 selected: true,
                 isGlow: true
               },
-              geometry: {
-                type: 'LineString',
-                coordinates: edgeCoordinates
-              }
+              geometry: edgeGeometry
             });
           }
 
@@ -38256,12 +38303,9 @@ function handlePathKmlImport(e) {
               color: edgeColor, // Keep original color
               width: edgeWidth,
               selected: isSelected,
-              hasPath: !!(e.pathGeometry && e.pathGeometry.length > 0)
+              hasPath: !!(e.cableGeometry || (e.pathGeometry && e.pathGeometry.length > 0))
             },
-            geometry: {
-              type: 'LineString',
-              coordinates: edgeCoordinates
-            }
+            geometry: edgeGeometry
           });
 
           // Store edge data for click detection (use offset coordinates)
