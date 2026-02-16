@@ -24272,10 +24272,17 @@ function loadProjectObject(obj) {
         state.shapeLibrary.shapes = parsed.shapes || {};
         state.shapeLibrary.categories = parsed.categories || ['Network Devices', 'Cloud Services', 'Custom'];
 
-        // Always start with built-in shapes, then merge user-saved shapes on top
+        // Always start with built-in shapes, then merge user-saved custom shapes on top
         const builtIn = getDefaultContainerShapes();
         const userShapes = parsed.containerShapes || {};
-        state.shapeLibrary.containerShapes = Object.assign({}, builtIn, userShapes);
+        // Filter out old-format country shapes (country-<fullname>) that duplicate built-in ISO-2 shapes
+        const filteredUserShapes = {};
+        Object.entries(userShapes).forEach(([id, shape]) => {
+          if (id.startsWith('country-') && id.replace('country-', '').length > 2) return;
+          if (builtIn[id]) return;
+          filteredUserShapes[id] = shape;
+        });
+        state.shapeLibrary.containerShapes = Object.assign({}, builtIn, filteredUserShapes);
       } else {
         // First time: load defaults
         state.shapeLibrary.containerShapes = getDefaultContainerShapes();
@@ -46451,7 +46458,7 @@ function handlePathKmlImport(e) {
         <circle cx="24" cy="24" r="2.5" fill="white"/>
       </svg>
       <h2 style="margin:0 0 4px; font-size:20px; color:#333;">NexiMap Studio</h2>
-      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 61.67 <span style="color:#b0b0b0; font-size:11px;">• Build 2026-02-15</span></p>
+      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 61.69 <span style="color:#b0b0b0; font-size:11px;">• Build 2026-02-16</span></p>
       <p style="margin:0 0 20px; color:#555; font-size:13px; line-height:1.6;">
         Professional network topology and diagram design tool with geographic mapping, cost analysis, and route optimization.
       </p>
