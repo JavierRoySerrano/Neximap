@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- NexiMap KML Studio v4.0.0 - Unified open dialog, Undo/Redo, Eraser tool -->
+<!-- NexiMap KML Studio v4.0.1 - Unified open, Undo/Redo, Vertex eraser tool -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NexiMap KML Studio v4.0.0</title>
+<title>NexiMap KML Studio v4.0.1</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='2' width='28' height='28' rx='4' fill='%230096D6'/%3E%3Cpath d='M8 12L16 8L24 12L16 16Z' fill='white' opacity='0.9'/%3E%3Cpath d='M8 16L16 20L24 16' stroke='white' stroke-width='1.5' fill='none'/%3E%3Cpath d='M8 20L16 24L24 20' stroke='white' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"/>
 <style>
 :root {
@@ -1066,7 +1066,7 @@ header {
     <div class="app-logo">
         <svg width="20" height="20" viewBox="0 0 32 32"><rect x="2" y="2" width="28" height="28" rx="4" fill="#0096D6"/><path d="M8 12L16 8L24 12L16 16Z" fill="white" opacity="0.9"/><path d="M8 16L16 20L24 16" stroke="white" stroke-width="1.5" fill="none"/><path d="M8 20L16 24L24 20" stroke="white" stroke-width="1.5" fill="none"/></svg>
         NexiMap KML Studio
-        <span class="ver">v4.0.0</span>
+        <span class="ver">v4.0.1</span>
     </div>
 
     <!-- File Menu -->
@@ -3072,7 +3072,7 @@ window.undoSimplify = function() {
 };
 
 // =========================================================================
-// SEGMENT CHAINING FOR SIMPLIFIED EXPORT (v4.0.0)
+// SEGMENT CHAINING FOR SIMPLIFIED EXPORT (v4.0.1)
 // =========================================================================
 // 1. Deduplicates exact-copy geometries (common when KMZ has repeated folders)
 // 2. Builds endpoint degree map to detect branching junctions
@@ -3970,7 +3970,7 @@ window.fileSaveAsGeoJSON = function() {
 let eraserMode = false;
 let eraserSize = 60;
 let eraserDragging = false;
-let eraserDeletedIds = new Set();
+let eraserDeletedCount = 0;
 
 window.toggleEraserMode = function() {
     eraserMode = !eraserMode;
@@ -3986,7 +3986,7 @@ window.toggleEraserMode = function() {
     document.getElementById('btnEraser').classList.toggle('active', eraserMode);
     const lc = document.querySelector('.leaflet-container');
     if (eraserMode) {
-        document.getElementById('editBanner').textContent = '🧹 ERASER MODE — Drag across features to delete them. Scroll to resize brush.';
+        document.getElementById('editBanner').textContent = '🧹 ERASER MODE — Drag across vertices to remove them. Line reconnects between remaining points. Scroll to resize brush.';
         document.getElementById('editBanner').classList.add('show');
         document.getElementById('eraserSizeSlider').classList.add('show');
         document.getElementById('eraserBrush').classList.add('active');
@@ -4039,7 +4039,7 @@ document.getElementById('mapContainer').addEventListener('wheel', (e) => {
 document.getElementById('mapContainer').addEventListener('mousedown', (e) => {
     if (!eraserMode || e.button !== 0) return;
     eraserDragging = true;
-    eraserDeletedIds = new Set();
+    eraserDeletedCount = 0;
     pushUndo();
     document.getElementById('eraserBrush').classList.add('erasing');
     eraseAtPoint(e.clientX, e.clientY);
@@ -4049,62 +4049,74 @@ document.addEventListener('mouseup', () => {
     if (eraserDragging) {
         eraserDragging = false;
         document.getElementById('eraserBrush').classList.remove('erasing');
-        if (eraserDeletedIds.size > 0) {
+        if (eraserDeletedCount > 0) {
             renderAll(); updatePropsPanel(); updateStatus();
-            toast('Erased ' + eraserDeletedIds.size + ' feature(s)', 'info');
+            toast('Erased ' + eraserDeletedCount + ' vertex(es)', 'info');
         } else {
-            // No features erased — pop the undo snapshot we pushed
+            // Nothing erased — pop the undo snapshot we pushed
             undoStack.pop();
         }
-        eraserDeletedIds = new Set();
+        eraserDeletedCount = 0;
     }
 });
 
 function eraseAtPoint(clientX, clientY) {
     const radius = eraserSize / 2;
-    // Check each visible layer for proximity to the eraser brush center
-    const toDelete = [];
+    const mapRect = document.getElementById('map').getBoundingClientRect();
+    let changed = false;
+
     Object.values(projectData.layers).forEach(layer => {
-        if (!layer.visible || !layer.leafletLayer) return;
-        if (eraserDeletedIds.has(layer.id)) return;
+        if (!layer.visible) return;
 
         if (layer.type === 'line' && layer.coords.length > 0) {
-            // Check if any segment of the polyline passes through the brush
-            for (let i = 0; i < layer.coords.length; i++) {
+            // Find vertices within the brush and remove them individually
+            const toRemove = [];
+            for (let i = layer.coords.length - 1; i >= 0; i--) {
                 const pt = map.latLngToContainerPoint(L.latLng(layer.coords[i][0], layer.coords[i][1]));
-                const mapRect = document.getElementById('map').getBoundingClientRect();
                 const screenX = pt.x + mapRect.left;
                 const screenY = pt.y + mapRect.top;
                 const dx = screenX - clientX;
                 const dy = screenY - clientY;
-                if (Math.sqrt(dx*dx + dy*dy) <= radius) {
-                    toDelete.push(layer.id);
-                    break;
+                if (Math.sqrt(dx * dx + dy * dy) <= radius) {
+                    toRemove.push(i);
+                }
+            }
+            if (toRemove.length > 0) {
+                // Remove vertices from highest index first (so indices stay valid)
+                toRemove.forEach(idx => layer.coords.splice(idx, 1));
+                eraserDeletedCount += toRemove.length;
+                changed = true;
+
+                if (layer.coords.length <= 1) {
+                    // Line has 0-1 points left — remove the entire layer
+                    if (layer.leafletLayer) map.removeLayer(layer.leafletLayer);
+                    layer.vertexMarkers.forEach(m => map.removeLayer(m));
+                    delete projectData.layers[layer.id];
+                    projectData.folders.forEach(f => { f.items = f.items.filter(i => i !== layer.id); });
+                    if (selectedLayerId === layer.id) selectedLayerId = null;
+                    selectedLayerIds.delete(layer.id);
+                } else if (layer.leafletLayer) {
+                    // Update the polyline in real-time (line reconnects between remaining points)
+                    layer.leafletLayer.setLatLngs(layer.coords);
                 }
             }
         } else if (layer.type === 'point' && layer.coords.length > 0) {
+            // Pins are single points — erase removes the whole pin
             const pt = map.latLngToContainerPoint(L.latLng(layer.coords[0][0], layer.coords[0][1]));
-            const mapRect = document.getElementById('map').getBoundingClientRect();
             const screenX = pt.x + mapRect.left;
             const screenY = pt.y + mapRect.top;
             const dx = screenX - clientX;
             const dy = screenY - clientY;
-            if (Math.sqrt(dx*dx + dy*dy) <= radius) {
-                toDelete.push(layer.id);
+            if (Math.sqrt(dx * dx + dy * dy) <= radius) {
+                eraserDeletedCount++;
+                changed = true;
+                if (layer.leafletLayer) map.removeLayer(layer.leafletLayer);
+                layer.vertexMarkers.forEach(m => map.removeLayer(m));
+                delete projectData.layers[layer.id];
+                projectData.folders.forEach(f => { f.items = f.items.filter(i => i !== layer.id); });
+                if (selectedLayerId === layer.id) selectedLayerId = null;
+                selectedLayerIds.delete(layer.id);
             }
-        }
-    });
-
-    toDelete.forEach(id => {
-        eraserDeletedIds.add(id);
-        const l = projectData.layers[id];
-        if (l) {
-            if (l.leafletLayer) map.removeLayer(l.leafletLayer);
-            l.vertexMarkers.forEach(m => map.removeLayer(m));
-            delete projectData.layers[id];
-            projectData.folders.forEach(f => { f.items = f.items.filter(i => i !== id); });
-            if (selectedLayerId === id) selectedLayerId = null;
-            selectedLayerIds.delete(id);
         }
     });
 }
