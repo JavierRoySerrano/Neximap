@@ -1559,6 +1559,30 @@
       0%, 100% { stroke-opacity: 0.4; }
       50% { stroke-opacity: 0.7; }
     }
+    /* Endpoint handles shown on selected edges for re-routing */
+    .edge-endpoint-handle {
+      fill: #ffffff;
+      stroke: rgba(0,150,214,0.9);
+      stroke-width: 2;
+      cursor: grab;
+      filter: drop-shadow(0 0 3px rgba(0,150,214,0.5));
+    }
+    .edge-endpoint-handle:hover {
+      fill: rgba(0,150,214,0.2);
+      stroke: rgba(0,150,214,1);
+    }
+    .endpoint-snap-ring {
+      fill: none;
+      stroke: rgba(0,150,214,0.7);
+      stroke-width: 2;
+      stroke-dasharray: 5 3;
+      pointer-events: none;
+      animation: snapRingPulse 0.8s ease-in-out infinite;
+    }
+    @keyframes snapRingPulse {
+      0%, 100% { stroke-opacity: 0.4; r: attr(r); }
+      50% { stroke-opacity: 1; }
+    }
     .edge-label {
       fill:#333;
       paint-order: stroke; stroke:#ffffff; stroke-width:3px;
@@ -13251,6 +13275,9 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       if (isGroupVisible(g)) drawGroup(g);
     });
 
+    // Reset endpoint positions for handle second-pass
+    _selEdgeEndpoints = {};
+
     // Filter edges based on node visibility and edge tags
     state.edges.forEach(e => {
       if (isEdgeVisible(e)) {
@@ -13264,6 +13291,65 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
         drawNode(n);
       }
     });
+
+    // Second pass: draw endpoint handles for selected edges ABOVE nodes
+    for (const edgeId in _selEdgeEndpoints) {
+      const ep = _selEdgeEndpoints[edgeId];
+      const eid = parseInt(edgeId);
+      const isDraggingThis = state.dragging?.type === 'endpointHandle' && state.dragging.edgeId === eid;
+
+      // Don't draw the handle for the endpoint currently being dragged
+      if (!isDraggingThis || state.dragging.endpoint !== 'a') {
+        const ha = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        ha.setAttribute('cx', ep.ax); ha.setAttribute('cy', ep.ay);
+        ha.setAttribute('r', 7);
+        ha.setAttribute('class', 'edge-endpoint-handle');
+        ha.style.cursor = 'grab';
+        ha.addEventListener('mousedown', ((id) => (ev) => {
+          ev.stopPropagation();
+          const m = getMouse(ev);
+          state.dragging = { type: 'endpointHandle', edgeId: id, endpoint: 'a', mx: m.x, my: m.y };
+        })(eid));
+        svg.appendChild(ha);
+      }
+
+      if (!isDraggingThis || state.dragging.endpoint !== 'b') {
+        const hb = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        hb.setAttribute('cx', ep.bx); hb.setAttribute('cy', ep.by);
+        hb.setAttribute('r', 7);
+        hb.setAttribute('class', 'edge-endpoint-handle');
+        hb.style.cursor = 'grab';
+        hb.addEventListener('mousedown', ((id) => (ev) => {
+          ev.stopPropagation();
+          const m = getMouse(ev);
+          state.dragging = { type: 'endpointHandle', edgeId: id, endpoint: 'b', mx: m.x, my: m.y };
+        })(eid));
+        svg.appendChild(hb);
+      }
+    }
+
+    // During endpoint drag: show snap-ring on nearest node
+    if (state.dragging?.type === 'endpointHandle') {
+      const dragEdge = findEdge(state.dragging.edgeId);
+      const fixedEndpoint = state.dragging.endpoint === 'a' ? 'b' : 'a';
+      const fixedNodeId = dragEdge ? dragEdge[fixedEndpoint] : null;
+      let bestNode = null, bestDist = Infinity;
+      state.nodes.forEach(n => {
+        if (!isNodeVisible(n)) return;
+        if (n.id === fixedNodeId) return; // don't snap to the other end (would create self-loop)
+        const dx = n.x - state.dragging.mx;
+        const dy = n.y - state.dragging.my;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        if (d < bestDist) { bestDist = d; bestNode = n; }
+      });
+      if (bestNode && bestDist < 80) {
+        const ring = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        ring.setAttribute('cx', bestNode.x); ring.setAttribute('cy', bestNode.y);
+        ring.setAttribute('r', (bestNode.r || 18) + 8);
+        ring.setAttribute('class', 'endpoint-snap-ring');
+        svg.appendChild(ring);
+      }
+    }
 
     if (state.connectFrom) {
       const n = findNode(state.connectFrom);
@@ -13659,6 +13745,10 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     return { x: cpx, y: cpy };
   }
 
+  // Temporary storage for selected-edge endpoint positions, populated during drawEdge,
+  // consumed in render() second-pass to draw draggable handles above nodes.
+  let _selEdgeEndpoints = {};
+
   function drawEdge(e) {
     const a = findNode(e.a), b = findNode(e.b);
     if (!a || !b) {
@@ -13715,10 +13805,16 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     }
 
     // Offset node positions for this edge
-    const ax = a.x + offsetX;
-    const ay = a.y + offsetY;
-    const bx = b.x + offsetX;
-    const by = b.y + offsetY;
+    let ax = a.x + offsetX;
+    let ay = a.y + offsetY;
+    let bx = b.x + offsetX;
+    let by = b.y + offsetY;
+
+    // Override endpoint position during endpoint-handle drag
+    if (state.dragging?.type === 'endpointHandle' && state.dragging.edgeId === e.id) {
+      if (state.dragging.endpoint === 'a') { ax = state.dragging.mx; ay = state.dragging.my; }
+      if (state.dragging.endpoint === 'b') { bx = state.dragging.mx; by = state.dragging.my; }
+    }
 
     // Get heat map color if active (overrides normal stroke color)
     const heatMapColor = (typeof getHeatMapColor === 'function') ? getHeatMapColor(e) : null;
@@ -14045,6 +14141,11 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
 
       console.log(`[DRAW EDGE] Line appended to SVG`);
       baseLabel = { x:(ax+bx)/2, y:(ay+by)/2 };
+    }
+
+    // Store endpoint positions for selected edges so handles can be drawn above nodes
+    if (isSel) {
+      _selEdgeEndpoints[e.id] = { ax, ay, bx, by };
     }
 
     const lx = baseLabel.x + (e.labelDx || 0);
@@ -16872,6 +16973,13 @@ if (groupTitleFontInline) {
       return;
     }
 
+    if (state.dragging.type === 'endpointHandle') {
+      state.dragging.mx = m.x;
+      state.dragging.my = m.y;
+      render();
+      return;
+    }
+
     if (state.dragging.type === 'nodeNameLabel') {
       const n = findNode(state.dragging.id); if (!n) return;
       const targetX = m.x + state.dragging.dx;
@@ -16993,6 +17101,34 @@ if (groupTitleFontInline) {
     // Commit changes if we were dragging curve handle
     if (state.dragging?.type === 'curveHandle') {
       commit();
+    }
+
+    // Finalize endpoint handle drag: reassign edge endpoint to nearest node
+    if (state.dragging?.type === 'endpointHandle') {
+      const edge = findEdge(state.dragging.edgeId);
+      if (edge) {
+        const fixedEnd = state.dragging.endpoint === 'a' ? 'b' : 'a';
+        const fixedNodeId = edge[fixedEnd];
+        let bestNode = null, bestDist = Infinity;
+        state.nodes.forEach(n => {
+          if (!isNodeVisible(n)) return;
+          if (n.id === fixedNodeId) return; // prevent self-loop
+          const dx = n.x - state.dragging.mx;
+          const dy = n.y - state.dragging.my;
+          const d = Math.sqrt(dx*dx + dy*dy);
+          if (d < bestDist) { bestDist = d; bestNode = n; }
+        });
+        if (bestNode && bestDist < 80) {
+          const oldNodeId = edge[state.dragging.endpoint];
+          if (bestNode.id !== oldNodeId) {
+            edge[state.dragging.endpoint] = bestNode.id;
+            showToast(`Re-routed link endpoint to "${bestNode.name || 'Node ' + bestNode.id}"`);
+            commit();
+          }
+        } else {
+          showToast('No node nearby — link unchanged');
+        }
+      }
     }
 
     // Commit changes if we were resizing a node
