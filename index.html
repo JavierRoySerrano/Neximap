@@ -1251,6 +1251,23 @@
       z-index: 99999 !important;
     }
     #dcVisorPanel.show { display: flex; }
+    #dcVisorPanel.presentation-mode {
+      position: fixed !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      left: 0 !important;
+      top: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      border-radius: 0 !important;
+      max-width: 100vw !important;
+      max-height: 100vh !important;
+      z-index: 999999 !important;
+      resize: none !important;
+    }
+    #dcVisorPanel.presentation-mode #dcVisorHeader {
+      cursor: default;
+    }
     #dcVisorHeader {
       display: flex;
       align-items: center;
@@ -1327,9 +1344,8 @@
       border-color: #9333ea;
     }
     #dcVisorList {
-      height: 180px;
-      min-height: 100px;
-      max-height: 300px;
+      flex: 0 1 180px;
+      min-height: 80px;
       overflow-y: auto;
       border-top: 1px solid #e0e0e0;
       background: white;
@@ -1374,7 +1390,39 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-shrink: 0;
     }
+
+    /* Visor toolbar action menus */
+    .visor-action-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border: 1px solid #d0d0d0;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      min-width: 180px;
+      padding: 4px 0;
+      display: none;
+    }
+    .visor-action-menu.show { display: block; }
+    .visor-action-menu button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 7px 14px;
+      border: none;
+      background: none;
+      font-size: 12px;
+      cursor: pointer;
+      color: #333;
+      text-align: left;
+    }
+    .visor-action-menu button:hover { background: #f0f4ff; }
+    .visor-action-menu .menu-sep { height: 1px; background: #e0e0e0; margin: 4px 0; }
 
     /* Multilink Group Manager Panel */
     #multilinkManager {
@@ -7113,6 +7161,90 @@
         </div>
       </div>
 
+      <!-- Datacenter Info Section (shown only for DC type containers) -->
+      <div class="inspector-section" data-section="group-dc-info" id="groupDCInfoSection" style="display:none;">
+        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>Datacenter Info</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content">
+          <div class="row inline">
+            <div style="flex:1;">
+              <label>Organization</label>
+              <input id="groupDCOrgName" placeholder="e.g. Equinix" />
+            </div>
+            <div style="flex:0 0 80px;">
+              <label>PeeringDB ID</label>
+              <input id="groupDCPeeringDbId" type="text" readonly style="background:#f3f4f6;color:#666;" />
+            </div>
+          </div>
+          <div class="row">
+            <label>Address</label>
+            <input id="groupDCAddress" placeholder="e.g. 123 Data Center Drive" />
+          </div>
+          <div class="row inline">
+            <div style="flex:2;">
+              <label>City</label>
+              <input id="groupDCCity" placeholder="e.g. Frankfurt" />
+            </div>
+            <div style="flex:1;">
+              <label>Postal Code</label>
+              <input id="groupDCZipcode" placeholder="e.g. 60314" />
+            </div>
+          </div>
+          <div class="row inline">
+            <div>
+              <label>State / Region</label>
+              <input id="groupDCState" placeholder="e.g. Hesse" />
+            </div>
+            <div>
+              <label>Country</label>
+              <input id="groupDCCountry" placeholder="e.g. Germany" />
+            </div>
+          </div>
+          <div class="row inline">
+            <div>
+              <label>Continent</label>
+              <input id="groupDCRegion" placeholder="e.g. Europe" />
+            </div>
+            <div>
+              <label>Website</label>
+              <input id="groupDCWebsite" placeholder="https://..." />
+            </div>
+          </div>
+          <div style="margin-top:8px; padding-top:8px; border-top:1px solid #e0e0e0;">
+            <label style="font-weight:600; font-size:11px; color:#9333ea;">GPS Coordinates</label>
+            <div class="row inline" style="margin-top:4px;">
+              <div>
+                <label style="font-size:10px;">Latitude</label>
+                <input id="groupDCLatitude" type="text" placeholder="e.g. 50.1109" style="font-family:monospace;font-size:11px;" />
+              </div>
+              <div>
+                <label style="font-size:10px;">Longitude</label>
+                <input id="groupDCLongitude" type="text" placeholder="e.g. 8.6821" style="font-family:monospace;font-size:11px;" />
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:8px; padding-top:8px; border-top:1px solid #e0e0e0;">
+            <label style="font-weight:600; font-size:11px; color:#9333ea;">Network Presence</label>
+            <div class="row inline" style="margin-top:4px;">
+              <div style="flex:1;text-align:center;">
+                <div style="font-size:18px;font-weight:700;color:#9333ea;" id="groupDCNetCount">0</div>
+                <div style="font-size:9px;color:#888;">Networks</div>
+              </div>
+              <div style="flex:1;text-align:center;">
+                <div style="font-size:18px;font-weight:700;color:#2563eb;" id="groupDCIxCount">0</div>
+                <div style="font-size:9px;color:#888;">IXPs</div>
+              </div>
+              <div style="flex:1;text-align:center;">
+                <div style="font-size:18px;font-weight:700;color:#059669;" id="groupDCCarrierCount">0</div>
+                <div style="font-size:9px;color:#888;">Carriers</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Routing Section -->
       <div class="inspector-section" data-section="group-routing">
         <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
@@ -7929,7 +8061,7 @@
 
       <!-- Warnings -->
       <div id="mlgWarningsBox" class="mlg-warnings-box" style="display:none;">
-        <div class="warning-title">⛠️ Warnings</div>
+        <div class="warning-title">⚠️ Warnings</div>
         <div id="mlgWarningsList"></div>
       </div>
 
@@ -8086,7 +8218,7 @@
           <div id="activeFiltersIndicator" style="display:none; margin-top:10px; padding:8px; background:#fef3c7; border:1px solid #fcd34d; border-radius:6px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div style="font-size:11px; color:#92400e;">
-                <span style="font-weight:600;">⛠️ Active Filters:</span>
+                <span style="font-weight:600;">⚠️ Active Filters:</span>
                 <span id="activeFiltersText"></span>
               </div>
             </div>
@@ -15800,6 +15932,32 @@ const groupTitle = document.getElementById('groupTitle');
         groupTransitLatency.value = g.transitLatency !== undefined && g.transitLatency !== null ? g.transitLatency : '';
       }
 
+      // Update Datacenter Info section visibility and values
+      const dcInfoSection = document.getElementById('groupDCInfoSection');
+      if (dcInfoSection) {
+        if (g.type === 'dc') {
+          dcInfoSection.style.display = '';
+          const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+          setVal('groupDCOrgName', g.dcOrgName);
+          setVal('groupDCPeeringDbId', g.dcPeeringDbId);
+          setVal('groupDCAddress', g.dcAddress);
+          setVal('groupDCCity', g.dcCity);
+          setVal('groupDCZipcode', g.dcZipcode);
+          setVal('groupDCState', g.dcState);
+          setVal('groupDCCountry', g.dcCountry);
+          setVal('groupDCRegion', g.dcRegion);
+          setVal('groupDCWebsite', g.dcWebsite);
+          setVal('groupDCLatitude', g.dcLatitude != null ? g.dcLatitude : '');
+          setVal('groupDCLongitude', g.dcLongitude != null ? g.dcLongitude : '');
+          const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+          setTxt('groupDCNetCount', g.dcNetCount || 0);
+          setTxt('groupDCIxCount', g.dcIxCount || 0);
+          setTxt('groupDCCarrierCount', g.dcCarrierCount || 0);
+        } else {
+          dcInfoSection.style.display = 'none';
+        }
+      }
+
       groupTitleFont.value = g.titleFont ?? 14;
       groupTitleColor.value = g.titleColor || "#333333";
       groupFill.value = g.fill || "#ffffff";
@@ -16448,6 +16606,35 @@ if (groupTitleFontInline) {
       commit();
     });
   }
+
+  // ============== GROUP DATACENTER INFO HANDLERS ==============
+  ['groupDCOrgName:dcOrgName', 'groupDCAddress:dcAddress', 'groupDCCity:dcCity',
+   'groupDCZipcode:dcZipcode', 'groupDCState:dcState', 'groupDCCountry:dcCountry',
+   'groupDCRegion:dcRegion', 'groupDCWebsite:dcWebsite'].forEach(pair => {
+    const [elId, prop] = pair.split(':');
+    const el = document.getElementById(elId);
+    if (el) {
+      el.addEventListener('input', () => {
+        if (state.selected?.type !== 'group') return;
+        const g = findGroup(state.selected.id); if (!g) return;
+        g[prop] = el.value;
+        commit();
+      });
+    }
+  });
+  ['groupDCLatitude:dcLatitude', 'groupDCLongitude:dcLongitude'].forEach(pair => {
+    const [elId, prop] = pair.split(':');
+    const el = document.getElementById(elId);
+    if (el) {
+      el.addEventListener('input', () => {
+        if (state.selected?.type !== 'group') return;
+        const g = findGroup(state.selected.id); if (!g) return;
+        const val = el.value.trim();
+        g[prop] = val === '' ? null : parseFloat(val) || null;
+        commit();
+      });
+    }
+  });
 
   // ============== GROUP COMMERCIAL COST HANDLERS ==============
 
@@ -18077,7 +18264,7 @@ function showCSVExportDialog(type) {
     });
 
     if (prefs.fields.size === 0) {
-      showToast('⛠️ Please select at least one field');
+      showToast('⚠️ Please select at least one field');
       return;
     }
 
@@ -18396,6 +18583,8 @@ function generateTemplateData(includeData) {
       ['Additional Tags - Free text notes'],
       ['Address - Street address'],
       ['City - City name (auto-lookup GPS if matched)'],
+      ['Postal Code - Zip/postal code'],
+      ['State - State/province'],
       ['Country - Country name'],
       ['GPS Latitude - Decimal degrees (-90 to 90)'],
       ['GPS Longitude - Decimal degrees (-180 to 180)'],
@@ -18443,14 +18632,26 @@ function generateTemplateData(includeData) {
       [''],
       ['--- CONTAINERS TAB FIELDS ---'],
       ['Container Name* - Display title'],
-      ['Type - "country" or "region"'],
+      ['Type - "country", "region", or "dc" (datacenter)'],
       ['Parent Container - Name of parent container (for nesting)'],
+      ['Tags - Pipe-separated: default|Imported Datacenter'],
+      ['Organization - DC operator (e.g. Equinix)'],
+      ['Address - Street address'],
+      ['City - City name'],
+      ['Postal Code - Zip/postal code'],
+      ['State - State/province'],
+      ['Country - Country name'],
+      ['Continent - Region/continent (e.g. Europe, North America)'],
+      ['GPS Latitude - Decimal degrees (-90 to 90)'],
+      ['GPS Longitude - Decimal degrees (-180 to 180)'],
+      ['Website - URL of the datacenter facility'],
       ['Fill Color - Hex color #RRGGBB (default: #fff2cc)'],
       ['Stroke Color - Hex color #RRGGBB (default: #d6b656)'],
     ],
     nodes: {
       headers: [
-        'Node Name', 'Node Code', 'Tags', 'Additional Tags', 'Address', 'City', 'Country',
+        'Node Name', 'Node Code', 'Tags', 'Additional Tags',
+        'Address', 'City', 'Postal Code', 'State', 'Country',
         'GPS Latitude', 'GPS Longitude', 'Container Name', 'Fill Color', 'Stroke Color'
       ],
       rows: includeData ? state.nodes.map(n => {
@@ -18462,6 +18663,8 @@ function generateTemplateData(includeData) {
           n.extraTags || '',
           n.address || '',
           n.city || '',
+          n.postalCode || '',
+          n.state || '',
           n.country || '',
           (n.gpsLat !== null && n.gpsLat !== undefined) ? n.gpsLat : '',
           (n.gpsLon !== null && n.gpsLon !== undefined) ? n.gpsLon : '',
@@ -18470,11 +18673,11 @@ function generateTemplateData(includeData) {
           n.stroke || ''
         ];
       }) : [
-        ['London DC', 'LON-DC1', 'default|production', 'Primary datacenter', '10 Downing St', 'London', 'UK', '51.5074', '-0.1278', 'Europe', '', ''],
-        ['Paris DC', 'PAR-DC1', 'default|production', '', '', 'Paris', 'France', '48.8566', '2.3522', 'Europe', '', ''],
-        ['New York DC', 'NYC-DC1', 'default|production', 'Main US hub', '', 'New York', 'USA', '40.7128', '-74.0060', 'North America', '', ''],
-        ['Los Angeles DC', 'LAX-DC1', 'default|production', '', '', 'Los Angeles', 'USA', '34.0522', '-118.2437', 'North America', '', ''],
-        ['(Leave Fill/Stroke blank for defaults)', '', '', 'Fill default=#dae8fc, Stroke default=#6c8ebf', '', '', '', '', '', '', '#dae8fc', '#6c8ebf']
+        ['London DC', 'LON-DC1', 'default|production', 'Primary datacenter', '10 Downing St', 'London', 'SW1A 2AA', 'England', 'UK', '51.5074', '-0.1278', 'Europe', '', ''],
+        ['Paris DC', 'PAR-DC1', 'default|production', '', '', 'Paris', '', 'Ile-de-France', 'France', '48.8566', '2.3522', 'Europe', '', ''],
+        ['New York DC', 'NYC-DC1', 'default|production', 'Main US hub', '', 'New York', '10001', 'NY', 'USA', '40.7128', '-74.0060', 'North America', '', ''],
+        ['Los Angeles DC', 'LAX-DC1', 'default|production', '', '', 'Los Angeles', '90001', 'CA', 'USA', '34.0522', '-118.2437', 'North America', '', ''],
+        ['(Leave Fill/Stroke blank for defaults)', '', '', 'Fill default=#dae8fc, Stroke default=#6c8ebf', '', '', '', '', '', '', '', '', '#dae8fc', '#6c8ebf']
       ]
     },
     links: {
@@ -18532,7 +18735,10 @@ function generateTemplateData(includeData) {
     },
     containers: {
       headers: [
-        'Container Name', 'Type', 'Parent Container', 'Fill Color', 'Stroke Color'
+        'Container Name', 'Type', 'Parent Container', 'Tags',
+        'Organization', 'Address', 'City', 'Postal Code', 'State', 'Country', 'Continent',
+        'GPS Latitude', 'GPS Longitude', 'Website',
+        'Fill Color', 'Stroke Color'
       ],
       rows: includeData ? state.groups.map(g => {
         const parent = g.parentId ? findGroup(g.parentId) : null;
@@ -18540,16 +18746,26 @@ function generateTemplateData(includeData) {
           g.title || '',
           g.type || 'country',
           parent?.title || '',
+          (g.filterTags || []).join('|'),
+          g.dcOrgName || '',
+          g.dcAddress || '',
+          g.dcCity || '',
+          g.dcZipcode || '',
+          g.dcState || '',
+          g.dcCountry || '',
+          g.dcRegion || '',
+          (g.dcLatitude != null) ? g.dcLatitude : '',
+          (g.dcLongitude != null) ? g.dcLongitude : '',
+          g.dcWebsite || '',
           g.fill || '',
           g.stroke || ''
         ];
       }) : [
-        ['Europe', 'region', '', '', ''],
-        ['North America', 'region', '', '', ''],
-        ['UK', 'country', 'Europe', '', ''],
-        ['France', 'country', 'Europe', '', ''],
-        ['USA', 'country', 'North America', '', ''],
-        ['(Leave colors blank for defaults: Fill=#fff2cc, Stroke=#d6b656)', '', '', '#fff2cc', '#d6b656']
+        ['Europe', 'region', '', 'default', '', '', '', '', '', '', '', '', '', '', '', ''],
+        ['North America', 'region', '', 'default', '', '', '', '', '', '', '', '', '', '', '', ''],
+        ['UK', 'country', 'Europe', 'default', '', '', '', '', '', '', '', '', '', '', '', ''],
+        ['Equinix FR5', 'dc', 'Europe', 'default|Imported Datacenter', 'Equinix', 'Kleyerstr. 90', 'Frankfurt', '60326', 'Hesse', 'Germany', 'Europe', '50.1047', '8.6378', 'https://equinix.com', '', ''],
+        ['(Leave colors blank for defaults. Type=dc for datacenters)', '', '', '', '', '', '', '', '', '', '', '', '', '', '#fff2cc', '#d6b656']
       ]
     },
     mlgs: {
@@ -18616,7 +18832,7 @@ function downloadTemplateAsCSV(templateData, format) {
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
     script.onload = () => createAndDownloadWorkbook(templateData, format);
     script.onerror = () => {
-      showToast('⛠️ Could not load spreadsheet library. Downloading as CSV files instead.');
+      showToast('⚠️ Could not load spreadsheet library. Downloading as CSV files instead.');
       downloadAsCSVFallback(templateData);
     };
     document.head.appendChild(script);
@@ -18674,7 +18890,7 @@ function createAndDownloadWorkbook(templateData, format) {
     showToast(`✓ Template downloaded: ${fileName}`);
   } catch (err) {
     console.error('Error creating workbook:', err);
-    showToast('⛠️ Error creating workbook. Downloading as CSV files instead.');
+    showToast('⚠️ Error creating workbook. Downloading as CSV files instead.');
     downloadAsCSVFallback(templateData);
   }
 }
@@ -18740,7 +18956,7 @@ function showImportDialog() {
 
     <div style="padding: 20px; overflow-y: auto; flex: 1;">
       <div style="background: #fef3c7; border: 1px solid #fcd34d; border-radius: 6px; padding: 12px; margin-bottom: 16px;">
-        <div style="font-weight: 600; color: #92400e; margin-bottom: 4px;">⛠️ Import will modify your diagram</div>
+        <div style="font-weight: 600; color: #92400e; margin-bottom: 4px;">⚠️ Import will modify your diagram</div>
         <div style="font-size: 12px; color: #92400e;">
           New nodes/links will be added. Existing items with matching Code/Name will be updated.
         </div>
@@ -18886,7 +19102,7 @@ function showImportDialog() {
     if (activeTab === 'workbook') {
       const workbookFile = modal.querySelector('#importWorkbookFile').files[0];
       if (!workbookFile) {
-        showToast('⛠️ Please select a workbook file (XLSX or ODS)');
+        showToast('⚠️ Please select a workbook file (XLSX or ODS)');
         return;
       }
 
@@ -18927,7 +19143,7 @@ function showImportDialog() {
       const linksFile = modal.querySelector('#importLinksFile').files[0];
 
       if (!nodesFile || !linksFile) {
-        showToast('⛠️ Please select both Nodes and Links CSV files');
+        showToast('⚠️ Please select both Nodes and Links CSV files');
         return;
       }
 
@@ -19176,21 +19392,52 @@ async function executeImportWithData(nodesData, linksData, containersData, mode)
       if (existing) {
         // Update existing
         if (row['Type']) existing.type = row['Type'];
+        if (row['Tags']) existing.filterTags = parseTagsString(row['Tags']);
         if (row['Fill Color']) existing.fill = row['Fill Color'];
         if (row['Stroke Color']) existing.stroke = row['Stroke Color'];
+        // DC fields
+        if (row['Organization']) existing.dcOrgName = row['Organization'];
+        if (row['Address']) existing.dcAddress = row['Address'];
+        if (row['City']) existing.dcCity = row['City'];
+        if (row['Postal Code']) existing.dcZipcode = row['Postal Code'];
+        if (row['State']) existing.dcState = row['State'];
+        if (row['Country']) existing.dcCountry = row['Country'];
+        if (row['Continent']) existing.dcRegion = row['Continent'];
+        if (row['GPS Latitude']) existing.dcLatitude = parseFloat(row['GPS Latitude']) || null;
+        if (row['GPS Longitude']) existing.dcLongitude = parseFloat(row['GPS Longitude']) || null;
+        if (row['Website']) existing.dcWebsite = row['Website'];
       } else {
         // Create new
+        const cType = row['Type'] || 'country';
+        const isDC = cType === 'dc';
         const newGroup = {
           id: state.nextGroup++,
           uuid: generateUUID(),
-          type: row['Type'] || 'country',
+          type: cType,
           title: name,
           x: 50,
           y: 50,
-          w: 300,
-          h: 200,
-          fill: row['Fill Color'] || '#fff2cc',
-          stroke: row['Stroke Color'] || '#d6b656'
+          w: isDC ? 280 : 300,
+          h: isDC ? 200 : 200,
+          filterTags: row['Tags'] ? parseTagsString(row['Tags']) : ['default'],
+          fill: row['Fill Color'] || (isDC ? 'rgba(253, 242, 248, 0.95)' : '#fff2cc'),
+          stroke: row['Stroke Color'] || (isDC ? '#ec4899' : '#d6b656'),
+          titleColor: isDC ? '#831843' : '#333333',
+          // DC fields
+          dcOrgName: row['Organization'] || '',
+          dcAddress: row['Address'] || '',
+          dcCity: row['City'] || '',
+          dcZipcode: row['Postal Code'] || '',
+          dcState: row['State'] || '',
+          dcCountry: row['Country'] || '',
+          dcRegion: row['Continent'] || '',
+          dcLatitude: row['GPS Latitude'] ? (parseFloat(row['GPS Latitude']) || null) : null,
+          dcLongitude: row['GPS Longitude'] ? (parseFloat(row['GPS Longitude']) || null) : null,
+          dcWebsite: row['Website'] || '',
+          dcNetCount: 0,
+          dcIxCount: 0,
+          dcCarrierCount: 0,
+          dcNetworks: []
         };
         state.groups.push(newGroup);
         existingContainersByName.set(name.toLowerCase(), newGroup);
@@ -19305,6 +19552,8 @@ async function executeImportWithData(nodesData, linksData, containersData, mode)
       if (row['Additional Tags']) existing.extraTags = row['Additional Tags'];
       if (row['Address']) existing.address = row['Address'];
       if (row['City']) existing.city = row['City'];
+      if (row['Postal Code']) existing.postalCode = row['Postal Code'];
+      if (row['State']) existing.state = row['State'];
       if (row['Country']) existing.country = row['Country'];
       if (!isNaN(gpsLat)) existing.gpsLat = gpsLat;
       if (!isNaN(gpsLon)) existing.gpsLon = gpsLon;
@@ -19329,6 +19578,8 @@ async function executeImportWithData(nodesData, linksData, containersData, mode)
         extraTags: row['Additional Tags'] || '',
         address: row['Address'] || '',
         city: row['City'] || '',
+        postalCode: row['Postal Code'] || '',
+        state: row['State'] || '',
         country: row['Country'] || '',
         gpsLat: !isNaN(gpsLat) ? gpsLat : null,
         gpsLon: !isNaN(gpsLon) ? gpsLon : null,
@@ -19950,7 +20201,25 @@ function loadProjectObject(obj) {
       iruOamPercent: (typeof g.iruOamPercent === 'number') ? g.iruOamPercent : (state.financialSettings?.containerDefaultOAM || 3),
       iruOamAnnualIncrement: (typeof g.iruOamAnnualIncrement === 'number') ? g.iruOamAnnualIncrement : (state.financialSettings?.containerDefaultOAMIncrement || 2),
       commercialCostMode: g.commercialCostMode || 'lease',
-      commercialCostOverride: g.commercialCostOverride || false
+      commercialCostOverride: g.commercialCostOverride || false,
+      // UUID
+      uuid: g.uuid || generateUUID(),
+      // Datacenter-specific properties
+      dcPeeringDbId: g.dcPeeringDbId ?? null,
+      dcOrgName: g.dcOrgName || '',
+      dcAddress: g.dcAddress || '',
+      dcCity: g.dcCity || '',
+      dcCountry: g.dcCountry || '',
+      dcState: g.dcState || '',
+      dcZipcode: g.dcZipcode || '',
+      dcLatitude: (typeof g.dcLatitude === 'number') ? g.dcLatitude : null,
+      dcLongitude: (typeof g.dcLongitude === 'number') ? g.dcLongitude : null,
+      dcWebsite: g.dcWebsite || '',
+      dcRegion: g.dcRegion || '',
+      dcNetCount: (typeof g.dcNetCount === 'number') ? g.dcNetCount : 0,
+      dcIxCount: (typeof g.dcIxCount === 'number') ? g.dcIxCount : 0,
+      dcCarrierCount: (typeof g.dcCarrierCount === 'number') ? g.dcCarrierCount : 0,
+      dcNetworks: Array.isArray(g.dcNetworks) ? g.dcNetworks : []
     };
   });
 
@@ -21301,17 +21570,20 @@ function loadProjectObject(obj) {
       `;
     }).join('');
 
-    // Landing points / CLS
+    // Landing points
     const lpContainer = document.getElementById('visorLandingPoints');
     const lpList = document.getElementById('visorLpList');
     if (cable.landingPoints && cable.landingPoints.length > 0) {
       lpContainer.style.display = 'block';
-      lpList.innerHTML = cable.landingPoints.map(lp => `
-        <span class="visor-lp-tag" title="${lp.lat ? `${lp.lat}, ${lp.lon}` : ''}">
+      lpList.innerHTML = cable.landingPoints.map(lp => {
+        const coordStr = lp.coordinates ? `${lp.coordinates[1].toFixed(4)}, ${lp.coordinates[0].toFixed(4)}` : (lp.lat ? `${lp.lat}, ${lp.lon}` : '');
+        return `
+        <span class="visor-lp-tag" title="${coordStr}">
           <span class="lp-dot"></span>
           ${escapeHtml(lp.name)}${lp.country ? ', ' + escapeHtml(lp.country) : ''}
         </span>
-      `).join('');
+      `;
+      }).join('');
     } else {
       lpContainer.style.display = 'none';
     }
@@ -21608,6 +21880,7 @@ function loadProjectObject(obj) {
     try {
       cableVisorState.map = new maplibregl.Map({
         container: container,
+        preserveDrawingBuffer: true,
         style: {
           version: 8,
           sources: {
@@ -23108,6 +23381,7 @@ function loadProjectObject(obj) {
     try {
       dcVisorState.map = new maplibregl.Map({
         container: container,
+        preserveDrawingBuffer: true,
         style: {
           version: 8,
           sources: {
@@ -23494,38 +23768,173 @@ function loadProjectObject(obj) {
     if (!panel || !header) return;
 
     let isDragging = false;
-    let startX, startY, startLeft, startTop;
+    let offsetX, offsetY;
 
     header.addEventListener('mousedown', (e) => {
       if (e.target.tagName === 'BUTTON') return;
       isDragging = true;
-      const rect = panel.getBoundingClientRect();
-      startX = e.clientX;
-      startY = e.clientY;
-      startLeft = rect.left;
-      startTop = rect.top;
-      panel.style.transition = 'none';
+      offsetX = e.clientX - panel.offsetLeft;
+      offsetY = e.clientY - panel.offsetTop;
+      panel.style.cursor = 'move';
       panel.style.right = 'auto';
       e.preventDefault();
     });
 
     document.addEventListener('mousemove', (e) => {
       if (!isDragging) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      panel.style.left = Math.max(0, startLeft + dx) + 'px';
-      panel.style.top = Math.max(0, startTop + dy) + 'px';
+      panel.style.left = (e.clientX - offsetX) + 'px';
+      panel.style.top = (e.clientY - offsetY) + 'px';
     });
 
     document.addEventListener('mouseup', () => {
       if (isDragging) {
         isDragging = false;
-        panel.style.transition = '';
+        panel.style.cursor = '';
       }
     });
 
     dcVisorDraggableInitialized = true;
     console.log('[DCVisor] Draggable initialized');
+  }
+
+  // Presentation (fullscreen) mode for DC Visor
+  let dcVisorPresentationActive = false;
+  let dcVisorPresentationExitBtn = null;
+  let dcVisorPresentationHint = null;
+
+  function toggleDCVisorPresentation() {
+    if (dcVisorPresentationActive) {
+      exitDCVisorPresentation();
+    } else {
+      enterDCVisorPresentation();
+    }
+  }
+
+  function enterDCVisorPresentation() {
+    const panel = document.getElementById('dcVisorPanel');
+    if (!panel) return;
+
+    // Exit maximized mode if active
+    if (panel.classList.contains('maximized')) {
+      toggleDCVisorMaximize();
+    }
+
+    // Store original position/size
+    panel._presentationOriginal = {
+      width: panel.style.width,
+      height: panel.style.height,
+      left: panel.style.left,
+      top: panel.style.top
+    };
+
+    // Clear inline styles and enter presentation mode
+    panel.style.width = '';
+    panel.style.height = '';
+    panel.style.left = '';
+    panel.style.top = '';
+    panel.classList.add('presentation-mode');
+    dcVisorPresentationActive = true;
+
+    // Create close button (X)
+    dcVisorPresentationExitBtn = document.createElement('button');
+    dcVisorPresentationExitBtn.className = 'presentation-exit-btn';
+    dcVisorPresentationExitBtn.innerHTML = '&#x2715;';
+    dcVisorPresentationExitBtn.title = 'Exit Presentation (ESC)';
+    dcVisorPresentationExitBtn.addEventListener('click', exitDCVisorPresentation);
+    document.body.appendChild(dcVisorPresentationExitBtn);
+
+    // Show ESC hint that fades after 3 seconds
+    dcVisorPresentationHint = document.createElement('div');
+    dcVisorPresentationHint.className = 'presentation-esc-hint';
+    dcVisorPresentationHint.textContent = 'Press ESC to exit presentation mode';
+    document.body.appendChild(dcVisorPresentationHint);
+    setTimeout(() => {
+      if (dcVisorPresentationHint) {
+        dcVisorPresentationHint.style.opacity = '0';
+        setTimeout(() => {
+          if (dcVisorPresentationHint && dcVisorPresentationHint.parentNode) {
+            dcVisorPresentationHint.parentNode.removeChild(dcVisorPresentationHint);
+            dcVisorPresentationHint = null;
+          }
+        }, 1000);
+      }
+    }, 3000);
+
+    // Try native fullscreen
+    if (panel.requestFullscreen) {
+      panel.requestFullscreen().catch(() => {});
+    } else if (panel.webkitRequestFullscreen) {
+      panel.webkitRequestFullscreen();
+    }
+
+    // Add ESC key listener
+    document.addEventListener('keydown', handleDCPresentationEsc);
+    document.addEventListener('fullscreenchange', handleDCFullscreenChange);
+
+    // Resize map after entering
+    if (dcVisorState.map) {
+      setTimeout(() => dcVisorState.map.resize(), 100);
+    }
+
+    console.log('[DCVisor] Entered presentation mode');
+  }
+
+  function exitDCVisorPresentation() {
+    const panel = document.getElementById('dcVisorPanel');
+    if (!panel) return;
+
+    panel.classList.remove('presentation-mode');
+    dcVisorPresentationActive = false;
+
+    // Restore original position/size
+    if (panel._presentationOriginal) {
+      panel.style.width = panel._presentationOriginal.width;
+      panel.style.height = panel._presentationOriginal.height;
+      panel.style.left = panel._presentationOriginal.left;
+      panel.style.top = panel._presentationOriginal.top;
+    }
+
+    // Remove close button
+    if (dcVisorPresentationExitBtn && dcVisorPresentationExitBtn.parentNode) {
+      dcVisorPresentationExitBtn.parentNode.removeChild(dcVisorPresentationExitBtn);
+      dcVisorPresentationExitBtn = null;
+    }
+
+    // Remove hint
+    if (dcVisorPresentationHint && dcVisorPresentationHint.parentNode) {
+      dcVisorPresentationHint.parentNode.removeChild(dcVisorPresentationHint);
+      dcVisorPresentationHint = null;
+    }
+
+    // Exit native fullscreen if active
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
+
+    // Remove listeners
+    document.removeEventListener('keydown', handleDCPresentationEsc);
+    document.removeEventListener('fullscreenchange', handleDCFullscreenChange);
+
+    // Resize map after exiting
+    if (dcVisorState.map) {
+      setTimeout(() => dcVisorState.map.resize(), 100);
+    }
+
+    console.log('[DCVisor] Exited presentation mode');
+  }
+
+  function handleDCPresentationEsc(e) {
+    if (e.key === 'Escape' && dcVisorPresentationActive) {
+      e.preventDefault();
+      e.stopPropagation();
+      exitDCVisorPresentation();
+    }
+  }
+
+  function handleDCFullscreenChange() {
+    if (!document.fullscreenElement && dcVisorPresentationActive) {
+      exitDCVisorPresentation();
+    }
   }
 
   // DC Visor map resize handle
@@ -23576,6 +23985,10 @@ function loadProjectObject(obj) {
       e.stopPropagation();
       hideDCVisor();
     });
+    document.getElementById('btnDCVisorPresentation')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleDCVisorPresentation();
+    });
     document.getElementById('btnDCVisorMaximize')?.addEventListener('click', (e) => {
       e.stopPropagation();
       toggleDCVisorMaximize();
@@ -23602,6 +24015,160 @@ function loadProjectObject(obj) {
   } else {
     initDCVisorEventHandlers();
   }
+
+  // ============== VISOR IMAGE ACTIONS (Copy, Save, Print) ==============
+
+  /**
+   * Capture a MapLibre map as a canvas, including all overlays.
+   * Returns a Promise<HTMLCanvasElement>.
+   */
+  function captureVisorMap(mapObj, panelId) {
+    return new Promise((resolve, reject) => {
+      if (!mapObj) { reject(new Error('Map not initialized')); return; }
+      try {
+        // Get the map canvas
+        const mapCanvas = mapObj.getCanvas();
+        const panel = document.getElementById(panelId);
+        if (!panel) { reject(new Error('Panel not found')); return; }
+
+        // Create output canvas at full resolution
+        const dpr = window.devicePixelRatio || 1;
+        const w = mapCanvas.width;
+        const h = mapCanvas.height;
+        const outCanvas = document.createElement('canvas');
+        outCanvas.width = w;
+        outCanvas.height = h;
+        const ctx = outCanvas.getContext('2d');
+
+        // Draw map canvas
+        // Force a render to make sure the map is fully painted
+        mapObj.triggerRepaint();
+        setTimeout(() => {
+          try {
+            ctx.drawImage(mapCanvas, 0, 0);
+
+            // Draw MapLibre markers (HTML overlays) on top if any exist
+            // These are DOM elements, so we approximate by including them
+            resolve(outCanvas);
+          } catch (e) {
+            reject(e);
+          }
+        }, 100);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  function visorSaveImage(mapObj, panelId, format) {
+    captureVisorMap(mapObj, panelId).then(canvas => {
+      const mime = format === 'jpg' ? 'image/jpeg' : 'image/png';
+      const quality = format === 'jpg' ? 0.92 : undefined;
+      canvas.toBlob(blob => {
+        if (!blob) { showToast('Failed to create image', 'error'); return; }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `visor_map.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast(`Image saved as ${format.toUpperCase()}`);
+      }, mime, quality);
+    }).catch(e => {
+      showToast('Failed to capture map: ' + e.message, 'error');
+    });
+  }
+
+  function visorCopyImage(mapObj, panelId) {
+    captureVisorMap(mapObj, panelId).then(canvas => {
+      canvas.toBlob(async blob => {
+        if (!blob) { showToast('Failed to create image', 'error'); return; }
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+          ]);
+          showToast('Image copied to clipboard');
+        } catch (e) {
+          showToast('Clipboard copy failed: ' + e.message, 'error');
+        }
+      }, 'image/png');
+    }).catch(e => {
+      showToast('Failed to capture map: ' + e.message, 'error');
+    });
+  }
+
+  function visorPrint(mapObj, panelId, title) {
+    captureVisorMap(mapObj, panelId).then(canvas => {
+      const dataUrl = canvas.toDataURL('image/png');
+      const printWin = window.open('', '_blank', 'width=900,height=700');
+      if (!printWin) { showToast('Popup blocked - please allow popups', 'error'); return; }
+      printWin.document.write(`<!DOCTYPE html><html><head><title>${title}</title><style>
+        @media print { body { margin: 0; } img { max-width: 100%; height: auto; } }
+        body { display: flex; flex-direction: column; align-items: center; padding: 20px; font-family: sans-serif; }
+        h2 { margin: 0 0 12px; color: #333; }
+        img { max-width: 100%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border-radius: 4px; }
+      </style></head><body>
+        <h2>${title}</h2>
+        <img src="${dataUrl}" />
+      </body></html>`);
+      printWin.document.close();
+      printWin.onload = () => { printWin.print(); };
+    }).catch(e => {
+      showToast('Failed to capture map: ' + e.message, 'error');
+    });
+  }
+
+  // Toggle visor action menus
+  function setupVisorActionMenu(btnId, menuId) {
+    const btn = document.getElementById(btnId);
+    const menu = document.getElementById(menuId);
+    if (!btn || !menu) return;
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // Close any other open menus
+      document.querySelectorAll('.visor-action-menu.show').forEach(m => {
+        if (m !== menu) m.classList.remove('show');
+      });
+      menu.classList.toggle('show');
+    });
+
+    // Close menu on click outside
+    document.addEventListener('click', () => menu.classList.remove('show'));
+    menu.addEventListener('click', () => menu.classList.remove('show'));
+  }
+
+  // Cable Visor image actions
+  setupVisorActionMenu('btnCableVisorActions', 'cableVisorActionMenu');
+  document.getElementById('btnCableVisorCopyImage')?.addEventListener('click', () => {
+    visorCopyImage(cableVisorState.map, 'cableVisorPanel');
+  });
+  document.getElementById('btnCableVisorSavePNG')?.addEventListener('click', () => {
+    visorSaveImage(cableVisorState.map, 'cableVisorPanel', 'png');
+  });
+  document.getElementById('btnCableVisorSaveJPG')?.addEventListener('click', () => {
+    visorSaveImage(cableVisorState.map, 'cableVisorPanel', 'jpg');
+  });
+  document.getElementById('btnCableVisorPrint')?.addEventListener('click', () => {
+    visorPrint(cableVisorState.map, 'cableVisorPanel', 'Submarine Cable Visor');
+  });
+
+  // DC Visor image actions
+  setupVisorActionMenu('btnDCVisorActions', 'dcVisorActionMenu');
+  document.getElementById('btnDCVisorCopyImage')?.addEventListener('click', () => {
+    visorCopyImage(dcVisorState.map, 'dcVisorPanel');
+  });
+  document.getElementById('btnDCVisorSavePNG')?.addEventListener('click', () => {
+    visorSaveImage(dcVisorState.map, 'dcVisorPanel', 'png');
+  });
+  document.getElementById('btnDCVisorSaveJPG')?.addEventListener('click', () => {
+    visorSaveImage(dcVisorState.map, 'dcVisorPanel', 'jpg');
+  });
+  document.getElementById('btnDCVisorPrint')?.addEventListener('click', () => {
+    visorPrint(dcVisorState.map, 'dcVisorPanel', 'Datacenter Visor');
+  });
 
   // Add handler for group by region checkbox
   document.getElementById('cableNavGroupByRegion')?.addEventListener('change', () => {
@@ -23806,7 +24373,7 @@ function loadProjectObject(obj) {
 
     } catch (error) {
       cableList.innerHTML = '<div style="color:#ef4444; padding:20px; text-align:center;">' +
-        '⛠️ Failed to load: ' + error.message +
+        '⚠️ Failed to load: ' + error.message +
         '<br><br>' +
         '<button onclick="loadBulkImportCables()" class="btn">🔄 Retry</button>' +
         '</div>';
@@ -24659,7 +25226,7 @@ function loadProjectObject(obj) {
     try {
       const cables = await fetchFiberAtlanticCables();
       if (!cables) {
-        if (info) info.textContent = '⛠️ Could not reach FiberAtlantic API';
+        if (info) info.textContent = '⚠️ Could not reach FiberAtlantic API';
         return;
       }
 
@@ -24696,7 +25263,7 @@ function loadProjectObject(obj) {
         if (info) info.textContent = `❌ No match found for "${cs.name}" or "${cs.shortName}"`;
       }
     } catch (err) {
-      if (info) info.textContent = `⛠️ Error: ${err.message}`;
+      if (info) info.textContent = `⚠️ Error: ${err.message}`;
     } finally {
       btn.disabled = false;
       btn.textContent = '🔍 Auto';
@@ -26544,7 +27111,7 @@ function loadProjectObject(obj) {
             ${mlg.segments.length} segment${mlg.segments.length !== 1 ? 's' : ''} · ${mlg.totalLatency || 0} ms
           </div>
           <div class="mlg-route">${origin} → ${dest}</div>
-          ${warnings.length > 0 ? `<div class="mlg-warnings">⛠️ ${warnings.length} warning${warnings.length !== 1 ? 's' : ''}</div>` : ''}
+          ${warnings.length > 0 ? `<div class="mlg-warnings">⚠️ ${warnings.length} warning${warnings.length !== 1 ? 's' : ''}</div>` : ''}
         </div>
       `;
     }).join('');
@@ -27046,7 +27613,7 @@ function loadProjectObject(obj) {
 
               <button class="btn" style="width:100%; margin-top:8px; font-size:10px; padding:4px;" onclick="addPath(${seg.id})">+ Add Path</button>
 
-              ${hasWarning ? `<div style="margin-top:8px; padding:6px; background:#fef2f2; border-radius:4px; font-size:10px; color:#dc2626;">⛠️ ${pathDiv.warning}</div>` : ''}
+              ${hasWarning ? `<div style="margin-top:8px; padding:6px; background:#fef2f2; border-radius:4px; font-size:10px; color:#dc2626;">⚠️ ${pathDiv.warning}</div>` : ''}
             </div>
           </div>
         `;
@@ -27077,7 +27644,7 @@ function loadProjectObject(obj) {
       const segDiv = checkSegmentDiversity(temp.segments);
       const allPathsDiverse = temp.segments.every(s => checkPathDiversity(s.paths).isDiverse);
       const isDiverse = segDiv.isDiverse && allPathsDiverse;
-      if (diversityEl) diversityEl.textContent = isDiverse ? '✅ Diverse' : '⛠️ Not fully diverse';
+      if (diversityEl) diversityEl.textContent = isDiverse ? '✅ Diverse' : '⚠️ Not fully diverse';
     } else if (computedEl) {
       computedEl.style.display = 'none';
     }
@@ -28021,7 +28588,7 @@ function loadProjectObject(obj) {
 
         // Validate the imported data has expected structure
         if (!imported.shapes && !imported.containerShapes && !imported.categories) {
-          showToast('⛠️ Invalid library format - missing shapes data');
+          showToast('⚠️ Invalid library format - missing shapes data');
           console.error('[Library Import] Invalid format - no shapes, containerShapes, or categories found');
           return;
         }
@@ -29043,6 +29610,33 @@ function loadProjectObject(obj) {
     showCableAssignmentDialog(cs, targetEdge);
   });
 
+  // Find nearest landing station name for a coordinate [lng, lat]
+  function findNearestLandingStation(coord, landingPoints, maxDistKm) {
+    if (!coord || !landingPoints || landingPoints.length === 0) return null;
+    const [lng, lat] = coord;
+    const toRad = d => d * Math.PI / 180;
+    let best = null;
+    let bestDist = Infinity;
+    for (const lp of landingPoints) {
+      let lpLat, lpLng;
+      if (lp.coordinates && Array.isArray(lp.coordinates)) {
+        lpLng = lp.coordinates[0]; lpLat = lp.coordinates[1];
+      } else if (typeof lp.lat === 'number') {
+        lpLat = lp.lat; lpLng = lp.lon || lp.lng;
+      } else continue;
+      // Haversine distance (km)
+      const dLat = toRad(lpLat - lat);
+      const dLon = toRad(lpLng - lng);
+      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat)) * Math.cos(toRad(lpLat)) * Math.sin(dLon/2)**2;
+      const dist = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      if (dist < bestDist) { bestDist = dist; best = lp; }
+    }
+    if (best && bestDist <= (maxDistKm || 150)) {
+      return best.name || null;
+    }
+    return null;
+  }
+
   // Cable assignment dialog with optional geometry import
   function showCableAssignmentDialog(cs, edge) {
     // Remove any existing dialog
@@ -29051,12 +29645,14 @@ function loadProjectObject(obj) {
 
     const nodeA = findNode(edge.a);
     const nodeB = findNode(edge.b);
-    const linkLabel = edge.label || edge.name || `Link ${edge.id}`;
+    const linkLabel = edge.tag || edge.code || `Link ${edge.id}`;
     const linkEndpoints = `${nodeA?.name || '?'} \u{2194} ${nodeB?.name || '?'}`;
+    const cableName = cs.shortName || cs.name;
 
     // Check if cable system has geometry available (from visor DB or loaded data)
     let hasGeometry = false;
     let geometryData = null;
+    let landingPoints = [];
 
     // Check visor database for this cable
     if (cableVisorState.cableDatabase) {
@@ -29068,8 +29664,9 @@ function loadProjectObject(obj) {
           if (cable.geometry && cable.geometry.coordinates) {
             hasGeometry = true;
             geometryData = cable;
-            break;
           }
+          if (cable.landingPoints) landingPoints = cable.landingPoints;
+          if (hasGeometry) break;
         }
       }
     }
@@ -29079,6 +29676,27 @@ function loadProjectObject(obj) {
       hasGeometry = true;
       geometryData = { geometry: cs.geometry, segments: cs.segments || null };
     }
+
+    // Build link tag action section
+    const currentTag = edge.tag || '';
+    const tagActionSection = `
+      <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+        <div style="font-size: 12px; font-weight: 600; margin-bottom: 8px;">\u{1F3F7}\u{FE0F} Link Tag</div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="display:flex;align-items:center;gap:8px;padding:6px 10px;border:2px solid #0096D6;border-radius:5px;cursor:pointer;background:#f0f9ff;font-size:12px;">
+            <input type="radio" name="csTagAction" value="replace" checked style="margin:0;accent-color:#0096D6;">
+            <div><strong>Replace</strong> \u{2014} set to "${escapeHtml(cableName)}"</div>
+          </label>
+          ${currentTag ? `<label style="display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid #e0e0e0;border-radius:5px;cursor:pointer;font-size:12px;">
+            <input type="radio" name="csTagAction" value="append" style="margin:0;accent-color:#0096D6;">
+            <div><strong>Append</strong> \u{2014} "${escapeHtml(currentTag)} - ${escapeHtml(cableName)}"</div>
+          </label>` : ''}
+          <label style="display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid #e0e0e0;border-radius:5px;cursor:pointer;font-size:12px;">
+            <input type="radio" name="csTagAction" value="keep" style="margin:0;accent-color:#0096D6;">
+            <div><strong>Keep as is</strong>${currentTag ? ` \u{2014} "${escapeHtml(currentTag)}"` : ' \u{2014} (empty)'}</div>
+          </label>
+        </div>
+      </div>`;
 
     // Build dialog HTML
     const overlay = document.createElement('div');
@@ -29100,19 +29718,30 @@ function loadProjectObject(obj) {
           const ptCount = coords.length;
           const segName = geometryData.segments?.[i]?.name || '';
 
-          // Get first and last point to show endpoints
+          // Try to resolve start/end landing station names
           const startPt = coords[0];
           const endPt = coords[coords.length - 1];
-          const startLabel = startPt ? `${startPt[1].toFixed(2)}, ${startPt[0].toFixed(2)}` : '?';
-          const endLabel = endPt ? `${endPt[1].toFixed(2)}, ${endPt[0].toFixed(2)}` : '?';
-          const endpointText = segName || `(${startLabel}) \u{2192} (${endLabel})`;
+          let startLabel = startPt ? `${startPt[1].toFixed(2)}, ${startPt[0].toFixed(2)}` : '?';
+          let endLabel = endPt ? `${endPt[1].toFixed(2)}, ${endPt[0].toFixed(2)}` : '?';
+
+          // Match coordinates to landing station names if available
+          if (landingPoints.length > 0) {
+            const startStation = findNearestLandingStation(startPt, landingPoints, 150);
+            const endStation = findNearestLandingStation(endPt, landingPoints, 150);
+            if (startStation) startLabel = startStation;
+            if (endStation) endLabel = endStation;
+          }
+
+          const endpointText = segName || `${startLabel} \u{2192} ${endLabel}`;
+          const approxKm = geometryData.segments?.[i]?.approxLength_km;
+          const metaText = approxKm ? `~${approxKm} km \u{2022} ${ptCount} pts` : `${ptCount} pts`;
 
           segListHtml += `
             <label class="geo-segment-item">
               <input type="checkbox" class="geo-seg-cb" data-seg-index="${i}" checked>
               <div class="seg-info">
-                <div class="seg-name">Segment ${i + 1}</div>
-                <div class="seg-detail">${endpointText} \u{2022} ${ptCount} pts</div>
+                <div class="seg-name">${endpointText}</div>
+                <div class="seg-detail">${metaText}</div>
               </div>
             </label>`;
         }
@@ -29125,7 +29754,7 @@ function loadProjectObject(obj) {
             </label>
             <div id="geoSegmentSection">
               <div style="font-size: 11px; color: #374151; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                \u{1F500} MultiLineString with ${segCount} segments \u{2014} select which to import:
+                ${segCount} segments \u{2014} select which to import:
                 <button id="btnGeoSegAll" style="font-size: 9px; padding: 1px 6px; border: 1px solid #ccc; border-radius: 3px; background: #fff; cursor: pointer;">All</button>
                 <button id="btnGeoSegNone" style="font-size: 9px; padding: 1px 6px; border: 1px solid #ccc; border-radius: 3px; background: #fff; cursor: pointer;">None</button>
               </div>
@@ -29134,13 +29763,20 @@ function loadProjectObject(obj) {
           </div>`;
       } else {
         // Single LineString
-        const ptCount = isMultiLine ? geometryData.geometry.coordinates[0].length : geometryData.geometry.coordinates.length;
+        const singleCoords = isMultiLine ? geometryData.geometry.coordinates[0] : geometryData.geometry.coordinates;
+        const ptCount = singleCoords.length;
+        let routeLabel = '';
+        if (landingPoints.length > 0 && singleCoords.length >= 2) {
+          const startStation = findNearestLandingStation(singleCoords[0], landingPoints, 150);
+          const endStation = findNearestLandingStation(singleCoords[singleCoords.length - 1], landingPoints, 150);
+          if (startStation && endStation) routeLabel = ` (${startStation} \u{2192} ${endStation})`;
+        }
         geometrySection = `
           <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
             <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
               <input type="checkbox" id="geoAssignGeometry" checked>
               <strong>\u{1F5FA}\u{FE0F} Also assign path geometry to link</strong>
-              <span style="font-size: 10px; color: #888;">(${ptCount} waypoints)</span>
+              <span style="font-size: 10px; color: #888;">${ptCount} waypoints${routeLabel}</span>
             </label>
           </div>`;
       }
@@ -29158,17 +29794,18 @@ function loadProjectObject(obj) {
         <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
           <div style="flex: 1;">
             <div style="font-size: 11px; color: #888;">Cable System</div>
-            <div style="font-weight: 600; font-size: 13px;">${cs.shortName || cs.name}</div>
-            <div style="font-size: 10px; color: #666;">${cs.name}</div>
+            <div style="font-weight: 600; font-size: 13px;">${escapeHtml(cableName)}</div>
+            <div style="font-size: 10px; color: #666;">${escapeHtml(cs.name)}</div>
           </div>
           <div style="font-size: 20px;">\u{27A1}</div>
           <div style="flex: 1;">
             <div style="font-size: 11px; color: #888;">Link</div>
-            <div style="font-weight: 600; font-size: 13px;">${linkLabel}</div>
-            <div style="font-size: 10px; color: #666;">${linkEndpoints}</div>
+            <div style="font-weight: 600; font-size: 13px;">${escapeHtml(linkLabel)}</div>
+            <div style="font-size: 10px; color: #666;">${escapeHtml(linkEndpoints)}</div>
           </div>
         </div>
         ${edge.cableSystemId ? '<div style="padding: 8px; background: #fef3c7; border-radius: 6px; font-size: 11px; color: #92400e; margin-bottom: 8px;">\u{26A0} This link already has a cable system assigned. It will be replaced.</div>' : ''}
+        ${tagActionSection}
         ${!hasGeometry ? '<div style="font-size: 11px; color: #888; margin-top: 8px;">\u{2139}\u{FE0F} No geometry available for this cable. Load cable data in the Cable Visor to enable geometry assignment.</div>' : ''}
         ${geometrySection}
       </div>
@@ -29207,7 +29844,16 @@ function loadProjectObject(obj) {
       // 1. Assign cable system
       edge.cableSystemId = cs.id;
 
-      // 2. Optionally assign geometry
+      // 2. Apply Link Tag action
+      const tagAction = dialog.querySelector('input[name="csTagAction"]:checked')?.value || 'replace';
+      if (tagAction === 'replace') {
+        edge.tag = cableName;
+      } else if (tagAction === 'append') {
+        edge.tag = (edge.tag || '') + ' - ' + cableName;
+      }
+      // 'keep' = do nothing to tag
+
+      // 3. Optionally assign geometry
       if (geoCheckbox && geoCheckbox.checked && hasGeometry && geometryData) {
         // Get selected segments
         const segCheckboxes = dialog.querySelectorAll('.geo-seg-cb');
@@ -29235,12 +29881,12 @@ function loadProjectObject(obj) {
             edge.cableGeometry = JSON.parse(JSON.stringify(geometryData.geometry));
           }
 
-          showToast(`Assigned "${cs.shortName}" + geometry (${coords.length} waypoints) to ${linkLabel}`);
+          showToast(`Assigned "${cableName}" + geometry (${coords.length} waypoints) to ${linkLabel}`);
         } else {
-          showToast(`Assigned "${cs.shortName}" to ${linkLabel} (no geometry segments selected)`);
+          showToast(`Assigned "${cableName}" to ${linkLabel} (no geometry segments selected)`);
         }
       } else {
-        showToast(`Assigned "${cs.shortName}" to ${linkLabel}`);
+        showToast(`Assigned "${cableName}" to ${linkLabel}`);
       }
 
       // Update inspector if this edge is selected
@@ -30883,7 +31529,7 @@ function loadProjectObject(obj) {
     // If origin set but no destination, set this as destination
     else if (!routeFinderState.destNodeId) {
       if (nodeId === routeFinderState.originNodeId) {
-        showToast('⛠️ Destination cannot be same as origin');
+        showToast('⚠️ Destination cannot be same as origin');
         return true;
       }
       routeFinderState.destNodeId = nodeId;
@@ -30892,7 +31538,7 @@ function loadProjectObject(obj) {
     // If both set, replace destination
     else {
       if (nodeId === routeFinderState.originNodeId) {
-        showToast('⛠️ Cannot select origin as destination');
+        showToast('⚠️ Cannot select origin as destination');
         return true;
       }
       routeFinderState.destNodeId = nodeId;
@@ -31430,7 +32076,7 @@ function loadProjectObject(obj) {
     const mlgName = prompt('Enter a name for the Protected MLG:', defaultName);
 
     if (!mlgName) {
-      showToast('⛠️ MLG save cancelled');
+      showToast('⚠️ MLG save cancelled');
       return;
     }
 
@@ -31710,7 +32356,7 @@ function loadProjectObject(obj) {
 
     // Can't exclude origin or destination
     if (nodeId === routeFinderState.originNodeId || nodeId === routeFinderState.destNodeId) {
-      showToast('⛠️ Cannot exclude origin or destination node');
+      showToast('⚠️ Cannot exclude origin or destination node');
       return;
     }
 
@@ -31847,7 +32493,7 @@ function loadProjectObject(obj) {
 
     // Can't be both excluded and must-use
     if (routeFinderState.excludedNodes.has(nodeId)) {
-      showToast('⛠️ Node is currently excluded. Remove from exclusions first.');
+      showToast('⚠️ Node is currently excluded. Remove from exclusions first.');
       return;
     }
 
@@ -31873,7 +32519,7 @@ function loadProjectObject(obj) {
 
     // Can't be both excluded and must-use
     if (routeFinderState.excludedLinks.has(edgeId)) {
-      showToast('⛠️ Link is currently excluded. Remove from exclusions first.');
+      showToast('⚠️ Link is currently excluded. Remove from exclusions first.');
       return;
     }
 
@@ -32038,11 +32684,11 @@ function loadProjectObject(obj) {
 
     // Check if origin or destination is excluded
     if (routeFinderState.excludedNodes.has(routeFinderState.originNodeId)) {
-      showToast('⛠️ Origin node is excluded - remove from restrictions first');
+      showToast('⚠️ Origin node is excluded - remove from restrictions first');
       return;
     }
     if (routeFinderState.excludedNodes.has(routeFinderState.destNodeId)) {
-      showToast('⛠️ Destination node is excluded - remove from restrictions first');
+      showToast('⚠️ Destination node is excluded - remove from restrictions first');
       return;
     }
 
@@ -32841,7 +33487,7 @@ function loadProjectObject(obj) {
       const val = parseInt(routeOriginSelect.value, 10);
       if (!isNaN(val)) {
         if (val === routeFinderState.destNodeId) {
-          showToast('⛠️ Origin cannot be same as destination');
+          showToast('⚠️ Origin cannot be same as destination');
           routeOriginSelect.value = routeFinderState.originNodeId || '';
           return;
         }
@@ -32863,7 +33509,7 @@ function loadProjectObject(obj) {
       const val = parseInt(routeDestSelect.value, 10);
       if (!isNaN(val)) {
         if (val === routeFinderState.originNodeId) {
-          showToast('⛠️ Destination cannot be same as origin');
+          showToast('⚠️ Destination cannot be same as origin');
           routeDestSelect.value = routeFinderState.destNodeId || '';
           return;
         }
@@ -34031,7 +34677,7 @@ function loadProjectObject(obj) {
     btnSaveRouteAsMLG.addEventListener('click', () => {
       const route = routeFinderState.routes[routeFinderState.activeRouteIndex];
       if (!route || !route.path || route.path.length < 2) {
-        showToast('⛠️ No valid route to save');
+        showToast('⚠️ No valid route to save');
         return;
       }
 
@@ -34039,7 +34685,7 @@ function loadProjectObject(obj) {
       const segments = convertRouteToMLGStructure(route);
 
       if (segments.length === 0) {
-        showToast('⛠️ Could not convert route to MLG structure');
+        showToast('⚠️ Could not convert route to MLG structure');
         return;
       }
 
@@ -34237,19 +34883,19 @@ function loadProjectObject(obj) {
     btnAddRouteToMLG.addEventListener('click', () => {
       const route = routeFinderState.routes[routeFinderState.activeRouteIndex];
       if (!route || !route.path || route.path.length < 2) {
-        showToast('⛠️ No valid route to add');
+        showToast('⚠️ No valid route to add');
         return;
       }
 
       const selectedMLGId = document.getElementById('compatibleMLGSelect')?.value;
       if (!selectedMLGId) {
-        showToast('⛠️ Please select an MLG to add the route to');
+        showToast('⚠️ Please select an MLG to add the route to');
         return;
       }
 
       const targetMLG = findMultilinkGroup(selectedMLGId);
       if (!targetMLG) {
-        showToast('⛠️ Selected MLG not found');
+        showToast('⚠️ Selected MLG not found');
         return;
       }
 
@@ -34278,7 +34924,7 @@ function loadProjectObject(obj) {
       });
 
       if (routeLinks.length === 0) {
-        showToast('⛠️ Route has no links to add');
+        showToast('⚠️ Route has no links to add');
         return;
       }
 
@@ -37301,7 +37947,7 @@ function loadProjectObject(obj) {
   // Location lookup dialog
   function showLocationLookupDialog() {
     if (state.selected?.type !== 'node') {
-      showToast('⛠️ Please select a node first');
+      showToast('⚠️ Please select a node first');
       return;
     }
 
@@ -37457,7 +38103,7 @@ function loadProjectObject(obj) {
 
   async function useAddressForGps() {
     if (state.selected?.type !== 'node') {
-      showToast('⛠️ Please select a node first');
+      showToast('⚠️ Please select a node first');
       return;
     }
 
@@ -37474,7 +38120,7 @@ function loadProjectObject(obj) {
 
     // Need at least one field
     if (!street && !city && !country && !postalcode) {
-      showToast('⛠️ Please fill in at least an address, city, or country.');
+      showToast('⚠️ Please fill in at least an address, city, or country.');
       return;
     }
 
@@ -37509,7 +38155,7 @@ function loadProjectObject(obj) {
         if (fallback) {
           showToast(`📍 GPS approximated (offline): ${fallback.name}`);
         } else {
-          showToast('⛠️ No results found. Try adding more address details (city, country, postal code).');
+          showToast('⚠️ No results found. Try adding more address details (city, country, postal code).');
         }
         return;
       }
@@ -37528,7 +38174,7 @@ function loadProjectObject(obj) {
       if (fallback) {
         showToast(`📍 GPS approximated (offline fallback): ${fallback.name}`);
       } else {
-        showToast('⛠️ Geocoding service unavailable. Check your connection.');
+        showToast('⚠️ Geocoding service unavailable. Check your connection.');
       }
     } finally {
       if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
@@ -37539,7 +38185,7 @@ function loadProjectObject(obj) {
     const lat = parseFloat(result.lat);
     const lon = parseFloat(result.lon);
     if (isNaN(lat) || isNaN(lon)) {
-      showToast('⛠️ Invalid coordinates in result.');
+      showToast('⚠️ Invalid coordinates in result.');
       return;
     }
     node.gpsLat = lat;
@@ -38094,7 +38740,7 @@ function loadProjectObject(obj) {
     mapSourceUpload.addEventListener('change', () => {
       if (mapSourceUpload.checked) {
         if (!geoViewState.customMapImage) {
-          showToast('⛠️ No uploaded map - please upload one first');
+          showToast('⚠️ No uploaded map - please upload one first');
           updateMapSourceRadios();
           return;
         }
@@ -38251,7 +38897,7 @@ function loadProjectObject(obj) {
     document.getElementById('mapUrlApply').onclick = () => {
       const url = document.getElementById('mapUrlInput').value.trim();
       if (!url) {
-        showToast('⛠️ Please enter a URL');
+        showToast('⚠️ Please enter a URL');
         return;
       }
 
@@ -39683,7 +40329,7 @@ function handlePathKmlImport(e) {
       if (cableCount === 0) {
         instructions.innerHTML = `
           <div style="color: #ef4444; padding: 10px;">
-            ⛠️ No cables found in database. Please check the data file.
+            ⚠️ No cables found in database. Please check the data file.
           </div>
         `;
         return;
@@ -39754,7 +40400,7 @@ function handlePathKmlImport(e) {
     } catch (error) {
       instructions.innerHTML = `
         <div style="color: #ef4444; padding: 10px;">
-          ⛠️ Failed to load cable database:<br>
+          ⚠️ Failed to load cable database:<br>
           <span style="font-size: 11px;">${error.message}</span>
           <div style="margin-top: 10px;">
             <button onclick="window.showCableDbSearch()" style="padding: 6px 12px; background: #f3f4f6; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
@@ -40379,7 +41025,7 @@ function handlePathKmlImport(e) {
 
     } catch (e) {
       console.error('Failed to initialize MapLibre:', e);
-      showToast('⛠️ Failed to load interactive map. Check your internet connection.');
+      showToast('⚠️ Failed to load interactive map. Check your internet connection.');
     }
   }
 
@@ -41379,7 +42025,7 @@ function handlePathKmlImport(e) {
       highlightMapLibreNode(nodeId, '#22c55e'); // Green for source
     } else if (!mapLibreState.pathFinderTarget) {
       if (nodeId === mapLibreState.pathFinderSource) {
-        showToast('⛠️ Please select a different node as destination');
+        showToast('⚠️ Please select a different node as destination');
         return;
       }
       mapLibreState.pathFinderTarget = nodeId;
@@ -45070,7 +45716,7 @@ function handlePathKmlImport(e) {
     const isLinks = bulkEditState.type === 'links';
 
     if (items.length === 0) {
-      showToast('⛠️ No items to update');
+      showToast('⚠️ No items to update');
       return;
     }
 
@@ -45201,7 +45847,7 @@ function handlePathKmlImport(e) {
       hideBulkEditModal();
       showToast(`✅ Bulk edited ${items.length} ${isLinks ? 'link' : 'node'}${items.length !== 1 ? 's' : ''}`);
     } else {
-      showToast('⛠️ No changes were made');
+      showToast('⚠️ No changes were made');
     }
   }
 
@@ -47542,7 +48188,7 @@ function handlePathKmlImport(e) {
   <div id="cableVisorHeader">
     <h3>🌐 Submarine Cable Visor</h3>
     <div id="cableVisorControls">
-      <button id="btnCableVisorPresentation" title="Presentation Mode (Fullscreen)">&#x1F4FA;</button>
+      <button id="btnCableVisorPresentation" title="Presentation Mode (Fullscreen)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
       <button id="btnCableVisorMaximize" title="Maximize/Restore">⬜</button>
       <button id="btnCableVisorClose" title="Close Visor">✕</button>
     </div>
@@ -47574,6 +48220,17 @@ function handlePathKmlImport(e) {
       <button class="visor-toggle-btn" id="btnVisorShowStations" title="Show/hide cable landing stations on map">Stations</button>
       <button class="visor-toggle-btn" id="btnVisorFixNames" title="Pin cable names permanently on map" style="display:none;">Pin Names</button>
       <button class="visor-toggle-btn" id="btnVisorFixStationNames" title="Pin station names permanently on map" style="display:none;">Pin Stations</button>
+      <div style="flex:1;"></div>
+      <div style="position:relative;">
+        <button class="btn" id="btnCableVisorActions" style="padding:3px 8px;font-size:10px;" title="Image actions">&#x1F5BC;&#xFE0F; Image &#x25BC;</button>
+        <div class="visor-action-menu" id="cableVisorActionMenu">
+          <button id="btnCableVisorCopyImage">&#x1F4CB; Copy to Clipboard</button>
+          <button id="btnCableVisorSavePNG">&#x1F5BC;&#xFE0F; Save as PNG</button>
+          <button id="btnCableVisorSaveJPG">&#x1F5BC;&#xFE0F; Save as JPG</button>
+          <div class="menu-sep"></div>
+          <button id="btnCableVisorPrint">&#x1F5A8;&#xFE0F; Print</button>
+        </div>
+      </div>
     </div>
   </div>
   <div id="cableVisorMap">
@@ -47598,7 +48255,7 @@ function handlePathKmlImport(e) {
     <div class="visor-detail-body" id="visorDetailBody">
       <div class="visor-detail-grid" id="visorDetailGrid"></div>
       <div class="visor-landing-points" id="visorLandingPoints" style="display:none;">
-        <h5>📍 Landing Stations (CLS)</h5>
+        <h5>📍 Landing Stations</h5>
         <div class="visor-lp-list" id="visorLpList"></div>
       </div>
     </div>
@@ -47623,6 +48280,7 @@ function handlePathKmlImport(e) {
   <div id="dcVisorHeader">
     <h3>&#x1F3E2; Datacenter Visor</h3>
     <div id="dcVisorControls">
+      <button id="btnDCVisorPresentation" title="Presentation Mode (Fullscreen)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
       <button id="btnDCVisorMaximize" title="Maximize/Restore">&#x2B1C;</button>
       <button id="btnDCVisorClose" title="Close Visor">&#x2715;</button>
     </div>
@@ -47639,6 +48297,17 @@ function handlePathKmlImport(e) {
       <button class="btn" id="btnDCVisorClearAll" style="padding:4px 8px; font-size:11px;" title="Clear selection">&#x2717; Clear</button>
       <span style="font-size:10px; font-weight:600; color:#64748b; margin-left:8px;">Display:</span>
       <button class="visor-toggle-btn" id="btnDCVisorShowNames" title="Show/hide datacenter names on map">Names</button>
+      <div style="flex:1;"></div>
+      <div style="position:relative;">
+        <button class="btn" id="btnDCVisorActions" style="padding:3px 8px;font-size:10px;" title="Image actions">&#x1F5BC;&#xFE0F; Image &#x25BC;</button>
+        <div class="visor-action-menu" id="dcVisorActionMenu">
+          <button id="btnDCVisorCopyImage">&#x1F4CB; Copy to Clipboard</button>
+          <button id="btnDCVisorSavePNG">&#x1F5BC;&#xFE0F; Save as PNG</button>
+          <button id="btnDCVisorSaveJPG">&#x1F5BC;&#xFE0F; Save as JPG</button>
+          <div class="menu-sep"></div>
+          <button id="btnDCVisorPrint">&#x1F5A8;&#xFE0F; Print</button>
+        </div>
+      </div>
     </div>
   </div>
   <div id="dcVisorMap">
@@ -49324,24 +49993,23 @@ function handlePathKmlImport(e) {
     const nav = document.getElementById('dcNavigator');
     const header = document.getElementById('dcNavigatorHeader');
     if (!nav || !header) return;
-    let isDragging = false, startX, startY, startLeft, startTop;
+    let isDragging = false, offsetX, offsetY;
     header.addEventListener('mousedown', (e) => {
       if (e.target.closest('#dcNavigatorControls')) return;
       isDragging = true;
-      startX = e.clientX; startY = e.clientY;
-      const rect = nav.getBoundingClientRect();
-      startLeft = rect.left; startTop = rect.top;
-      nav.style.transition = 'none';
+      offsetX = e.clientX - nav.offsetLeft;
+      offsetY = e.clientY - nav.offsetTop;
+      nav.style.cursor = 'move';
       e.preventDefault();
     });
     document.addEventListener('mousemove', (e) => {
       if (!isDragging) return;
+      nav.style.left = (e.clientX - offsetX) + 'px';
+      nav.style.top = (e.clientY - offsetY) + 'px';
       nav.style.right = 'auto';
-      nav.style.left = Math.max(0, startLeft + (e.clientX - startX)) + 'px';
-      nav.style.top = Math.max(0, startTop + (e.clientY - startY)) + 'px';
     });
     document.addEventListener('mouseup', () => {
-      if (isDragging) { isDragging = false; nav.style.transition = ''; }
+      if (isDragging) { isDragging = false; nav.style.cursor = ''; }
     });
   })();
 
@@ -49405,15 +50073,65 @@ function handlePathKmlImport(e) {
     }
 
     if (targetNode) {
-      // Drop on node → copy address + GPS
-      targetNode.address = [fac.address1, fac.address2].filter(Boolean).join(', ');
-      targetNode.city = fac.city || '';
-      targetNode.country = fac.country || '';
-      if (fac.latitude != null) targetNode.gpsLat = fac.latitude;
-      if (fac.longitude != null) targetNode.gpsLon = fac.longitude;
-      if (fac.state) targetNode.state = fac.state;
-      commit(); render(); updateInspector();
-      showToast(`Node "${targetNode.name}" updated with DC location: ${fac.name}`);
+      // Show name action dialog
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10001;display:flex;justify-content:center;align-items:center;';
+      modal.innerHTML = `
+        <div style="background:#fff;border-radius:10px;padding:24px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+          <h3 style="margin:0 0 8px;font-size:16px;">🏢 Import Datacenter to Node</h3>
+          <div style="font-size:12px;color:#666;margin-bottom:16px;">
+            Dropping <strong>${escapeHtml(fac.name)}</strong> onto node <strong>"${escapeHtml(targetNode.name)}"</strong>
+          </div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:10px;">What should happen to the node name?</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+            <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:2px solid #ec4899;border-radius:6px;cursor:pointer;background:#fdf2f8;">
+              <input type="radio" name="dcNameAction" value="replace" checked style="margin:0;accent-color:#ec4899;" />
+              <div><strong>Replace</strong> — set name to "${escapeHtml(fac.name)}"</div>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #e0e0e0;border-radius:6px;cursor:pointer;">
+              <input type="radio" name="dcNameAction" value="append" style="margin:0;accent-color:#ec4899;" />
+              <div><strong>Append</strong> — "${escapeHtml(targetNode.name)} - ${escapeHtml(fac.name)}"</div>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #e0e0e0;border-radius:6px;cursor:pointer;">
+              <input type="radio" name="dcNameAction" value="keep" style="margin:0;accent-color:#ec4899;" />
+              <div><strong>Keep as is</strong> — leave "${escapeHtml(targetNode.name)}"</div>
+            </label>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button id="dcNameCancel" style="padding:8px 16px;border:1px solid #d0d0d0;border-radius:6px;background:#f8f8f8;cursor:pointer;font-size:13px;">Cancel</button>
+            <button id="dcNameApply" style="padding:8px 16px;border:none;border-radius:6px;background:#ec4899;color:white;cursor:pointer;font-size:13px;font-weight:600;">Apply</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      modal.querySelector('#dcNameCancel').addEventListener('click', () => modal.remove());
+      modal.querySelector('#dcNameApply').addEventListener('click', () => {
+        const action = modal.querySelector('input[name="dcNameAction"]:checked').value;
+        if (action === 'replace') targetNode.name = fac.name;
+        else if (action === 'append') targetNode.name = targetNode.name + ' - ' + fac.name;
+        // 'keep' = do nothing to name
+
+        // Fill address fields
+        targetNode.address = [fac.address1, fac.address2].filter(Boolean).join(', ');
+        targetNode.city = fac.city || '';
+        targetNode.postalCode = fac.zipcode || '';
+        targetNode.county = '';
+        targetNode.state = fac.state || '';
+        targetNode.country = fac.country || '';
+        if (fac.latitude != null) targetNode.gpsLat = fac.latitude;
+        if (fac.longitude != null) targetNode.gpsLon = fac.longitude;
+
+        // Add 'Imported Datacenter' to filter tags
+        if (!targetNode.tags) targetNode.tags = ['default'];
+        if (!targetNode.tags.includes('Imported Datacenter')) {
+          targetNode.tags.push('Imported Datacenter');
+        }
+
+        commit(); render(); updateInspector();
+        showToast(`Node "${targetNode.name}" updated with DC: ${fac.name}`);
+        modal.remove();
+      });
       return;
     }
 
@@ -49437,6 +50155,11 @@ function handlePathKmlImport(e) {
     if (targetGroup) {
       // Drop on existing container → populate DC fields
       applyDCDataToGroup(targetGroup, fac);
+      // Add 'Imported Datacenter' to filter tags
+      if (!targetGroup.filterTags) targetGroup.filterTags = ['default'];
+      if (!targetGroup.filterTags.includes('Imported Datacenter')) {
+        targetGroup.filterTags.push('Imported Datacenter');
+      }
       commit(); render(); updateInspector();
       showToast(`Container "${targetGroup.title}" populated with DC data: ${fac.name}`);
       return;
@@ -49447,6 +50170,11 @@ function handlePathKmlImport(e) {
     const id = state.nextGroup++;
     const g = makeGroup(id, m.x - 140, m.y - 100, 'dc');
     applyDCDataToGroup(g, fac);
+    // Add 'Imported Datacenter' to filter tags
+    if (!g.filterTags) g.filterTags = ['default'];
+    if (!g.filterTags.includes('Imported Datacenter')) {
+      g.filterTags.push('Imported Datacenter');
+    }
     state.groups.push(g);
     if (g.type === 'dc') updateCountryRegionMembership(g);
     refreshAllMemberships();
