@@ -48843,6 +48843,13 @@ function handlePathKmlImport(e) {
 
   // ============== DATACENTER NAVIGATOR ==============
 
+  // Helper to escape HTML (local to this scope)
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
   // DC database state
   window._dcDatabase = { facilities: [], meta: {}, loaded: false };
   window._dcExpandedId = null;  // Currently expanded detail panel
