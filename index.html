@@ -24140,35 +24140,44 @@ function loadProjectObject(obj) {
     menu.addEventListener('click', () => menu.classList.remove('show'));
   }
 
-  // Cable Visor image actions
-  setupVisorActionMenu('btnCableVisorActions', 'cableVisorActionMenu');
-  document.getElementById('btnCableVisorCopyImage')?.addEventListener('click', () => {
-    visorCopyImage(cableVisorState.map, 'cableVisorPanel');
-  });
-  document.getElementById('btnCableVisorSavePNG')?.addEventListener('click', () => {
-    visorSaveImage(cableVisorState.map, 'cableVisorPanel', 'png');
-  });
-  document.getElementById('btnCableVisorSaveJPG')?.addEventListener('click', () => {
-    visorSaveImage(cableVisorState.map, 'cableVisorPanel', 'jpg');
-  });
-  document.getElementById('btnCableVisorPrint')?.addEventListener('click', () => {
-    visorPrint(cableVisorState.map, 'cableVisorPanel', 'Submarine Cable Visor');
-  });
+  // Cable & DC Visor image actions — deferred until DOM is ready
+  // (Visor HTML is defined after this script block)
+  function initVisorImageActions() {
+    // Cable Visor image actions
+    setupVisorActionMenu('btnCableVisorActions', 'cableVisorActionMenu');
+    document.getElementById('btnCableVisorCopyImage')?.addEventListener('click', () => {
+      visorCopyImage(cableVisorState.map, 'cableVisorPanel');
+    });
+    document.getElementById('btnCableVisorSavePNG')?.addEventListener('click', () => {
+      visorSaveImage(cableVisorState.map, 'cableVisorPanel', 'png');
+    });
+    document.getElementById('btnCableVisorSaveJPG')?.addEventListener('click', () => {
+      visorSaveImage(cableVisorState.map, 'cableVisorPanel', 'jpg');
+    });
+    document.getElementById('btnCableVisorPrint')?.addEventListener('click', () => {
+      visorPrint(cableVisorState.map, 'cableVisorPanel', 'Submarine Cable Visor');
+    });
 
-  // DC Visor image actions
-  setupVisorActionMenu('btnDCVisorActions', 'dcVisorActionMenu');
-  document.getElementById('btnDCVisorCopyImage')?.addEventListener('click', () => {
-    visorCopyImage(dcVisorState.map, 'dcVisorPanel');
-  });
-  document.getElementById('btnDCVisorSavePNG')?.addEventListener('click', () => {
-    visorSaveImage(dcVisorState.map, 'dcVisorPanel', 'png');
-  });
-  document.getElementById('btnDCVisorSaveJPG')?.addEventListener('click', () => {
-    visorSaveImage(dcVisorState.map, 'dcVisorPanel', 'jpg');
-  });
-  document.getElementById('btnDCVisorPrint')?.addEventListener('click', () => {
-    visorPrint(dcVisorState.map, 'dcVisorPanel', 'Datacenter Visor');
-  });
+    // DC Visor image actions
+    setupVisorActionMenu('btnDCVisorActions', 'dcVisorActionMenu');
+    document.getElementById('btnDCVisorCopyImage')?.addEventListener('click', () => {
+      visorCopyImage(dcVisorState.map, 'dcVisorPanel');
+    });
+    document.getElementById('btnDCVisorSavePNG')?.addEventListener('click', () => {
+      visorSaveImage(dcVisorState.map, 'dcVisorPanel', 'png');
+    });
+    document.getElementById('btnDCVisorSaveJPG')?.addEventListener('click', () => {
+      visorSaveImage(dcVisorState.map, 'dcVisorPanel', 'jpg');
+    });
+    document.getElementById('btnDCVisorPrint')?.addEventListener('click', () => {
+      visorPrint(dcVisorState.map, 'dcVisorPanel', 'Datacenter Visor');
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVisorImageActions);
+  } else {
+    initVisorImageActions();
+  }
 
   // Add handler for group by region checkbox
   document.getElementById('cableNavGroupByRegion')?.addEventListener('change', () => {
@@ -29895,6 +29904,12 @@ function loadProjectObject(obj) {
         if (edgeCableSystemEl) edgeCableSystemEl.value = cs.id;
       }
 
+      // Add 'Imported Cable System' to filter tags
+      if (!edge.filterTags) edge.filterTags = ['default'];
+      if (!edge.filterTags.includes('Imported Cable System')) {
+        edge.filterTags.push('Imported Cable System');
+      }
+
       // Clear selection so the link renders with cable-system colour only, no glow
       clearSelection();
       if (window.mapLibreState) {
@@ -29914,6 +29929,210 @@ function loadProjectObject(obj) {
   }
 
   // ============== END CABLE SYSTEM DRAG-DROP ==============
+
+  // ============== DC DRAG-DROP TO CONTAINER / NODE ==============
+
+  // Drag start on DC items
+  document.addEventListener('dragstart', (e) => {
+    const dcItem = e.target.closest('.dc-item[draggable="true"]');
+    if (!dcItem) return;
+    const dcId = dcItem.dataset.dcId;
+    if (!dcId) return;
+    e.dataTransfer.setData('text/plain', 'datacenter:' + dcId);
+    e.dataTransfer.effectAllowed = 'copy';
+    dcItem.style.opacity = '0.5';
+    window._draggedDCItem = dcItem;
+    window._dragDCId = parseInt(dcId);
+  });
+
+  document.addEventListener('dragend', (e) => {
+    if (window._draggedDCItem) {
+      window._draggedDCItem.style.opacity = '';
+      window._draggedDCItem = null;
+    }
+    document.querySelectorAll('.dc-drop-highlight, .node-dc-drop-highlight').forEach(el => {
+      el.classList.remove('dc-drop-highlight', 'node-dc-drop-highlight');
+    });
+    window._dragDCId = null;
+  });
+
+  // Extend SVG dragover to also handle DC items
+  svg.addEventListener('dragover', (e) => {
+    if (!window._dragDCId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  });
+
+  // SVG drop handler for DC items — drop on container (DC type) or node
+  svg.addEventListener('drop', (e) => {
+    const transferData = e.dataTransfer.getData('text/plain');
+    if (!transferData || !transferData.startsWith('datacenter:')) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const dcId = parseInt(transferData.split(':')[1]);
+    if (!window._dcDatabase) { showToast('Datacenter database not loaded'); return; }
+    const fac = window._dcDatabase.facilities.find(f => f.id === dcId);
+    if (!fac) { showToast('Datacenter not found'); return; }
+
+    const dropX = e.clientX;
+    const dropY = e.clientY;
+    const elements = document.elementsFromPoint(dropX, dropY);
+
+    // Check if dropped on a node
+    let targetNode = null;
+    for (const el of elements) {
+      const nodeEl = el.closest('.node');
+      if (nodeEl) {
+        const nId = parseInt(nodeEl.getAttribute('data-node-id'));
+        if (!isNaN(nId)) { targetNode = findNode(nId); if (targetNode) break; }
+      }
+    }
+
+    if (targetNode) {
+      // Show name action dialog
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10001;display:flex;justify-content:center;align-items:center;';
+      modal.innerHTML = `
+        <div style="background:#fff;border-radius:10px;padding:24px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+          <h3 style="margin:0 0 8px;font-size:16px;">\u{1F3E2} Import Datacenter to Node</h3>
+          <div style="font-size:12px;color:#666;margin-bottom:16px;">
+            Dropping <strong>${escapeHtml(fac.name)}</strong> onto node <strong>"${escapeHtml(targetNode.name)}"</strong>
+          </div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:10px;">What should happen to the node name?</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+            <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:2px solid #ec4899;border-radius:6px;cursor:pointer;background:#fdf2f8;">
+              <input type="radio" name="dcNameAction" value="replace" checked style="margin:0;accent-color:#ec4899;" />
+              <div><strong>Replace</strong> \u{2014} set name to "${escapeHtml(fac.name)}"</div>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #e0e0e0;border-radius:6px;cursor:pointer;">
+              <input type="radio" name="dcNameAction" value="append" style="margin:0;accent-color:#ec4899;" />
+              <div><strong>Append</strong> \u{2014} "${escapeHtml(targetNode.name)} - ${escapeHtml(fac.name)}"</div>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #e0e0e0;border-radius:6px;cursor:pointer;">
+              <input type="radio" name="dcNameAction" value="keep" style="margin:0;accent-color:#ec4899;" />
+              <div><strong>Keep as is</strong> \u{2014} leave "${escapeHtml(targetNode.name)}"</div>
+            </label>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button id="dcNameCancel" style="padding:8px 16px;border:1px solid #d0d0d0;border-radius:6px;background:#f8f8f8;cursor:pointer;font-size:13px;">Cancel</button>
+            <button id="dcNameApply" style="padding:8px 16px;border:none;border-radius:6px;background:#ec4899;color:white;cursor:pointer;font-size:13px;font-weight:600;">Apply</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      modal.querySelector('#dcNameCancel').addEventListener('click', () => modal.remove());
+      modal.querySelector('#dcNameApply').addEventListener('click', () => {
+        const action = modal.querySelector('input[name="dcNameAction"]:checked').value;
+        if (action === 'replace') targetNode.name = fac.name;
+        else if (action === 'append') targetNode.name = targetNode.name + ' - ' + fac.name;
+        // 'keep' = do nothing to name
+
+        // Fill address fields
+        targetNode.address = [fac.address1, fac.address2].filter(Boolean).join(', ');
+        targetNode.city = fac.city || '';
+        targetNode.postalCode = fac.zipcode || '';
+        targetNode.county = '';
+        targetNode.state = fac.state || '';
+        targetNode.country = fac.country || '';
+        if (fac.latitude != null) targetNode.gpsLat = fac.latitude;
+        if (fac.longitude != null) targetNode.gpsLon = fac.longitude;
+
+        // Add 'Imported Datacenter' to filter tags
+        if (!targetNode.tags) targetNode.tags = ['default'];
+        if (!targetNode.tags.includes('Imported Datacenter')) {
+          targetNode.tags.push('Imported Datacenter');
+        }
+
+        commit(); render(); updateInspector();
+        showToast(`Node "${targetNode.name}" updated with DC: ${fac.name}`);
+        modal.remove();
+      });
+      return;
+    }
+
+    // Check if dropped on a container (group)
+    let targetGroup = null;
+    for (const el of elements) {
+      const grpEl = el.closest('.group-rect, [class*="group"]');
+      if (grpEl) {
+        // Find group by hit-testing mouse position
+        const m = getMouse(e);
+        for (const g of state.groups) {
+          if (m.x >= g.x && m.x <= g.x + g.w && m.y >= g.y && m.y <= g.y + g.h) {
+            targetGroup = g;
+            break;
+          }
+        }
+        if (targetGroup) break;
+      }
+    }
+
+    if (targetGroup) {
+      // Drop on existing container -> populate DC fields
+      applyDCDataToGroup(targetGroup, fac);
+      // Add 'Imported Datacenter' to filter tags
+      if (!targetGroup.filterTags) targetGroup.filterTags = ['default'];
+      if (!targetGroup.filterTags.includes('Imported Datacenter')) {
+        targetGroup.filterTags.push('Imported Datacenter');
+      }
+      commit(); render(); updateInspector();
+      showToast(`Container "${targetGroup.title}" populated with DC data: ${fac.name}`);
+      return;
+    }
+
+    // Drop on empty canvas -> create new DC container at drop position
+    const m = getMouse(e);
+    const id = state.nextGroup++;
+    const g = makeGroup(id, m.x - 140, m.y - 100, 'dc');
+    applyDCDataToGroup(g, fac);
+    // Add 'Imported Datacenter' to filter tags
+    if (!g.filterTags) g.filterTags = ['default'];
+    if (!g.filterTags.includes('Imported Datacenter')) {
+      g.filterTags.push('Imported Datacenter');
+    }
+    state.groups.push(g);
+    if (g.type === 'dc') updateCountryRegionMembership(g);
+    refreshAllMemberships();
+    select({type:'group', id});
+    commit(); render();
+    showToast(`Created DC container: ${fac.name}`);
+  });
+
+  // Apply PeeringDB facility data to a group/container
+  function applyDCDataToGroup(g, fac) {
+    g.type = 'dc';
+    g.title = fac.name;
+    g.dcPeeringDbId = fac.id;
+    g.dcOrgName = fac.org_name || '';
+    g.dcAddress = [fac.address1, fac.address2].filter(Boolean).join(', ');
+    g.dcCity = fac.city || '';
+    g.dcCountry = fac.country || '';
+    g.dcState = fac.state || '';
+    g.dcZipcode = fac.zipcode || '';
+    g.dcLatitude = fac.latitude;
+    g.dcLongitude = fac.longitude;
+    g.dcWebsite = fac.website || '';
+    g.dcRegion = fac.region_continent || '';
+    g.dcNetCount = (fac.networks || []).length;
+    g.dcIxCount = fac.ix_count || 0;
+    g.dcCarrierCount = fac.carrier_count || 0;
+    g.dcNetworks = (fac.networks || []).map(n => ({ asn: n.asn, name: n.name, type: n.type }));
+    // Set DC visual style if not already DC type
+    if (!g.fill || g.fill === 'rgba(255, 255, 255, 0.95)' || g.fill === 'rgba(245, 245, 245, 0.9)') {
+      g.fill = 'rgba(253, 242, 248, 0.95)';
+    }
+    if (!g.stroke || g.stroke === '#666666' || g.stroke === '#999999') {
+      g.stroke = '#ec4899';
+    }
+    if (!g.titleColor || g.titleColor === '#333333') {
+      g.titleColor = '#831843';
+    }
+    g.strokeW = 2;
+  }
+
+  // ============== END DC DRAG-DROP ==============
 
   // ============== END CONTEXT MENU SYSTEM ==============
 
@@ -50012,208 +50231,6 @@ function handlePathKmlImport(e) {
       if (isDragging) { isDragging = false; nav.style.cursor = ''; }
     });
   })();
-
-  // ============== DC DRAG-DROP TO CONTAINER / NODE ==============
-
-  // Drag start on DC items
-  document.addEventListener('dragstart', (e) => {
-    const dcItem = e.target.closest('.dc-item[draggable="true"]');
-    if (!dcItem) return;
-    const dcId = dcItem.dataset.dcId;
-    if (!dcId) return;
-    e.dataTransfer.setData('text/plain', 'datacenter:' + dcId);
-    e.dataTransfer.effectAllowed = 'copy';
-    dcItem.style.opacity = '0.5';
-    window._draggedDCItem = dcItem;
-    window._dragDCId = parseInt(dcId);
-  });
-
-  document.addEventListener('dragend', (e) => {
-    if (window._draggedDCItem) {
-      window._draggedDCItem.style.opacity = '';
-      window._draggedDCItem = null;
-    }
-    document.querySelectorAll('.dc-drop-highlight, .node-dc-drop-highlight').forEach(el => {
-      el.classList.remove('dc-drop-highlight', 'node-dc-drop-highlight');
-    });
-    window._dragDCId = null;
-  });
-
-  // Extend SVG dragover to also handle DC items
-  const origSvgDragover = svg.ondragover;
-  svg.addEventListener('dragover', (e) => {
-    if (!window._dragDCId) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-  });
-
-  // SVG drop handler for DC items — drop on container (DC type) or node
-  svg.addEventListener('drop', (e) => {
-    const transferData = e.dataTransfer.getData('text/plain');
-    if (!transferData || !transferData.startsWith('datacenter:')) return;
-    e.preventDefault();
-    e.stopPropagation();
-
-    const dcId = parseInt(transferData.split(':')[1]);
-    const fac = window._dcDatabase.facilities.find(f => f.id === dcId);
-    if (!fac) { showToast('Datacenter not found', 'error'); return; }
-
-    const dropX = e.clientX;
-    const dropY = e.clientY;
-    const elements = document.elementsFromPoint(dropX, dropY);
-
-    // Check if dropped on a node
-    let targetNode = null;
-    for (const el of elements) {
-      const nodeEl = el.closest('.node');
-      if (nodeEl) {
-        const nId = parseInt(nodeEl.getAttribute('data-node-id'));
-        if (!isNaN(nId)) { targetNode = findNode(nId); if (targetNode) break; }
-      }
-    }
-
-    if (targetNode) {
-      // Show name action dialog
-      const modal = document.createElement('div');
-      modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10001;display:flex;justify-content:center;align-items:center;';
-      modal.innerHTML = `
-        <div style="background:#fff;border-radius:10px;padding:24px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
-          <h3 style="margin:0 0 8px;font-size:16px;">🏢 Import Datacenter to Node</h3>
-          <div style="font-size:12px;color:#666;margin-bottom:16px;">
-            Dropping <strong>${escapeHtml(fac.name)}</strong> onto node <strong>"${escapeHtml(targetNode.name)}"</strong>
-          </div>
-          <div style="font-size:13px;font-weight:600;margin-bottom:10px;">What should happen to the node name?</div>
-          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
-            <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:2px solid #ec4899;border-radius:6px;cursor:pointer;background:#fdf2f8;">
-              <input type="radio" name="dcNameAction" value="replace" checked style="margin:0;accent-color:#ec4899;" />
-              <div><strong>Replace</strong> — set name to "${escapeHtml(fac.name)}"</div>
-            </label>
-            <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #e0e0e0;border-radius:6px;cursor:pointer;">
-              <input type="radio" name="dcNameAction" value="append" style="margin:0;accent-color:#ec4899;" />
-              <div><strong>Append</strong> — "${escapeHtml(targetNode.name)} - ${escapeHtml(fac.name)}"</div>
-            </label>
-            <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #e0e0e0;border-radius:6px;cursor:pointer;">
-              <input type="radio" name="dcNameAction" value="keep" style="margin:0;accent-color:#ec4899;" />
-              <div><strong>Keep as is</strong> — leave "${escapeHtml(targetNode.name)}"</div>
-            </label>
-          </div>
-          <div style="display:flex;gap:8px;justify-content:flex-end;">
-            <button id="dcNameCancel" style="padding:8px 16px;border:1px solid #d0d0d0;border-radius:6px;background:#f8f8f8;cursor:pointer;font-size:13px;">Cancel</button>
-            <button id="dcNameApply" style="padding:8px 16px;border:none;border-radius:6px;background:#ec4899;color:white;cursor:pointer;font-size:13px;font-weight:600;">Apply</button>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-
-      modal.querySelector('#dcNameCancel').addEventListener('click', () => modal.remove());
-      modal.querySelector('#dcNameApply').addEventListener('click', () => {
-        const action = modal.querySelector('input[name="dcNameAction"]:checked').value;
-        if (action === 'replace') targetNode.name = fac.name;
-        else if (action === 'append') targetNode.name = targetNode.name + ' - ' + fac.name;
-        // 'keep' = do nothing to name
-
-        // Fill address fields
-        targetNode.address = [fac.address1, fac.address2].filter(Boolean).join(', ');
-        targetNode.city = fac.city || '';
-        targetNode.postalCode = fac.zipcode || '';
-        targetNode.county = '';
-        targetNode.state = fac.state || '';
-        targetNode.country = fac.country || '';
-        if (fac.latitude != null) targetNode.gpsLat = fac.latitude;
-        if (fac.longitude != null) targetNode.gpsLon = fac.longitude;
-
-        // Add 'Imported Datacenter' to filter tags
-        if (!targetNode.tags) targetNode.tags = ['default'];
-        if (!targetNode.tags.includes('Imported Datacenter')) {
-          targetNode.tags.push('Imported Datacenter');
-        }
-
-        commit(); render(); updateInspector();
-        showToast(`Node "${targetNode.name}" updated with DC: ${fac.name}`);
-        modal.remove();
-      });
-      return;
-    }
-
-    // Check if dropped on a container (group)
-    let targetGroup = null;
-    for (const el of elements) {
-      const grpEl = el.closest('.group-rect, [class*="group"]');
-      if (grpEl) {
-        // Find group by hit-testing mouse position
-        const m = getMouse(e);
-        for (const g of state.groups) {
-          if (m.x >= g.x && m.x <= g.x + g.w && m.y >= g.y && m.y <= g.y + g.h) {
-            targetGroup = g;
-            break;
-          }
-        }
-        if (targetGroup) break;
-      }
-    }
-
-    if (targetGroup) {
-      // Drop on existing container → populate DC fields
-      applyDCDataToGroup(targetGroup, fac);
-      // Add 'Imported Datacenter' to filter tags
-      if (!targetGroup.filterTags) targetGroup.filterTags = ['default'];
-      if (!targetGroup.filterTags.includes('Imported Datacenter')) {
-        targetGroup.filterTags.push('Imported Datacenter');
-      }
-      commit(); render(); updateInspector();
-      showToast(`Container "${targetGroup.title}" populated with DC data: ${fac.name}`);
-      return;
-    }
-
-    // Drop on empty canvas → create new DC container at drop position
-    const m = getMouse(e);
-    const id = state.nextGroup++;
-    const g = makeGroup(id, m.x - 140, m.y - 100, 'dc');
-    applyDCDataToGroup(g, fac);
-    // Add 'Imported Datacenter' to filter tags
-    if (!g.filterTags) g.filterTags = ['default'];
-    if (!g.filterTags.includes('Imported Datacenter')) {
-      g.filterTags.push('Imported Datacenter');
-    }
-    state.groups.push(g);
-    if (g.type === 'dc') updateCountryRegionMembership(g);
-    refreshAllMemberships();
-    select({type:'group', id});
-    commit(); render();
-    showToast(`Created DC container: ${fac.name}`);
-  });
-
-  // Apply PeeringDB facility data to a group/container
-  function applyDCDataToGroup(g, fac) {
-    g.type = 'dc';
-    g.title = fac.name;
-    g.dcPeeringDbId = fac.id;
-    g.dcOrgName = fac.org_name || '';
-    g.dcAddress = [fac.address1, fac.address2].filter(Boolean).join(', ');
-    g.dcCity = fac.city || '';
-    g.dcCountry = fac.country || '';
-    g.dcState = fac.state || '';
-    g.dcZipcode = fac.zipcode || '';
-    g.dcLatitude = fac.latitude;
-    g.dcLongitude = fac.longitude;
-    g.dcWebsite = fac.website || '';
-    g.dcRegion = fac.region_continent || '';
-    g.dcNetCount = (fac.networks || []).length;
-    g.dcIxCount = fac.ix_count || 0;
-    g.dcCarrierCount = fac.carrier_count || 0;
-    g.dcNetworks = (fac.networks || []).map(n => ({ asn: n.asn, name: n.name, type: n.type }));
-    // Set DC visual style if not already DC type
-    if (!g.fill || g.fill === 'rgba(255, 255, 255, 0.95)' || g.fill === 'rgba(245, 245, 245, 0.9)') {
-      g.fill = 'rgba(253, 242, 248, 0.95)';
-    }
-    if (!g.stroke || g.stroke === '#666666' || g.stroke === '#999999') {
-      g.stroke = '#ec4899';
-    }
-    if (!g.titleColor || g.titleColor === '#333333') {
-      g.titleColor = '#831843';
-    }
-    g.strokeW = 2;
-  }
 
   console.log('[NexiMap] Main script fully loaded');
 })();
