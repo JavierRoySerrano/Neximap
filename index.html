@@ -1103,6 +1103,221 @@
       align-items: center;
     }
 
+    /* Visor Map Tooltip (hover over cables/stations) */
+    .visor-map-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(0,0,0,0.82);
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      z-index: 200;
+      transform: translate(-50%, -120%);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      max-width: 280px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .visor-map-tooltip::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid rgba(0,0,0,0.82);
+    }
+    /* Fixed/pinned cable name labels on visor map */
+    .visor-fixed-label {
+      background: rgba(255,255,255,0.92);
+      color: #1a1a2e;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+      border: 1px solid rgba(0,0,0,0.15);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+      pointer-events: none;
+    }
+    /* Visor toolbar toggle buttons */
+    .visor-toggle-btn {
+      padding: 3px 8px;
+      font-size: 10px;
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+      color: #495057;
+      transition: all 0.15s;
+    }
+    .visor-toggle-btn:hover { background: #e3f2fd; border-color: #0077b6; }
+    .visor-toggle-btn.active { background: #0077b6; color: white; border-color: #0077b6; }
+
+    /* Datacenter Visor Panel - Floating Draggable (matches Cable Visor) */
+    #dcVisorPanel {
+      position: absolute;
+      left: 420px;
+      top: 40px;
+      width: 500px;
+      height: 500px;
+      background: #ffffff;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      z-index: 151;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      resize: both;
+      min-width: 350px;
+      min-height: 300px;
+      max-width: 90vw;
+      max-height: calc(100vh - 100px);
+    }
+    #dcVisorPanel.maximized {
+      position: fixed !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      left: 0 !important;
+      top: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      border-radius: 0 !important;
+      max-width: 100vw !important;
+      max-height: 100vh !important;
+      z-index: 99999 !important;
+    }
+    #dcVisorPanel.show { display: flex; }
+    #dcVisorHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: linear-gradient(135deg, #9333ea 0%, #a855f7 100%);
+      border-bottom: 1px solid #9333ea;
+      color: white;
+      cursor: move;
+      user-select: none;
+    }
+    #dcVisorHeader h3 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #dcVisorControls {
+      display: flex;
+      gap: 6px;
+    }
+    #dcVisorControls button {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    #dcVisorControls button:hover { background: rgba(255,255,255,0.3); }
+    #dcVisorToolbar {
+      padding: 10px 12px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    #dcVisorMap {
+      flex: 1;
+      min-height: 80px;
+      background: #e0e7ef;
+      position: relative;
+    }
+    #dcVisorMapResizeHandle {
+      height: 7px;
+      background: linear-gradient(180deg, #e0e0e0 0%, #d0d0d0 100%);
+      cursor: ns-resize;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      user-select: none;
+      border-top: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+    }
+    #dcVisorMapResizeHandle:hover, #dcVisorMapResizeHandle.dragging {
+      background: linear-gradient(180deg, #e8d5f5 0%, #d4b8e8 100%);
+    }
+    #dcVisorMapResizeHandle .resize-grip {
+      width: 30px; height: 3px;
+      border-top: 1px solid #999; border-bottom: 1px solid #999;
+    }
+    #dcVisorMapResizeHandle:hover .resize-grip, #dcVisorMapResizeHandle.dragging .resize-grip {
+      border-color: #9333ea;
+    }
+    #dcVisorList {
+      height: 180px;
+      min-height: 100px;
+      max-height: 300px;
+      overflow-y: auto;
+      border-top: 1px solid #e0e0e0;
+      background: white;
+      resize: vertical;
+    }
+    .dc-visor-item {
+      padding: 8px 12px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+    .dc-visor-item:hover { background: #faf5ff; }
+    .dc-visor-item.selected { background: #f3e8ff; }
+    .dc-visor-item input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      accent-color: #9333ea;
+    }
+    .dc-visor-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .dc-visor-name {
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .dc-visor-meta {
+      font-size: 10px;
+      color: #666;
+    }
+    #dcVisorFooter {
+      padding: 8px 12px;
+      background: #f8f9fa;
+      border-top: 1px solid #e0e0e0;
+      font-size: 11px;
+      color: #666;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
     /* Multilink Group Manager Panel */
     #multilinkManager {
       position: absolute;
@@ -3809,6 +4024,138 @@
       pointer-events: none;
     }
 
+    /* ===== Datacenter Navigator Panel ===== */
+    #dcNavigator {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      width: 310px;
+      max-height: calc(100vh - 160px);
+      background: #ffffff;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      resize: both;
+      min-width: 260px;
+      max-width: 500px;
+      min-height: 200px;
+    }
+    #dcNavigator.minimized {
+      height: 40px !important;
+      max-height: 40px;
+      resize: none;
+    }
+    #dcNavigatorHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+      border-bottom: 1px solid #f9a8d4;
+      cursor: move;
+      user-select: none;
+    }
+    #dcNavigatorHeader h3 {
+      margin: 0; font-size: 13px; font-weight: 600; color: #831843;
+    }
+    #dcNavigatorControls {
+      display: flex; gap: 4px;
+    }
+    #dcNavigatorControls button {
+      background: transparent; border: 1px solid #f9a8d4; color: #9d174d;
+      width: 24px; height: 24px; border-radius: 4px; cursor: pointer;
+      font-size: 12px; display: flex; align-items: center; justify-content: center;
+    }
+    #dcNavigatorControls button:hover { background: #fce7f3; }
+    #dcNavigatorContent {
+      flex: 1; overflow: hidden; display: flex; flex-direction: column;
+    }
+
+    /* DC list items */
+    .dc-item {
+      padding: 6px 10px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+    }
+    .dc-item:hover { background: #fdf2f8; }
+    .dc-item:active { cursor: grabbing; opacity: 0.7; }
+    .dc-item.selected { background: #fce7f3; border-left: 3px solid #ec4899; }
+    .dc-item .dc-name { font-weight: 500; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dc-item .dc-org { font-size: 9px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dc-item .dc-meta { font-size: 9px; color: #999; }
+
+    /* Carrier density badge (colored square) */
+    .dc-density-badge {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .dc-density-badge.density-critical { background: #dc2626; box-shadow: 0 0 4px rgba(220,38,38,0.5); }
+    .dc-density-badge.density-high     { background: #f97316; box-shadow: 0 0 4px rgba(249,115,22,0.5); }
+    .dc-density-badge.density-medium   { background: #eab308; box-shadow: 0 0 3px rgba(234,179,8,0.4); }
+    .dc-density-badge.density-low      { background: #22c55e; }
+    .dc-density-badge.density-minimal  { background: #94a3b8; }
+
+    /* DC region groups */
+    .dc-region-group { margin-bottom: 2px; }
+    .dc-region-header {
+      padding: 5px 10px;
+      background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+      border-bottom: 1px solid #f9a8d4;
+      font-size: 10px; font-weight: 600; color: #831843;
+      cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; z-index: 5;
+    }
+    .dc-region-header:hover { background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%); }
+    .dc-region-items.collapsed { display: none; }
+
+    /* DC detail expand panel */
+    .dc-detail-panel {
+      background: #fefce8;
+      border-top: 1px solid #fde68a;
+      border-bottom: 1px solid #fde68a;
+      padding: 8px 10px;
+      font-size: 10px;
+      display: none;
+    }
+    .dc-detail-panel.show { display: block; }
+    .dc-detail-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+    }
+    .dc-detail-grid .dc-field {
+      background: #fffbeb; padding: 4px 6px; border-radius: 4px; border: 1px solid #fef3c7;
+    }
+    .dc-detail-grid .dc-field-label { font-size: 9px; color: #92400e; text-transform: uppercase; letter-spacing: 0.3px; }
+    .dc-detail-grid .dc-field-value { font-size: 11px; font-weight: 500; color: #1e293b; word-break: break-word; }
+    .dc-detail-grid .dc-field.full-width { grid-column: 1 / -1; }
+    .dc-networks-list {
+      margin-top: 6px; max-height: 120px; overflow-y: auto;
+    }
+    .dc-net-tag {
+      display: inline-flex; align-items: center; gap: 2px;
+      padding: 2px 6px; margin: 2px; background: #eff6ff; border: 1px solid #bfdbfe;
+      border-radius: 3px; font-size: 9px; color: #1e40af;
+    }
+
+    /* Drag-drop datacenter assignment */
+    .dc-item[draggable="true"] { cursor: grab; }
+    .dc-item[draggable="true"]:active { cursor: grabbing; opacity: 0.7; }
+    .dc-drop-highlight { filter: drop-shadow(0 0 6px #ec4899) drop-shadow(0 0 12px #ec4899); }
+    .node-dc-drop-highlight circle,
+    .node-dc-drop-highlight rect,
+    .node-dc-drop-highlight ellipse,
+    .node-dc-drop-highlight polygon { filter: drop-shadow(0 0 6px #ec4899) drop-shadow(0 0 12px #ec4899); }
+
     /* Drag-drop cable system assignment */
     .cable-system-item[draggable="true"] { cursor: grab; }
     .cable-system-item[draggable="true"]:active { cursor: grabbing; opacity: 0.7; }
@@ -5106,6 +5453,19 @@
         <rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>
       </svg>
     </button>
+    <!-- DC Container (Datacenter) -->
+    <button class="tool-btn" id="btnAddDCContainer" type="button" title="Add Datacenter Container">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="2" width="16" height="20" rx="1"/>
+        <line x1="4" y1="7" x2="20" y2="7"/>
+        <line x1="4" y1="12" x2="20" y2="12"/>
+        <line x1="4" y1="17" x2="20" y2="17"/>
+        <circle cx="17" cy="4.5" r="1" fill="currentColor"/>
+        <circle cx="17" cy="9.5" r="1" fill="currentColor"/>
+        <circle cx="17" cy="14.5" r="1" fill="currentColor"/>
+        <circle cx="17" cy="19.5" r="1" fill="currentColor"/>
+      </svg>
+    </button>
 
     <div class="tool-sep"></div>
 
@@ -5400,6 +5760,19 @@
         <line x1="9" y1="21" x2="9" y2="9"/>
       </svg>
       <span style="font-size:11px; margin-left:4px;">CS Details</span>
+    </button>
+
+    <!-- Datacenter List Toggle -->
+    <button class="tool-btn" id="btnToggleDCNavigator" type="button" title="Toggle Datacenter List">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="2" width="16" height="20" rx="1"/>
+        <line x1="4" y1="7" x2="20" y2="7"/>
+        <line x1="4" y1="12" x2="20" y2="12"/>
+        <line x1="4" y1="17" x2="20" y2="17"/>
+        <circle cx="17" cy="4.5" r="1" fill="currentColor"/>
+        <circle cx="17" cy="9.5" r="1" fill="currentColor"/>
+      </svg>
+      <span style="font-size:11px; margin-left:4px;">DC List</span>
     </button>
 
     <div class="tool-sep"></div>
@@ -6653,6 +7026,7 @@
               <select id="groupType">
                 <option value="country">Container</option>
                 <option value="region">Group</option>
+                <option value="dc">Datacenter</option>
               </select>
             </div>
             <div>
@@ -7183,6 +7557,47 @@
       <div style="padding:4px 12px 8px; display:flex; gap:8px;">
         <button class="btn" id="btnBatchAutoMatchFA" style="flex:1; font-size:10px; padding:4px 8px; background:#f0fdf4; border-color:#86efac; color:#166534;" title="Auto-match all cable systems with FiberAtlantic for live status">🔗 Link All to FiberAtlantic</button>
         <button class="btn" id="btnRefreshLiveStatus" style="flex:1; font-size:10px; padding:4px 8px; background:#eff6ff; border-color:#93c5fd; color:#1e40af;" title="Refresh live status from FiberAtlantic for all linked cables">🔄 Refresh Live</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Datacenter Navigator Panel -->
+  <aside id="dcNavigator" style="display:none;">
+    <div id="dcNavigatorHeader">
+      <h3>Datacenter List</h3>
+      <div id="dcNavigatorControls">
+        <button id="btnOpenDCVisor" title="Open Datacenter Visor">&#x1F3E2;</button>
+        <button id="btnMinimizeDCNav" title="Minimize/Maximize">−</button>
+        <button id="btnCloseDCNav" title="Hide Navigator">✕</button>
+      </div>
+    </div>
+    <div id="dcNavigatorContent">
+      <div style="padding:8px 10px; border-bottom:1px solid #f9a8d4;">
+        <input type="text" id="dcNavSearch" placeholder="Search datacenters..." style="width:100%; padding:5px 8px; border:1px solid #f9a8d4; border-radius:4px; font-size:11px;" />
+        <div style="margin-top:5px; display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+          <label style="font-size:10px; color:#831843; display:flex; align-items:center; gap:3px;">
+            <input type="checkbox" id="dcNavGroupByRegion" checked style="width:12px; height:12px; accent-color:#ec4899;" />
+            By Region
+          </label>
+          <select id="dcNavCountryFilter" style="padding:2px 4px; border:1px solid #f9a8d4; border-radius:3px; font-size:10px; max-width:90px;">
+            <option value="">All Countries</option>
+          </select>
+          <div style="flex:1;"></div>
+          <div style="display:flex; gap:3px; font-size:9px; flex-wrap:wrap;">
+            <span title="Critical: 50+ carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-critical" style="width:8px;height:8px;"></span>50+</span>
+            <span title="High: 20-49 carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-high" style="width:8px;height:8px;"></span>20+</span>
+            <span title="Medium: 5-19 carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-medium" style="width:8px;height:8px;"></span>5+</span>
+            <span title="Low: 1-4 carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-low" style="width:8px;height:8px;"></span>1+</span>
+            <span title="No carrier data" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-minimal" style="width:8px;height:8px;"></span>0</span>
+          </div>
+        </div>
+      </div>
+      <div id="dcList" style="flex:1; overflow-y:auto; padding:2px;">
+        <div class="muted" style="padding:12px; text-align:center;">Loading datacenter database...</div>
+      </div>
+      <div style="padding:6px 10px; border-top:1px solid #f9a8d4; background:#fdf2f8; font-size:10px; color:#831843; display:flex; justify-content:space-between; align-items:center;">
+        <span id="dcNavCount">0 datacenters</span>
+        <span>Drag to container or node</span>
       </div>
     </div>
   </aside>
@@ -12997,7 +13412,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
   }
 
   function refreshAllMemberships() {
-    state.groups.forEach(g => { if (g.type === 'country') updateCountryRegionMembership(g); });
+    state.groups.forEach(g => { if (g.type === 'country' || g.type === 'dc') updateCountryRegionMembership(g); });
     state.nodes.forEach(updateNodeGroupMembership);
   }
 
@@ -13555,7 +13970,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     label.style.fontFamily = g.titleFont || 'Arial';
     // Only show title if globally enabled AND per-container enabled (defaults to true)
     if (state.ui.showContainerTitle !== false && g.showTitle !== false) {
-      label.textContent = g.title || (g.type==='region' ? `Group${g.id}` : `Container${g.id}`);
+      label.textContent = g.title || (g.type==='region' ? `Group${g.id}` : g.type==='dc' ? `DC${g.id}` : `Container${g.id}`);
     } else {
       label.textContent = '';
     }
@@ -13718,6 +14133,41 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
 
     grp.appendChild(rect);
     if (shapeEl) grp.appendChild(shapeEl);
+
+    // DC container building icon (top-right corner)
+    if (g.type === 'dc') {
+      const iconG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      const iconX = g.x + g.w - 30;
+      const iconY = g.y + 4;
+      const iconScale = 0.8;
+      iconG.setAttribute('transform', `translate(${iconX}, ${iconY}) scale(${iconScale})`);
+      iconG.style.pointerEvents = 'none';
+      // Building body
+      const body = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      body.setAttribute('x', '2'); body.setAttribute('y', '0');
+      body.setAttribute('width', '20'); body.setAttribute('height', '24');
+      body.setAttribute('rx', '1'); body.setAttribute('fill', 'none');
+      body.setAttribute('stroke', g.stroke || '#ec4899'); body.setAttribute('stroke-width', '1.5');
+      iconG.appendChild(body);
+      // Rack lines
+      [6, 12, 18].forEach(ly => {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', '2'); line.setAttribute('y1', ly);
+        line.setAttribute('x2', '22'); line.setAttribute('y2', ly);
+        line.setAttribute('stroke', g.stroke || '#ec4899'); line.setAttribute('stroke-width', '0.8');
+        line.setAttribute('stroke-opacity', '0.5');
+        iconG.appendChild(line);
+      });
+      // LED dots
+      [3, 9, 15, 21].forEach(dy => {
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', '19'); dot.setAttribute('cy', dy);
+        dot.setAttribute('r', '1.2'); dot.setAttribute('fill', g.stroke || '#ec4899');
+        iconG.appendChild(dot);
+      });
+      grp.appendChild(iconG);
+    }
+
     grp.appendChild(label);
     // Append all 4 corner handles
     handles.forEach(h => grp.appendChild(h));
@@ -15280,7 +15730,7 @@ const groupTitle = document.getElementById('groupTitle');
         groupParent.appendChild(opt);
       });
       groupParent.value = g.parentId ? String(g.parentId) : '';
-      groupParent.disabled = (g.type !== 'country');
+      groupParent.disabled = (g.type !== 'country' && g.type !== 'dc');
 
       groupExtraTags.value = g.extraTags || '';
       groupW.value = Math.round(g.w);
@@ -16429,6 +16879,7 @@ if (groupTitleFontInline) {
 
   function makeGroup(id, x, y, type) {
     const isRegion = type === 'region';
+    const isDC = type === 'dc';
     const tierMults = state.financialSettings?.tierMultipliers || { '10G': 2.5, '100G': 6.25, '400G': 15.625 };
 
     // Get container defaults from financial settings
@@ -16456,22 +16907,22 @@ if (groupTitleFontInline) {
       '400G': Math.round(defaultIRU * tierMults['400G'] * 100) / 100
     };
 
-    return {
+    const base = {
       id,
       uuid: generateUUID(),
-      type: isRegion ? 'region' : 'country',
+      type: isDC ? 'dc' : (isRegion ? 'region' : 'country'),
       parentId: null,
       x: clamp(x,20,1400),
       y: clamp(y,20,760),
-      w: isRegion ? 520 : 320,
-      h: isRegion ? 320 : 220,
-      title: isRegion ? `Group${id}` : "Container",
+      w: isDC ? 280 : (isRegion ? 520 : 320),
+      h: isDC ? 200 : (isRegion ? 320 : 220),
+      title: isDC ? 'Datacenter' : (isRegion ? `Group${id}` : "Container"),
       filterTags: ['default'],
       extraTags:"",
-      fill: isRegion ? "rgba(245, 245, 245, 0.9)" : "rgba(255, 255, 255, 0.95)",
-      stroke: isRegion ? "#999999" : "#666666",
-      strokeW: 1,
-      titleColor:"#333333",
+      fill: isDC ? "rgba(253, 242, 248, 0.95)" : (isRegion ? "rgba(245, 245, 245, 0.9)" : "rgba(255, 255, 255, 0.95)"),
+      stroke: isDC ? "#ec4899" : (isRegion ? "#999999" : "#666666"),
+      strokeW: isDC ? 2 : 1,
+      titleColor: isDC ? "#831843" : "#333333",
       titleFont: isRegion ? 15 : 14,
       titleDx:0, titleDy:0,
       // Transit latency (null = use global default)
@@ -16487,6 +16938,27 @@ if (groupTitleFontInline) {
       // Override flag - when true, user has manually set values (don't recalculate)
       commercialCostOverride: false
     };
+
+    // DC-specific fields for PeeringDB data
+    if (isDC) {
+      base.dcPeeringDbId = null;
+      base.dcOrgName = '';
+      base.dcAddress = '';
+      base.dcCity = '';
+      base.dcCountry = '';
+      base.dcState = '';
+      base.dcZipcode = '';
+      base.dcLatitude = null;
+      base.dcLongitude = null;
+      base.dcWebsite = '';
+      base.dcRegion = '';
+      base.dcNetCount = 0;
+      base.dcIxCount = 0;
+      base.dcCarrierCount = 0;
+      base.dcNetworks = [];
+    }
+
+    return base;
   }
 
   function makeCableSystem(id) {
@@ -16608,12 +17080,13 @@ if (groupTitleFontInline) {
     const g = makeGroup(id, x, y, type);
     state.groups.push(g);
 
-    if (g.type === 'country') updateCountryRegionMembership(g);
+    if (g.type === 'country' || g.type === 'dc') updateCountryRegionMembership(g);
     refreshAllMemberships();
 
     select({type:'group', id});
     commit(); render();
-    showToast(g.type === 'region' ? 'Created group box. Rename in Inspector.' : 'Created container box. Rename in Inspector.');
+    const typeLabel = g.type === 'region' ? 'group box' : g.type === 'dc' ? 'datacenter container' : 'container box';
+    showToast(`Created ${typeLabel}. Rename in Inspector.`);
   }
 
     function deleteSelected() {
@@ -17301,7 +17774,17 @@ if (groupTitleFontInline) {
     state.placingGroup = !state.placingGroup;
     document.getElementById('btnAddRegion').classList.toggle('primary', state.placingGroup && state.placingGroupType==='region');
     document.getElementById('btnAddGroup').classList.remove('primary');
+    document.getElementById('btnAddDCContainer').classList.remove('primary');
     showToast(state.placingGroup ? 'Click the canvas to place a group box.' : 'Placement cancelled.');
+  });
+
+  document.getElementById('btnAddDCContainer').addEventListener('click', (ev) => {
+    state.placingGroupType = 'dc';
+    state.placingGroup = !state.placingGroup;
+    document.getElementById('btnAddDCContainer').classList.toggle('primary', state.placingGroup && state.placingGroupType==='dc');
+    document.getElementById('btnAddGroup').classList.remove('primary');
+    document.getElementById('btnAddRegion').classList.remove('primary');
+    showToast(state.placingGroup ? 'Click the canvas to place a datacenter container.' : 'Placement cancelled.');
   });
 
 // ============== CSV EXPORT WITH OPTIONS ==============
@@ -21897,6 +22380,977 @@ function loadProjectObject(obj) {
     document.addEventListener('DOMContentLoaded', initCableVisorEventHandlers);
   } else {
     initCableVisorEventHandlers();
+  }
+
+  // ======================
+  // Cable Visor Hover Tooltips, Labels & Stations
+  // ======================
+  // State for cable visor display options
+  const cableVisorDisplayState = {
+    showNames: false,       // Hover tooltip enabled (always true when names visible)
+    fixNames: false,        // Pin cable names permanently on map
+    showStations: false,    // Show landing station markers
+    fixStationNames: false, // Pin station names permanently on map
+    stationMarkers: [],     // MapLibre marker references for stations
+    stationPopup: null,     // Reusable hover popup for stations
+    fixedLabels: [],        // MapLibre marker references for fixed cable name labels
+    fixedStationLabels: [], // MapLibre marker references for fixed station name labels
+    tooltip: null           // DOM element for hover tooltip
+  };
+
+  // Create or get the hover tooltip element for the cable visor map
+  function getVisorTooltip() {
+    if (!cableVisorDisplayState.tooltip) {
+      const el = document.createElement('div');
+      el.className = 'visor-map-tooltip';
+      el.style.display = 'none';
+      const container = document.getElementById('cableVisorMap');
+      if (container) container.appendChild(el);
+      cableVisorDisplayState.tooltip = el;
+    }
+    return cableVisorDisplayState.tooltip;
+  }
+
+  // Setup hover events on the cable visor map (called after map loads)
+  function setupCableVisorHoverEvents() {
+    const map = cableVisorState.map;
+    if (!map) return;
+
+    // Mousemove handler for cable line hover tooltips
+    map.on('mousemove', (e) => {
+      // Query all cable layers for hover
+      const layerIds = Object.values(cableVisorState.cableLayers).map(l => l.layerId).filter(id => map.getLayer(id));
+      if (layerIds.length === 0) return;
+
+      const features = map.queryRenderedFeatures(
+        [[e.point.x - 6, e.point.y - 6], [e.point.x + 6, e.point.y + 6]],
+        { layers: layerIds }
+      );
+
+      const tooltip = getVisorTooltip();
+      if (features.length > 0) {
+        const name = features[0].properties.name || 'Unknown Cable';
+        tooltip.textContent = name;
+        tooltip.style.display = 'block';
+        tooltip.style.left = e.point.x + 'px';
+        tooltip.style.top = e.point.y + 'px';
+        map.getCanvas().style.cursor = 'pointer';
+      } else {
+        tooltip.style.display = 'none';
+        map.getCanvas().style.cursor = '';
+      }
+    });
+
+    map.on('mouseleave', () => {
+      const tooltip = getVisorTooltip();
+      tooltip.style.display = 'none';
+    });
+
+    console.log('[CableVisor] Hover events set up');
+  }
+
+  // Add a hit-area layer for each cable (wider invisible line for easier hover detection)
+  const _origAddCableToVisorMap = addCableToVisorMap;
+  addCableToVisorMap = function(cableId) {
+    _origAddCableToVisorMap(cableId);
+
+    const map = cableVisorState.map;
+    if (!map || !cableVisorState.mapReady) return;
+
+    const layerInfo = cableVisorState.cableLayers[cableId];
+    if (!layerInfo) return;
+
+    const hitLayerId = `cable-hit-${cableId}`;
+    try {
+      if (map.getLayer(hitLayerId)) map.removeLayer(hitLayerId);
+
+      // Add invisible wider hit-area layer for easier hover
+      map.addLayer({
+        id: hitLayerId,
+        type: 'line',
+        source: layerInfo.sourceId,
+        paint: {
+          'line-color': 'transparent',
+          'line-width': 16,
+          'line-opacity': 0
+        }
+      });
+
+      layerInfo.hitLayerId = hitLayerId;
+    } catch (err) {
+      console.warn('[CableVisor] Could not add hit-area layer:', err);
+    }
+
+    // Update fixed labels and stations if those modes are active
+    if (cableVisorDisplayState.fixNames) updateFixedCableLabels();
+    if (cableVisorDisplayState.showStations) updateStationMarkers();
+  };
+
+  // Extend removeCableFromVisorMap to also remove hit-area + labels
+  const _origRemoveCableFromVisorMap = removeCableFromVisorMap;
+  removeCableFromVisorMap = function(cableId) {
+    const map = cableVisorState.map;
+    if (map && cableVisorState.mapReady) {
+      const layerInfo = cableVisorState.cableLayers[cableId];
+      if (layerInfo?.hitLayerId) {
+        try { if (map.getLayer(layerInfo.hitLayerId)) map.removeLayer(layerInfo.hitLayerId); } catch (e) {}
+      }
+    }
+    _origRemoveCableFromVisorMap(cableId);
+
+    // Update fixed labels and stations if those modes are active
+    if (cableVisorDisplayState.fixNames) updateFixedCableLabels();
+    if (cableVisorDisplayState.showStations) updateStationMarkers();
+  };
+
+  // Hook into map load to set up hover events
+  let _cableVisorHoverSetUp = false;
+  const _origInitCableVisorMap = initCableVisorMap;
+  initCableVisorMap = function() {
+    _origInitCableVisorMap();
+
+    // Wait for map to be ready, then set up hover events (only once)
+    if (cableVisorState.map && !_cableVisorHoverSetUp) {
+      if (cableVisorState.mapReady) {
+        _cableVisorHoverSetUp = true;
+        setupCableVisorHoverEvents();
+      } else {
+        cableVisorState.map.on('load', () => {
+          if (!_cableVisorHoverSetUp) {
+            _cableVisorHoverSetUp = true;
+            setupCableVisorHoverEvents();
+          }
+        });
+      }
+    }
+  };
+
+  // Calculate midpoint of a cable geometry for label placement
+  function getCableMidpoint(geometry) {
+    if (!geometry || !geometry.coordinates) return null;
+
+    let coords = [];
+    if (geometry.type === 'MultiLineString') {
+      // Use the longest segment
+      let longest = geometry.coordinates[0] || [];
+      geometry.coordinates.forEach(seg => { if (seg.length > longest.length) longest = seg; });
+      coords = longest;
+    } else if (geometry.type === 'LineString') {
+      coords = geometry.coordinates;
+    }
+
+    if (coords.length === 0) return null;
+    const mid = coords[Math.floor(coords.length / 2)];
+    return mid ? [mid[0], mid[1]] : null;
+  }
+
+  // Update fixed cable name labels on the map
+  function updateFixedCableLabels() {
+    const map = cableVisorState.map;
+    if (!map || !cableVisorState.mapReady) return;
+
+    // Remove existing labels
+    cableVisorDisplayState.fixedLabels.forEach(m => m.remove());
+    cableVisorDisplayState.fixedLabels = [];
+
+    if (!cableVisorDisplayState.fixNames) return;
+
+    const db = cableVisorState.cableDatabase;
+    if (!db || !db.cables) return;
+
+    cableVisorState.selectedCables.forEach(cableId => {
+      const cable = db.cables[cableId];
+      if (!cable || !cable.geometry) return;
+
+      const midpoint = getCableMidpoint(cable.geometry);
+      if (!midpoint) return;
+
+      const el = document.createElement('div');
+      el.className = 'visor-fixed-label';
+      el.textContent = cable.shortName || cable.name;
+      el.style.borderLeft = `3px solid ${getCableColorById(cableId)}`;
+
+      const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat(midpoint)
+        .addTo(map);
+
+      cableVisorDisplayState.fixedLabels.push(marker);
+    });
+  }
+
+  // Get cable color by ID (same hash logic as renderCableVisorList)
+  function getCableColorById(cableId) {
+    const colors = ['#e63946', '#f4a261', '#2a9d8f', '#264653', '#8338ec', '#3a86ff', '#ff006e', '#fb5607', '#06d6a0', '#118ab2'];
+    let hash = 0;
+    const id = String(cableId);
+    for (let i = 0; i < id.length; i++) hash = ((hash << 5) - hash) + id.charCodeAt(i);
+    return colors[Math.abs(hash) % colors.length];
+  }
+
+  // Update station/landing point markers on the map
+  function updateStationMarkers() {
+    const map = cableVisorState.map;
+    if (!map || !cableVisorState.mapReady) return;
+
+    // Remove existing station markers
+    cableVisorDisplayState.stationMarkers.forEach(m => m.remove());
+    cableVisorDisplayState.stationMarkers = [];
+    cableVisorDisplayState.fixedStationLabels.forEach(m => m.remove());
+    cableVisorDisplayState.fixedStationLabels = [];
+
+    if (!cableVisorDisplayState.showStations) return;
+
+    const db = cableVisorState.cableDatabase;
+    if (!db || !db.cables) return;
+
+    // Collect all landing points from selected cables
+    const stationMap = new Map(); // dedup by name+coords
+
+    cableVisorState.selectedCables.forEach(cableId => {
+      const cable = db.cables[cableId];
+      if (!cable) return;
+
+      // Collect landing points with coordinates
+      const lps = cable.landingPoints || [];
+      let hasCoordLPs = false;
+
+      lps.forEach(lp => {
+        // Support multiple coordinate formats:
+        // { lat, lon } or { coordinates: [lon, lat] }
+        let lat = lp.lat, lon = lp.lon;
+        if (!lat && lp.coordinates && Array.isArray(lp.coordinates)) {
+          lon = lp.coordinates[0];
+          lat = lp.coordinates[1];
+        }
+        if (!lat || !lon) return;
+        hasCoordLPs = true;
+        lat = parseFloat(lat);
+        lon = parseFloat(lon);
+        const key = `${lat.toFixed(3)}_${lon.toFixed(3)}`;
+        if (!stationMap.has(key)) {
+          stationMap.set(key, {
+            name: lp.name || 'Unknown Station',
+            country: lp.country || '',
+            lat: lat,
+            lon: lon,
+            cables: [cable.shortName || cable.name]
+          });
+        } else {
+          const existing = stationMap.get(key);
+          if (!existing.cables.includes(cable.shortName || cable.name)) {
+            existing.cables.push(cable.shortName || cable.name);
+          }
+        }
+      });
+
+      // If landing points have no coordinates, use cable geometry endpoints
+      if (!hasCoordLPs && cable.geometry && cable.geometry.coordinates) {
+        const geom = cable.geometry;
+        let segments = [];
+        if (geom.type === 'MultiLineString') {
+          segments = geom.coordinates;
+        } else if (geom.type === 'LineString') {
+          segments = [geom.coordinates];
+        }
+
+        // Get unique endpoints (first and last of each segment)
+        const endpoints = new Set();
+        segments.forEach(seg => {
+          if (seg.length > 0) {
+            endpoints.add(JSON.stringify(seg[0]));
+            endpoints.add(JSON.stringify(seg[seg.length - 1]));
+          }
+        });
+
+        let lpIdx = 0;
+        endpoints.forEach(ptStr => {
+          const pt = JSON.parse(ptStr);
+          const lon = pt[0], lat = pt[1];
+          const key = `${lat.toFixed(3)}_${lon.toFixed(3)}`;
+          // Use landing point name if available, otherwise "Endpoint"
+          const lpName = (lps[lpIdx] && lps[lpIdx].name) ? lps[lpIdx].name : `Endpoint ${lpIdx + 1}`;
+          const lpCountry = (lps[lpIdx] && lps[lpIdx].country) ? lps[lpIdx].country : '';
+          if (!stationMap.has(key)) {
+            stationMap.set(key, {
+              name: lpName,
+              country: lpCountry,
+              lat: lat,
+              lon: lon,
+              cables: [cable.shortName || cable.name]
+            });
+          } else {
+            const existing = stationMap.get(key);
+            if (!existing.cables.includes(cable.shortName || cable.name)) {
+              existing.cables.push(cable.shortName || cable.name);
+            }
+          }
+          lpIdx++;
+        });
+      }
+    });
+
+    // Create markers for each station
+    stationMap.forEach((station, key) => {
+      // Station marker dot
+      const el = document.createElement('div');
+      el.style.cssText = 'width:10px; height:10px; border-radius:50%; background:#e63946; border:2px solid white; box-shadow:0 1px 4px rgba(0,0,0,0.4); cursor:pointer;';
+
+      const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([station.lon, station.lat])
+        .addTo(map);
+
+      // Hover tooltip for station
+      const popup = new maplibregl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        offset: 10,
+        className: 'visor-station-popup'
+      });
+
+      el.addEventListener('mouseenter', () => {
+        const cablesText = station.cables.length > 1
+          ? `<br><span style="font-size:10px;color:#94a3b8;">Cables: ${station.cables.join(', ')}</span>`
+          : '';
+        popup.setLngLat([station.lon, station.lat])
+          .setHTML(`<strong>${escapeHtml(station.name)}</strong>${station.country ? ', ' + escapeHtml(station.country) : ''}${cablesText}`)
+          .addTo(map);
+      });
+
+      el.addEventListener('mouseleave', () => {
+        popup.remove();
+      });
+
+      cableVisorDisplayState.stationMarkers.push(marker);
+
+      // Fixed station name labels
+      if (cableVisorDisplayState.fixStationNames) {
+        const labelEl = document.createElement('div');
+        labelEl.className = 'visor-fixed-label';
+        labelEl.textContent = station.name;
+        labelEl.style.borderLeft = '3px solid #e63946';
+        labelEl.style.fontSize = '9px';
+
+        const labelMarker = new maplibregl.Marker({ element: labelEl, anchor: 'left', offset: [8, 0] })
+          .setLngLat([station.lon, station.lat])
+          .addTo(map);
+
+        cableVisorDisplayState.fixedStationLabels.push(labelMarker);
+      }
+    });
+
+    console.log('[CableVisor] Station markers updated:', stationMap.size, 'stations');
+  }
+
+  // Toggle button handlers for cable visor display options
+  document.addEventListener('DOMContentLoaded', () => {
+    const btnShowNames = document.getElementById('btnVisorShowNames');
+    const btnFixNames = document.getElementById('btnVisorFixNames');
+    const btnShowStations = document.getElementById('btnVisorShowStations');
+    const btnFixStationNames = document.getElementById('btnVisorFixStationNames');
+
+    if (btnShowNames) btnShowNames.addEventListener('click', () => {
+      cableVisorDisplayState.showNames = !cableVisorDisplayState.showNames;
+      btnShowNames.classList.toggle('active', cableVisorDisplayState.showNames);
+      // Show/hide the "Pin Names" button
+      if (btnFixNames) btnFixNames.style.display = cableVisorDisplayState.showNames ? '' : 'none';
+      if (!cableVisorDisplayState.showNames) {
+        cableVisorDisplayState.fixNames = false;
+        if (btnFixNames) btnFixNames.classList.remove('active');
+        updateFixedCableLabels();
+      }
+    });
+
+    if (btnFixNames) btnFixNames.addEventListener('click', () => {
+      cableVisorDisplayState.fixNames = !cableVisorDisplayState.fixNames;
+      btnFixNames.classList.toggle('active', cableVisorDisplayState.fixNames);
+      updateFixedCableLabels();
+    });
+
+    if (btnShowStations) btnShowStations.addEventListener('click', () => {
+      cableVisorDisplayState.showStations = !cableVisorDisplayState.showStations;
+      btnShowStations.classList.toggle('active', cableVisorDisplayState.showStations);
+      // Show/hide the "Pin Stations" button
+      if (btnFixStationNames) btnFixStationNames.style.display = cableVisorDisplayState.showStations ? '' : 'none';
+      if (!cableVisorDisplayState.showStations) {
+        cableVisorDisplayState.fixStationNames = false;
+        if (btnFixStationNames) btnFixStationNames.classList.remove('active');
+      }
+      updateStationMarkers();
+    });
+
+    if (btnFixStationNames) btnFixStationNames.addEventListener('click', () => {
+      cableVisorDisplayState.fixStationNames = !cableVisorDisplayState.fixStationNames;
+      btnFixStationNames.classList.toggle('active', cableVisorDisplayState.fixStationNames);
+      updateStationMarkers();
+    });
+  });
+
+  // ======================
+  // Datacenter Visor Panel
+  // ======================
+  const dcVisorState = {
+    map: null,
+    selectedDCs: new Set(),
+    dcDatabase: null,
+    dcMarkers: {},       // { dcId: marker }
+    initialized: false,
+    mapReady: false,
+    showNames: false,
+    fixedLabels: [],     // MapLibre marker references for DC name labels
+    tooltip: null        // DOM element for hover tooltip
+  };
+
+  function showDCVisor() {
+    const panel = document.getElementById('dcVisorPanel');
+    if (!panel) return;
+    panel.classList.add('show');
+
+    // Initialize draggable on first show
+    initDCVisorDraggable();
+
+    // Load DC database then init map
+    loadDCVisorData().then(() => {
+      if (!dcVisorState.initialized) {
+        setTimeout(() => initDCVisorMap(), 100);
+      } else if (dcVisorState.map) {
+        dcVisorState.map.resize();
+      }
+    });
+  }
+
+  function hideDCVisor() {
+    const panel = document.getElementById('dcVisorPanel');
+    if (panel) panel.classList.remove('show');
+  }
+
+  function toggleDCVisorMaximize() {
+    const panel = document.getElementById('dcVisorPanel');
+    if (!panel) return;
+
+    panel.classList.toggle('maximized');
+    if (panel.classList.contains('maximized')) {
+      panel._originalStyle = {
+        width: panel.style.width,
+        height: panel.style.height,
+        left: panel.style.left,
+        top: panel.style.top
+      };
+      panel.style.width = '';
+      panel.style.height = '';
+      panel.style.left = '';
+      panel.style.top = '';
+    } else if (panel._originalStyle) {
+      Object.assign(panel.style, panel._originalStyle);
+    }
+    if (dcVisorState.map) setTimeout(() => dcVisorState.map.resize(), 100);
+  }
+
+  function initDCVisorMap() {
+    const container = document.getElementById('dcVisorMapContainer');
+    const loadingEl = document.getElementById('dcVisorMapLoading');
+    if (!container) return;
+
+    if (dcVisorState.map) {
+      dcVisorState.map.resize();
+      return;
+    }
+
+    try {
+      dcVisorState.map = new maplibregl.Map({
+        container: container,
+        style: {
+          version: 8,
+          sources: {
+            'osm-tiles': {
+              type: 'raster',
+              tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+              tileSize: 256,
+              attribution: '&copy; OpenStreetMap contributors'
+            }
+          },
+          layers: [{
+            id: 'osm-layer',
+            type: 'raster',
+            source: 'osm-tiles',
+            minzoom: 0,
+            maxzoom: 19
+          }]
+        },
+        center: [0, 20],
+        zoom: 1.5,
+        attributionControl: false
+      });
+
+      dcVisorState.map.addControl(new maplibregl.NavigationControl(), 'top-left');
+      dcVisorState.map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
+
+      dcVisorState.map.on('load', () => {
+        if (loadingEl) loadingEl.style.display = 'none';
+        dcVisorState.initialized = true;
+        dcVisorState.mapReady = true;
+
+        // Add any already selected DCs to map
+        dcVisorState.selectedDCs.forEach(dcId => {
+          addDCToVisorMap(dcId);
+        });
+
+        setupDCVisorHoverEvents();
+      });
+
+    } catch (err) {
+      console.error('[DCVisor] Map init error:', err);
+      if (loadingEl) loadingEl.innerHTML = '<div style="color:#c00;">Failed to load map</div>';
+    }
+  }
+
+  // Create or get the hover tooltip element for the DC visor map
+  function getDCVisorTooltip() {
+    if (!dcVisorState.tooltip) {
+      const el = document.createElement('div');
+      el.className = 'visor-map-tooltip';
+      el.style.display = 'none';
+      const container = document.getElementById('dcVisorMap');
+      if (container) container.appendChild(el);
+      dcVisorState.tooltip = el;
+    }
+    return dcVisorState.tooltip;
+  }
+
+  // Setup hover events on the DC visor map
+  function setupDCVisorHoverEvents() {
+    const map = dcVisorState.map;
+    if (!map) return;
+
+    // DC markers have their own mouseenter/mouseleave handlers
+    console.log('[DCVisor] Hover events set up');
+  }
+
+  async function loadDCVisorData() {
+    if (dcVisorState.dcDatabase) {
+      renderDCVisorList();
+      return;
+    }
+
+    const listEl = document.getElementById('dcVisorDCList');
+    if (listEl) listEl.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">Loading datacenters...</div>';
+
+    try {
+      // Load from PeeringDB facilities file
+      if (window._dcDatabase && window._dcDatabase.loaded) {
+        dcVisorState.dcDatabase = window._dcDatabase;
+      } else {
+        const resp = await fetch('data/peeringdb_facilities.json');
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        dcVisorState.dcDatabase = {
+          facilities: data.facilities || [],
+          meta: data.meta || {},
+          loaded: true
+        };
+        // Also store globally for DC Navigator
+        if (!window._dcDatabase || !window._dcDatabase.loaded) {
+          window._dcDatabase = dcVisorState.dcDatabase;
+        }
+      }
+
+      populateDCVisorRegionFilter();
+      renderDCVisorList();
+      console.log('[DCVisor] Loaded', dcVisorState.dcDatabase.facilities.length, 'datacenters');
+
+    } catch (err) {
+      console.error('[DCVisor] Failed to load DCs:', err);
+      if (listEl) listEl.innerHTML = '<div style="padding:20px; text-align:center; color:#c00;">Error: ' + err.message + '</div>';
+    }
+  }
+
+  function populateDCVisorRegionFilter() {
+    const select = document.getElementById('dcVisorRegionFilter');
+    if (!select || !dcVisorState.dcDatabase) return;
+
+    const regions = new Set();
+    dcVisorState.dcDatabase.facilities.forEach(fac => {
+      if (fac.region_continent) regions.add(fac.region_continent);
+    });
+
+    const sorted = Array.from(regions).sort();
+    select.innerHTML = '<option value="">All Regions</option>' +
+      sorted.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
+  }
+
+  // Get density class for DC (same logic as DC Navigator)
+  function getDCDensityClass(fac) {
+    const count = (fac.carrier_count || 0) + (fac.ix_count || 0);
+    if (count >= 50) return 'density-critical';
+    if (count >= 20) return 'density-high';
+    if (count >= 5) return 'density-medium';
+    if (count >= 1) return 'density-low';
+    return 'density-minimal';
+  }
+
+  function renderDCVisorList() {
+    const listEl = document.getElementById('dcVisorDCList');
+    const countEl = document.getElementById('dcVisorDCCount');
+    const selectedCountEl = document.getElementById('dcVisorSelectedCount');
+
+    if (!listEl) return;
+
+    if (!dcVisorState.dcDatabase || !dcVisorState.dcDatabase.facilities) {
+      listEl.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">No datacenter data available</div>';
+      return;
+    }
+
+    const search = (document.getElementById('dcVisorSearch')?.value || '').toLowerCase().trim();
+    const regionFilter = document.getElementById('dcVisorRegionFilter')?.value || '';
+
+    let facilities = dcVisorState.dcDatabase.facilities.filter(fac => {
+      if (regionFilter && fac.region_continent !== regionFilter) return false;
+      if (search) {
+        const name = (fac.name || '').toLowerCase();
+        const org = (fac.org_name || '').toLowerCase();
+        const city = (fac.city || '').toLowerCase();
+        const country = (fac.country || '').toLowerCase();
+        return name.includes(search) || org.includes(search) || city.includes(search) || country.includes(search);
+      }
+      return true;
+    });
+
+    // Sort by name
+    facilities.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+    // Limit display to 500 to avoid performance issues
+    const displayLimit = 500;
+    const totalMatches = facilities.length;
+    if (facilities.length > displayLimit) {
+      facilities = facilities.slice(0, displayLimit);
+    }
+
+    let html = '';
+    facilities.forEach(fac => {
+      const isSelected = dcVisorState.selectedDCs.has(String(fac.id));
+      const densityClass = getDCDensityClass(fac);
+      const hasCoords = fac.latitude && fac.longitude;
+
+      html += `
+        <div class="dc-visor-item ${isSelected ? 'selected' : ''}" data-dc-id="${fac.id}" title="${escapeHtml(fac.name)}${!hasCoords ? ' (no coordinates)' : ''}">
+          <input type="checkbox" ${isSelected ? 'checked' : ''} />
+          <span class="dc-density-badge ${densityClass}" style="width:10px;height:10px;flex-shrink:0;"></span>
+          <div class="dc-visor-info">
+            <div class="dc-visor-name">${escapeHtml(fac.name)}</div>
+            <div class="dc-visor-meta">${escapeHtml(fac.city || '')}${fac.country ? ', ' + escapeHtml(fac.country) : ''} ${fac.net_count ? ' &bull; ' + fac.net_count + ' networks' : ''}${!hasCoords ? ' &bull; No map data' : ''}</div>
+          </div>
+        </div>
+      `;
+    });
+
+    if (totalMatches > displayLimit) {
+      html += `<div style="padding:8px 12px; text-align:center; font-size:11px; color:#888;">Showing ${displayLimit} of ${totalMatches} matching datacenters. Narrow your search.</div>`;
+    }
+
+    listEl.innerHTML = html || '<div style="padding:12px; text-align:center; color:#666;">No datacenters match your filter</div>';
+
+    if (countEl) countEl.textContent = `${totalMatches} datacenters`;
+    if (selectedCountEl) selectedCountEl.textContent = `${dcVisorState.selectedDCs.size} selected`;
+
+    // Add click handlers
+    listEl.querySelectorAll('.dc-visor-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        if (e.target.type === 'checkbox') return;
+        const dcId = item.dataset.dcId;
+        toggleDCVisorSelection(dcId);
+      });
+
+      const checkbox = item.querySelector('input[type="checkbox"]');
+      if (checkbox) {
+        checkbox.addEventListener('change', (e) => {
+          e.stopPropagation();
+          const dcId = item.dataset.dcId;
+          toggleDCVisorSelection(dcId);
+        });
+      }
+
+      item.addEventListener('dblclick', () => {
+        const dcId = item.dataset.dcId;
+        if (!dcVisorState.selectedDCs.has(dcId)) {
+          toggleDCVisorSelection(dcId);
+        }
+        zoomToDC(dcId);
+      });
+    });
+  }
+
+  function toggleDCVisorSelection(dcId) {
+    if (dcVisorState.selectedDCs.has(dcId)) {
+      dcVisorState.selectedDCs.delete(dcId);
+      removeDCFromVisorMap(dcId);
+    } else {
+      dcVisorState.selectedDCs.add(dcId);
+      addDCToVisorMap(dcId);
+    }
+    renderDCVisorList();
+  }
+
+  function addDCToVisorMap(dcId) {
+    const map = dcVisorState.map;
+    if (!map || !dcVisorState.mapReady) return;
+
+    const fac = dcVisorState.dcDatabase?.facilities?.find(f => String(f.id) === String(dcId));
+    if (!fac || !fac.latitude || !fac.longitude) return;
+
+    // Remove existing marker if any
+    if (dcVisorState.dcMarkers[dcId]) {
+      dcVisorState.dcMarkers[dcId].remove();
+    }
+
+    // Create marker element
+    const el = document.createElement('div');
+    const densityClass = getDCDensityClass(fac);
+    el.style.cssText = 'width:12px; height:12px; border-radius:2px; border:2px solid white; box-shadow:0 1px 4px rgba(0,0,0,0.4); cursor:pointer;';
+
+    // Color based on density
+    const densityColors = {
+      'density-critical': '#dc2626',
+      'density-high': '#f59e0b',
+      'density-medium': '#3b82f6',
+      'density-low': '#22c55e',
+      'density-minimal': '#94a3b8'
+    };
+    el.style.background = densityColors[densityClass] || '#9333ea';
+
+    const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+      .setLngLat([fac.longitude, fac.latitude])
+      .addTo(map);
+
+    // Hover popup
+    const popup = new maplibregl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      offset: 10
+    });
+
+    el.addEventListener('mouseenter', () => {
+      popup.setLngLat([fac.longitude, fac.latitude])
+        .setHTML(`<strong>${escapeHtml(fac.name)}</strong><br><span style="font-size:10px;color:#666;">${escapeHtml(fac.org_name || '')}${fac.city ? ', ' + escapeHtml(fac.city) : ''}${fac.country ? ', ' + escapeHtml(fac.country) : ''}</span>${fac.net_count ? '<br><span style="font-size:10px;color:#3b82f6;">' + fac.net_count + ' networks</span>' : ''}`)
+        .addTo(map);
+    });
+
+    el.addEventListener('mouseleave', () => {
+      popup.remove();
+    });
+
+    dcVisorState.dcMarkers[dcId] = marker;
+
+    // Update fixed labels if active
+    if (dcVisorState.showNames) updateFixedDCLabels();
+  }
+
+  function removeDCFromVisorMap(dcId) {
+    if (dcVisorState.dcMarkers[dcId]) {
+      dcVisorState.dcMarkers[dcId].remove();
+      delete dcVisorState.dcMarkers[dcId];
+    }
+    if (dcVisorState.showNames) updateFixedDCLabels();
+  }
+
+  function zoomToDC(dcId) {
+    const map = dcVisorState.map;
+    if (!map || !dcVisorState.mapReady) return;
+
+    const fac = dcVisorState.dcDatabase?.facilities?.find(f => String(f.id) === String(dcId));
+    if (!fac || !fac.latitude || !fac.longitude) return;
+
+    map.flyTo({ center: [fac.longitude, fac.latitude], zoom: 12, duration: 1000 });
+  }
+
+  function selectAllVisorDCs() {
+    if (!dcVisorState.dcDatabase) return;
+
+    const search = (document.getElementById('dcVisorSearch')?.value || '').toLowerCase().trim();
+    const regionFilter = document.getElementById('dcVisorRegionFilter')?.value || '';
+
+    let count = 0;
+    const maxSelect = 200; // Limit to prevent performance issues
+
+    dcVisorState.dcDatabase.facilities.forEach(fac => {
+      if (count >= maxSelect) return;
+      if (regionFilter && fac.region_continent !== regionFilter) return;
+      if (search) {
+        const name = (fac.name || '').toLowerCase();
+        const org = (fac.org_name || '').toLowerCase();
+        const city = (fac.city || '').toLowerCase();
+        if (!name.includes(search) && !org.includes(search) && !city.includes(search)) return;
+      }
+      if (!fac.latitude || !fac.longitude) return;
+      if (!dcVisorState.selectedDCs.has(String(fac.id))) {
+        dcVisorState.selectedDCs.add(String(fac.id));
+        addDCToVisorMap(String(fac.id));
+        count++;
+      }
+    });
+
+    if (count >= maxSelect) {
+      showToast(`Selected ${maxSelect} datacenters (limit). Narrow your search for more.`, 'info');
+    }
+
+    renderDCVisorList();
+  }
+
+  function clearAllVisorDCs() {
+    dcVisorState.selectedDCs.forEach(dcId => {
+      removeDCFromVisorMap(dcId);
+    });
+    dcVisorState.selectedDCs.clear();
+    renderDCVisorList();
+  }
+
+  // Fixed DC name labels
+  function updateFixedDCLabels() {
+    const map = dcVisorState.map;
+    if (!map || !dcVisorState.mapReady) return;
+
+    // Remove existing
+    dcVisorState.fixedLabels.forEach(m => m.remove());
+    dcVisorState.fixedLabels = [];
+
+    if (!dcVisorState.showNames) return;
+
+    dcVisorState.selectedDCs.forEach(dcId => {
+      const fac = dcVisorState.dcDatabase?.facilities?.find(f => String(f.id) === String(dcId));
+      if (!fac || !fac.latitude || !fac.longitude) return;
+
+      const el = document.createElement('div');
+      el.className = 'visor-fixed-label';
+      el.textContent = fac.name;
+      el.style.borderLeft = '3px solid #9333ea';
+      el.style.fontSize = '9px';
+      el.style.maxWidth = '150px';
+      el.style.overflow = 'hidden';
+      el.style.textOverflow = 'ellipsis';
+
+      const marker = new maplibregl.Marker({ element: el, anchor: 'left', offset: [10, 0] })
+        .setLngLat([fac.longitude, fac.latitude])
+        .addTo(map);
+
+      dcVisorState.fixedLabels.push(marker);
+    });
+  }
+
+  // DC Visor draggable
+  let dcVisorDraggableInitialized = false;
+  function initDCVisorDraggable() {
+    if (dcVisorDraggableInitialized) return;
+
+    const panel = document.getElementById('dcVisorPanel');
+    const header = document.getElementById('dcVisorHeader');
+    if (!panel || !header) return;
+
+    let isDragging = false;
+    let startX, startY, startLeft, startTop;
+
+    header.addEventListener('mousedown', (e) => {
+      if (e.target.tagName === 'BUTTON') return;
+      isDragging = true;
+      const rect = panel.getBoundingClientRect();
+      startX = e.clientX;
+      startY = e.clientY;
+      startLeft = rect.left;
+      startTop = rect.top;
+      panel.style.transition = 'none';
+      panel.style.right = 'auto';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      panel.style.left = Math.max(0, startLeft + dx) + 'px';
+      panel.style.top = Math.max(0, startTop + dy) + 'px';
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        panel.style.transition = '';
+      }
+    });
+
+    dcVisorDraggableInitialized = true;
+    console.log('[DCVisor] Draggable initialized');
+  }
+
+  // DC Visor map resize handle
+  (function() {
+    let dragging = false;
+    let startY = 0;
+    let startHeight = 0;
+
+    document.addEventListener('mousedown', (e) => {
+      if (!e.target.closest('#dcVisorMapResizeHandle')) return;
+      const mapEl = document.getElementById('dcVisorMap');
+      if (!mapEl) return;
+      dragging = true;
+      startY = e.clientY;
+      startHeight = mapEl.getBoundingClientRect().height;
+      e.target.closest('#dcVisorMapResizeHandle').classList.add('dragging');
+      document.body.style.cursor = 'ns-resize';
+      document.body.style.userSelect = 'none';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      const mapEl = document.getElementById('dcVisorMap');
+      if (!mapEl) return;
+      const delta = e.clientY - startY;
+      const newHeight = Math.max(80, startHeight + delta);
+      mapEl.style.flex = 'none';
+      mapEl.style.height = newHeight + 'px';
+      if (dcVisorState.map) dcVisorState.map.resize();
+      e.preventDefault();
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (!dragging) return;
+      dragging = false;
+      const handle = document.getElementById('dcVisorMapResizeHandle');
+      if (handle) handle.classList.remove('dragging');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      if (dcVisorState.map) dcVisorState.map.resize();
+    });
+  })();
+
+  // DC Visor event handlers
+  function initDCVisorEventHandlers() {
+    document.getElementById('btnDCVisorClose')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      hideDCVisor();
+    });
+    document.getElementById('btnDCVisorMaximize')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleDCVisorMaximize();
+    });
+    document.getElementById('btnOpenDCVisor')?.addEventListener('click', showDCVisor);
+    document.getElementById('btnDCVisorSelectAll')?.addEventListener('click', selectAllVisorDCs);
+    document.getElementById('btnDCVisorClearAll')?.addEventListener('click', clearAllVisorDCs);
+    document.getElementById('dcVisorSearch')?.addEventListener('input', () => renderDCVisorList());
+    document.getElementById('dcVisorRegionFilter')?.addEventListener('change', () => renderDCVisorList());
+
+    // DC name labels toggle
+    document.getElementById('btnDCVisorShowNames')?.addEventListener('click', () => {
+      dcVisorState.showNames = !dcVisorState.showNames;
+      document.getElementById('btnDCVisorShowNames')?.classList.toggle('active', dcVisorState.showNames);
+      updateFixedDCLabels();
+    });
+
+    console.log('[DCVisor] Event handlers initialized');
+  }
+
+  // Initialize DC Visor on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDCVisorEventHandlers);
+  } else {
+    initDCVisorEventHandlers();
   }
 
   // Add handler for group by region checkbox
@@ -45863,6 +47317,13 @@ function handlePathKmlImport(e) {
       <button class="btn" id="btnVisorSelectAll" style="padding:4px 8px; font-size:11px;" title="Select all visible">✓ All</button>
       <button class="btn" id="btnVisorClearAll" style="padding:4px 8px; font-size:11px;" title="Clear selection">✗ Clear</button>
     </div>
+    <div style="display:flex; gap:6px; align-items:center; margin-top:4px;">
+      <span style="font-size:10px; font-weight:600; color:#64748b;">Display:</span>
+      <button class="visor-toggle-btn" id="btnVisorShowNames" title="Show/hide cable names on map">Names</button>
+      <button class="visor-toggle-btn" id="btnVisorShowStations" title="Show/hide cable landing stations on map">Stations</button>
+      <button class="visor-toggle-btn" id="btnVisorFixNames" title="Pin cable names permanently on map" style="display:none;">Pin Names</button>
+      <button class="visor-toggle-btn" id="btnVisorFixStationNames" title="Pin station names permanently on map" style="display:none;">Pin Stations</button>
+    </div>
   </div>
   <div id="cableVisorMap">
     <div id="cableVisorMapContainer" style="width:100%; height:100%;"></div>
@@ -45903,6 +47364,54 @@ function handlePathKmlImport(e) {
   <div id="cableVisorFooter">
     <span id="cableVisorCableCount">0 cables</span>
     <span>Click cables to show on map • Double-click to zoom</span>
+  </div>
+</aside>
+
+<!-- Datacenter Visor Panel -->
+<aside id="dcVisorPanel">
+  <div id="dcVisorHeader">
+    <h3>&#x1F3E2; Datacenter Visor</h3>
+    <div id="dcVisorControls">
+      <button id="btnDCVisorMaximize" title="Maximize/Restore">&#x2B1C;</button>
+      <button id="btnDCVisorClose" title="Close Visor">&#x2715;</button>
+    </div>
+  </div>
+  <div id="dcVisorToolbar">
+    <div style="display:flex; gap:8px; align-items:center;">
+      <input type="text" id="dcVisorSearch" placeholder="Search datacenters..." style="flex:1; padding:6px 10px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px;" />
+      <select id="dcVisorRegionFilter" style="padding:6px 10px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px; background:white; max-width:140px;">
+        <option value="">All Regions</option>
+      </select>
+    </div>
+    <div style="display:flex; gap:6px; align-items:center; margin-top:4px;">
+      <button class="btn" id="btnDCVisorSelectAll" style="padding:4px 8px; font-size:11px;" title="Select all visible">&#x2713; All</button>
+      <button class="btn" id="btnDCVisorClearAll" style="padding:4px 8px; font-size:11px;" title="Clear selection">&#x2717; Clear</button>
+      <span style="font-size:10px; font-weight:600; color:#64748b; margin-left:8px;">Display:</span>
+      <button class="visor-toggle-btn" id="btnDCVisorShowNames" title="Show/hide datacenter names on map">Names</button>
+    </div>
+  </div>
+  <div id="dcVisorMap">
+    <div id="dcVisorMapContainer" style="width:100%; height:100%;"></div>
+    <div id="dcVisorMapLoading" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:#666;">
+      <div style="font-size:24px; margin-bottom:8px;">&#x1F3E2;</div>
+      <div>Loading map...</div>
+    </div>
+  </div>
+  <div id="dcVisorMapResizeHandle" title="Drag to resize map">
+    <div class="resize-grip"></div>
+  </div>
+  <div id="dcVisorList">
+    <div style="padding:8px 12px; background:#f8f9fa; border-bottom:1px solid #e0e0e0; font-size:11px; font-weight:600; color:#495057; position:sticky; top:0; z-index:5;">
+      <span id="dcVisorListTitle">Datacenters from PeeringDB</span>
+      <span id="dcVisorSelectedCount" style="float:right; color:#9333ea;">0 selected</span>
+    </div>
+    <div id="dcVisorDCList">
+      <!-- Dynamic list -->
+    </div>
+  </div>
+  <div id="dcVisorFooter">
+    <span id="dcVisorDCCount">0 datacenters</span>
+    <span>Click to show on map &#x2022; Double-click to zoom</span>
   </div>
 </aside>
 
@@ -47331,6 +48840,394 @@ function handlePathKmlImport(e) {
       }
     });
   })();
+
+  // ============== DATACENTER NAVIGATOR ==============
+
+  // DC database state
+  window._dcDatabase = { facilities: [], meta: {}, loaded: false };
+  window._dcExpandedId = null;  // Currently expanded detail panel
+  window._dcSelectedId = null;
+
+  // Load PeeringDB facilities database
+  async function loadDCDatabase() {
+    try {
+      const resp = await fetch('data/peeringdb_facilities.json');
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      window._dcDatabase = { facilities: data.facilities || [], meta: data.meta || {}, loaded: true };
+      console.log(`[DC] Loaded ${window._dcDatabase.facilities.length} facilities`);
+      renderDCList();
+      populateDCCountryFilter();
+    } catch (err) {
+      console.error('[DC] Failed to load database:', err);
+      document.getElementById('dcList').innerHTML = '<div class="muted" style="padding:12px; text-align:center; color:#b91c1c;">Failed to load datacenter database.</div>';
+    }
+  }
+
+  // Carrier density class
+  function getDCDensityClass(fac) {
+    const c = (fac.carrier_count || 0) + (fac.ix_count || 0);
+    if (c >= 50) return 'density-critical';
+    if (c >= 20) return 'density-high';
+    if (c >= 5) return 'density-medium';
+    if (c >= 1) return 'density-low';
+    return 'density-minimal';
+  }
+
+  // Populate country filter dropdown
+  function populateDCCountryFilter() {
+    const sel = document.getElementById('dcNavCountryFilter');
+    if (!sel) return;
+    const countries = [...new Set(window._dcDatabase.facilities.map(f => f.country).filter(Boolean))].sort();
+    countries.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c; opt.textContent = c;
+      sel.appendChild(opt);
+    });
+  }
+
+  // Render DC list
+  function renderDCList() {
+    const listEl = document.getElementById('dcList');
+    if (!listEl || !window._dcDatabase.loaded) return;
+
+    const searchTerm = (document.getElementById('dcNavSearch')?.value || '').toLowerCase().trim();
+    const countryFilter = document.getElementById('dcNavCountryFilter')?.value || '';
+    const groupByRegion = document.getElementById('dcNavGroupByRegion')?.checked ?? true;
+
+    let facilities = window._dcDatabase.facilities;
+
+    // Filter
+    if (searchTerm) {
+      facilities = facilities.filter(f =>
+        (f.name || '').toLowerCase().includes(searchTerm) ||
+        (f.org_name || '').toLowerCase().includes(searchTerm) ||
+        (f.city || '').toLowerCase().includes(searchTerm)
+      );
+    }
+    if (countryFilter) {
+      facilities = facilities.filter(f => f.country === countryFilter);
+    }
+
+    if (facilities.length === 0) {
+      listEl.innerHTML = '<div class="muted" style="padding:12px; text-align:center;">No matching datacenters.</div>';
+      document.getElementById('dcNavCount').textContent = '0 datacenters';
+      return;
+    }
+
+    document.getElementById('dcNavCount').textContent = `${facilities.length} datacenters`;
+
+    let html = '';
+
+    if (groupByRegion) {
+      // Group by region_continent
+      const groups = {};
+      facilities.forEach(f => {
+        const region = f.region_continent || 'Other';
+        if (!groups[region]) groups[region] = [];
+        groups[region].push(f);
+      });
+      const regionOrder = ['North America', 'Europe', 'Asia Pacific', 'South America', 'Africa', 'Middle East', 'Other'];
+      regionOrder.forEach(region => {
+        const facs = groups[region];
+        if (!facs || facs.length === 0) return;
+        const regionId = region.replace(/[^a-zA-Z0-9]/g, '_');
+        html += `<div class="dc-region-group" data-region="${escapeHtml(region)}">
+          <div class="dc-region-header" data-dc-toggle-region="${regionId}">
+            <span>${escapeHtml(region)} (${facs.length})</span>
+            <span class="region-toggle">▶</span>
+          </div>
+          <div class="dc-region-items collapsed" id="dc_region_${regionId}">
+            ${facs.map(f => renderDCItem(f)).join('')}
+          </div>
+        </div>`;
+      });
+    } else {
+      facilities.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      html = facilities.map(f => renderDCItem(f)).join('');
+    }
+
+    listEl.innerHTML = html;
+
+    // Region toggle handlers
+    listEl.querySelectorAll('.dc-region-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const regionId = header.dataset.dcToggleRegion;
+        const itemsDiv = document.getElementById('dc_region_' + regionId);
+        const toggle = header.querySelector('.region-toggle');
+        if (itemsDiv) {
+          itemsDiv.classList.toggle('collapsed');
+          toggle.textContent = itemsDiv.classList.contains('collapsed') ? '▶' : '▼';
+        }
+      });
+    });
+  }
+
+  // Render single DC item
+  function renderDCItem(fac) {
+    const densityClass = getDCDensityClass(fac);
+    const netCount = (fac.networks || []).length;
+    const isSelected = window._dcSelectedId === fac.id;
+    const isExpanded = window._dcExpandedId === fac.id;
+
+    return `<div class="dc-item ${isSelected ? 'selected' : ''}" data-dc-id="${fac.id}" draggable="true">
+      <span class="dc-density-badge ${densityClass}" title="Carriers: ${fac.carrier_count || 0}, IXs: ${fac.ix_count || 0}, Networks: ${netCount}"></span>
+      <div style="min-width:0; flex:1;">
+        <div class="dc-name">${escapeHtml(fac.name)}</div>
+        <div class="dc-org">${escapeHtml(fac.org_name || '')} — ${escapeHtml(fac.city || '')}, ${escapeHtml(fac.country || '')}</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:3px;">
+        <div class="dc-meta">${netCount}N</div>
+        <button class="dc-expand-btn" data-dc-id="${fac.id}" title="Show details" style="background:none; border:1px solid #f9a8d4; border-radius:3px; width:20px; height:20px; cursor:pointer; font-size:11px; color:#ec4899; display:flex; align-items:center; justify-content:center;">${isExpanded ? '−' : '+'}</button>
+      </div>
+    </div>${isExpanded ? renderDCDetailPanel(fac) : ''}`;
+  }
+
+  // Render expanded detail panel for a DC
+  function renderDCDetailPanel(fac) {
+    const nets = fac.networks || [];
+    const topNets = nets.slice(0, 30);
+    const hasMore = nets.length > 30;
+    return `<div class="dc-detail-panel show">
+      <div class="dc-detail-grid">
+        <div class="dc-field full-width"><div class="dc-field-label">Address</div><div class="dc-field-value">${escapeHtml(fac.address1 || '')}${fac.address2 ? ', ' + escapeHtml(fac.address2) : ''}</div></div>
+        <div class="dc-field"><div class="dc-field-label">City</div><div class="dc-field-value">${escapeHtml(fac.city || '')}</div></div>
+        <div class="dc-field"><div class="dc-field-label">Country</div><div class="dc-field-value">${escapeHtml(fac.country || '')}${fac.state ? ' / ' + escapeHtml(fac.state) : ''}</div></div>
+        <div class="dc-field"><div class="dc-field-label">Zipcode</div><div class="dc-field-value">${escapeHtml(fac.zipcode || '—')}</div></div>
+        <div class="dc-field"><div class="dc-field-label">Region</div><div class="dc-field-value">${escapeHtml(fac.region_continent || '—')}</div></div>
+        <div class="dc-field"><div class="dc-field-label">Latitude</div><div class="dc-field-value">${fac.latitude != null ? fac.latitude : '—'}</div></div>
+        <div class="dc-field"><div class="dc-field-label">Longitude</div><div class="dc-field-value">${fac.longitude != null ? fac.longitude : '—'}</div></div>
+        <div class="dc-field"><div class="dc-field-label">Networks</div><div class="dc-field-value">${nets.length}</div></div>
+        <div class="dc-field"><div class="dc-field-label">Carriers</div><div class="dc-field-value">${fac.carrier_count || 0}</div></div>
+        <div class="dc-field"><div class="dc-field-label">IXPs</div><div class="dc-field-value">${fac.ix_count || 0}</div></div>
+        ${fac.website ? `<div class="dc-field full-width"><div class="dc-field-label">Website</div><div class="dc-field-value" style="font-size:10px;">${escapeHtml(fac.website)}</div></div>` : ''}
+      </div>
+      ${nets.length > 0 ? `<div class="dc-networks-list">
+        <div style="font-size:9px; font-weight:600; color:#92400e; margin-bottom:3px;">Networks (${nets.length}):</div>
+        ${topNets.map(n => `<span class="dc-net-tag" title="${escapeHtml(n.type || '')} / ${escapeHtml(n.traffic || '')}">AS${n.asn} ${escapeHtml(n.name)}</span>`).join('')}
+        ${hasMore ? `<span class="dc-net-tag" style="background:#fef3c7; border-color:#fcd34d; color:#92400e;">+${nets.length - 30} more</span>` : ''}
+      </div>` : ''}
+    </div>`;
+  }
+
+  // DC Navigator event delegation
+  document.getElementById('dcList')?.addEventListener('click', (e) => {
+    // Expand/collapse detail
+    const expandBtn = e.target.closest('.dc-expand-btn');
+    if (expandBtn) {
+      e.stopPropagation();
+      const dcId = parseInt(expandBtn.dataset.dcId);
+      window._dcExpandedId = (window._dcExpandedId === dcId) ? null : dcId;
+      renderDCList();
+      return;
+    }
+    // Select item
+    const item = e.target.closest('.dc-item');
+    if (item) {
+      const dcId = parseInt(item.dataset.dcId);
+      window._dcSelectedId = dcId;
+      renderDCList();
+    }
+  });
+
+  // DC search and filter
+  document.getElementById('dcNavSearch')?.addEventListener('input', () => renderDCList());
+  document.getElementById('dcNavCountryFilter')?.addEventListener('change', () => renderDCList());
+  document.getElementById('dcNavGroupByRegion')?.addEventListener('change', () => renderDCList());
+
+  // DC Navigator toggle button
+  document.getElementById('btnToggleDCNavigator')?.addEventListener('click', () => {
+    const nav = document.getElementById('dcNavigator');
+    if (!nav) return;
+    if (nav.style.display === 'none' || !nav.style.display) {
+      nav.style.display = 'flex';
+      document.getElementById('btnToggleDCNavigator').classList.add('active');
+      if (!window._dcDatabase.loaded) loadDCDatabase();
+    } else {
+      nav.style.display = 'none';
+      document.getElementById('btnToggleDCNavigator').classList.remove('active');
+    }
+  });
+
+  // DC Navigator minimize/close
+  document.getElementById('btnMinimizeDCNav')?.addEventListener('click', () => {
+    const nav = document.getElementById('dcNavigator');
+    if (!nav) return;
+    nav.classList.toggle('minimized');
+    document.getElementById('btnMinimizeDCNav').textContent = nav.classList.contains('minimized') ? '+' : '−';
+  });
+  document.getElementById('btnCloseDCNav')?.addEventListener('click', () => {
+    document.getElementById('dcNavigator').style.display = 'none';
+    document.getElementById('btnToggleDCNavigator')?.classList.remove('active');
+  });
+
+  // Make DC Navigator draggable
+  (function() {
+    const nav = document.getElementById('dcNavigator');
+    const header = document.getElementById('dcNavigatorHeader');
+    if (!nav || !header) return;
+    let isDragging = false, startX, startY, startLeft, startTop;
+    header.addEventListener('mousedown', (e) => {
+      if (e.target.closest('#dcNavigatorControls')) return;
+      isDragging = true;
+      startX = e.clientX; startY = e.clientY;
+      const rect = nav.getBoundingClientRect();
+      startLeft = rect.left; startTop = rect.top;
+      nav.style.transition = 'none';
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      nav.style.right = 'auto';
+      nav.style.left = Math.max(0, startLeft + (e.clientX - startX)) + 'px';
+      nav.style.top = Math.max(0, startTop + (e.clientY - startY)) + 'px';
+    });
+    document.addEventListener('mouseup', () => {
+      if (isDragging) { isDragging = false; nav.style.transition = ''; }
+    });
+  })();
+
+  // ============== DC DRAG-DROP TO CONTAINER / NODE ==============
+
+  // Drag start on DC items
+  document.addEventListener('dragstart', (e) => {
+    const dcItem = e.target.closest('.dc-item[draggable="true"]');
+    if (!dcItem) return;
+    const dcId = dcItem.dataset.dcId;
+    if (!dcId) return;
+    e.dataTransfer.setData('text/plain', 'datacenter:' + dcId);
+    e.dataTransfer.effectAllowed = 'copy';
+    dcItem.style.opacity = '0.5';
+    window._draggedDCItem = dcItem;
+    window._dragDCId = parseInt(dcId);
+  });
+
+  document.addEventListener('dragend', (e) => {
+    if (window._draggedDCItem) {
+      window._draggedDCItem.style.opacity = '';
+      window._draggedDCItem = null;
+    }
+    document.querySelectorAll('.dc-drop-highlight, .node-dc-drop-highlight').forEach(el => {
+      el.classList.remove('dc-drop-highlight', 'node-dc-drop-highlight');
+    });
+    window._dragDCId = null;
+  });
+
+  // Extend SVG dragover to also handle DC items
+  const origSvgDragover = svg.ondragover;
+  svg.addEventListener('dragover', (e) => {
+    if (!window._dragDCId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  });
+
+  // SVG drop handler for DC items — drop on container (DC type) or node
+  svg.addEventListener('drop', (e) => {
+    const transferData = e.dataTransfer.getData('text/plain');
+    if (!transferData || !transferData.startsWith('datacenter:')) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const dcId = parseInt(transferData.split(':')[1]);
+    const fac = window._dcDatabase.facilities.find(f => f.id === dcId);
+    if (!fac) { showToast('Datacenter not found', 'error'); return; }
+
+    const dropX = e.clientX;
+    const dropY = e.clientY;
+    const elements = document.elementsFromPoint(dropX, dropY);
+
+    // Check if dropped on a node
+    let targetNode = null;
+    for (const el of elements) {
+      const nodeEl = el.closest('.node');
+      if (nodeEl) {
+        const nId = parseInt(nodeEl.getAttribute('data-node-id'));
+        if (!isNaN(nId)) { targetNode = findNode(nId); if (targetNode) break; }
+      }
+    }
+
+    if (targetNode) {
+      // Drop on node → copy address + GPS
+      targetNode.address = [fac.address1, fac.address2].filter(Boolean).join(', ');
+      targetNode.city = fac.city || '';
+      targetNode.country = fac.country || '';
+      if (fac.latitude != null) targetNode.gpsLat = fac.latitude;
+      if (fac.longitude != null) targetNode.gpsLon = fac.longitude;
+      if (fac.state) targetNode.state = fac.state;
+      commit(); render(); updateInspector();
+      showToast(`Node "${targetNode.name}" updated with DC location: ${fac.name}`);
+      return;
+    }
+
+    // Check if dropped on a container (group)
+    let targetGroup = null;
+    for (const el of elements) {
+      const grpEl = el.closest('.group-rect, [class*="group"]');
+      if (grpEl) {
+        // Find group by hit-testing mouse position
+        const m = getMouse(e);
+        for (const g of state.groups) {
+          if (m.x >= g.x && m.x <= g.x + g.w && m.y >= g.y && m.y <= g.y + g.h) {
+            targetGroup = g;
+            break;
+          }
+        }
+        if (targetGroup) break;
+      }
+    }
+
+    if (targetGroup) {
+      // Drop on existing container → populate DC fields
+      applyDCDataToGroup(targetGroup, fac);
+      commit(); render(); updateInspector();
+      showToast(`Container "${targetGroup.title}" populated with DC data: ${fac.name}`);
+      return;
+    }
+
+    // Drop on empty canvas → create new DC container at drop position
+    const m = getMouse(e);
+    const id = state.nextGroup++;
+    const g = makeGroup(id, m.x - 140, m.y - 100, 'dc');
+    applyDCDataToGroup(g, fac);
+    state.groups.push(g);
+    if (g.type === 'dc') updateCountryRegionMembership(g);
+    refreshAllMemberships();
+    select({type:'group', id});
+    commit(); render();
+    showToast(`Created DC container: ${fac.name}`);
+  });
+
+  // Apply PeeringDB facility data to a group/container
+  function applyDCDataToGroup(g, fac) {
+    g.type = 'dc';
+    g.title = fac.name;
+    g.dcPeeringDbId = fac.id;
+    g.dcOrgName = fac.org_name || '';
+    g.dcAddress = [fac.address1, fac.address2].filter(Boolean).join(', ');
+    g.dcCity = fac.city || '';
+    g.dcCountry = fac.country || '';
+    g.dcState = fac.state || '';
+    g.dcZipcode = fac.zipcode || '';
+    g.dcLatitude = fac.latitude;
+    g.dcLongitude = fac.longitude;
+    g.dcWebsite = fac.website || '';
+    g.dcRegion = fac.region_continent || '';
+    g.dcNetCount = (fac.networks || []).length;
+    g.dcIxCount = fac.ix_count || 0;
+    g.dcCarrierCount = fac.carrier_count || 0;
+    g.dcNetworks = (fac.networks || []).map(n => ({ asn: n.asn, name: n.name, type: n.type }));
+    // Set DC visual style if not already DC type
+    if (!g.fill || g.fill === 'rgba(255, 255, 255, 0.95)' || g.fill === 'rgba(245, 245, 245, 0.9)') {
+      g.fill = 'rgba(253, 242, 248, 0.95)';
+    }
+    if (!g.stroke || g.stroke === '#666666' || g.stroke === '#999999') {
+      g.stroke = '#ec4899';
+    }
+    if (!g.titleColor || g.titleColor === '#333333') {
+      g.titleColor = '#831843';
+    }
+    g.strokeW = 2;
+  }
 
   console.log('[NexiMap] Main script fully loaded');
 })();
