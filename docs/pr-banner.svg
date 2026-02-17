@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="340" viewBox="0 0 900 340">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f6d365"/>
+      <stop offset="50%" stop-color="#f5c842"/>
+      <stop offset="100%" stop-color="#fda085"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.25)"/>
+      <stop offset="50%" stop-color="rgba(255,255,255,0)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.12)"/>
+    </linearGradient>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="108%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="340" rx="16" fill="url(#bg)" filter="url(#shadow)"/>
+  <rect width="900" height="340" rx="16" fill="url(#shine)"/>
+
+  <!-- Grid pattern -->
+  <g opacity="0.1" stroke="#6b4400" stroke-width="0.5">
+    <line x1="0" y1="85" x2="900" y2="85"/>
+    <line x1="0" y1="170" x2="900" y2="170"/>
+    <line x1="0" y1="255" x2="900" y2="255"/>
+    <line x1="225" y1="0" x2="225" y2="340"/>
+    <line x1="450" y1="0" x2="450" y2="340"/>
+    <line x1="675" y1="0" x2="675" y2="340"/>
+  </g>
+
+  <!-- Network nodes decoration left -->
+  <g opacity="0.18">
+    <circle cx="70" cy="55" r="6" fill="#5c3300"/>
+    <circle cx="160" cy="85" r="4" fill="#5c3300"/>
+    <circle cx="50" cy="140" r="4" fill="#5c3300"/>
+    <circle cx="120" cy="270" r="5" fill="#5c3300"/>
+    <line x1="70" y1="55" x2="160" y2="85" stroke="#5c3300" stroke-width="1"/>
+    <line x1="70" y1="55" x2="50" y2="140" stroke="#5c3300" stroke-width="1"/>
+    <line x1="50" y1="140" x2="120" y2="270" stroke="#5c3300" stroke-width="1"/>
+  </g>
+
+  <!-- Network nodes decoration right -->
+  <g opacity="0.18">
+    <circle cx="780" cy="60" r="5" fill="#5c3300"/>
+    <circle cx="840" cy="110" r="4" fill="#5c3300"/>
+    <circle cx="810" cy="200" r="4" fill="#5c3300"/>
+    <circle cx="850" cy="270" r="6" fill="#5c3300"/>
+    <line x1="780" y1="60" x2="840" y2="110" stroke="#5c3300" stroke-width="1"/>
+    <line x1="840" y1="110" x2="810" y2="200" stroke="#5c3300" stroke-width="1"/>
+    <line x1="810" y1="200" x2="850" y2="270" stroke="#5c3300" stroke-width="1"/>
+  </g>
+
+  <!-- Cable decoration arcs -->
+  <g opacity="0.08" fill="none" stroke="#5c3300" stroke-width="1.5">
+    <path d="M 100 300 Q 250 240 400 300"/>
+    <path d="M 500 300 Q 650 240 800 300"/>
+  </g>
+
+  <!-- NexiMap logo icon -->
+  <g transform="translate(370, 30)">
+    <rect x="0" y="0" width="48" height="48" rx="8" fill="rgba(100,50,0,0.15)" stroke="rgba(100,50,0,0.25)" stroke-width="1"/>
+    <path d="M10 10L24 24L38 10M24 24L10 38M24 24L38 38" stroke="#5c3300" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <circle cx="10" cy="10" r="3.5" fill="#5c3300"/>
+    <circle cx="38" cy="10" r="3.5" fill="#5c3300"/>
+    <circle cx="24" cy="24" r="4" fill="#5c3300"/>
+    <circle cx="10" cy="38" r="3.5" fill="#5c3300"/>
+    <circle cx="38" cy="38" r="3.5" fill="#5c3300"/>
+  </g>
+
+  <!-- Title -->
+  <text x="450" y="120" text-anchor="middle" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="42" font-weight="700" fill="#3d2200" letter-spacing="2">
+    NexiMap
+  </text>
+
+  <!-- Subtitle -->
+  <text x="450" y="155" text-anchor="middle" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="16" fill="rgba(61,34,0,0.7)" letter-spacing="4" font-weight="300">
+    STUDIO
+  </text>
+
+  <!-- Divider -->
+  <line x1="280" y1="178" x2="620" y2="178" stroke="rgba(61,34,0,0.2)" stroke-width="1"/>
+
+  <!-- Feature headline -->
+  <text x="450" y="210" text-anchor="middle" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="20" fill="#3d2200" font-weight="600">
+    Datacenter, Cable Stations &amp; KML Studio
+  </text>
+
+  <!-- Tags row 1 -->
+  <g font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="500">
+    <rect x="115" y="235" width="130" height="28" rx="14" fill="rgba(61,34,0,0.08)" stroke="rgba(61,34,0,0.2)" stroke-width="1"/>
+    <text x="180" y="253" text-anchor="middle" fill="#3d2200">DC Navigator</text>
+
+    <rect x="260" y="235" width="130" height="28" rx="14" fill="rgba(61,34,0,0.08)" stroke="rgba(61,34,0,0.2)" stroke-width="1"/>
+    <text x="325" y="253" text-anchor="middle" fill="#3d2200">Cable Stations</text>
+
+    <rect x="405" y="235" width="110" height="28" rx="14" fill="rgba(61,34,0,0.08)" stroke="rgba(61,34,0,0.2)" stroke-width="1"/>
+    <text x="460" y="253" text-anchor="middle" fill="#3d2200">KML Studio</text>
+
+    <rect x="530" y="235" width="120" height="28" rx="14" fill="rgba(61,34,0,0.08)" stroke="rgba(61,34,0,0.2)" stroke-width="1"/>
+    <text x="590" y="253" text-anchor="middle" fill="#3d2200">Path Finder</text>
+
+    <rect x="665" y="235" width="120" height="28" rx="14" fill="rgba(61,34,0,0.08)" stroke="rgba(61,34,0,0.2)" stroke-width="1"/>
+    <text x="725" y="253" text-anchor="middle" fill="#3d2200">Bug Fixes</text>
+  </g>
+
+  <!-- Green addition badge -->
+  <g transform="translate(310, 282)">
+    <rect x="0" y="0" width="95" height="24" rx="12" fill="#1a7f37" opacity="0.85"/>
+    <text x="47" y="16" text-anchor="middle" font-family="'Segoe UI', monospace" font-size="12" font-weight="600" fill="white">+33,177</text>
+  </g>
+
+  <!-- Red deletion badge -->
+  <g transform="translate(415, 282)">
+    <rect x="0" y="0" width="70" height="24" rx="12" fill="#cf222e" opacity="0.85"/>
+    <text x="35" y="16" text-anchor="middle" font-family="'Segoe UI', monospace" font-size="12" font-weight="600" fill="white">-448</text>
+  </g>
+
+  <!-- Stats bar -->
+  <text x="450" y="325" text-anchor="middle" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12" fill="rgba(61,34,0,0.5)" letter-spacing="1">
+    32 commits  ·  6 files changed  ·  KML Studio v4.0  ·  1,241 Cable Stations  ·  5,647 Datacenters
+  </text>
+</svg>
