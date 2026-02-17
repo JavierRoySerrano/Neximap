@@ -2062,6 +2062,15 @@
       color: #991b1b;
     }
 
+    /* Protection Mode active - panel border glow */
+    #routeFinderPanel.protection-mode-active {
+      border-color: #f59e0b !important;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.4), inset 0 0 0 1px rgba(245, 158, 11, 0.2) !important;
+    }
+    #routeFinderPanel.protection-mode-active .inspector-section-header {
+      border-left: 3px solid #f59e0b;
+    }
+
     /* MLG route segments (Phase 1) - purple glow */
     .edge.route-mlg-segment path:not(.edge-hit) {
       stroke: #a855f7 !important;
@@ -8762,6 +8771,23 @@
         <div class="inspector-section-content">
           <div class="hint" style="margin-bottom:10px; padding:8px; background:#fffbeb; border:1px solid #fcd34d; border-radius:6px; color:#92400e;">
             Create a diverse protection path that avoids the primary route's links. Select ring closure nodes below.
+          </div>
+
+          <!-- Protection Mode Toggle -->
+          <div class="row" style="margin-bottom:12px;">
+            <button class="btn" id="btnProtectionModeToggle" onclick="routeFinderState.protectionMode ? exitProtectionMode() : enterProtectionMode()"
+                    style="width:100%; padding:10px; font-size:12px; background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border:none; color:white; font-weight:600; border-radius:6px; cursor:pointer;">
+              Enter Protection Mode
+            </button>
+            <div style="font-size:10px; color:#6b7280; margin-top:6px; text-align:center;">
+              When active, all restriction tools (exclusions, must-use, tags, capacity) configure the protection path. Primary path remains locked.
+            </div>
+          </div>
+
+          <!-- Protection Mode Active Banner -->
+          <div id="protectionModeBanner" style="display:none; margin-bottom:12px; padding:10px; background:linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border:2px solid #f59e0b; border-radius:8px; text-align:center;">
+            <div style="font-weight:700; color:#92400e; font-size:12px; margin-bottom:4px;">PROTECTION MODE ACTIVE</div>
+            <div style="font-size:10px; color:#a16207;">All restriction sections now configure the protection path. Primary path is locked.</div>
           </div>
 
           <!-- Physical Routing Diversity Settings -->
@@ -30368,7 +30394,32 @@ function loadProjectObject(obj) {
     protectionClosureNodes: new Set(),    // Selected ring closure node IDs
     primaryPathForProtection: null,       // Stores the primary path when calculating protection
     storedRoutesForProtection: null,      // Stores all routes when protection is set up (preserves across filter changes)
-    storedActiveRouteIndex: 0             // Stores the active route index for restoration
+    storedActiveRouteIndex: 0,            // Stores the active route index for restoration
+
+    // Protection Mode: when true, all restriction tools configure the protection path
+    protectionMode: false,                // Whether protection mode is active
+    savedPrimaryState: null,              // Stores primary filter state when entering protection mode
+    protectionFilters: {                  // Persistent protection-specific filter state
+      excludedNodes: new Set(),
+      excludedLinks: new Set(),
+      mustUseNodes: new Set(),
+      mustUseLinks: new Set(),
+      visibleOnly: false,
+      nodeTagMode: 'any',
+      nodeTagFilter: new Set(),
+      linkTagMode: 'any',
+      linkTagFilter: new Set(),
+      capacityMode: 'none',
+      capacityMinTotal: 0,
+      capacityMin1G: 0,
+      capacityMin10G: 0,
+      capacityMin100G: 0,
+      capacityMin400G: 0,
+      capacityMinTbps: 0,
+      capacityIncludeUndefined: true,
+      skipImplicitTransit: false,
+      diverseFromLinks: new Set()
+    }
     // ============== END PROTECTION PATH SETTINGS ==============
   };
 
@@ -31784,6 +31835,12 @@ function loadProjectObject(obj) {
   // Exit calculation mode
   function exitCalculationMode() {
     console.log('[ROUTE FINDER] Exiting calculation mode');
+
+    // Auto-exit protection mode if active (restores primary filter state)
+    if (routeFinderState.protectionMode) {
+      exitProtectionMode();
+    }
+
     routeFinderState.active = false;
     routeFinderState.pickMode = null;
 
@@ -32172,12 +32229,95 @@ function loadProjectObject(obj) {
     console.log('[Protection] Closure nodes:', closureNodes);
 
     // Build adjacency list excluding primary path links and low-diversity links
+    // Also apply all current filter state (tag filters, capacity filters, etc.)
     const adj = new Map();
-    state.nodes.forEach(n => adj.set(n.id, []));
+
+    // --- Node filtering (mirrors buildPathfindingGraph logic) ---
+    // Helper: check if node passes tag filter
+    function protNodePassesTagFilter(n) {
+      if (routeFinderState.nodeTagMode === 'any') return true;
+      let nodeTags;
+      if (typeof getNodeTags === 'function') {
+        nodeTags = getNodeTags(n);
+      } else {
+        nodeTags = new Set(['default']);
+        if (n.tags && Array.isArray(n.tags)) {
+          n.tags.forEach(t => { const trimmed = t.trim().toLowerCase(); if (trimmed) nodeTags.add(trimmed); });
+        }
+      }
+      if (nodeTags.size === 0 && routeFinderState.nodeTagFilter.size > 0) {
+        return routeFinderState.nodeTagMode === 'exclude';
+      }
+      let hasMatchingTag = false;
+      for (const t of nodeTags) { if (routeFinderState.nodeTagFilter.has(t)) { hasMatchingTag = true; break; } }
+      if (routeFinderState.nodeTagMode === 'include') return hasMatchingTag;
+      if (routeFinderState.nodeTagMode === 'exclude') return !hasMatchingTag;
+      return true;
+    }
+
+    // Helper: check if edge passes tag filter
+    function protEdgePassesTagFilter(edge) {
+      if (routeFinderState.linkTagMode === 'any') return true;
+      let edgeTags;
+      if (typeof getEdgeTags === 'function') {
+        edgeTags = getEdgeTags(edge);
+      } else {
+        edgeTags = new Set(['default']);
+        if (edge.filterTags && Array.isArray(edge.filterTags)) {
+          edge.filterTags.forEach(t => { const trimmed = t.trim().toLowerCase(); if (trimmed) edgeTags.add(trimmed); });
+        }
+      }
+      if (edgeTags.size === 0 && routeFinderState.linkTagFilter.size > 0) {
+        return routeFinderState.linkTagMode === 'exclude';
+      }
+      let hasMatchingTag = false;
+      for (const t of edgeTags) { if (routeFinderState.linkTagFilter.has(t)) { hasMatchingTag = true; break; } }
+      if (routeFinderState.linkTagMode === 'include') return hasMatchingTag;
+      if (routeFinderState.linkTagMode === 'exclude') return !hasMatchingTag;
+      return true;
+    }
+
+    // Helper: check if edge passes capacity filter
+    function protEdgePassesCapacityFilter(edge) {
+      if (routeFinderState.capacityMode === 'none') return true;
+      const cap1G = edge.cap1G || 0;
+      const cap10G = edge.cap10G || 0;
+      const cap100G = edge.cap100G || 0;
+      const cap400G = edge.cap400G || 0;
+      const capTbps = edge.capTbps || 0;
+      const isUndefined = (cap1G === 0 && cap10G === 0 && cap100G === 0 && cap400G === 0 && capTbps === 0);
+      if (isUndefined && routeFinderState.capacityIncludeUndefined) return true;
+      if (isUndefined && !routeFinderState.capacityIncludeUndefined) return false;
+      if (routeFinderState.capacityMode === 'total') {
+        const totalGbps = cap1G + (10 * cap10G) + (100 * cap100G) + (400 * cap400G) + (1000 * capTbps);
+        return totalGbps >= routeFinderState.capacityMinTotal;
+      }
+      if (routeFinderState.capacityMode === 'units') {
+        if (routeFinderState.capacityMin1G > 0 && cap1G < routeFinderState.capacityMin1G) return false;
+        if (routeFinderState.capacityMin10G > 0 && cap10G < routeFinderState.capacityMin10G) return false;
+        if (routeFinderState.capacityMin100G > 0 && cap100G < routeFinderState.capacityMin100G) return false;
+        if (routeFinderState.capacityMin400G > 0 && cap400G < routeFinderState.capacityMin400G) return false;
+        if (routeFinderState.capacityMinTbps > 0 && capTbps < routeFinderState.capacityMinTbps) return false;
+        return true;
+      }
+      return true;
+    }
+
+    // Filter valid nodes (exclude by exclusion set, visibility, and tag filter)
+    const validNodeIds = new Set();
+    state.nodes.forEach(n => {
+      if (routeFinderState.excludedNodes.has(n.id)) return;
+      if (routeFinderState.visibleOnly && typeof isNodeVisible === 'function' && !isNodeVisible(n)) return;
+      if (!protNodePassesTagFilter(n)) return;
+      validNodeIds.add(n.id);
+    });
+    validNodeIds.forEach(id => adj.set(id, []));
 
     let availableEdgeCount = 0;
     let excludedCount = 0;
     let diversityExcludedCount = 0;
+    let tagExcludedCount = 0;
+    let capacityExcludedCount = 0;
 
     state.edges.forEach(e => {
       // Skip only the specific links used by primary path (allow parallel links)
@@ -32198,8 +32338,20 @@ function loadProjectObject(obj) {
       if (routeFinderState.visibleOnly && e.hidden) return;
       // Skip excluded edges from route finder
       if (routeFinderState.excludedLinks.has(e.id)) return;
-      // Skip edges to/from excluded nodes
-      if (routeFinderState.excludedNodes.has(e.a) || routeFinderState.excludedNodes.has(e.b)) return;
+      // Skip edges with invalid/excluded endpoint nodes
+      if (!validNodeIds.has(e.a) || !validNodeIds.has(e.b)) return;
+
+      // Apply tag filter
+      if (!protEdgePassesTagFilter(e)) {
+        tagExcludedCount++;
+        return;
+      }
+
+      // Apply capacity filter
+      if (!protEdgePassesCapacityFilter(e)) {
+        capacityExcludedCount++;
+        return;
+      }
 
       // Use latencyMs (same as main pathfinder), fallback to latency for compatibility
       const latency = parseFloat(e.latencyMs) || parseFloat(e.latency) || routeFinderState.minLatency || 0.001;
@@ -32226,9 +32378,13 @@ function loadProjectObject(obj) {
     });
 
     console.log('[Protection] Total edges:', state.edges.length);
+    console.log('[Protection] Valid nodes:', validNodeIds.size, '/', state.nodes.length);
     console.log('[Protection] Excluded (primary):', excludedCount);
     console.log('[Protection] Excluded (diversity):', diversityExcludedCount);
+    console.log('[Protection] Excluded (tag filter):', tagExcludedCount);
+    console.log('[Protection] Excluded (capacity filter):', capacityExcludedCount);
     console.log('[Protection] Available edges for protection:', availableEdgeCount);
+    if (routeFinderState.protectionMode) console.log('[Protection] Protection Mode: ACTIVE - using protection-specific filters');
 
     // Dijkstra implementation
     function runDijkstra(adjacency, start, end) {
@@ -32303,13 +32459,24 @@ function loadProjectObject(obj) {
       return { path, segments, totalCost: dist.get(end), totalLatency };
     }
 
-    // Calculate protection path through closure nodes
+    // Calculate protection path through closure nodes (+ must-use nodes if any)
     const origin = closureNodes[0];
     const dest = closureNodes[closureNodes.length - 1];
-    const intermediateNodes = closureNodes.slice(1, -1);
+    let intermediateNodes = closureNodes.slice(1, -1);
+
+    // Merge must-use nodes into the intermediate waypoints (if any are set)
+    if (routeFinderState.mustUseNodes.size > 0) {
+      const mustUseArr = [...routeFinderState.mustUseNodes].filter(id =>
+        id !== origin && id !== dest && !intermediateNodes.includes(id)
+      );
+      if (mustUseArr.length > 0) {
+        intermediateNodes = [...new Set([...intermediateNodes, ...mustUseArr])];
+        console.log('[Protection] Added must-use nodes to waypoints:', mustUseArr.map(id => findNode(id)?.name || id));
+      }
+    }
 
     console.log('[Protection] Origin:', findNode(origin)?.name, '| Dest:', findNode(dest)?.name);
-    console.log('[Protection] Intermediate closure nodes:', intermediateNodes.map(id => findNode(id)?.name || id));
+    console.log('[Protection] Intermediate waypoints (closure + must-use):', intermediateNodes.map(id => findNode(id)?.name || id));
 
     let protectionResult = null;
 
@@ -32651,6 +32818,256 @@ function loadProjectObject(obj) {
 
     return links;
   }
+
+  // ============== PROTECTION MODE ==============
+  // When protection mode is active, all restriction tools (excluded nodes/links,
+  // must-use, tag filters, capacity filters, diversity) configure the protection
+  // path instead of the primary path. The primary path remains locked in place.
+
+  function enterProtectionMode() {
+    if (routeFinderState.protectionMode) return; // Already in protection mode
+    if (!routeFinderState.primaryPathForProtection && routeFinderState.routes.length === 0) {
+      showToast('Calculate a primary path first before entering Protection Mode');
+      return;
+    }
+
+    console.log('[Protection Mode] Entering protection mode');
+
+    // Save current primary filter state
+    routeFinderState.savedPrimaryState = {
+      excludedNodes: new Set(routeFinderState.excludedNodes),
+      excludedLinks: new Set(routeFinderState.excludedLinks),
+      mustUseNodes: new Set(routeFinderState.mustUseNodes),
+      mustUseLinks: new Set(routeFinderState.mustUseLinks),
+      visibleOnly: routeFinderState.visibleOnly,
+      nodeTagMode: routeFinderState.nodeTagMode,
+      nodeTagFilter: new Set(routeFinderState.nodeTagFilter),
+      linkTagMode: routeFinderState.linkTagMode,
+      linkTagFilter: new Set(routeFinderState.linkTagFilter),
+      capacityMode: routeFinderState.capacityMode,
+      capacityMinTotal: routeFinderState.capacityMinTotal,
+      capacityMin1G: routeFinderState.capacityMin1G,
+      capacityMin10G: routeFinderState.capacityMin10G,
+      capacityMin100G: routeFinderState.capacityMin100G,
+      capacityMin400G: routeFinderState.capacityMin400G,
+      capacityMinTbps: routeFinderState.capacityMinTbps,
+      capacityIncludeUndefined: routeFinderState.capacityIncludeUndefined,
+      skipImplicitTransit: routeFinderState.skipImplicitTransit,
+      diverseFromLinks: new Set(routeFinderState.diverseFromLinks)
+    };
+
+    // Swap in protection filters
+    const pf = routeFinderState.protectionFilters;
+    routeFinderState.excludedNodes = pf.excludedNodes;
+    routeFinderState.excludedLinks = pf.excludedLinks;
+    routeFinderState.mustUseNodes = pf.mustUseNodes;
+    routeFinderState.mustUseLinks = pf.mustUseLinks;
+    routeFinderState.visibleOnly = pf.visibleOnly;
+    routeFinderState.nodeTagMode = pf.nodeTagMode;
+    routeFinderState.nodeTagFilter = pf.nodeTagFilter;
+    routeFinderState.linkTagMode = pf.linkTagMode;
+    routeFinderState.linkTagFilter = pf.linkTagFilter;
+    routeFinderState.capacityMode = pf.capacityMode;
+    routeFinderState.capacityMinTotal = pf.capacityMinTotal;
+    routeFinderState.capacityMin1G = pf.capacityMin1G;
+    routeFinderState.capacityMin10G = pf.capacityMin10G;
+    routeFinderState.capacityMin100G = pf.capacityMin100G;
+    routeFinderState.capacityMin400G = pf.capacityMin400G;
+    routeFinderState.capacityMinTbps = pf.capacityMinTbps;
+    routeFinderState.capacityIncludeUndefined = pf.capacityIncludeUndefined;
+    routeFinderState.skipImplicitTransit = pf.skipImplicitTransit;
+    routeFinderState.diverseFromLinks = pf.diverseFromLinks;
+
+    routeFinderState.protectionMode = true;
+
+    // Sync UI controls with protection state
+    syncFilterUIFromState();
+
+    // Update visual indicators
+    updateProtectionModeVisuals();
+
+    showToast('Protection Mode: Restrictions now apply to protection path');
+  }
+
+  function exitProtectionMode() {
+    if (!routeFinderState.protectionMode) return; // Not in protection mode
+
+    console.log('[Protection Mode] Exiting protection mode');
+
+    // Save current state back to protectionFilters
+    routeFinderState.protectionFilters = {
+      excludedNodes: routeFinderState.excludedNodes,
+      excludedLinks: routeFinderState.excludedLinks,
+      mustUseNodes: routeFinderState.mustUseNodes,
+      mustUseLinks: routeFinderState.mustUseLinks,
+      visibleOnly: routeFinderState.visibleOnly,
+      nodeTagMode: routeFinderState.nodeTagMode,
+      nodeTagFilter: routeFinderState.nodeTagFilter,
+      linkTagMode: routeFinderState.linkTagMode,
+      linkTagFilter: routeFinderState.linkTagFilter,
+      capacityMode: routeFinderState.capacityMode,
+      capacityMinTotal: routeFinderState.capacityMinTotal,
+      capacityMin1G: routeFinderState.capacityMin1G,
+      capacityMin10G: routeFinderState.capacityMin10G,
+      capacityMin100G: routeFinderState.capacityMin100G,
+      capacityMin400G: routeFinderState.capacityMin400G,
+      capacityMinTbps: routeFinderState.capacityMinTbps,
+      capacityIncludeUndefined: routeFinderState.capacityIncludeUndefined,
+      skipImplicitTransit: routeFinderState.skipImplicitTransit,
+      diverseFromLinks: routeFinderState.diverseFromLinks
+    };
+
+    // Restore primary state
+    const ps = routeFinderState.savedPrimaryState;
+    routeFinderState.excludedNodes = ps.excludedNodes;
+    routeFinderState.excludedLinks = ps.excludedLinks;
+    routeFinderState.mustUseNodes = ps.mustUseNodes;
+    routeFinderState.mustUseLinks = ps.mustUseLinks;
+    routeFinderState.visibleOnly = ps.visibleOnly;
+    routeFinderState.nodeTagMode = ps.nodeTagMode;
+    routeFinderState.nodeTagFilter = ps.nodeTagFilter;
+    routeFinderState.linkTagMode = ps.linkTagMode;
+    routeFinderState.linkTagFilter = ps.linkTagFilter;
+    routeFinderState.capacityMode = ps.capacityMode;
+    routeFinderState.capacityMinTotal = ps.capacityMinTotal;
+    routeFinderState.capacityMin1G = ps.capacityMin1G;
+    routeFinderState.capacityMin10G = ps.capacityMin10G;
+    routeFinderState.capacityMin100G = ps.capacityMin100G;
+    routeFinderState.capacityMin400G = ps.capacityMin400G;
+    routeFinderState.capacityMinTbps = ps.capacityMinTbps;
+    routeFinderState.capacityIncludeUndefined = ps.capacityIncludeUndefined;
+    routeFinderState.skipImplicitTransit = ps.skipImplicitTransit;
+    routeFinderState.diverseFromLinks = ps.diverseFromLinks;
+
+    routeFinderState.protectionMode = false;
+    routeFinderState.savedPrimaryState = null;
+
+    // Sync UI controls with restored primary state
+    syncFilterUIFromState();
+
+    // Update visual indicators
+    updateProtectionModeVisuals();
+
+    showToast('Primary Mode: Restrictions now apply to primary path');
+  }
+
+  // Sync all filter UI controls from the current routeFinderState values
+  function syncFilterUIFromState() {
+    // Visible only checkbox
+    const visibleOnlyCheckbox = document.getElementById('routeVisibleOnly');
+    if (visibleOnlyCheckbox) visibleOnlyCheckbox.checked = routeFinderState.visibleOnly;
+
+    // Skip implicit transit checkbox
+    const skipImplicitCheckbox = document.getElementById('routeSkipImplicitTransit');
+    if (skipImplicitCheckbox) skipImplicitCheckbox.checked = routeFinderState.skipImplicitTransit;
+
+    // Re-render exclusion and must-use lists
+    if (typeof renderExcludedNodesList === 'function') renderExcludedNodesList();
+    if (typeof renderExcludedLinksList === 'function') renderExcludedLinksList();
+    if (typeof renderMustUseNodesList === 'function') renderMustUseNodesList();
+    if (typeof renderMustUseLinksList === 'function') renderMustUseLinksList();
+
+    // Tag filter UI
+    const routeNodeTagMode = document.getElementById('routeNodeTagMode');
+    const routeLinkTagMode = document.getElementById('routeLinkTagMode');
+    if (routeNodeTagMode) routeNodeTagMode.value = routeFinderState.nodeTagMode;
+    if (routeLinkTagMode) routeLinkTagMode.value = routeFinderState.linkTagMode;
+    if (typeof updateRouteTagModeHint === 'function') {
+      updateRouteTagModeHint('node');
+      updateRouteTagModeHint('link');
+    }
+    if (typeof updateRouteTagSelectedChips === 'function') {
+      updateRouteTagSelectedChips('node');
+      updateRouteTagSelectedChips('link');
+    }
+    if (typeof populateRouteTagFilters === 'function') populateRouteTagFilters();
+
+    // Capacity filter UI
+    const capacityModeRadio = document.querySelector(`input[name="routeCapacityMode"][value="${routeFinderState.capacityMode}"]`);
+    if (capacityModeRadio) capacityModeRadio.checked = true;
+
+    const capFields = [
+      ['routeCapacityMinTotal', 'capacityMinTotal'],
+      ['routeCapacityMin1G', 'capacityMin1G'],
+      ['routeCapacityMin10G', 'capacityMin10G'],
+      ['routeCapacityMin100G', 'capacityMin100G'],
+      ['routeCapacityMin400G', 'capacityMin400G'],
+      ['routeCapacityMinTbps', 'capacityMinTbps']
+    ];
+    capFields.forEach(([elId, stateKey]) => {
+      const el = document.getElementById(elId);
+      if (el) el.value = routeFinderState[stateKey];
+    });
+    const capUndefinedCheckbox = document.getElementById('routeCapacityIncludeUndefined');
+    if (capUndefinedCheckbox) capUndefinedCheckbox.checked = routeFinderState.capacityIncludeUndefined;
+    if (typeof updateCapacityFilterSections === 'function') updateCapacityFilterSections();
+
+    // Diverse-from links
+    if (typeof updateDiverseFromLinksList === 'function') updateDiverseFromLinksList();
+    if (typeof populateDiverseFromLinkDropdown === 'function') populateDiverseFromLinkDropdown();
+  }
+
+  // Update visual indicators for protection mode
+  function updateProtectionModeVisuals() {
+    const panel = document.getElementById('routeFinderPanel');
+    const toggleBtn = document.getElementById('btnProtectionModeToggle');
+    const modeBanner = document.getElementById('protectionModeBanner');
+
+    if (routeFinderState.protectionMode) {
+      // Add protection mode styling to panel
+      if (panel) panel.classList.add('protection-mode-active');
+
+      // Update toggle button
+      if (toggleBtn) {
+        toggleBtn.textContent = 'Exit Protection Mode';
+        toggleBtn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+        toggleBtn.style.color = 'white';
+      }
+
+      // Show banner
+      if (modeBanner) modeBanner.style.display = 'block';
+
+      // Add protection badge to collapsible section headers
+      document.querySelectorAll('#routeFinderPanel .inspector-section-header').forEach(header => {
+        // Remove existing badges first
+        const existingBadge = header.querySelector('.protection-mode-badge');
+        if (existingBadge) existingBadge.remove();
+
+        const section = header.parentElement;
+        const sectionType = section?.getAttribute('data-section');
+        // Add badge to restriction-related sections
+        if (['route-restrictions', 'route-must-use', 'route-physical-diversity', 'route-tag-filters', 'route-capacity'].includes(sectionType)) {
+          const badge = document.createElement('span');
+          badge.className = 'protection-mode-badge';
+          badge.style.cssText = 'margin-left:6px; padding:1px 6px; background:#f59e0b; color:white; border-radius:8px; font-size:9px; font-weight:600;';
+          badge.textContent = 'PROTECTION';
+          header.querySelector('span:first-child')?.appendChild(badge);
+        }
+      });
+
+    } else {
+      // Remove protection mode styling
+      if (panel) panel.classList.remove('protection-mode-active');
+
+      // Update toggle button
+      if (toggleBtn) {
+        toggleBtn.textContent = 'Enter Protection Mode';
+        toggleBtn.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+        toggleBtn.style.color = 'white';
+      }
+
+      // Hide banner
+      if (modeBanner) modeBanner.style.display = 'none';
+
+      // Remove all protection badges
+      document.querySelectorAll('.protection-mode-badge').forEach(badge => badge.remove());
+    }
+  }
+
+  // Expose globally
+  window.enterProtectionMode = enterProtectionMode;
+  window.exitProtectionMode = exitProtectionMode;
+  // ============== END PROTECTION MODE ==============
 
   // Populate exclusion dropdowns
   function populateExclusionDropdowns() {
@@ -33082,6 +33499,11 @@ function loadProjectObject(obj) {
 
   // Calculate routes
   function calculateRoutes() {
+    // Auto-exit protection mode before recalculating primary routes
+    if (routeFinderState.protectionMode) {
+      exitProtectionMode();
+    }
+
     if (!routeFinderState.originNodeId || !routeFinderState.destNodeId) {
       showToast('Please select both origin and destination');
       return;
@@ -35805,6 +36227,34 @@ function loadProjectObject(obj) {
   // ============== RESET ALL FILTERS ==============
 
   function resetAllRouteFilters() {
+    // Auto-exit protection mode first (restores primary state before clearing)
+    if (routeFinderState.protectionMode) {
+      exitProtectionMode();
+    }
+
+    // Also reset protection-specific filters
+    routeFinderState.protectionFilters = {
+      excludedNodes: new Set(),
+      excludedLinks: new Set(),
+      mustUseNodes: new Set(),
+      mustUseLinks: new Set(),
+      visibleOnly: false,
+      nodeTagMode: 'any',
+      nodeTagFilter: new Set(),
+      linkTagMode: 'any',
+      linkTagFilter: new Set(),
+      capacityMode: 'none',
+      capacityMinTotal: 0,
+      capacityMin1G: 0,
+      capacityMin10G: 0,
+      capacityMin100G: 0,
+      capacityMin400G: 0,
+      capacityMinTbps: 0,
+      capacityIncludeUndefined: true,
+      skipImplicitTransit: false,
+      diverseFromLinks: new Set()
+    };
+
     // Reset exclusions
     routeFinderState.excludedNodes.clear();
     routeFinderState.excludedLinks.clear();
