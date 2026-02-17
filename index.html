@@ -20106,7 +20106,25 @@ function loadProjectObject(obj) {
       iruOamPercent: (typeof g.iruOamPercent === 'number') ? g.iruOamPercent : (state.financialSettings?.containerDefaultOAM || 3),
       iruOamAnnualIncrement: (typeof g.iruOamAnnualIncrement === 'number') ? g.iruOamAnnualIncrement : (state.financialSettings?.containerDefaultOAMIncrement || 2),
       commercialCostMode: g.commercialCostMode || 'lease',
-      commercialCostOverride: g.commercialCostOverride || false
+      commercialCostOverride: g.commercialCostOverride || false,
+      // UUID
+      uuid: g.uuid || generateUUID(),
+      // Datacenter-specific properties
+      dcPeeringDbId: g.dcPeeringDbId ?? null,
+      dcOrgName: g.dcOrgName || '',
+      dcAddress: g.dcAddress || '',
+      dcCity: g.dcCity || '',
+      dcCountry: g.dcCountry || '',
+      dcState: g.dcState || '',
+      dcZipcode: g.dcZipcode || '',
+      dcLatitude: (typeof g.dcLatitude === 'number') ? g.dcLatitude : null,
+      dcLongitude: (typeof g.dcLongitude === 'number') ? g.dcLongitude : null,
+      dcWebsite: g.dcWebsite || '',
+      dcRegion: g.dcRegion || '',
+      dcNetCount: (typeof g.dcNetCount === 'number') ? g.dcNetCount : 0,
+      dcIxCount: (typeof g.dcIxCount === 'number') ? g.dcIxCount : 0,
+      dcCarrierCount: (typeof g.dcCarrierCount === 'number') ? g.dcCarrierCount : 0,
+      dcNetworks: Array.isArray(g.dcNetworks) ? g.dcNetworks : []
     };
   });
 
