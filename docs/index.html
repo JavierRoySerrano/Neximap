@@ -49279,16 +49279,23 @@ function handlePathKmlImport(e) {
     const netCount = (fac.networks || []).length;
     const isSelected = window._dcSelectedId === fac.id;
     const isExpanded = window._dcExpandedId === fac.id;
+    const facType = fac.facility_type || 'datacenter';
+    const isCLS = facType === 'cable_station';
+    const typeBadge = isCLS ? '<span style="font-size:8px;padding:1px 4px;border-radius:3px;background:#dbeafe;color:#1d4ed8;font-weight:600;white-space:nowrap;">CLS</span>'
+      : '';
+    const borderColor = isCLS ? '#93c5fd' : '#f9a8d4';
+    const cableCount = (fac.cable_systems || []).length;
+    const metaLabel = isCLS ? (cableCount > 0 ? `${cableCount}C` : '') : `${netCount}N`;
 
-    return `<div class="dc-item ${isSelected ? 'selected' : ''}" data-dc-id="${fac.id}" draggable="true">
+    return `<div class="dc-item ${isSelected ? 'selected' : ''}" data-dc-id="${fac.id}" draggable="true" style="border-left-color:${borderColor};">
       <span class="dc-density-badge ${densityClass}" title="Carriers: ${fac.carrier_count || 0}, IXs: ${fac.ix_count || 0}, Networks: ${netCount}"></span>
       <div style="min-width:0; flex:1;">
-        <div class="dc-name">${escapeHtml(fac.name)}</div>
-        <div class="dc-org">${escapeHtml(fac.org_name || '')} — ${escapeHtml(fac.city || '')}, ${escapeHtml(fac.country || '')}</div>
+        <div class="dc-name">${typeBadge} ${escapeHtml(fac.name)}</div>
+        <div class="dc-org">${escapeHtml(fac.org_name || '')} \u2014 ${escapeHtml(fac.city || '')}, ${escapeHtml(fac.country || '')}</div>
       </div>
       <div style="display:flex; align-items:center; gap:3px;">
-        <div class="dc-meta">${netCount}N</div>
-        <button class="dc-expand-btn" data-dc-id="${fac.id}" title="Show details" style="background:none; border:1px solid #f9a8d4; border-radius:3px; width:20px; height:20px; cursor:pointer; font-size:11px; color:#ec4899; display:flex; align-items:center; justify-content:center;">${isExpanded ? '−' : '+'}</button>
+        ${metaLabel ? `<div class="dc-meta">${metaLabel}</div>` : ''}
+        <button class="dc-expand-btn" data-dc-id="${fac.id}" title="Show details" style="background:none; border:1px solid ${borderColor}; border-radius:3px; width:20px; height:20px; cursor:pointer; font-size:11px; color:${isCLS ? '#2563eb' : '#ec4899'}; display:flex; align-items:center; justify-content:center;">${isExpanded ? '\u2212' : '+'}</button>
       </div>
     </div>${isExpanded ? renderDCDetailPanel(fac) : ''}`;
   }
@@ -49298,8 +49305,13 @@ function handlePathKmlImport(e) {
     const nets = fac.networks || [];
     const topNets = nets.slice(0, 30);
     const hasMore = nets.length > 30;
+    const facType = fac.facility_type || 'datacenter';
+    const isCLS = facType === 'cable_station';
+    const cables = fac.cable_systems || [];
+    const typeLabel = isCLS ? 'Cable Station' : 'Datacenter';
     return `<div class="dc-detail-panel show">
       <div class="dc-detail-grid">
+        <div class="dc-field"><div class="dc-field-label">Type</div><div class="dc-field-value" style="font-weight:600;color:${isCLS ? '#1d4ed8' : '#831843'};">${typeLabel}</div></div>
         <div class="dc-field full-width"><div class="dc-field-label">Address</div><div class="dc-field-value">${escapeHtml(fac.address1 || '')}${fac.address2 ? ', ' + escapeHtml(fac.address2) : ''}</div></div>
         <div class="dc-field"><div class="dc-field-label">City</div><div class="dc-field-value">${escapeHtml(fac.city || '')}</div></div>
         <div class="dc-field"><div class="dc-field-label">Country</div><div class="dc-field-value">${escapeHtml(fac.country || '')}${fac.state ? ' / ' + escapeHtml(fac.state) : ''}</div></div>
