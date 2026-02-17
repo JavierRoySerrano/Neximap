@@ -29610,6 +29610,33 @@ function loadProjectObject(obj) {
     showCableAssignmentDialog(cs, targetEdge);
   });
 
+  // Find nearest landing station name for a coordinate [lng, lat]
+  function findNearestLandingStation(coord, landingPoints, maxDistKm) {
+    if (!coord || !landingPoints || landingPoints.length === 0) return null;
+    const [lng, lat] = coord;
+    const toRad = d => d * Math.PI / 180;
+    let best = null;
+    let bestDist = Infinity;
+    for (const lp of landingPoints) {
+      let lpLat, lpLng;
+      if (lp.coordinates && Array.isArray(lp.coordinates)) {
+        lpLng = lp.coordinates[0]; lpLat = lp.coordinates[1];
+      } else if (typeof lp.lat === 'number') {
+        lpLat = lp.lat; lpLng = lp.lon || lp.lng;
+      } else continue;
+      // Haversine distance (km)
+      const dLat = toRad(lpLat - lat);
+      const dLon = toRad(lpLng - lng);
+      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat)) * Math.cos(toRad(lpLat)) * Math.sin(dLon/2)**2;
+      const dist = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      if (dist < bestDist) { bestDist = dist; best = lp; }
+    }
+    if (best && bestDist <= (maxDistKm || 150)) {
+      return best.name || null;
+    }
+    return null;
+  }
+
   // Cable assignment dialog with optional geometry import
   function showCableAssignmentDialog(cs, edge) {
     // Remove any existing dialog
@@ -29618,12 +29645,14 @@ function loadProjectObject(obj) {
 
     const nodeA = findNode(edge.a);
     const nodeB = findNode(edge.b);
-    const linkLabel = edge.label || edge.name || `Link ${edge.id}`;
+    const linkLabel = edge.tag || edge.code || `Link ${edge.id}`;
     const linkEndpoints = `${nodeA?.name || '?'} \u{2194} ${nodeB?.name || '?'}`;
+    const cableName = cs.shortName || cs.name;
 
     // Check if cable system has geometry available (from visor DB or loaded data)
     let hasGeometry = false;
     let geometryData = null;
+    let landingPoints = [];
 
     // Check visor database for this cable
     if (cableVisorState.cableDatabase) {
@@ -29635,8 +29664,9 @@ function loadProjectObject(obj) {
           if (cable.geometry && cable.geometry.coordinates) {
             hasGeometry = true;
             geometryData = cable;
-            break;
           }
+          if (cable.landingPoints) landingPoints = cable.landingPoints;
+          if (hasGeometry) break;
         }
       }
     }
@@ -29646,6 +29676,27 @@ function loadProjectObject(obj) {
       hasGeometry = true;
       geometryData = { geometry: cs.geometry, segments: cs.segments || null };
     }
+
+    // Build link tag action section
+    const currentTag = edge.tag || '';
+    const tagActionSection = `
+      <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+        <div style="font-size: 12px; font-weight: 600; margin-bottom: 8px;">\u{1F3F7}\u{FE0F} Link Tag</div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="display:flex;align-items:center;gap:8px;padding:6px 10px;border:2px solid #0096D6;border-radius:5px;cursor:pointer;background:#f0f9ff;font-size:12px;">
+            <input type="radio" name="csTagAction" value="replace" checked style="margin:0;accent-color:#0096D6;">
+            <div><strong>Replace</strong> \u{2014} set to "${escapeHtml(cableName)}"</div>
+          </label>
+          ${currentTag ? `<label style="display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid #e0e0e0;border-radius:5px;cursor:pointer;font-size:12px;">
+            <input type="radio" name="csTagAction" value="append" style="margin:0;accent-color:#0096D6;">
+            <div><strong>Append</strong> \u{2014} "${escapeHtml(currentTag)} - ${escapeHtml(cableName)}"</div>
+          </label>` : ''}
+          <label style="display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid #e0e0e0;border-radius:5px;cursor:pointer;font-size:12px;">
+            <input type="radio" name="csTagAction" value="keep" style="margin:0;accent-color:#0096D6;">
+            <div><strong>Keep as is</strong>${currentTag ? ` \u{2014} "${escapeHtml(currentTag)}"` : ' \u{2014} (empty)'}</div>
+          </label>
+        </div>
+      </div>`;
 
     // Build dialog HTML
     const overlay = document.createElement('div');
@@ -29667,19 +29718,30 @@ function loadProjectObject(obj) {
           const ptCount = coords.length;
           const segName = geometryData.segments?.[i]?.name || '';
 
-          // Get first and last point to show endpoints
+          // Try to resolve start/end landing station names
           const startPt = coords[0];
           const endPt = coords[coords.length - 1];
-          const startLabel = startPt ? `${startPt[1].toFixed(2)}, ${startPt[0].toFixed(2)}` : '?';
-          const endLabel = endPt ? `${endPt[1].toFixed(2)}, ${endPt[0].toFixed(2)}` : '?';
-          const endpointText = segName || `(${startLabel}) \u{2192} (${endLabel})`;
+          let startLabel = startPt ? `${startPt[1].toFixed(2)}, ${startPt[0].toFixed(2)}` : '?';
+          let endLabel = endPt ? `${endPt[1].toFixed(2)}, ${endPt[0].toFixed(2)}` : '?';
+
+          // Match coordinates to landing station names if available
+          if (landingPoints.length > 0) {
+            const startStation = findNearestLandingStation(startPt, landingPoints, 150);
+            const endStation = findNearestLandingStation(endPt, landingPoints, 150);
+            if (startStation) startLabel = startStation;
+            if (endStation) endLabel = endStation;
+          }
+
+          const endpointText = segName || `${startLabel} \u{2192} ${endLabel}`;
+          const approxKm = geometryData.segments?.[i]?.approxLength_km;
+          const metaText = approxKm ? `~${approxKm} km \u{2022} ${ptCount} pts` : `${ptCount} pts`;
 
           segListHtml += `
             <label class="geo-segment-item">
               <input type="checkbox" class="geo-seg-cb" data-seg-index="${i}" checked>
               <div class="seg-info">
-                <div class="seg-name">Segment ${i + 1}</div>
-                <div class="seg-detail">${endpointText} \u{2022} ${ptCount} pts</div>
+                <div class="seg-name">${endpointText}</div>
+                <div class="seg-detail">${metaText}</div>
               </div>
             </label>`;
         }
@@ -29692,7 +29754,7 @@ function loadProjectObject(obj) {
             </label>
             <div id="geoSegmentSection">
               <div style="font-size: 11px; color: #374151; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                \u{1F500} MultiLineString with ${segCount} segments \u{2014} select which to import:
+                ${segCount} segments \u{2014} select which to import:
                 <button id="btnGeoSegAll" style="font-size: 9px; padding: 1px 6px; border: 1px solid #ccc; border-radius: 3px; background: #fff; cursor: pointer;">All</button>
                 <button id="btnGeoSegNone" style="font-size: 9px; padding: 1px 6px; border: 1px solid #ccc; border-radius: 3px; background: #fff; cursor: pointer;">None</button>
               </div>
@@ -29701,13 +29763,20 @@ function loadProjectObject(obj) {
           </div>`;
       } else {
         // Single LineString
-        const ptCount = isMultiLine ? geometryData.geometry.coordinates[0].length : geometryData.geometry.coordinates.length;
+        const singleCoords = isMultiLine ? geometryData.geometry.coordinates[0] : geometryData.geometry.coordinates;
+        const ptCount = singleCoords.length;
+        let routeLabel = '';
+        if (landingPoints.length > 0 && singleCoords.length >= 2) {
+          const startStation = findNearestLandingStation(singleCoords[0], landingPoints, 150);
+          const endStation = findNearestLandingStation(singleCoords[singleCoords.length - 1], landingPoints, 150);
+          if (startStation && endStation) routeLabel = ` (${startStation} \u{2192} ${endStation})`;
+        }
         geometrySection = `
           <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
             <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
               <input type="checkbox" id="geoAssignGeometry" checked>
               <strong>\u{1F5FA}\u{FE0F} Also assign path geometry to link</strong>
-              <span style="font-size: 10px; color: #888;">(${ptCount} waypoints)</span>
+              <span style="font-size: 10px; color: #888;">${ptCount} waypoints${routeLabel}</span>
             </label>
           </div>`;
       }
@@ -29725,17 +29794,18 @@ function loadProjectObject(obj) {
         <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
           <div style="flex: 1;">
             <div style="font-size: 11px; color: #888;">Cable System</div>
-            <div style="font-weight: 600; font-size: 13px;">${cs.shortName || cs.name}</div>
-            <div style="font-size: 10px; color: #666;">${cs.name}</div>
+            <div style="font-weight: 600; font-size: 13px;">${escapeHtml(cableName)}</div>
+            <div style="font-size: 10px; color: #666;">${escapeHtml(cs.name)}</div>
           </div>
           <div style="font-size: 20px;">\u{27A1}</div>
           <div style="flex: 1;">
             <div style="font-size: 11px; color: #888;">Link</div>
-            <div style="font-weight: 600; font-size: 13px;">${linkLabel}</div>
-            <div style="font-size: 10px; color: #666;">${linkEndpoints}</div>
+            <div style="font-weight: 600; font-size: 13px;">${escapeHtml(linkLabel)}</div>
+            <div style="font-size: 10px; color: #666;">${escapeHtml(linkEndpoints)}</div>
           </div>
         </div>
         ${edge.cableSystemId ? '<div style="padding: 8px; background: #fef3c7; border-radius: 6px; font-size: 11px; color: #92400e; margin-bottom: 8px;">\u{26A0} This link already has a cable system assigned. It will be replaced.</div>' : ''}
+        ${tagActionSection}
         ${!hasGeometry ? '<div style="font-size: 11px; color: #888; margin-top: 8px;">\u{2139}\u{FE0F} No geometry available for this cable. Load cable data in the Cable Visor to enable geometry assignment.</div>' : ''}
         ${geometrySection}
       </div>
@@ -29774,7 +29844,16 @@ function loadProjectObject(obj) {
       // 1. Assign cable system
       edge.cableSystemId = cs.id;
 
-      // 2. Optionally assign geometry
+      // 2. Apply Link Tag action
+      const tagAction = dialog.querySelector('input[name="csTagAction"]:checked')?.value || 'replace';
+      if (tagAction === 'replace') {
+        edge.tag = cableName;
+      } else if (tagAction === 'append') {
+        edge.tag = (edge.tag || '') + ' - ' + cableName;
+      }
+      // 'keep' = do nothing to tag
+
+      // 3. Optionally assign geometry
       if (geoCheckbox && geoCheckbox.checked && hasGeometry && geometryData) {
         // Get selected segments
         const segCheckboxes = dialog.querySelectorAll('.geo-seg-cb');
@@ -29802,12 +29881,12 @@ function loadProjectObject(obj) {
             edge.cableGeometry = JSON.parse(JSON.stringify(geometryData.geometry));
           }
 
-          showToast(`Assigned "${cs.shortName}" + geometry (${coords.length} waypoints) to ${linkLabel}`);
+          showToast(`Assigned "${cableName}" + geometry (${coords.length} waypoints) to ${linkLabel}`);
         } else {
-          showToast(`Assigned "${cs.shortName}" to ${linkLabel} (no geometry segments selected)`);
+          showToast(`Assigned "${cableName}" to ${linkLabel} (no geometry segments selected)`);
         }
       } else {
-        showToast(`Assigned "${cs.shortName}" to ${linkLabel}`);
+        showToast(`Assigned "${cableName}" to ${linkLabel}`);
       }
 
       // Update inspector if this edge is selected
