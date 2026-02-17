@@ -7164,18 +7164,28 @@
       <!-- Datacenter Info Section (shown only for DC type containers) -->
       <div class="inspector-section" data-section="group-dc-info" id="groupDCInfoSection" style="display:none;">
         <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
-          <span>Datacenter Info</span>
+          <span id="groupDCInfoSectionTitle">Datacenter Info</span>
           <span class="section-icon">▼</span>
         </div>
         <div class="inspector-section-content">
           <div class="row inline">
             <div style="flex:1;">
-              <label>Organization</label>
-              <input id="groupDCOrgName" placeholder="e.g. Equinix" />
+              <label>Facility Type</label>
+              <select id="groupDCFacilityType" style="width:100%; padding:4px 6px; border:1px solid #d0d0d0; border-radius:4px; font-size:11px;">
+                <option value="datacenter">Datacenter</option>
+                <option value="carrier_hotel">Carrier Hotel</option>
+                <option value="cable_station">Cable Station</option>
+              </select>
             </div>
             <div style="flex:0 0 80px;">
               <label>PeeringDB ID</label>
               <input id="groupDCPeeringDbId" type="text" readonly style="background:#f3f4f6;color:#666;" />
+            </div>
+          </div>
+          <div class="row inline">
+            <div style="flex:1;">
+              <label>Organization</label>
+              <input id="groupDCOrgName" placeholder="e.g. Equinix" />
             </div>
           </div>
           <div class="row">
@@ -7224,6 +7234,11 @@
                 <input id="groupDCLongitude" type="text" placeholder="e.g. 8.6821" style="font-family:monospace;font-size:11px;" />
               </div>
             </div>
+          </div>
+          <div id="groupDCCableSystemsSection" style="margin-top:8px; padding-top:8px; border-top:1px solid #e0e0e0; display:none;">
+            <label style="font-weight:600; font-size:11px; color:#2563eb;">Cable Systems Landing Here</label>
+            <textarea id="groupDCCableSystems" placeholder="One cable system per line, e.g.&#10;MAREA&#10;Dunant&#10;AEConnect-1" style="width:100%; min-height:60px; margin-top:4px; padding:6px 8px; border:1px solid #93c5fd; border-radius:4px; font-size:11px; resize:vertical;"></textarea>
+            <div style="font-size:9px; color:#888; margin-top:2px;">One cable system name per line</div>
           </div>
           <div style="margin-top:8px; padding-top:8px; border-top:1px solid #e0e0e0;">
             <label style="font-weight:600; font-size:11px; color:#9333ea;">Network Presence</label>
@@ -7754,7 +7769,7 @@
   <!-- Datacenter Navigator Panel -->
   <aside id="dcNavigator" style="display:none;">
     <div id="dcNavigatorHeader">
-      <h3>Datacenter List</h3>
+      <h3>Facility List</h3>
       <div id="dcNavigatorControls">
         <button id="btnOpenDCVisor" title="Open Datacenter Visor">&#x1F3E2;</button>
         <button id="btnMinimizeDCNav" title="Minimize/Maximize">−</button>
@@ -7763,11 +7778,17 @@
     </div>
     <div id="dcNavigatorContent">
       <div style="padding:8px 10px; border-bottom:1px solid #f9a8d4;">
-        <input type="text" id="dcNavSearch" placeholder="Search datacenters..." style="width:100%; padding:5px 8px; border:1px solid #f9a8d4; border-radius:4px; font-size:11px;" />
-        <div style="margin-top:5px; display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+        <input type="text" id="dcNavSearch" placeholder="Search facilities..." style="width:100%; padding:5px 8px; border:1px solid #f9a8d4; border-radius:4px; font-size:11px;" />
+        <div style="margin-top:5px; display:flex; gap:4px; align-items:center;">
+          <select id="dcNavTypeFilter" style="padding:2px 4px; border:1px solid #f9a8d4; border-radius:3px; font-size:10px; max-width:110px; accent-color:#ec4899;">
+            <option value="">All Types</option>
+            <option value="datacenter">Datacenters</option>
+            <option value="carrier_hotel">Carrier Hotels</option>
+            <option value="cable_station">Cable Stations</option>
+          </select>
           <label style="font-size:10px; color:#831843; display:flex; align-items:center; gap:3px;">
             <input type="checkbox" id="dcNavGroupByRegion" checked style="width:12px; height:12px; accent-color:#ec4899;" />
-            By Region
+            Region
           </label>
           <select id="dcNavCountryFilter" style="padding:2px 4px; border:1px solid #f9a8d4; border-radius:3px; font-size:10px; max-width:90px;">
             <option value="">All Countries</option>
@@ -14332,29 +14353,73 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       const iconScale = 0.8;
       iconG.setAttribute('transform', `translate(${iconX}, ${iconY}) scale(${iconScale})`);
       iconG.style.pointerEvents = 'none';
-      // Building body
-      const body = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      body.setAttribute('x', '2'); body.setAttribute('y', '0');
-      body.setAttribute('width', '20'); body.setAttribute('height', '24');
-      body.setAttribute('rx', '1'); body.setAttribute('fill', 'none');
-      body.setAttribute('stroke', g.stroke || '#ec4899'); body.setAttribute('stroke-width', '1.5');
-      iconG.appendChild(body);
-      // Rack lines
-      [6, 12, 18].forEach(ly => {
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', '2'); line.setAttribute('y1', ly);
-        line.setAttribute('x2', '22'); line.setAttribute('y2', ly);
-        line.setAttribute('stroke', g.stroke || '#ec4899'); line.setAttribute('stroke-width', '0.8');
-        line.setAttribute('stroke-opacity', '0.5');
-        iconG.appendChild(line);
-      });
-      // LED dots
-      [3, 9, 15, 21].forEach(dy => {
-        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        dot.setAttribute('cx', '19'); dot.setAttribute('cy', dy);
-        dot.setAttribute('r', '1.2'); dot.setAttribute('fill', g.stroke || '#ec4899');
-        iconG.appendChild(dot);
-      });
+      const iconColor = g.stroke || '#ec4899';
+
+      if (g.dcFacilityType === 'cable_station') {
+        // Cable station icon: anchor/cable landing motif
+        const cableColor = g.stroke || '#2563eb';
+        // Vertical mast
+        const mast = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        mast.setAttribute('x1', '12'); mast.setAttribute('y1', '2');
+        mast.setAttribute('x2', '12'); mast.setAttribute('y2', '18');
+        mast.setAttribute('stroke', cableColor); mast.setAttribute('stroke-width', '2');
+        iconG.appendChild(mast);
+        // Top circle (ring)
+        const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        ring.setAttribute('cx', '12'); ring.setAttribute('cy', '4');
+        ring.setAttribute('r', '3'); ring.setAttribute('fill', 'none');
+        ring.setAttribute('stroke', cableColor); ring.setAttribute('stroke-width', '1.5');
+        iconG.appendChild(ring);
+        // Crossbar
+        const bar = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        bar.setAttribute('x1', '4'); bar.setAttribute('y1', '12');
+        bar.setAttribute('x2', '20'); bar.setAttribute('y2', '12');
+        bar.setAttribute('stroke', cableColor); bar.setAttribute('stroke-width', '1.5');
+        iconG.appendChild(bar);
+        // Left fluke (curved arm)
+        const flukeL = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        flukeL.setAttribute('d', 'M 4 18 Q 4 12, 8 12');
+        flukeL.setAttribute('fill', 'none');
+        flukeL.setAttribute('stroke', cableColor); flukeL.setAttribute('stroke-width', '1.5');
+        iconG.appendChild(flukeL);
+        // Right fluke
+        const flukeR = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        flukeR.setAttribute('d', 'M 20 18 Q 20 12, 16 12');
+        flukeR.setAttribute('fill', 'none');
+        flukeR.setAttribute('stroke', cableColor); flukeR.setAttribute('stroke-width', '1.5');
+        iconG.appendChild(flukeR);
+        // Wave lines at bottom (water)
+        const wave = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        wave.setAttribute('d', 'M 1 22 Q 6 19, 12 22 Q 18 25, 23 22');
+        wave.setAttribute('fill', 'none');
+        wave.setAttribute('stroke', cableColor); wave.setAttribute('stroke-width', '1');
+        wave.setAttribute('stroke-opacity', '0.5');
+        iconG.appendChild(wave);
+      } else {
+        // Datacenter / Carrier Hotel icon: server rack
+        const body = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        body.setAttribute('x', '2'); body.setAttribute('y', '0');
+        body.setAttribute('width', '20'); body.setAttribute('height', '24');
+        body.setAttribute('rx', '1'); body.setAttribute('fill', 'none');
+        body.setAttribute('stroke', iconColor); body.setAttribute('stroke-width', '1.5');
+        iconG.appendChild(body);
+        // Rack lines
+        [6, 12, 18].forEach(ly => {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', '2'); line.setAttribute('y1', ly);
+          line.setAttribute('x2', '22'); line.setAttribute('y2', ly);
+          line.setAttribute('stroke', iconColor); line.setAttribute('stroke-width', '0.8');
+          line.setAttribute('stroke-opacity', '0.5');
+          iconG.appendChild(line);
+        });
+        // LED dots
+        [3, 9, 15, 21].forEach(dy => {
+          const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          dot.setAttribute('cx', '19'); dot.setAttribute('cy', dy);
+          dot.setAttribute('r', '1.2'); dot.setAttribute('fill', iconColor);
+          iconG.appendChild(dot);
+        });
+      }
       grp.appendChild(iconG);
     }
 
@@ -15953,6 +16018,23 @@ const groupTitle = document.getElementById('groupTitle');
           setTxt('groupDCNetCount', g.dcNetCount || 0);
           setTxt('groupDCIxCount', g.dcIxCount || 0);
           setTxt('groupDCCarrierCount', g.dcCarrierCount || 0);
+          // Facility type
+          setVal('groupDCFacilityType', g.dcFacilityType || 'datacenter');
+          // Update section title based on type
+          const sectionTitle = document.getElementById('groupDCInfoSectionTitle');
+          if (sectionTitle) {
+            const ft = g.dcFacilityType || 'datacenter';
+            sectionTitle.textContent = ft === 'cable_station' ? 'Cable Station Info' : ft === 'carrier_hotel' ? 'Carrier Hotel Info' : 'Datacenter Info';
+          }
+          // Cable systems (show only for cable_station type)
+          const csSection = document.getElementById('groupDCCableSystemsSection');
+          if (csSection) {
+            csSection.style.display = (g.dcFacilityType === 'cable_station') ? '' : 'none';
+          }
+          const csTextarea = document.getElementById('groupDCCableSystems');
+          if (csTextarea) {
+            csTextarea.value = Array.isArray(g.dcCableSystems) ? g.dcCableSystems.join('\n') : '';
+          }
         } else {
           dcInfoSection.style.display = 'none';
         }
@@ -16636,6 +16718,36 @@ if (groupTitleFontInline) {
     }
   });
 
+  // Facility type dropdown
+  const groupDCFacilityType = document.getElementById('groupDCFacilityType');
+  if (groupDCFacilityType) {
+    groupDCFacilityType.addEventListener('change', () => {
+      if (state.selected?.type !== 'group') return;
+      const g = findGroup(state.selected.id); if (!g) return;
+      g.dcFacilityType = groupDCFacilityType.value;
+      // Show/hide cable systems section
+      const csSection = document.getElementById('groupDCCableSystemsSection');
+      if (csSection) csSection.style.display = (g.dcFacilityType === 'cable_station') ? '' : 'none';
+      // Update section title
+      const sectionTitle = document.getElementById('groupDCInfoSectionTitle');
+      if (sectionTitle) {
+        const ft = g.dcFacilityType;
+        sectionTitle.textContent = ft === 'cable_station' ? 'Cable Station Info' : ft === 'carrier_hotel' ? 'Carrier Hotel Info' : 'Datacenter Info';
+      }
+      commit(); render();
+    });
+  }
+  // Cable systems textarea
+  const groupDCCableSystems = document.getElementById('groupDCCableSystems');
+  if (groupDCCableSystems) {
+    groupDCCableSystems.addEventListener('input', () => {
+      if (state.selected?.type !== 'group') return;
+      const g = findGroup(state.selected.id); if (!g) return;
+      g.dcCableSystems = groupDCCableSystems.value.split('\n').map(s => s.trim()).filter(Boolean);
+      commit();
+    });
+  }
+
   // ============== GROUP COMMERCIAL COST HANDLERS ==============
 
   // Cost mode radio buttons
@@ -17201,6 +17313,8 @@ if (groupTitleFontInline) {
       base.dcIxCount = 0;
       base.dcCarrierCount = 0;
       base.dcNetworks = [];
+      base.dcFacilityType = 'datacenter'; // datacenter | carrier_hotel | cable_station
+      base.dcCableSystems = []; // cable system names (for cable stations)
     }
 
     return base;
@@ -17330,7 +17444,7 @@ if (groupTitleFontInline) {
 
     select({type:'group', id});
     commit(); render();
-    const typeLabel = g.type === 'region' ? 'group box' : g.type === 'dc' ? 'datacenter container' : 'container box';
+    const typeLabel = g.type === 'region' ? 'group box' : g.type === 'dc' ? (g.dcFacilityType === 'cable_station' ? 'cable station' : g.dcFacilityType === 'carrier_hotel' ? 'carrier hotel' : 'datacenter container') : 'container box';
     showToast(`Created ${typeLabel}. Rename in Inspector.`);
   }
 
@@ -18641,10 +18755,12 @@ function generateTemplateData(includeData) {
       ['Postal Code - Zip/postal code'],
       ['State - State/province'],
       ['Country - Country name'],
+      ['Facility Type - datacenter, carrier_hotel, or cable_station (default: datacenter)'],
       ['Continent - Region/continent (e.g. Europe, North America)'],
       ['GPS Latitude - Decimal degrees (-90 to 90)'],
       ['GPS Longitude - Decimal degrees (-180 to 180)'],
       ['Website - URL of the datacenter facility'],
+      ['Cable Systems - Pipe-separated cable system names (for cable stations): MAREA|Dunant'],
       ['Fill Color - Hex color #RRGGBB (default: #fff2cc)'],
       ['Stroke Color - Hex color #RRGGBB (default: #d6b656)'],
     ],
@@ -18736,8 +18852,8 @@ function generateTemplateData(includeData) {
     containers: {
       headers: [
         'Container Name', 'Type', 'Parent Container', 'Tags',
-        'Organization', 'Address', 'City', 'Postal Code', 'State', 'Country', 'Continent',
-        'GPS Latitude', 'GPS Longitude', 'Website',
+        'Facility Type', 'Organization', 'Address', 'City', 'Postal Code', 'State', 'Country', 'Continent',
+        'GPS Latitude', 'GPS Longitude', 'Website', 'Cable Systems',
         'Fill Color', 'Stroke Color'
       ],
       rows: includeData ? state.groups.map(g => {
@@ -18747,6 +18863,7 @@ function generateTemplateData(includeData) {
           g.type || 'country',
           parent?.title || '',
           (g.filterTags || []).join('|'),
+          g.dcFacilityType || 'datacenter',
           g.dcOrgName || '',
           g.dcAddress || '',
           g.dcCity || '',
@@ -18757,15 +18874,17 @@ function generateTemplateData(includeData) {
           (g.dcLatitude != null) ? g.dcLatitude : '',
           (g.dcLongitude != null) ? g.dcLongitude : '',
           g.dcWebsite || '',
+          (g.dcCableSystems || []).join('|'),
           g.fill || '',
           g.stroke || ''
         ];
       }) : [
-        ['Europe', 'region', '', 'default', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['North America', 'region', '', 'default', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['UK', 'country', 'Europe', 'default', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['Equinix FR5', 'dc', 'Europe', 'default|Imported Datacenter', 'Equinix', 'Kleyerstr. 90', 'Frankfurt', '60326', 'Hesse', 'Germany', 'Europe', '50.1047', '8.6378', 'https://equinix.com', '', ''],
-        ['(Leave colors blank for defaults. Type=dc for datacenters)', '', '', '', '', '', '', '', '', '', '', '', '', '', '#fff2cc', '#d6b656']
+        ['Europe', 'region', '', 'default', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+        ['North America', 'region', '', 'default', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+        ['UK', 'country', 'Europe', 'default', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+        ['Equinix FR5', 'dc', 'Europe', 'default|Imported Datacenter', 'datacenter', 'Equinix', 'Kleyerstr. 90', 'Frankfurt', '60326', 'Hesse', 'Germany', 'Europe', '50.1047', '8.6378', 'https://equinix.com', '', '', ''],
+        ['Bude CLS', 'dc', 'UK', 'default|Imported Cable Station', 'cable_station', '', '', 'Bude', '', 'Cornwall', 'UK', 'Europe', '50.8296', '-4.5432', '', 'TAT-14|Apollo|Hibernia Atlantic', '', ''],
+        ['(Facility Type: datacenter, carrier_hotel, cable_station. Cable Systems: pipe-separated.)', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '#fff2cc', '#d6b656']
       ]
     },
     mlgs: {
@@ -19396,6 +19515,7 @@ async function executeImportWithData(nodesData, linksData, containersData, mode)
         if (row['Fill Color']) existing.fill = row['Fill Color'];
         if (row['Stroke Color']) existing.stroke = row['Stroke Color'];
         // DC fields
+        if (row['Facility Type']) existing.dcFacilityType = row['Facility Type'];
         if (row['Organization']) existing.dcOrgName = row['Organization'];
         if (row['Address']) existing.dcAddress = row['Address'];
         if (row['City']) existing.dcCity = row['City'];
@@ -19406,6 +19526,7 @@ async function executeImportWithData(nodesData, linksData, containersData, mode)
         if (row['GPS Latitude']) existing.dcLatitude = parseFloat(row['GPS Latitude']) || null;
         if (row['GPS Longitude']) existing.dcLongitude = parseFloat(row['GPS Longitude']) || null;
         if (row['Website']) existing.dcWebsite = row['Website'];
+        if (row['Cable Systems']) existing.dcCableSystems = row['Cable Systems'].split('|').map(s => s.trim()).filter(Boolean);
       } else {
         // Create new
         const cType = row['Type'] || 'country';
@@ -19434,6 +19555,8 @@ async function executeImportWithData(nodesData, linksData, containersData, mode)
           dcLatitude: row['GPS Latitude'] ? (parseFloat(row['GPS Latitude']) || null) : null,
           dcLongitude: row['GPS Longitude'] ? (parseFloat(row['GPS Longitude']) || null) : null,
           dcWebsite: row['Website'] || '',
+          dcFacilityType: row['Facility Type'] || 'datacenter',
+          dcCableSystems: row['Cable Systems'] ? row['Cable Systems'].split('|').map(s => s.trim()).filter(Boolean) : [],
           dcNetCount: 0,
           dcIxCount: 0,
           dcCarrierCount: 0,
@@ -20219,7 +20342,9 @@ function loadProjectObject(obj) {
       dcNetCount: (typeof g.dcNetCount === 'number') ? g.dcNetCount : 0,
       dcIxCount: (typeof g.dcIxCount === 'number') ? g.dcIxCount : 0,
       dcCarrierCount: (typeof g.dcCarrierCount === 'number') ? g.dcCarrierCount : 0,
-      dcNetworks: Array.isArray(g.dcNetworks) ? g.dcNetworks : []
+      dcNetworks: Array.isArray(g.dcNetworks) ? g.dcNetworks : [],
+      dcFacilityType: g.dcFacilityType || 'datacenter',
+      dcCableSystems: Array.isArray(g.dcCableSystems) ? g.dcCableSystems : []
     };
   });
 
@@ -23525,15 +23650,18 @@ function loadProjectObject(obj) {
 
     const search = (document.getElementById('dcVisorSearch')?.value || '').toLowerCase().trim();
     const regionFilter = document.getElementById('dcVisorRegionFilter')?.value || '';
+    const typeFilter = document.getElementById('dcVisorTypeFilter')?.value || '';
 
     let facilities = dcVisorState.dcDatabase.facilities.filter(fac => {
+      if (typeFilter && (fac.facility_type || 'datacenter') !== typeFilter) return false;
       if (regionFilter && fac.region_continent !== regionFilter) return false;
       if (search) {
         const name = (fac.name || '').toLowerCase();
         const org = (fac.org_name || '').toLowerCase();
         const city = (fac.city || '').toLowerCase();
         const country = (fac.country || '').toLowerCase();
-        return name.includes(search) || org.includes(search) || city.includes(search) || country.includes(search);
+        const cables = (fac.cable_systems || []).join(' ').toLowerCase();
+        return name.includes(search) || org.includes(search) || city.includes(search) || country.includes(search) || cables.includes(search);
       }
       return true;
     });
@@ -23998,6 +24126,7 @@ function loadProjectObject(obj) {
     document.getElementById('btnDCVisorClearAll')?.addEventListener('click', clearAllVisorDCs);
     document.getElementById('dcVisorSearch')?.addEventListener('input', () => renderDCVisorList());
     document.getElementById('dcVisorRegionFilter')?.addEventListener('change', () => renderDCVisorList());
+    document.getElementById('dcVisorTypeFilter')?.addEventListener('change', () => renderDCVisorList());
 
     // DC name labels toggle
     document.getElementById('btnDCVisorShowNames')?.addEventListener('click', () => {
@@ -30119,15 +30248,18 @@ function loadProjectObject(obj) {
     g.dcIxCount = fac.ix_count || 0;
     g.dcCarrierCount = fac.carrier_count || 0;
     g.dcNetworks = (fac.networks || []).map(n => ({ asn: n.asn, name: n.name, type: n.type }));
-    // Set DC visual style if not already DC type
+    g.dcFacilityType = fac.facility_type || 'datacenter';
+    g.dcCableSystems = Array.isArray(fac.cable_systems) ? [...fac.cable_systems] : [];
+    // Set DC visual style — cable stations get a distinct blue tint
+    const isCableStation = g.dcFacilityType === 'cable_station';
     if (!g.fill || g.fill === 'rgba(255, 255, 255, 0.95)' || g.fill === 'rgba(245, 245, 245, 0.9)') {
-      g.fill = 'rgba(253, 242, 248, 0.95)';
+      g.fill = isCableStation ? 'rgba(239, 246, 255, 0.95)' : 'rgba(253, 242, 248, 0.95)';
     }
     if (!g.stroke || g.stroke === '#666666' || g.stroke === '#999999') {
-      g.stroke = '#ec4899';
+      g.stroke = isCableStation ? '#2563eb' : '#ec4899';
     }
     if (!g.titleColor || g.titleColor === '#333333') {
-      g.titleColor = '#831843';
+      g.titleColor = isCableStation ? '#1e3a5f' : '#831843';
     }
     g.strokeW = 2;
   }
@@ -48506,7 +48638,13 @@ function handlePathKmlImport(e) {
   </div>
   <div id="dcVisorToolbar">
     <div style="display:flex; gap:8px; align-items:center;">
-      <input type="text" id="dcVisorSearch" placeholder="Search datacenters..." style="flex:1; padding:6px 10px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px;" />
+      <input type="text" id="dcVisorSearch" placeholder="Search facilities..." style="flex:1; padding:6px 10px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px;" />
+      <select id="dcVisorTypeFilter" style="padding:6px 10px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px; background:white; max-width:120px;">
+        <option value="">All Types</option>
+        <option value="datacenter">Datacenters</option>
+        <option value="carrier_hotel">Carrier Hotels</option>
+        <option value="cable_station">Cable Stations</option>
+      </select>
       <select id="dcVisorRegionFilter" style="padding:6px 10px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px; background:white; max-width:140px;">
         <option value="">All Regions</option>
       </select>
@@ -50039,16 +50177,22 @@ function handlePathKmlImport(e) {
 
     const searchTerm = (document.getElementById('dcNavSearch')?.value || '').toLowerCase().trim();
     const countryFilter = document.getElementById('dcNavCountryFilter')?.value || '';
+    const typeFilter = document.getElementById('dcNavTypeFilter')?.value || '';
     const groupByRegion = document.getElementById('dcNavGroupByRegion')?.checked ?? true;
 
     let facilities = window._dcDatabase.facilities;
 
-    // Filter
+    // Filter by type
+    if (typeFilter) {
+      facilities = facilities.filter(f => (f.facility_type || 'datacenter') === typeFilter);
+    }
+    // Filter by search
     if (searchTerm) {
       facilities = facilities.filter(f =>
         (f.name || '').toLowerCase().includes(searchTerm) ||
         (f.org_name || '').toLowerCase().includes(searchTerm) ||
-        (f.city || '').toLowerCase().includes(searchTerm)
+        (f.city || '').toLowerCase().includes(searchTerm) ||
+        (f.cable_systems || []).some(cs => cs.toLowerCase().includes(searchTerm))
       );
     }
     if (countryFilter) {
@@ -50056,12 +50200,18 @@ function handlePathKmlImport(e) {
     }
 
     if (facilities.length === 0) {
-      listEl.innerHTML = '<div class="muted" style="padding:12px; text-align:center;">No matching datacenters.</div>';
-      document.getElementById('dcNavCount').textContent = '0 datacenters';
+      listEl.innerHTML = '<div class="muted" style="padding:12px; text-align:center;">No matching facilities.</div>';
+      document.getElementById('dcNavCount').textContent = '0 facilities';
       return;
     }
 
-    document.getElementById('dcNavCount').textContent = `${facilities.length} datacenters`;
+    // Count label
+    const dcCount = facilities.filter(f => (f.facility_type || 'datacenter') !== 'cable_station').length;
+    const csCount = facilities.filter(f => (f.facility_type || 'datacenter') === 'cable_station').length;
+    const countParts = [];
+    if (dcCount > 0) countParts.push(`${dcCount} DC`);
+    if (csCount > 0) countParts.push(`${csCount} CLS`);
+    document.getElementById('dcNavCount').textContent = countParts.length ? countParts.join(' / ') : `${facilities.length} facilities`;
 
     let html = '';
 
@@ -50115,16 +50265,25 @@ function handlePathKmlImport(e) {
     const netCount = (fac.networks || []).length;
     const isSelected = window._dcSelectedId === fac.id;
     const isExpanded = window._dcExpandedId === fac.id;
+    const facType = fac.facility_type || 'datacenter';
+    const isCLS = facType === 'cable_station';
+    const isCH = facType === 'carrier_hotel';
+    const typeBadge = isCLS ? '<span style="font-size:8px;padding:1px 4px;border-radius:3px;background:#dbeafe;color:#1d4ed8;font-weight:600;white-space:nowrap;">CLS</span>'
+      : isCH ? '<span style="font-size:8px;padding:1px 4px;border-radius:3px;background:#fef3c7;color:#92400e;font-weight:600;white-space:nowrap;">CH</span>'
+      : '';
+    const borderColor = isCLS ? '#93c5fd' : '#f9a8d4';
+    const cableCount = (fac.cable_systems || []).length;
+    const metaLabel = isCLS ? (cableCount > 0 ? `${cableCount}C` : '') : `${netCount}N`;
 
-    return `<div class="dc-item ${isSelected ? 'selected' : ''}" data-dc-id="${fac.id}" draggable="true">
+    return `<div class="dc-item ${isSelected ? 'selected' : ''}" data-dc-id="${fac.id}" draggable="true" style="border-left-color:${borderColor};">
       <span class="dc-density-badge ${densityClass}" title="Carriers: ${fac.carrier_count || 0}, IXs: ${fac.ix_count || 0}, Networks: ${netCount}"></span>
       <div style="min-width:0; flex:1;">
-        <div class="dc-name">${escapeHtml(fac.name)}</div>
-        <div class="dc-org">${escapeHtml(fac.org_name || '')} — ${escapeHtml(fac.city || '')}, ${escapeHtml(fac.country || '')}</div>
+        <div class="dc-name">${typeBadge} ${escapeHtml(fac.name)}</div>
+        <div class="dc-org">${escapeHtml(fac.org_name || '')} \u{2014} ${escapeHtml(fac.city || '')}, ${escapeHtml(fac.country || '')}</div>
       </div>
       <div style="display:flex; align-items:center; gap:3px;">
-        <div class="dc-meta">${netCount}N</div>
-        <button class="dc-expand-btn" data-dc-id="${fac.id}" title="Show details" style="background:none; border:1px solid #f9a8d4; border-radius:3px; width:20px; height:20px; cursor:pointer; font-size:11px; color:#ec4899; display:flex; align-items:center; justify-content:center;">${isExpanded ? '−' : '+'}</button>
+        ${metaLabel ? `<div class="dc-meta">${metaLabel}</div>` : ''}
+        <button class="dc-expand-btn" data-dc-id="${fac.id}" title="Show details" style="background:none; border:1px solid ${borderColor}; border-radius:3px; width:20px; height:20px; cursor:pointer; font-size:11px; color:${isCLS ? '#2563eb' : '#ec4899'}; display:flex; align-items:center; justify-content:center;">${isExpanded ? '\u{2212}' : '+'}</button>
       </div>
     </div>${isExpanded ? renderDCDetailPanel(fac) : ''}`;
   }
@@ -50134,20 +50293,29 @@ function handlePathKmlImport(e) {
     const nets = fac.networks || [];
     const topNets = nets.slice(0, 30);
     const hasMore = nets.length > 30;
+    const facType = fac.facility_type || 'datacenter';
+    const isCLS = facType === 'cable_station';
+    const cables = fac.cable_systems || [];
+    const typeLabel = isCLS ? 'Cable Station' : facType === 'carrier_hotel' ? 'Carrier Hotel' : 'Datacenter';
     return `<div class="dc-detail-panel show">
       <div class="dc-detail-grid">
+        <div class="dc-field"><div class="dc-field-label">Type</div><div class="dc-field-value" style="font-weight:600;color:${isCLS ? '#1d4ed8' : '#831843'};">${typeLabel}</div></div>
         <div class="dc-field full-width"><div class="dc-field-label">Address</div><div class="dc-field-value">${escapeHtml(fac.address1 || '')}${fac.address2 ? ', ' + escapeHtml(fac.address2) : ''}</div></div>
         <div class="dc-field"><div class="dc-field-label">City</div><div class="dc-field-value">${escapeHtml(fac.city || '')}</div></div>
         <div class="dc-field"><div class="dc-field-label">Country</div><div class="dc-field-value">${escapeHtml(fac.country || '')}${fac.state ? ' / ' + escapeHtml(fac.state) : ''}</div></div>
-        <div class="dc-field"><div class="dc-field-label">Zipcode</div><div class="dc-field-value">${escapeHtml(fac.zipcode || '—')}</div></div>
-        <div class="dc-field"><div class="dc-field-label">Region</div><div class="dc-field-value">${escapeHtml(fac.region_continent || '—')}</div></div>
-        <div class="dc-field"><div class="dc-field-label">Latitude</div><div class="dc-field-value">${fac.latitude != null ? fac.latitude : '—'}</div></div>
-        <div class="dc-field"><div class="dc-field-label">Longitude</div><div class="dc-field-value">${fac.longitude != null ? fac.longitude : '—'}</div></div>
+        <div class="dc-field"><div class="dc-field-label">Zipcode</div><div class="dc-field-value">${escapeHtml(fac.zipcode || '\u{2014}')}</div></div>
+        <div class="dc-field"><div class="dc-field-label">Region</div><div class="dc-field-value">${escapeHtml(fac.region_continent || '\u{2014}')}</div></div>
+        <div class="dc-field"><div class="dc-field-label">Latitude</div><div class="dc-field-value">${fac.latitude != null ? fac.latitude : '\u{2014}'}</div></div>
+        <div class="dc-field"><div class="dc-field-label">Longitude</div><div class="dc-field-value">${fac.longitude != null ? fac.longitude : '\u{2014}'}</div></div>
         <div class="dc-field"><div class="dc-field-label">Networks</div><div class="dc-field-value">${nets.length}</div></div>
         <div class="dc-field"><div class="dc-field-label">Carriers</div><div class="dc-field-value">${fac.carrier_count || 0}</div></div>
         <div class="dc-field"><div class="dc-field-label">IXPs</div><div class="dc-field-value">${fac.ix_count || 0}</div></div>
         ${fac.website ? `<div class="dc-field full-width"><div class="dc-field-label">Website</div><div class="dc-field-value" style="font-size:10px;">${escapeHtml(fac.website)}</div></div>` : ''}
       </div>
+      ${cables.length > 0 ? `<div class="dc-networks-list" style="border-top:1px solid #dbeafe; padding-top:4px; margin-top:4px;">
+        <div style="font-size:9px; font-weight:600; color:#1d4ed8; margin-bottom:3px;">\u{1F4E1} Cable Systems (${cables.length}):</div>
+        ${cables.map(c => `<span class="dc-net-tag" style="background:#dbeafe; border-color:#93c5fd; color:#1d4ed8;">${escapeHtml(c)}</span>`).join('')}
+      </div>` : ''}
       ${nets.length > 0 ? `<div class="dc-networks-list">
         <div style="font-size:9px; font-weight:600; color:#92400e; margin-bottom:3px;">Networks (${nets.length}):</div>
         ${topNets.map(n => `<span class="dc-net-tag" title="${escapeHtml(n.type || '')} / ${escapeHtml(n.traffic || '')}">AS${n.asn} ${escapeHtml(n.name)}</span>`).join('')}
@@ -50178,6 +50346,7 @@ function handlePathKmlImport(e) {
 
   // DC search and filter
   document.getElementById('dcNavSearch')?.addEventListener('input', () => renderDCList());
+  document.getElementById('dcNavTypeFilter')?.addEventListener('change', () => renderDCList());
   document.getElementById('dcNavCountryFilter')?.addEventListener('change', () => renderDCList());
   document.getElementById('dcNavGroupByRegion')?.addEventListener('change', () => renderDCList());
 
