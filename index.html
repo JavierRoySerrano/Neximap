@@ -7173,7 +7173,6 @@
               <label>Facility Type</label>
               <select id="groupDCFacilityType" style="width:100%; padding:4px 6px; border:1px solid #d0d0d0; border-radius:4px; font-size:11px;">
                 <option value="datacenter">Datacenter</option>
-                <option value="carrier_hotel">Carrier Hotel</option>
                 <option value="cable_station">Cable Station</option>
               </select>
             </div>
@@ -7783,7 +7782,6 @@
           <select id="dcNavTypeFilter" style="padding:2px 4px; border:1px solid #f9a8d4; border-radius:3px; font-size:10px; max-width:110px; accent-color:#ec4899;">
             <option value="">All Types</option>
             <option value="datacenter">Datacenters</option>
-            <option value="carrier_hotel">Carrier Hotels</option>
             <option value="cable_station">Cable Stations</option>
           </select>
           <label style="font-size:10px; color:#831843; display:flex; align-items:center; gap:3px;">
@@ -7793,14 +7791,14 @@
           <select id="dcNavCountryFilter" style="padding:2px 4px; border:1px solid #f9a8d4; border-radius:3px; font-size:10px; max-width:90px;">
             <option value="">All Countries</option>
           </select>
-          <div style="flex:1;"></div>
-          <div style="display:flex; gap:3px; font-size:9px; flex-wrap:wrap;">
-            <span title="Critical: 50+ carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-critical" style="width:8px;height:8px;"></span>50+</span>
-            <span title="High: 20-49 carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-high" style="width:8px;height:8px;"></span>20+</span>
-            <span title="Medium: 5-19 carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-medium" style="width:8px;height:8px;"></span>5+</span>
-            <span title="Low: 1-4 carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-low" style="width:8px;height:8px;"></span>1+</span>
-            <span title="No carrier data" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-minimal" style="width:8px;height:8px;"></span>0</span>
-          </div>
+        </div>
+        <div style="margin-top:4px; display:flex; gap:6px; font-size:9px; align-items:center; justify-content:flex-start;">
+          <span style="font-size:9px; color:#831843; font-weight:600;">Density:</span>
+          <span title="Critical: 50+ carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-critical" style="width:8px;height:8px;"></span>50+</span>
+          <span title="High: 20-49 carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-high" style="width:8px;height:8px;"></span>20+</span>
+          <span title="Medium: 5-19 carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-medium" style="width:8px;height:8px;"></span>5+</span>
+          <span title="Low: 1-4 carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-low" style="width:8px;height:8px;"></span>1+</span>
+          <span title="No carrier data" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-minimal" style="width:8px;height:8px;"></span>0</span>
         </div>
       </div>
       <div id="dcList" style="flex:1; overflow-y:auto; padding:2px;">
@@ -16024,7 +16022,7 @@ const groupTitle = document.getElementById('groupTitle');
           const sectionTitle = document.getElementById('groupDCInfoSectionTitle');
           if (sectionTitle) {
             const ft = g.dcFacilityType || 'datacenter';
-            sectionTitle.textContent = ft === 'cable_station' ? 'Cable Station Info' : ft === 'carrier_hotel' ? 'Carrier Hotel Info' : 'Datacenter Info';
+            sectionTitle.textContent = ft === 'cable_station' ? 'Cable Station Info' : 'Datacenter Info';
           }
           // Cable systems (show only for cable_station type)
           const csSection = document.getElementById('groupDCCableSystemsSection');
@@ -16732,7 +16730,7 @@ if (groupTitleFontInline) {
       const sectionTitle = document.getElementById('groupDCInfoSectionTitle');
       if (sectionTitle) {
         const ft = g.dcFacilityType;
-        sectionTitle.textContent = ft === 'cable_station' ? 'Cable Station Info' : ft === 'carrier_hotel' ? 'Carrier Hotel Info' : 'Datacenter Info';
+        sectionTitle.textContent = ft === 'cable_station' ? 'Cable Station Info' : 'Datacenter Info';
       }
       commit(); render();
     });
@@ -17313,7 +17311,7 @@ if (groupTitleFontInline) {
       base.dcIxCount = 0;
       base.dcCarrierCount = 0;
       base.dcNetworks = [];
-      base.dcFacilityType = 'datacenter'; // datacenter | carrier_hotel | cable_station
+      base.dcFacilityType = 'datacenter'; // datacenter | cable_station
       base.dcCableSystems = []; // cable system names (for cable stations)
     }
 
@@ -17444,7 +17442,7 @@ if (groupTitleFontInline) {
 
     select({type:'group', id});
     commit(); render();
-    const typeLabel = g.type === 'region' ? 'group box' : g.type === 'dc' ? (g.dcFacilityType === 'cable_station' ? 'cable station' : g.dcFacilityType === 'carrier_hotel' ? 'carrier hotel' : 'datacenter container') : 'container box';
+    const typeLabel = g.type === 'region' ? 'group box' : g.type === 'dc' ? (g.dcFacilityType === 'cable_station' ? 'cable station' : 'datacenter container') : 'container box';
     showToast(`Created ${typeLabel}. Rename in Inspector.`);
   }
 
@@ -18755,7 +18753,7 @@ function generateTemplateData(includeData) {
       ['Postal Code - Zip/postal code'],
       ['State - State/province'],
       ['Country - Country name'],
-      ['Facility Type - datacenter, carrier_hotel, or cable_station (default: datacenter)'],
+      ['Facility Type - datacenter or cable_station (default: datacenter)'],
       ['Continent - Region/continent (e.g. Europe, North America)'],
       ['GPS Latitude - Decimal degrees (-90 to 90)'],
       ['GPS Longitude - Decimal degrees (-180 to 180)'],
@@ -18884,7 +18882,7 @@ function generateTemplateData(includeData) {
         ['UK', 'country', 'Europe', 'default', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
         ['Equinix FR5', 'dc', 'Europe', 'default|Imported Datacenter', 'datacenter', 'Equinix', 'Kleyerstr. 90', 'Frankfurt', '60326', 'Hesse', 'Germany', 'Europe', '50.1047', '8.6378', 'https://equinix.com', '', '', ''],
         ['Bude CLS', 'dc', 'UK', 'default|Imported Cable Station', 'cable_station', '', '', 'Bude', '', 'Cornwall', 'UK', 'Europe', '50.8296', '-4.5432', '', 'TAT-14|Apollo|Hibernia Atlantic', '', ''],
-        ['(Facility Type: datacenter, carrier_hotel, cable_station. Cable Systems: pipe-separated.)', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '#fff2cc', '#d6b656']
+        ['(Facility Type: datacenter, cable_station. Cable Systems: pipe-separated.)', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '#fff2cc', '#d6b656']
       ]
     },
     mlgs: {
@@ -23584,16 +23582,24 @@ function loadProjectObject(obj) {
     if (listEl) listEl.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">Loading datacenters...</div>';
 
     try {
-      // Load from PeeringDB facilities file
+      // Load from PeeringDB facilities file + cable stations
       if (window._dcDatabase && window._dcDatabase.loaded) {
         dcVisorState.dcDatabase = window._dcDatabase;
       } else {
-        const resp = await fetch('data/peeringdb_facilities.json');
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const data = await resp.json();
+        const [dcResp, csResp] = await Promise.all([
+          fetch('data/peeringdb_facilities.json'),
+          fetch('data/cable_stations_db.json').catch(() => null)
+        ]);
+        if (!dcResp.ok) throw new Error(`HTTP ${dcResp.status}`);
+        const dcData = await dcResp.json();
+        const facilities = dcData.facilities || [];
+        if (csResp && csResp.ok) {
+          const csData = await csResp.json();
+          facilities.push(...(csData.facilities || []));
+        }
         dcVisorState.dcDatabase = {
-          facilities: data.facilities || [],
-          meta: data.meta || {},
+          facilities,
+          meta: dcData.meta || {},
           loaded: true
         };
         // Also store globally for DC Navigator
@@ -48965,7 +48971,6 @@ function handlePathKmlImport(e) {
       <select id="dcVisorTypeFilter" style="padding:6px 10px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px; background:white; max-width:120px;">
         <option value="">All Types</option>
         <option value="datacenter">Datacenters</option>
-        <option value="carrier_hotel">Carrier Hotels</option>
         <option value="cable_station">Cable Stations</option>
       </select>
       <select id="dcVisorRegionFilter" style="padding:6px 10px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px; background:white; max-width:140px;">
@@ -50458,11 +50463,25 @@ function handlePathKmlImport(e) {
   // Load PeeringDB facilities database
   async function loadDCDatabase() {
     try {
-      const resp = await fetch('data/peeringdb_facilities.json');
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const data = await resp.json();
-      window._dcDatabase = { facilities: data.facilities || [], meta: data.meta || {}, loaded: true };
-      console.log(`[DC] Loaded ${window._dcDatabase.facilities.length} facilities`);
+      // Load both datacenter facilities and cable stations in parallel
+      const [dcResp, csResp] = await Promise.all([
+        fetch('data/peeringdb_facilities.json'),
+        fetch('data/cable_stations_db.json').catch(() => null)
+      ]);
+      if (!dcResp.ok) throw new Error(`HTTP ${dcResp.status}`);
+      const dcData = await dcResp.json();
+      const facilities = dcData.facilities || [];
+
+      // Merge cable stations if available
+      if (csResp && csResp.ok) {
+        const csData = await csResp.json();
+        const cableStations = csData.facilities || [];
+        facilities.push(...cableStations);
+        console.log(`[DC] Loaded ${cableStations.length} cable landing stations`);
+      }
+
+      window._dcDatabase = { facilities, meta: dcData.meta || {}, loaded: true };
+      console.log(`[DC] Loaded ${window._dcDatabase.facilities.length} total facilities`);
       renderDCList();
       populateDCCountryFilter();
     } catch (err) {
@@ -50538,6 +50557,16 @@ function handlePathKmlImport(e) {
 
     let html = '';
 
+    // Preserve which regions are currently expanded before re-render
+    const expandedRegions = new Set();
+    if (listEl) {
+      listEl.querySelectorAll('.dc-region-items').forEach(div => {
+        if (!div.classList.contains('collapsed')) {
+          expandedRegions.add(div.id);
+        }
+      });
+    }
+
     if (groupByRegion) {
       // Group by region_continent
       const groups = {};
@@ -50551,12 +50580,13 @@ function handlePathKmlImport(e) {
         const facs = groups[region];
         if (!facs || facs.length === 0) return;
         const regionId = region.replace(/[^a-zA-Z0-9]/g, '_');
+        const isExpanded = expandedRegions.has('dc_region_' + regionId);
         html += `<div class="dc-region-group" data-region="${escapeHtml(region)}">
           <div class="dc-region-header" data-dc-toggle-region="${regionId}">
             <span>${escapeHtml(region)} (${facs.length})</span>
-            <span class="region-toggle">▶</span>
+            <span class="region-toggle">${isExpanded ? '▼' : '▶'}</span>
           </div>
-          <div class="dc-region-items collapsed" id="dc_region_${regionId}">
+          <div class="dc-region-items${isExpanded ? '' : ' collapsed'}" id="dc_region_${regionId}">
             ${facs.map(f => renderDCItem(f)).join('')}
           </div>
         </div>`;
@@ -50566,7 +50596,9 @@ function handlePathKmlImport(e) {
       html = facilities.map(f => renderDCItem(f)).join('');
     }
 
+    const scrollTop = listEl.scrollTop;
     listEl.innerHTML = html;
+    listEl.scrollTop = scrollTop;
 
     // Region toggle handlers
     listEl.querySelectorAll('.dc-region-header').forEach(header => {
@@ -50590,9 +50622,7 @@ function handlePathKmlImport(e) {
     const isExpanded = window._dcExpandedId === fac.id;
     const facType = fac.facility_type || 'datacenter';
     const isCLS = facType === 'cable_station';
-    const isCH = facType === 'carrier_hotel';
     const typeBadge = isCLS ? '<span style="font-size:8px;padding:1px 4px;border-radius:3px;background:#dbeafe;color:#1d4ed8;font-weight:600;white-space:nowrap;">CLS</span>'
-      : isCH ? '<span style="font-size:8px;padding:1px 4px;border-radius:3px;background:#fef3c7;color:#92400e;font-weight:600;white-space:nowrap;">CH</span>'
       : '';
     const borderColor = isCLS ? '#93c5fd' : '#f9a8d4';
     const cableCount = (fac.cable_systems || []).length;
@@ -50619,7 +50649,7 @@ function handlePathKmlImport(e) {
     const facType = fac.facility_type || 'datacenter';
     const isCLS = facType === 'cable_station';
     const cables = fac.cable_systems || [];
-    const typeLabel = isCLS ? 'Cable Station' : facType === 'carrier_hotel' ? 'Carrier Hotel' : 'Datacenter';
+    const typeLabel = isCLS ? 'Cable Station' : 'Datacenter';
     return `<div class="dc-detail-panel show">
       <div class="dc-detail-grid">
         <div class="dc-field"><div class="dc-field-label">Type</div><div class="dc-field-value" style="font-weight:600;color:${isCLS ? '#1d4ed8' : '#831843'};">${typeLabel}</div></div>

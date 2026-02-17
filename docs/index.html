@@ -7631,23 +7631,28 @@
     </div>
     <div id="dcNavigatorContent">
       <div style="padding:8px 10px; border-bottom:1px solid #f9a8d4;">
-        <input type="text" id="dcNavSearch" placeholder="Search datacenters..." style="width:100%; padding:5px 8px; border:1px solid #f9a8d4; border-radius:4px; font-size:11px;" />
-        <div style="margin-top:5px; display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+        <input type="text" id="dcNavSearch" placeholder="Search facilities..." style="width:100%; padding:5px 8px; border:1px solid #f9a8d4; border-radius:4px; font-size:11px;" />
+        <div style="margin-top:5px; display:flex; gap:4px; align-items:center;">
+          <select id="dcNavTypeFilter" style="padding:2px 4px; border:1px solid #f9a8d4; border-radius:3px; font-size:10px; max-width:110px; accent-color:#ec4899;">
+            <option value="">All Types</option>
+            <option value="datacenter">Datacenters</option>
+            <option value="cable_station">Cable Stations</option>
+          </select>
           <label style="font-size:10px; color:#831843; display:flex; align-items:center; gap:3px;">
             <input type="checkbox" id="dcNavGroupByRegion" checked style="width:12px; height:12px; accent-color:#ec4899;" />
-            By Region
+            Region
           </label>
           <select id="dcNavCountryFilter" style="padding:2px 4px; border:1px solid #f9a8d4; border-radius:3px; font-size:10px; max-width:90px;">
             <option value="">All Countries</option>
           </select>
-          <div style="flex:1;"></div>
-          <div style="display:flex; gap:3px; font-size:9px; flex-wrap:wrap;">
-            <span title="Critical: 50+ carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-critical" style="width:8px;height:8px;"></span>50+</span>
-            <span title="High: 20-49 carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-high" style="width:8px;height:8px;"></span>20+</span>
-            <span title="Medium: 5-19 carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-medium" style="width:8px;height:8px;"></span>5+</span>
-            <span title="Low: 1-4 carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-low" style="width:8px;height:8px;"></span>1+</span>
-            <span title="No carrier data" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-minimal" style="width:8px;height:8px;"></span>0</span>
-          </div>
+        </div>
+        <div style="margin-top:4px; display:flex; gap:6px; font-size:9px; align-items:center; justify-content:flex-start;">
+          <span style="font-size:9px; color:#831843; font-weight:600;">Density:</span>
+          <span title="Critical: 50+ carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-critical" style="width:8px;height:8px;"></span>50+</span>
+          <span title="High: 20-49 carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-high" style="width:8px;height:8px;"></span>20+</span>
+          <span title="Medium: 5-19 carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-medium" style="width:8px;height:8px;"></span>5+</span>
+          <span title="Low: 1-4 carriers" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-low" style="width:8px;height:8px;"></span>1+</span>
+          <span title="No carrier data" style="display:flex; align-items:center; gap:2px;"><span class="dc-density-badge density-minimal" style="width:8px;height:8px;"></span>0</span>
         </div>
       </div>
       <div id="dcList" style="flex:1; overflow-y:auto; padding:2px;">
@@ -23185,16 +23190,24 @@ function loadProjectObject(obj) {
     if (listEl) listEl.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">Loading datacenters...</div>';
 
     try {
-      // Load from PeeringDB facilities file
+      // Load from PeeringDB facilities file + cable stations
       if (window._dcDatabase && window._dcDatabase.loaded) {
         dcVisorState.dcDatabase = window._dcDatabase;
       } else {
-        const resp = await fetch('data/peeringdb_facilities.json');
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const data = await resp.json();
+        const [dcResp, csResp] = await Promise.all([
+          fetch('data/peeringdb_facilities.json'),
+          fetch('data/cable_stations_db.json').catch(() => null)
+        ]);
+        if (!dcResp.ok) throw new Error(`HTTP ${dcResp.status}`);
+        const dcData = await dcResp.json();
+        const facilities = dcData.facilities || [];
+        if (csResp && csResp.ok) {
+          const csData = await csResp.json();
+          facilities.push(...(csData.facilities || []));
+        }
         dcVisorState.dcDatabase = {
-          facilities: data.facilities || [],
-          meta: data.meta || {},
+          facilities,
+          meta: dcData.meta || {},
           loaded: true
         };
         // Also store globally for DC Navigator
@@ -49106,14 +49119,28 @@ function handlePathKmlImport(e) {
   window._dcExpandedId = null;  // Currently expanded detail panel
   window._dcSelectedId = null;
 
-  // Load PeeringDB facilities database
+  // Load PeeringDB facilities database + cable stations
   async function loadDCDatabase() {
     try {
-      const resp = await fetch('data/peeringdb_facilities.json');
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const data = await resp.json();
-      window._dcDatabase = { facilities: data.facilities || [], meta: data.meta || {}, loaded: true };
-      console.log(`[DC] Loaded ${window._dcDatabase.facilities.length} facilities`);
+      // Load both datacenter facilities and cable stations in parallel
+      const [dcResp, csResp] = await Promise.all([
+        fetch('data/peeringdb_facilities.json'),
+        fetch('data/cable_stations_db.json').catch(() => null)
+      ]);
+      if (!dcResp.ok) throw new Error(`HTTP ${dcResp.status}`);
+      const dcData = await dcResp.json();
+      const facilities = dcData.facilities || [];
+
+      // Merge cable stations if available
+      if (csResp && csResp.ok) {
+        const csData = await csResp.json();
+        const cableStations = csData.facilities || [];
+        facilities.push(...cableStations);
+        console.log(`[DC] Loaded ${cableStations.length} cable landing stations`);
+      }
+
+      window._dcDatabase = { facilities, meta: dcData.meta || {}, loaded: true };
+      console.log(`[DC] Loaded ${window._dcDatabase.facilities.length} total facilities`);
       renderDCList();
       populateDCCountryFilter();
     } catch (err) {
@@ -49151,16 +49178,22 @@ function handlePathKmlImport(e) {
 
     const searchTerm = (document.getElementById('dcNavSearch')?.value || '').toLowerCase().trim();
     const countryFilter = document.getElementById('dcNavCountryFilter')?.value || '';
+    const typeFilter = document.getElementById('dcNavTypeFilter')?.value || '';
     const groupByRegion = document.getElementById('dcNavGroupByRegion')?.checked ?? true;
 
     let facilities = window._dcDatabase.facilities;
 
-    // Filter
+    // Filter by type
+    if (typeFilter) {
+      facilities = facilities.filter(f => (f.facility_type || 'datacenter') === typeFilter);
+    }
+    // Filter by search
     if (searchTerm) {
       facilities = facilities.filter(f =>
         (f.name || '').toLowerCase().includes(searchTerm) ||
         (f.org_name || '').toLowerCase().includes(searchTerm) ||
-        (f.city || '').toLowerCase().includes(searchTerm)
+        (f.city || '').toLowerCase().includes(searchTerm) ||
+        (f.cable_systems || []).some(cs => cs.toLowerCase().includes(searchTerm))
       );
     }
     if (countryFilter) {
@@ -49168,14 +49201,30 @@ function handlePathKmlImport(e) {
     }
 
     if (facilities.length === 0) {
-      listEl.innerHTML = '<div class="muted" style="padding:12px; text-align:center;">No matching datacenters.</div>';
-      document.getElementById('dcNavCount').textContent = '0 datacenters';
+      listEl.innerHTML = '<div class="muted" style="padding:12px; text-align:center;">No matching facilities.</div>';
+      document.getElementById('dcNavCount').textContent = '0 facilities';
       return;
     }
 
-    document.getElementById('dcNavCount').textContent = `${facilities.length} datacenters`;
+    // Count label
+    const dcCount = facilities.filter(f => (f.facility_type || 'datacenter') !== 'cable_station').length;
+    const csCount = facilities.filter(f => (f.facility_type || 'datacenter') === 'cable_station').length;
+    const countParts = [];
+    if (dcCount > 0) countParts.push(`${dcCount} DC`);
+    if (csCount > 0) countParts.push(`${csCount} CLS`);
+    document.getElementById('dcNavCount').textContent = countParts.length ? countParts.join(' / ') : `${facilities.length} facilities`;
 
     let html = '';
+
+    // Preserve which regions are currently expanded before re-render
+    const expandedRegions = new Set();
+    if (listEl) {
+      listEl.querySelectorAll('.dc-region-items').forEach(div => {
+        if (!div.classList.contains('collapsed')) {
+          expandedRegions.add(div.id);
+        }
+      });
+    }
 
     if (groupByRegion) {
       // Group by region_continent
@@ -49190,12 +49239,13 @@ function handlePathKmlImport(e) {
         const facs = groups[region];
         if (!facs || facs.length === 0) return;
         const regionId = region.replace(/[^a-zA-Z0-9]/g, '_');
+        const isExpanded = expandedRegions.has('dc_region_' + regionId);
         html += `<div class="dc-region-group" data-region="${escapeHtml(region)}">
           <div class="dc-region-header" data-dc-toggle-region="${regionId}">
             <span>${escapeHtml(region)} (${facs.length})</span>
-            <span class="region-toggle">▶</span>
+            <span class="region-toggle">${isExpanded ? '▼' : '▶'}</span>
           </div>
-          <div class="dc-region-items collapsed" id="dc_region_${regionId}">
+          <div class="dc-region-items${isExpanded ? '' : ' collapsed'}" id="dc_region_${regionId}">
             ${facs.map(f => renderDCItem(f)).join('')}
           </div>
         </div>`;
@@ -49205,7 +49255,9 @@ function handlePathKmlImport(e) {
       html = facilities.map(f => renderDCItem(f)).join('');
     }
 
+    const scrollTop = listEl.scrollTop;
     listEl.innerHTML = html;
+    listEl.scrollTop = scrollTop;
 
     // Region toggle handlers
     listEl.querySelectorAll('.dc-region-header').forEach(header => {
@@ -49290,6 +49342,7 @@ function handlePathKmlImport(e) {
 
   // DC search and filter
   document.getElementById('dcNavSearch')?.addEventListener('input', () => renderDCList());
+  document.getElementById('dcNavTypeFilter')?.addEventListener('change', () => renderDCList());
   document.getElementById('dcNavCountryFilter')?.addEventListener('change', () => renderDCList());
   document.getElementById('dcNavGroupByRegion')?.addEventListener('change', () => renderDCList());
 
