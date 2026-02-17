@@ -1393,6 +1393,37 @@
       flex-shrink: 0;
     }
 
+    /* Visor toolbar action menus */
+    .visor-action-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border: 1px solid #d0d0d0;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      min-width: 180px;
+      padding: 4px 0;
+      display: none;
+    }
+    .visor-action-menu.show { display: block; }
+    .visor-action-menu button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 7px 14px;
+      border: none;
+      background: none;
+      font-size: 12px;
+      cursor: pointer;
+      color: #333;
+      text-align: left;
+    }
+    .visor-action-menu button:hover { background: #f0f4ff; }
+    .visor-action-menu .menu-sep { height: 1px; background: #e0e0e0; margin: 4px 0; }
+
     /* Multilink Group Manager Panel */
     #multilinkManager {
       position: absolute;
@@ -8030,7 +8061,7 @@
 
       <!-- Warnings -->
       <div id="mlgWarningsBox" class="mlg-warnings-box" style="display:none;">
-        <div class="warning-title">⛠️ Warnings</div>
+        <div class="warning-title">⚠️ Warnings</div>
         <div id="mlgWarningsList"></div>
       </div>
 
@@ -8187,7 +8218,7 @@
           <div id="activeFiltersIndicator" style="display:none; margin-top:10px; padding:8px; background:#fef3c7; border:1px solid #fcd34d; border-radius:6px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div style="font-size:11px; color:#92400e;">
-                <span style="font-weight:600;">⛠️ Active Filters:</span>
+                <span style="font-weight:600;">⚠️ Active Filters:</span>
                 <span id="activeFiltersText"></span>
               </div>
             </div>
@@ -18233,7 +18264,7 @@ function showCSVExportDialog(type) {
     });
 
     if (prefs.fields.size === 0) {
-      showToast('⛠️ Please select at least one field');
+      showToast('⚠️ Please select at least one field');
       return;
     }
 
@@ -18552,6 +18583,8 @@ function generateTemplateData(includeData) {
       ['Additional Tags - Free text notes'],
       ['Address - Street address'],
       ['City - City name (auto-lookup GPS if matched)'],
+      ['Postal Code - Zip/postal code'],
+      ['State - State/province'],
       ['Country - Country name'],
       ['GPS Latitude - Decimal degrees (-90 to 90)'],
       ['GPS Longitude - Decimal degrees (-180 to 180)'],
@@ -18599,14 +18632,26 @@ function generateTemplateData(includeData) {
       [''],
       ['--- CONTAINERS TAB FIELDS ---'],
       ['Container Name* - Display title'],
-      ['Type - "country" or "region"'],
+      ['Type - "country", "region", or "dc" (datacenter)'],
       ['Parent Container - Name of parent container (for nesting)'],
+      ['Tags - Pipe-separated: default|Imported Datacenter'],
+      ['Organization - DC operator (e.g. Equinix)'],
+      ['Address - Street address'],
+      ['City - City name'],
+      ['Postal Code - Zip/postal code'],
+      ['State - State/province'],
+      ['Country - Country name'],
+      ['Continent - Region/continent (e.g. Europe, North America)'],
+      ['GPS Latitude - Decimal degrees (-90 to 90)'],
+      ['GPS Longitude - Decimal degrees (-180 to 180)'],
+      ['Website - URL of the datacenter facility'],
       ['Fill Color - Hex color #RRGGBB (default: #fff2cc)'],
       ['Stroke Color - Hex color #RRGGBB (default: #d6b656)'],
     ],
     nodes: {
       headers: [
-        'Node Name', 'Node Code', 'Tags', 'Additional Tags', 'Address', 'City', 'Country',
+        'Node Name', 'Node Code', 'Tags', 'Additional Tags',
+        'Address', 'City', 'Postal Code', 'State', 'Country',
         'GPS Latitude', 'GPS Longitude', 'Container Name', 'Fill Color', 'Stroke Color'
       ],
       rows: includeData ? state.nodes.map(n => {
@@ -18618,6 +18663,8 @@ function generateTemplateData(includeData) {
           n.extraTags || '',
           n.address || '',
           n.city || '',
+          n.postalCode || '',
+          n.state || '',
           n.country || '',
           (n.gpsLat !== null && n.gpsLat !== undefined) ? n.gpsLat : '',
           (n.gpsLon !== null && n.gpsLon !== undefined) ? n.gpsLon : '',
@@ -18626,11 +18673,11 @@ function generateTemplateData(includeData) {
           n.stroke || ''
         ];
       }) : [
-        ['London DC', 'LON-DC1', 'default|production', 'Primary datacenter', '10 Downing St', 'London', 'UK', '51.5074', '-0.1278', 'Europe', '', ''],
-        ['Paris DC', 'PAR-DC1', 'default|production', '', '', 'Paris', 'France', '48.8566', '2.3522', 'Europe', '', ''],
-        ['New York DC', 'NYC-DC1', 'default|production', 'Main US hub', '', 'New York', 'USA', '40.7128', '-74.0060', 'North America', '', ''],
-        ['Los Angeles DC', 'LAX-DC1', 'default|production', '', '', 'Los Angeles', 'USA', '34.0522', '-118.2437', 'North America', '', ''],
-        ['(Leave Fill/Stroke blank for defaults)', '', '', 'Fill default=#dae8fc, Stroke default=#6c8ebf', '', '', '', '', '', '', '#dae8fc', '#6c8ebf']
+        ['London DC', 'LON-DC1', 'default|production', 'Primary datacenter', '10 Downing St', 'London', 'SW1A 2AA', 'England', 'UK', '51.5074', '-0.1278', 'Europe', '', ''],
+        ['Paris DC', 'PAR-DC1', 'default|production', '', '', 'Paris', '', 'Ile-de-France', 'France', '48.8566', '2.3522', 'Europe', '', ''],
+        ['New York DC', 'NYC-DC1', 'default|production', 'Main US hub', '', 'New York', '10001', 'NY', 'USA', '40.7128', '-74.0060', 'North America', '', ''],
+        ['Los Angeles DC', 'LAX-DC1', 'default|production', '', '', 'Los Angeles', '90001', 'CA', 'USA', '34.0522', '-118.2437', 'North America', '', ''],
+        ['(Leave Fill/Stroke blank for defaults)', '', '', 'Fill default=#dae8fc, Stroke default=#6c8ebf', '', '', '', '', '', '', '', '', '#dae8fc', '#6c8ebf']
       ]
     },
     links: {
@@ -18688,7 +18735,10 @@ function generateTemplateData(includeData) {
     },
     containers: {
       headers: [
-        'Container Name', 'Type', 'Parent Container', 'Fill Color', 'Stroke Color'
+        'Container Name', 'Type', 'Parent Container', 'Tags',
+        'Organization', 'Address', 'City', 'Postal Code', 'State', 'Country', 'Continent',
+        'GPS Latitude', 'GPS Longitude', 'Website',
+        'Fill Color', 'Stroke Color'
       ],
       rows: includeData ? state.groups.map(g => {
         const parent = g.parentId ? findGroup(g.parentId) : null;
@@ -18696,16 +18746,26 @@ function generateTemplateData(includeData) {
           g.title || '',
           g.type || 'country',
           parent?.title || '',
+          (g.filterTags || []).join('|'),
+          g.dcOrgName || '',
+          g.dcAddress || '',
+          g.dcCity || '',
+          g.dcZipcode || '',
+          g.dcState || '',
+          g.dcCountry || '',
+          g.dcRegion || '',
+          (g.dcLatitude != null) ? g.dcLatitude : '',
+          (g.dcLongitude != null) ? g.dcLongitude : '',
+          g.dcWebsite || '',
           g.fill || '',
           g.stroke || ''
         ];
       }) : [
-        ['Europe', 'region', '', '', ''],
-        ['North America', 'region', '', '', ''],
-        ['UK', 'country', 'Europe', '', ''],
-        ['France', 'country', 'Europe', '', ''],
-        ['USA', 'country', 'North America', '', ''],
-        ['(Leave colors blank for defaults: Fill=#fff2cc, Stroke=#d6b656)', '', '', '#fff2cc', '#d6b656']
+        ['Europe', 'region', '', 'default', '', '', '', '', '', '', '', '', '', '', '', ''],
+        ['North America', 'region', '', 'default', '', '', '', '', '', '', '', '', '', '', '', ''],
+        ['UK', 'country', 'Europe', 'default', '', '', '', '', '', '', '', '', '', '', '', ''],
+        ['Equinix FR5', 'dc', 'Europe', 'default|Imported Datacenter', 'Equinix', 'Kleyerstr. 90', 'Frankfurt', '60326', 'Hesse', 'Germany', 'Europe', '50.1047', '8.6378', 'https://equinix.com', '', ''],
+        ['(Leave colors blank for defaults. Type=dc for datacenters)', '', '', '', '', '', '', '', '', '', '', '', '', '', '#fff2cc', '#d6b656']
       ]
     },
     mlgs: {
@@ -18772,7 +18832,7 @@ function downloadTemplateAsCSV(templateData, format) {
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
     script.onload = () => createAndDownloadWorkbook(templateData, format);
     script.onerror = () => {
-      showToast('⛠️ Could not load spreadsheet library. Downloading as CSV files instead.');
+      showToast('⚠️ Could not load spreadsheet library. Downloading as CSV files instead.');
       downloadAsCSVFallback(templateData);
     };
     document.head.appendChild(script);
@@ -18830,7 +18890,7 @@ function createAndDownloadWorkbook(templateData, format) {
     showToast(`✓ Template downloaded: ${fileName}`);
   } catch (err) {
     console.error('Error creating workbook:', err);
-    showToast('⛠️ Error creating workbook. Downloading as CSV files instead.');
+    showToast('⚠️ Error creating workbook. Downloading as CSV files instead.');
     downloadAsCSVFallback(templateData);
   }
 }
@@ -18896,7 +18956,7 @@ function showImportDialog() {
 
     <div style="padding: 20px; overflow-y: auto; flex: 1;">
       <div style="background: #fef3c7; border: 1px solid #fcd34d; border-radius: 6px; padding: 12px; margin-bottom: 16px;">
-        <div style="font-weight: 600; color: #92400e; margin-bottom: 4px;">⛠️ Import will modify your diagram</div>
+        <div style="font-weight: 600; color: #92400e; margin-bottom: 4px;">⚠️ Import will modify your diagram</div>
         <div style="font-size: 12px; color: #92400e;">
           New nodes/links will be added. Existing items with matching Code/Name will be updated.
         </div>
@@ -19042,7 +19102,7 @@ function showImportDialog() {
     if (activeTab === 'workbook') {
       const workbookFile = modal.querySelector('#importWorkbookFile').files[0];
       if (!workbookFile) {
-        showToast('⛠️ Please select a workbook file (XLSX or ODS)');
+        showToast('⚠️ Please select a workbook file (XLSX or ODS)');
         return;
       }
 
@@ -19083,7 +19143,7 @@ function showImportDialog() {
       const linksFile = modal.querySelector('#importLinksFile').files[0];
 
       if (!nodesFile || !linksFile) {
-        showToast('⛠️ Please select both Nodes and Links CSV files');
+        showToast('⚠️ Please select both Nodes and Links CSV files');
         return;
       }
 
@@ -19332,21 +19392,52 @@ async function executeImportWithData(nodesData, linksData, containersData, mode)
       if (existing) {
         // Update existing
         if (row['Type']) existing.type = row['Type'];
+        if (row['Tags']) existing.filterTags = parseTagsString(row['Tags']);
         if (row['Fill Color']) existing.fill = row['Fill Color'];
         if (row['Stroke Color']) existing.stroke = row['Stroke Color'];
+        // DC fields
+        if (row['Organization']) existing.dcOrgName = row['Organization'];
+        if (row['Address']) existing.dcAddress = row['Address'];
+        if (row['City']) existing.dcCity = row['City'];
+        if (row['Postal Code']) existing.dcZipcode = row['Postal Code'];
+        if (row['State']) existing.dcState = row['State'];
+        if (row['Country']) existing.dcCountry = row['Country'];
+        if (row['Continent']) existing.dcRegion = row['Continent'];
+        if (row['GPS Latitude']) existing.dcLatitude = parseFloat(row['GPS Latitude']) || null;
+        if (row['GPS Longitude']) existing.dcLongitude = parseFloat(row['GPS Longitude']) || null;
+        if (row['Website']) existing.dcWebsite = row['Website'];
       } else {
         // Create new
+        const cType = row['Type'] || 'country';
+        const isDC = cType === 'dc';
         const newGroup = {
           id: state.nextGroup++,
           uuid: generateUUID(),
-          type: row['Type'] || 'country',
+          type: cType,
           title: name,
           x: 50,
           y: 50,
-          w: 300,
-          h: 200,
-          fill: row['Fill Color'] || '#fff2cc',
-          stroke: row['Stroke Color'] || '#d6b656'
+          w: isDC ? 280 : 300,
+          h: isDC ? 200 : 200,
+          filterTags: row['Tags'] ? parseTagsString(row['Tags']) : ['default'],
+          fill: row['Fill Color'] || (isDC ? 'rgba(253, 242, 248, 0.95)' : '#fff2cc'),
+          stroke: row['Stroke Color'] || (isDC ? '#ec4899' : '#d6b656'),
+          titleColor: isDC ? '#831843' : '#333333',
+          // DC fields
+          dcOrgName: row['Organization'] || '',
+          dcAddress: row['Address'] || '',
+          dcCity: row['City'] || '',
+          dcZipcode: row['Postal Code'] || '',
+          dcState: row['State'] || '',
+          dcCountry: row['Country'] || '',
+          dcRegion: row['Continent'] || '',
+          dcLatitude: row['GPS Latitude'] ? (parseFloat(row['GPS Latitude']) || null) : null,
+          dcLongitude: row['GPS Longitude'] ? (parseFloat(row['GPS Longitude']) || null) : null,
+          dcWebsite: row['Website'] || '',
+          dcNetCount: 0,
+          dcIxCount: 0,
+          dcCarrierCount: 0,
+          dcNetworks: []
         };
         state.groups.push(newGroup);
         existingContainersByName.set(name.toLowerCase(), newGroup);
@@ -19461,6 +19552,8 @@ async function executeImportWithData(nodesData, linksData, containersData, mode)
       if (row['Additional Tags']) existing.extraTags = row['Additional Tags'];
       if (row['Address']) existing.address = row['Address'];
       if (row['City']) existing.city = row['City'];
+      if (row['Postal Code']) existing.postalCode = row['Postal Code'];
+      if (row['State']) existing.state = row['State'];
       if (row['Country']) existing.country = row['Country'];
       if (!isNaN(gpsLat)) existing.gpsLat = gpsLat;
       if (!isNaN(gpsLon)) existing.gpsLon = gpsLon;
@@ -19485,6 +19578,8 @@ async function executeImportWithData(nodesData, linksData, containersData, mode)
         extraTags: row['Additional Tags'] || '',
         address: row['Address'] || '',
         city: row['City'] || '',
+        postalCode: row['Postal Code'] || '',
+        state: row['State'] || '',
         country: row['Country'] || '',
         gpsLat: !isNaN(gpsLat) ? gpsLat : null,
         gpsLon: !isNaN(gpsLon) ? gpsLon : null,
@@ -21785,6 +21880,7 @@ function loadProjectObject(obj) {
     try {
       cableVisorState.map = new maplibregl.Map({
         container: container,
+        preserveDrawingBuffer: true,
         style: {
           version: 8,
           sources: {
@@ -23285,6 +23381,7 @@ function loadProjectObject(obj) {
     try {
       dcVisorState.map = new maplibregl.Map({
         container: container,
+        preserveDrawingBuffer: true,
         style: {
           version: 8,
           sources: {
@@ -23919,6 +24016,160 @@ function loadProjectObject(obj) {
     initDCVisorEventHandlers();
   }
 
+  // ============== VISOR IMAGE ACTIONS (Copy, Save, Print) ==============
+
+  /**
+   * Capture a MapLibre map as a canvas, including all overlays.
+   * Returns a Promise<HTMLCanvasElement>.
+   */
+  function captureVisorMap(mapObj, panelId) {
+    return new Promise((resolve, reject) => {
+      if (!mapObj) { reject(new Error('Map not initialized')); return; }
+      try {
+        // Get the map canvas
+        const mapCanvas = mapObj.getCanvas();
+        const panel = document.getElementById(panelId);
+        if (!panel) { reject(new Error('Panel not found')); return; }
+
+        // Create output canvas at full resolution
+        const dpr = window.devicePixelRatio || 1;
+        const w = mapCanvas.width;
+        const h = mapCanvas.height;
+        const outCanvas = document.createElement('canvas');
+        outCanvas.width = w;
+        outCanvas.height = h;
+        const ctx = outCanvas.getContext('2d');
+
+        // Draw map canvas
+        // Force a render to make sure the map is fully painted
+        mapObj.triggerRepaint();
+        setTimeout(() => {
+          try {
+            ctx.drawImage(mapCanvas, 0, 0);
+
+            // Draw MapLibre markers (HTML overlays) on top if any exist
+            // These are DOM elements, so we approximate by including them
+            resolve(outCanvas);
+          } catch (e) {
+            reject(e);
+          }
+        }, 100);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  function visorSaveImage(mapObj, panelId, format) {
+    captureVisorMap(mapObj, panelId).then(canvas => {
+      const mime = format === 'jpg' ? 'image/jpeg' : 'image/png';
+      const quality = format === 'jpg' ? 0.92 : undefined;
+      canvas.toBlob(blob => {
+        if (!blob) { showToast('Failed to create image', 'error'); return; }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `visor_map.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast(`Image saved as ${format.toUpperCase()}`);
+      }, mime, quality);
+    }).catch(e => {
+      showToast('Failed to capture map: ' + e.message, 'error');
+    });
+  }
+
+  function visorCopyImage(mapObj, panelId) {
+    captureVisorMap(mapObj, panelId).then(canvas => {
+      canvas.toBlob(async blob => {
+        if (!blob) { showToast('Failed to create image', 'error'); return; }
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+          ]);
+          showToast('Image copied to clipboard');
+        } catch (e) {
+          showToast('Clipboard copy failed: ' + e.message, 'error');
+        }
+      }, 'image/png');
+    }).catch(e => {
+      showToast('Failed to capture map: ' + e.message, 'error');
+    });
+  }
+
+  function visorPrint(mapObj, panelId, title) {
+    captureVisorMap(mapObj, panelId).then(canvas => {
+      const dataUrl = canvas.toDataURL('image/png');
+      const printWin = window.open('', '_blank', 'width=900,height=700');
+      if (!printWin) { showToast('Popup blocked - please allow popups', 'error'); return; }
+      printWin.document.write(`<!DOCTYPE html><html><head><title>${title}</title><style>
+        @media print { body { margin: 0; } img { max-width: 100%; height: auto; } }
+        body { display: flex; flex-direction: column; align-items: center; padding: 20px; font-family: sans-serif; }
+        h2 { margin: 0 0 12px; color: #333; }
+        img { max-width: 100%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border-radius: 4px; }
+      </style></head><body>
+        <h2>${title}</h2>
+        <img src="${dataUrl}" />
+      </body></html>`);
+      printWin.document.close();
+      printWin.onload = () => { printWin.print(); };
+    }).catch(e => {
+      showToast('Failed to capture map: ' + e.message, 'error');
+    });
+  }
+
+  // Toggle visor action menus
+  function setupVisorActionMenu(btnId, menuId) {
+    const btn = document.getElementById(btnId);
+    const menu = document.getElementById(menuId);
+    if (!btn || !menu) return;
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // Close any other open menus
+      document.querySelectorAll('.visor-action-menu.show').forEach(m => {
+        if (m !== menu) m.classList.remove('show');
+      });
+      menu.classList.toggle('show');
+    });
+
+    // Close menu on click outside
+    document.addEventListener('click', () => menu.classList.remove('show'));
+    menu.addEventListener('click', () => menu.classList.remove('show'));
+  }
+
+  // Cable Visor image actions
+  setupVisorActionMenu('btnCableVisorActions', 'cableVisorActionMenu');
+  document.getElementById('btnCableVisorCopyImage')?.addEventListener('click', () => {
+    visorCopyImage(cableVisorState.map, 'cableVisorPanel');
+  });
+  document.getElementById('btnCableVisorSavePNG')?.addEventListener('click', () => {
+    visorSaveImage(cableVisorState.map, 'cableVisorPanel', 'png');
+  });
+  document.getElementById('btnCableVisorSaveJPG')?.addEventListener('click', () => {
+    visorSaveImage(cableVisorState.map, 'cableVisorPanel', 'jpg');
+  });
+  document.getElementById('btnCableVisorPrint')?.addEventListener('click', () => {
+    visorPrint(cableVisorState.map, 'cableVisorPanel', 'Submarine Cable Visor');
+  });
+
+  // DC Visor image actions
+  setupVisorActionMenu('btnDCVisorActions', 'dcVisorActionMenu');
+  document.getElementById('btnDCVisorCopyImage')?.addEventListener('click', () => {
+    visorCopyImage(dcVisorState.map, 'dcVisorPanel');
+  });
+  document.getElementById('btnDCVisorSavePNG')?.addEventListener('click', () => {
+    visorSaveImage(dcVisorState.map, 'dcVisorPanel', 'png');
+  });
+  document.getElementById('btnDCVisorSaveJPG')?.addEventListener('click', () => {
+    visorSaveImage(dcVisorState.map, 'dcVisorPanel', 'jpg');
+  });
+  document.getElementById('btnDCVisorPrint')?.addEventListener('click', () => {
+    visorPrint(dcVisorState.map, 'dcVisorPanel', 'Datacenter Visor');
+  });
+
   // Add handler for group by region checkbox
   document.getElementById('cableNavGroupByRegion')?.addEventListener('change', () => {
     updateCableNavigatorList();
@@ -24122,7 +24373,7 @@ function loadProjectObject(obj) {
 
     } catch (error) {
       cableList.innerHTML = '<div style="color:#ef4444; padding:20px; text-align:center;">' +
-        '⛠️ Failed to load: ' + error.message +
+        '⚠️ Failed to load: ' + error.message +
         '<br><br>' +
         '<button onclick="loadBulkImportCables()" class="btn">🔄 Retry</button>' +
         '</div>';
@@ -24975,7 +25226,7 @@ function loadProjectObject(obj) {
     try {
       const cables = await fetchFiberAtlanticCables();
       if (!cables) {
-        if (info) info.textContent = '⛠️ Could not reach FiberAtlantic API';
+        if (info) info.textContent = '⚠️ Could not reach FiberAtlantic API';
         return;
       }
 
@@ -25012,7 +25263,7 @@ function loadProjectObject(obj) {
         if (info) info.textContent = `❌ No match found for "${cs.name}" or "${cs.shortName}"`;
       }
     } catch (err) {
-      if (info) info.textContent = `⛠️ Error: ${err.message}`;
+      if (info) info.textContent = `⚠️ Error: ${err.message}`;
     } finally {
       btn.disabled = false;
       btn.textContent = '🔍 Auto';
@@ -26860,7 +27111,7 @@ function loadProjectObject(obj) {
             ${mlg.segments.length} segment${mlg.segments.length !== 1 ? 's' : ''} · ${mlg.totalLatency || 0} ms
           </div>
           <div class="mlg-route">${origin} → ${dest}</div>
-          ${warnings.length > 0 ? `<div class="mlg-warnings">⛠️ ${warnings.length} warning${warnings.length !== 1 ? 's' : ''}</div>` : ''}
+          ${warnings.length > 0 ? `<div class="mlg-warnings">⚠️ ${warnings.length} warning${warnings.length !== 1 ? 's' : ''}</div>` : ''}
         </div>
       `;
     }).join('');
@@ -27362,7 +27613,7 @@ function loadProjectObject(obj) {
 
               <button class="btn" style="width:100%; margin-top:8px; font-size:10px; padding:4px;" onclick="addPath(${seg.id})">+ Add Path</button>
 
-              ${hasWarning ? `<div style="margin-top:8px; padding:6px; background:#fef2f2; border-radius:4px; font-size:10px; color:#dc2626;">⛠️ ${pathDiv.warning}</div>` : ''}
+              ${hasWarning ? `<div style="margin-top:8px; padding:6px; background:#fef2f2; border-radius:4px; font-size:10px; color:#dc2626;">⚠️ ${pathDiv.warning}</div>` : ''}
             </div>
           </div>
         `;
@@ -27393,7 +27644,7 @@ function loadProjectObject(obj) {
       const segDiv = checkSegmentDiversity(temp.segments);
       const allPathsDiverse = temp.segments.every(s => checkPathDiversity(s.paths).isDiverse);
       const isDiverse = segDiv.isDiverse && allPathsDiverse;
-      if (diversityEl) diversityEl.textContent = isDiverse ? '✅ Diverse' : '⛠️ Not fully diverse';
+      if (diversityEl) diversityEl.textContent = isDiverse ? '✅ Diverse' : '⚠️ Not fully diverse';
     } else if (computedEl) {
       computedEl.style.display = 'none';
     }
@@ -28337,7 +28588,7 @@ function loadProjectObject(obj) {
 
         // Validate the imported data has expected structure
         if (!imported.shapes && !imported.containerShapes && !imported.categories) {
-          showToast('⛠️ Invalid library format - missing shapes data');
+          showToast('⚠️ Invalid library format - missing shapes data');
           console.error('[Library Import] Invalid format - no shapes, containerShapes, or categories found');
           return;
         }
@@ -31199,7 +31450,7 @@ function loadProjectObject(obj) {
     // If origin set but no destination, set this as destination
     else if (!routeFinderState.destNodeId) {
       if (nodeId === routeFinderState.originNodeId) {
-        showToast('⛠️ Destination cannot be same as origin');
+        showToast('⚠️ Destination cannot be same as origin');
         return true;
       }
       routeFinderState.destNodeId = nodeId;
@@ -31208,7 +31459,7 @@ function loadProjectObject(obj) {
     // If both set, replace destination
     else {
       if (nodeId === routeFinderState.originNodeId) {
-        showToast('⛠️ Cannot select origin as destination');
+        showToast('⚠️ Cannot select origin as destination');
         return true;
       }
       routeFinderState.destNodeId = nodeId;
@@ -31746,7 +31997,7 @@ function loadProjectObject(obj) {
     const mlgName = prompt('Enter a name for the Protected MLG:', defaultName);
 
     if (!mlgName) {
-      showToast('⛠️ MLG save cancelled');
+      showToast('⚠️ MLG save cancelled');
       return;
     }
 
@@ -32026,7 +32277,7 @@ function loadProjectObject(obj) {
 
     // Can't exclude origin or destination
     if (nodeId === routeFinderState.originNodeId || nodeId === routeFinderState.destNodeId) {
-      showToast('⛠️ Cannot exclude origin or destination node');
+      showToast('⚠️ Cannot exclude origin or destination node');
       return;
     }
 
@@ -32163,7 +32414,7 @@ function loadProjectObject(obj) {
 
     // Can't be both excluded and must-use
     if (routeFinderState.excludedNodes.has(nodeId)) {
-      showToast('⛠️ Node is currently excluded. Remove from exclusions first.');
+      showToast('⚠️ Node is currently excluded. Remove from exclusions first.');
       return;
     }
 
@@ -32189,7 +32440,7 @@ function loadProjectObject(obj) {
 
     // Can't be both excluded and must-use
     if (routeFinderState.excludedLinks.has(edgeId)) {
-      showToast('⛠️ Link is currently excluded. Remove from exclusions first.');
+      showToast('⚠️ Link is currently excluded. Remove from exclusions first.');
       return;
     }
 
@@ -32354,11 +32605,11 @@ function loadProjectObject(obj) {
 
     // Check if origin or destination is excluded
     if (routeFinderState.excludedNodes.has(routeFinderState.originNodeId)) {
-      showToast('⛠️ Origin node is excluded - remove from restrictions first');
+      showToast('⚠️ Origin node is excluded - remove from restrictions first');
       return;
     }
     if (routeFinderState.excludedNodes.has(routeFinderState.destNodeId)) {
-      showToast('⛠️ Destination node is excluded - remove from restrictions first');
+      showToast('⚠️ Destination node is excluded - remove from restrictions first');
       return;
     }
 
@@ -33157,7 +33408,7 @@ function loadProjectObject(obj) {
       const val = parseInt(routeOriginSelect.value, 10);
       if (!isNaN(val)) {
         if (val === routeFinderState.destNodeId) {
-          showToast('⛠️ Origin cannot be same as destination');
+          showToast('⚠️ Origin cannot be same as destination');
           routeOriginSelect.value = routeFinderState.originNodeId || '';
           return;
         }
@@ -33179,7 +33430,7 @@ function loadProjectObject(obj) {
       const val = parseInt(routeDestSelect.value, 10);
       if (!isNaN(val)) {
         if (val === routeFinderState.originNodeId) {
-          showToast('⛠️ Destination cannot be same as origin');
+          showToast('⚠️ Destination cannot be same as origin');
           routeDestSelect.value = routeFinderState.destNodeId || '';
           return;
         }
@@ -34347,7 +34598,7 @@ function loadProjectObject(obj) {
     btnSaveRouteAsMLG.addEventListener('click', () => {
       const route = routeFinderState.routes[routeFinderState.activeRouteIndex];
       if (!route || !route.path || route.path.length < 2) {
-        showToast('⛠️ No valid route to save');
+        showToast('⚠️ No valid route to save');
         return;
       }
 
@@ -34355,7 +34606,7 @@ function loadProjectObject(obj) {
       const segments = convertRouteToMLGStructure(route);
 
       if (segments.length === 0) {
-        showToast('⛠️ Could not convert route to MLG structure');
+        showToast('⚠️ Could not convert route to MLG structure');
         return;
       }
 
@@ -34553,19 +34804,19 @@ function loadProjectObject(obj) {
     btnAddRouteToMLG.addEventListener('click', () => {
       const route = routeFinderState.routes[routeFinderState.activeRouteIndex];
       if (!route || !route.path || route.path.length < 2) {
-        showToast('⛠️ No valid route to add');
+        showToast('⚠️ No valid route to add');
         return;
       }
 
       const selectedMLGId = document.getElementById('compatibleMLGSelect')?.value;
       if (!selectedMLGId) {
-        showToast('⛠️ Please select an MLG to add the route to');
+        showToast('⚠️ Please select an MLG to add the route to');
         return;
       }
 
       const targetMLG = findMultilinkGroup(selectedMLGId);
       if (!targetMLG) {
-        showToast('⛠️ Selected MLG not found');
+        showToast('⚠️ Selected MLG not found');
         return;
       }
 
@@ -34594,7 +34845,7 @@ function loadProjectObject(obj) {
       });
 
       if (routeLinks.length === 0) {
-        showToast('⛠️ Route has no links to add');
+        showToast('⚠️ Route has no links to add');
         return;
       }
 
@@ -37617,7 +37868,7 @@ function loadProjectObject(obj) {
   // Location lookup dialog
   function showLocationLookupDialog() {
     if (state.selected?.type !== 'node') {
-      showToast('⛠️ Please select a node first');
+      showToast('⚠️ Please select a node first');
       return;
     }
 
@@ -37773,7 +38024,7 @@ function loadProjectObject(obj) {
 
   async function useAddressForGps() {
     if (state.selected?.type !== 'node') {
-      showToast('⛠️ Please select a node first');
+      showToast('⚠️ Please select a node first');
       return;
     }
 
@@ -37790,7 +38041,7 @@ function loadProjectObject(obj) {
 
     // Need at least one field
     if (!street && !city && !country && !postalcode) {
-      showToast('⛠️ Please fill in at least an address, city, or country.');
+      showToast('⚠️ Please fill in at least an address, city, or country.');
       return;
     }
 
@@ -37825,7 +38076,7 @@ function loadProjectObject(obj) {
         if (fallback) {
           showToast(`📍 GPS approximated (offline): ${fallback.name}`);
         } else {
-          showToast('⛠️ No results found. Try adding more address details (city, country, postal code).');
+          showToast('⚠️ No results found. Try adding more address details (city, country, postal code).');
         }
         return;
       }
@@ -37844,7 +38095,7 @@ function loadProjectObject(obj) {
       if (fallback) {
         showToast(`📍 GPS approximated (offline fallback): ${fallback.name}`);
       } else {
-        showToast('⛠️ Geocoding service unavailable. Check your connection.');
+        showToast('⚠️ Geocoding service unavailable. Check your connection.');
       }
     } finally {
       if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
@@ -37855,7 +38106,7 @@ function loadProjectObject(obj) {
     const lat = parseFloat(result.lat);
     const lon = parseFloat(result.lon);
     if (isNaN(lat) || isNaN(lon)) {
-      showToast('⛠️ Invalid coordinates in result.');
+      showToast('⚠️ Invalid coordinates in result.');
       return;
     }
     node.gpsLat = lat;
@@ -38410,7 +38661,7 @@ function loadProjectObject(obj) {
     mapSourceUpload.addEventListener('change', () => {
       if (mapSourceUpload.checked) {
         if (!geoViewState.customMapImage) {
-          showToast('⛠️ No uploaded map - please upload one first');
+          showToast('⚠️ No uploaded map - please upload one first');
           updateMapSourceRadios();
           return;
         }
@@ -38567,7 +38818,7 @@ function loadProjectObject(obj) {
     document.getElementById('mapUrlApply').onclick = () => {
       const url = document.getElementById('mapUrlInput').value.trim();
       if (!url) {
-        showToast('⛠️ Please enter a URL');
+        showToast('⚠️ Please enter a URL');
         return;
       }
 
@@ -39999,7 +40250,7 @@ function handlePathKmlImport(e) {
       if (cableCount === 0) {
         instructions.innerHTML = `
           <div style="color: #ef4444; padding: 10px;">
-            ⛠️ No cables found in database. Please check the data file.
+            ⚠️ No cables found in database. Please check the data file.
           </div>
         `;
         return;
@@ -40070,7 +40321,7 @@ function handlePathKmlImport(e) {
     } catch (error) {
       instructions.innerHTML = `
         <div style="color: #ef4444; padding: 10px;">
-          ⛠️ Failed to load cable database:<br>
+          ⚠️ Failed to load cable database:<br>
           <span style="font-size: 11px;">${error.message}</span>
           <div style="margin-top: 10px;">
             <button onclick="window.showCableDbSearch()" style="padding: 6px 12px; background: #f3f4f6; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
@@ -40695,7 +40946,7 @@ function handlePathKmlImport(e) {
 
     } catch (e) {
       console.error('Failed to initialize MapLibre:', e);
-      showToast('⛠️ Failed to load interactive map. Check your internet connection.');
+      showToast('⚠️ Failed to load interactive map. Check your internet connection.');
     }
   }
 
@@ -41695,7 +41946,7 @@ function handlePathKmlImport(e) {
       highlightMapLibreNode(nodeId, '#22c55e'); // Green for source
     } else if (!mapLibreState.pathFinderTarget) {
       if (nodeId === mapLibreState.pathFinderSource) {
-        showToast('⛠️ Please select a different node as destination');
+        showToast('⚠️ Please select a different node as destination');
         return;
       }
       mapLibreState.pathFinderTarget = nodeId;
@@ -45386,7 +45637,7 @@ function handlePathKmlImport(e) {
     const isLinks = bulkEditState.type === 'links';
 
     if (items.length === 0) {
-      showToast('⛠️ No items to update');
+      showToast('⚠️ No items to update');
       return;
     }
 
@@ -45517,7 +45768,7 @@ function handlePathKmlImport(e) {
       hideBulkEditModal();
       showToast(`✅ Bulk edited ${items.length} ${isLinks ? 'link' : 'node'}${items.length !== 1 ? 's' : ''}`);
     } else {
-      showToast('⛠️ No changes were made');
+      showToast('⚠️ No changes were made');
     }
   }
 
@@ -47890,6 +48141,17 @@ function handlePathKmlImport(e) {
       <button class="visor-toggle-btn" id="btnVisorShowStations" title="Show/hide cable landing stations on map">Stations</button>
       <button class="visor-toggle-btn" id="btnVisorFixNames" title="Pin cable names permanently on map" style="display:none;">Pin Names</button>
       <button class="visor-toggle-btn" id="btnVisorFixStationNames" title="Pin station names permanently on map" style="display:none;">Pin Stations</button>
+      <div style="flex:1;"></div>
+      <div style="position:relative;">
+        <button class="btn" id="btnCableVisorActions" style="padding:3px 8px;font-size:10px;" title="Image actions">&#x1F5BC;&#xFE0F; Image &#x25BC;</button>
+        <div class="visor-action-menu" id="cableVisorActionMenu">
+          <button id="btnCableVisorCopyImage">&#x1F4CB; Copy to Clipboard</button>
+          <button id="btnCableVisorSavePNG">&#x1F5BC;&#xFE0F; Save as PNG</button>
+          <button id="btnCableVisorSaveJPG">&#x1F5BC;&#xFE0F; Save as JPG</button>
+          <div class="menu-sep"></div>
+          <button id="btnCableVisorPrint">&#x1F5A8;&#xFE0F; Print</button>
+        </div>
+      </div>
     </div>
   </div>
   <div id="cableVisorMap">
@@ -47956,6 +48218,17 @@ function handlePathKmlImport(e) {
       <button class="btn" id="btnDCVisorClearAll" style="padding:4px 8px; font-size:11px;" title="Clear selection">&#x2717; Clear</button>
       <span style="font-size:10px; font-weight:600; color:#64748b; margin-left:8px;">Display:</span>
       <button class="visor-toggle-btn" id="btnDCVisorShowNames" title="Show/hide datacenter names on map">Names</button>
+      <div style="flex:1;"></div>
+      <div style="position:relative;">
+        <button class="btn" id="btnDCVisorActions" style="padding:3px 8px;font-size:10px;" title="Image actions">&#x1F5BC;&#xFE0F; Image &#x25BC;</button>
+        <div class="visor-action-menu" id="dcVisorActionMenu">
+          <button id="btnDCVisorCopyImage">&#x1F4CB; Copy to Clipboard</button>
+          <button id="btnDCVisorSavePNG">&#x1F5BC;&#xFE0F; Save as PNG</button>
+          <button id="btnDCVisorSaveJPG">&#x1F5BC;&#xFE0F; Save as JPG</button>
+          <div class="menu-sep"></div>
+          <button id="btnDCVisorPrint">&#x1F5A8;&#xFE0F; Print</button>
+        </div>
+      </div>
     </div>
   </div>
   <div id="dcVisorMap">
