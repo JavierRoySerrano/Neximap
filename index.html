@@ -954,6 +954,62 @@
       max-height: 100vh !important;
       z-index: 99999 !important;
     }
+    /* Presentation/fullscreen mode */
+    #cableVisorPanel.presentation-mode {
+      position: fixed !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      left: 0 !important;
+      top: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      border-radius: 0 !important;
+      max-width: 100vw !important;
+      max-height: 100vh !important;
+      z-index: 999999 !important;
+      resize: none !important;
+    }
+    #cableVisorPanel.presentation-mode #cableVisorHeader {
+      cursor: default;
+    }
+    .presentation-exit-btn {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 1000000;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      backdrop-filter: blur(4px);
+    }
+    .presentation-exit-btn:hover {
+      background: rgba(220,38,38,0.8);
+    }
+    .presentation-esc-hint {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000000;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+      opacity: 1;
+      transition: opacity 1s ease-out;
+    }
     #cableVisorPanel.show {
       display: flex;
     }
@@ -967,6 +1023,7 @@
       color: white;
       cursor: move;
       user-select: none;
+      flex-shrink: 0;
     }
     #cableVisorHeader h3 {
       margin: 0;
@@ -1003,6 +1060,7 @@
       gap: 8px;
       flex-wrap: wrap;
       align-items: center;
+      flex-shrink: 0;
     }
     #cableVisorToolbar input[type="text"] {
       flex: 1;
@@ -1049,9 +1107,8 @@
       border-color: #0077b6;
     }
     #cableVisorList {
-      height: 180px;
-      min-height: 100px;
-      max-height: 300px;
+      flex: 0 1 180px;
+      min-height: 80px;
       overflow-y: auto;
       border-top: 1px solid #e0e0e0;
       background: white;
@@ -1101,6 +1158,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-shrink: 0;
     }
 
     /* Visor Map Tooltip (hover over cables/stations) */
@@ -21393,6 +21451,149 @@ function loadProjectObject(obj) {
     }
   }
 
+  // Presentation (fullscreen) mode for Cable Visor
+  let cableVisorPresentationActive = false;
+  let cableVisorPresentationExitBtn = null;
+  let cableVisorPresentationHint = null;
+
+  function toggleCableVisorPresentation() {
+    if (cableVisorPresentationActive) {
+      exitCableVisorPresentation();
+    } else {
+      enterCableVisorPresentation();
+    }
+  }
+
+  function enterCableVisorPresentation() {
+    const panel = document.getElementById('cableVisorPanel');
+    if (!panel) return;
+
+    // Exit maximized mode if active
+    if (panel.classList.contains('maximized')) {
+      toggleCableVisorMaximize();
+    }
+
+    // Store original position/size
+    panel._presentationOriginal = {
+      width: panel.style.width,
+      height: panel.style.height,
+      left: panel.style.left,
+      top: panel.style.top
+    };
+
+    // Clear inline styles and enter presentation mode
+    panel.style.width = '';
+    panel.style.height = '';
+    panel.style.left = '';
+    panel.style.top = '';
+    panel.classList.add('presentation-mode');
+    cableVisorPresentationActive = true;
+
+    // Create close button (X)
+    cableVisorPresentationExitBtn = document.createElement('button');
+    cableVisorPresentationExitBtn.className = 'presentation-exit-btn';
+    cableVisorPresentationExitBtn.innerHTML = '&#x2715;';
+    cableVisorPresentationExitBtn.title = 'Exit Presentation (ESC)';
+    cableVisorPresentationExitBtn.addEventListener('click', exitCableVisorPresentation);
+    document.body.appendChild(cableVisorPresentationExitBtn);
+
+    // Show ESC hint that fades after 3 seconds
+    cableVisorPresentationHint = document.createElement('div');
+    cableVisorPresentationHint.className = 'presentation-esc-hint';
+    cableVisorPresentationHint.textContent = 'Press ESC to exit presentation mode';
+    document.body.appendChild(cableVisorPresentationHint);
+    setTimeout(() => {
+      if (cableVisorPresentationHint) {
+        cableVisorPresentationHint.style.opacity = '0';
+        setTimeout(() => {
+          if (cableVisorPresentationHint && cableVisorPresentationHint.parentNode) {
+            cableVisorPresentationHint.parentNode.removeChild(cableVisorPresentationHint);
+            cableVisorPresentationHint = null;
+          }
+        }, 1000);
+      }
+    }, 3000);
+
+    // Try native fullscreen
+    if (panel.requestFullscreen) {
+      panel.requestFullscreen().catch(() => {});
+    } else if (panel.webkitRequestFullscreen) {
+      panel.webkitRequestFullscreen();
+    }
+
+    // Add ESC key listener
+    document.addEventListener('keydown', handlePresentationEsc);
+
+    // Listen for fullscreen exit via browser (e.g., F11 or native ESC)
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+    // Resize map after entering
+    if (cableVisorState.map) {
+      setTimeout(() => cableVisorState.map.resize(), 100);
+    }
+
+    console.log('[CableVisor] Entered presentation mode');
+  }
+
+  function exitCableVisorPresentation() {
+    const panel = document.getElementById('cableVisorPanel');
+    if (!panel) return;
+
+    panel.classList.remove('presentation-mode');
+    cableVisorPresentationActive = false;
+
+    // Restore original position/size
+    if (panel._presentationOriginal) {
+      panel.style.width = panel._presentationOriginal.width;
+      panel.style.height = panel._presentationOriginal.height;
+      panel.style.left = panel._presentationOriginal.left;
+      panel.style.top = panel._presentationOriginal.top;
+    }
+
+    // Remove close button
+    if (cableVisorPresentationExitBtn && cableVisorPresentationExitBtn.parentNode) {
+      cableVisorPresentationExitBtn.parentNode.removeChild(cableVisorPresentationExitBtn);
+      cableVisorPresentationExitBtn = null;
+    }
+
+    // Remove hint
+    if (cableVisorPresentationHint && cableVisorPresentationHint.parentNode) {
+      cableVisorPresentationHint.parentNode.removeChild(cableVisorPresentationHint);
+      cableVisorPresentationHint = null;
+    }
+
+    // Exit native fullscreen if active
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
+
+    // Remove listeners
+    document.removeEventListener('keydown', handlePresentationEsc);
+    document.removeEventListener('fullscreenchange', handleFullscreenChange);
+
+    // Resize map after exiting
+    if (cableVisorState.map) {
+      setTimeout(() => cableVisorState.map.resize(), 100);
+    }
+
+    console.log('[CableVisor] Exited presentation mode');
+  }
+
+  function handlePresentationEsc(e) {
+    if (e.key === 'Escape' && cableVisorPresentationActive) {
+      e.preventDefault();
+      e.stopPropagation();
+      exitCableVisorPresentation();
+    }
+  }
+
+  function handleFullscreenChange() {
+    // If user exited fullscreen via browser controls, also exit our presentation mode
+    if (!document.fullscreenElement && cableVisorPresentationActive) {
+      exitCableVisorPresentation();
+    }
+  }
+
   function initCableVisorMap() {
     const container = document.getElementById('cableVisorMapContainer');
     const loadingEl = document.getElementById('cableVisorMapLoading');
@@ -22312,6 +22513,7 @@ function loadProjectObject(obj) {
   function initCableVisorEventHandlers() {
     const closeBtn = document.getElementById('btnCableVisorClose');
     const maxBtn = document.getElementById('btnCableVisorMaximize');
+    const presBtn = document.getElementById('btnCableVisorPresentation');
     const openBtn = document.getElementById('btnOpenCableVisor');
     const selectAllBtn = document.getElementById('btnVisorSelectAll');
     const clearAllBtn = document.getElementById('btnVisorClearAll');
@@ -22330,6 +22532,10 @@ function loadProjectObject(obj) {
     if (maxBtn) maxBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       toggleCableVisorMaximize();
+    });
+    if (presBtn) presBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleCableVisorPresentation();
     });
     if (selectAllBtn) selectAllBtn.addEventListener('click', selectAllVisorCables);
     if (clearAllBtn) clearAllBtn.addEventListener('click', clearAllVisorCables);
@@ -22654,38 +22860,82 @@ function loadProjectObject(obj) {
         }
 
         // Get unique endpoints (first and last of each segment)
-        const endpoints = new Set();
+        const endpointsList = [];
+        const endpointKeys = new Set();
         segments.forEach(seg => {
           if (seg.length > 0) {
-            endpoints.add(JSON.stringify(seg[0]));
-            endpoints.add(JSON.stringify(seg[seg.length - 1]));
+            [seg[0], seg[seg.length - 1]].forEach(pt => {
+              const k = `${pt[1].toFixed(3)}_${pt[0].toFixed(3)}`;
+              if (!endpointKeys.has(k)) {
+                endpointKeys.add(k);
+                endpointsList.push(pt);
+              }
+            });
           }
         });
 
-        let lpIdx = 0;
-        endpoints.forEach(ptStr => {
-          const pt = JSON.parse(ptStr);
-          const lon = pt[0], lat = pt[1];
-          const key = `${lat.toFixed(3)}_${lon.toFixed(3)}`;
-          // Use landing point name if available, otherwise "Endpoint"
-          const lpName = (lps[lpIdx] && lps[lpIdx].name) ? lps[lpIdx].name : `Endpoint ${lpIdx + 1}`;
-          const lpCountry = (lps[lpIdx] && lps[lpIdx].country) ? lps[lpIdx].country : '';
-          if (!stationMap.has(key)) {
-            stationMap.set(key, {
-              name: lpName,
-              country: lpCountry,
-              lat: lat,
-              lon: lon,
-              cables: [cable.shortName || cable.name]
-            });
-          } else {
-            const existing = stationMap.get(key);
-            if (!existing.cables.includes(cable.shortName || cable.name)) {
-              existing.cables.push(cable.shortName || cable.name);
-            }
+        // Sort endpoints by longitude for geographic-order matching with landing points
+        endpointsList.sort((a, b) => a[0] - b[0]);
+
+        // Match landing points to geometry endpoints
+        // Strategy: assign named landing points to endpoints, skip excess unnamed endpoints
+        const namedLPs = lps.filter(lp => lp.name);
+
+        if (namedLPs.length > 0 && endpointsList.length > namedLPs.length) {
+          // More geometry endpoints than landing points:
+          // Select the best-matching endpoints (most spread-out subset)
+          // by picking endpoints at even intervals
+          const step = endpointsList.length / namedLPs.length;
+          const selectedIndices = [];
+          for (let i = 0; i < namedLPs.length; i++) {
+            selectedIndices.push(Math.round(i * step));
           }
-          lpIdx++;
-        });
+
+          selectedIndices.forEach((epIdx, lpIdx) => {
+            const pt = endpointsList[epIdx];
+            const lon = pt[0], lat = pt[1];
+            const key = `${lat.toFixed(3)}_${lon.toFixed(3)}`;
+            const lpName = namedLPs[lpIdx].name;
+            const lpCountry = namedLPs[lpIdx].country || '';
+            if (!stationMap.has(key)) {
+              stationMap.set(key, {
+                name: lpName,
+                country: lpCountry,
+                lat: lat,
+                lon: lon,
+                cables: [cable.shortName || cable.name]
+              });
+            } else {
+              const existing = stationMap.get(key);
+              if (!existing.cables.includes(cable.shortName || cable.name)) {
+                existing.cables.push(cable.shortName || cable.name);
+              }
+            }
+          });
+        } else {
+          // Equal or more landing points than endpoints: assign by index
+          endpointsList.forEach((pt, idx) => {
+            const lon = pt[0], lat = pt[1];
+            const key = `${lat.toFixed(3)}_${lon.toFixed(3)}`;
+            const lp = namedLPs[idx];
+            const lpName = lp ? lp.name : (cable.name + ' station');
+            const lpCountry = lp ? (lp.country || '') : '';
+            if (!stationMap.has(key)) {
+              stationMap.set(key, {
+                name: lpName,
+                country: lpCountry,
+                lat: lat,
+                lon: lon,
+                cables: [cable.shortName || cable.name]
+              });
+            } else {
+              const existing = stationMap.get(key);
+              if (!existing.cables.includes(cable.shortName || cable.name)) {
+                existing.cables.push(cable.shortName || cable.name);
+              }
+            }
+          });
+        }
       }
     });
 
@@ -47292,6 +47542,7 @@ function handlePathKmlImport(e) {
   <div id="cableVisorHeader">
     <h3>🌐 Submarine Cable Visor</h3>
     <div id="cableVisorControls">
+      <button id="btnCableVisorPresentation" title="Presentation Mode (Fullscreen)">&#x1F4FA;</button>
       <button id="btnCableVisorMaximize" title="Maximize/Restore">⬜</button>
       <button id="btnCableVisorClose" title="Close Visor">✕</button>
     </div>
