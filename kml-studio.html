@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- NexiMap KML Studio v4.0.1 - Unified open, Undo/Redo, Vertex eraser tool -->
+<!-- NexiMap KML Studio v4.1.0 - Unified open, Undo/Redo, Vertex eraser tool -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NexiMap KML Studio v4.0.1</title>
+<title>NexiMap KML Studio v4.1.0</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='2' width='28' height='28' rx='4' fill='%230096D6'/%3E%3Cpath d='M8 12L16 8L24 12L16 16Z' fill='white' opacity='0.9'/%3E%3Cpath d='M8 16L16 20L24 16' stroke='white' stroke-width='1.5' fill='none'/%3E%3Cpath d='M8 20L16 24L24 20' stroke='white' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"/>
 <style>
 :root {
@@ -1057,6 +1057,39 @@ header {
 .settings-row input { flex: 1; padding: 5px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; font-family: var(--font); }
 .settings-row input:focus { border-color: var(--accent); outline: none; }
 .settings-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+
+/* File drop zone overlay */
+.file-drop-overlay {
+    position: fixed; inset: 0; z-index: 99999;
+    background: rgba(0, 150, 214, 0.08);
+    border: 3px dashed var(--accent);
+    display: none; align-items: center; justify-content: center;
+}
+.file-drop-overlay.show { display: flex; }
+.file-drop-overlay-content {
+    background: white; border-radius: 16px; padding: 40px 60px;
+    box-shadow: var(--shadow-lg); text-align: center;
+}
+.file-drop-overlay-content svg { width: 48px; height: 48px; color: var(--accent); margin-bottom: 12px; }
+.file-drop-overlay-content p { font-size: 16px; font-weight: 600; color: var(--text); margin: 0 0 4px 0; }
+.file-drop-overlay-content .hint { font-size: 12px; color: var(--text-muted); font-weight: 400; }
+
+/* Loading overlay for heavy files */
+.loading-overlay {
+    position: fixed; inset: 0; z-index: 99998;
+    background: rgba(255,255,255,0.85); backdrop-filter: blur(2px);
+    display: none; align-items: center; justify-content: center;
+    flex-direction: column; gap: 12px;
+}
+.loading-overlay.show { display: flex; }
+.loading-spinner {
+    width: 36px; height: 36px; border: 4px solid #e0e0e0;
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: loadSpin 0.7s linear infinite;
+}
+@keyframes loadSpin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 14px; color: var(--text); font-weight: 500; }
+.loading-detail { font-size: 11px; color: var(--text-muted); }
 </style>
 </head>
 <body>
@@ -1066,7 +1099,7 @@ header {
     <div class="app-logo">
         <svg width="20" height="20" viewBox="0 0 32 32"><rect x="2" y="2" width="28" height="28" rx="4" fill="#0096D6"/><path d="M8 12L16 8L24 12L16 16Z" fill="white" opacity="0.9"/><path d="M8 16L16 20L24 16" stroke="white" stroke-width="1.5" fill="none"/><path d="M8 20L16 24L24 20" stroke="white" stroke-width="1.5" fill="none"/></svg>
         NexiMap KML Studio
-        <span class="ver">v4.0.1</span>
+        <span class="ver">v4.1.0</span>
     </div>
 
     <!-- File Menu -->
@@ -1634,6 +1667,25 @@ header {
     </div>
 </div>
 
+<!-- File drop zone overlay -->
+<div class="file-drop-overlay" id="fileDropOverlay">
+    <div class="file-drop-overlay-content">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <p>Drop KML, KMZ or GeoJSON files here</p>
+        <span class="hint">Release to open</span>
+    </div>
+</div>
+
+<!-- Loading overlay for heavy files -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loadingText">Processing file...</div>
+    <div class="loading-detail" id="loadingDetail"></div>
+</div>
+
 <script>
 // Load Leaflet dynamically with multi-CDN fallback
 function loadScript(url) {
@@ -1830,16 +1882,24 @@ window.openGeoJSONFile = () => document.getElementById('fileInput').click(); // 
 // Detect file type and import accordingly
 async function importFileByType(file) {
     const fname = file.name.toLowerCase();
-    if (fname.endsWith('.kmz')) {
-        const kmlStr = await extractKMLFromKMZ(file);
-        importKML(kmlStr, file.name);
-    } else if (fname.endsWith('.geojson') || fname.endsWith('.json')) {
-        const text = await readFileAsText(file);
-        importGeoJSON(text, file.name);
-    } else {
-        // Default: treat as KML
-        const text = await readFileAsText(file);
-        importKML(text, file.name);
+    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+    const isHeavy = file.size > 500 * 1024; // Show loading for files > 500KB
+    if (isHeavy) { showLoading('Loading ' + file.name, sizeMB + ' MB'); await yieldToUI(); }
+    try {
+        if (fname.endsWith('.kmz')) {
+            if (isHeavy) updateLoading('Extracting KMZ archive...', sizeMB + ' MB');
+            if (isHeavy) await yieldToUI();
+            const kmlStr = await extractKMLFromKMZ(file);
+            await importKML(kmlStr, file.name, isHeavy);
+        } else if (fname.endsWith('.geojson') || fname.endsWith('.json')) {
+            const text = await readFileAsText(file);
+            await importGeoJSON(text, file.name, isHeavy);
+        } else {
+            const text = await readFileAsText(file);
+            await importKML(text, file.name, isHeavy);
+        }
+    } finally {
+        if (isHeavy) hideLoading();
     }
 }
 
@@ -1895,12 +1955,54 @@ window.handleGeoJSONOpen = function(e) {
     e.target.value = '';
 };
 
-// Drag-and-drop (supports KML, KMZ, GeoJSON, JSON)
+// === LOADING OVERLAY HELPERS ===
+function yieldToUI() { return new Promise(resolve => setTimeout(resolve, 0)); }
+
+function showLoading(text, detail) {
+    document.getElementById('loadingText').textContent = text || 'Processing file...';
+    document.getElementById('loadingDetail').textContent = detail || '';
+    document.getElementById('loadingOverlay').classList.add('show');
+}
+function updateLoading(text, detail) {
+    if (text) document.getElementById('loadingText').textContent = text;
+    if (detail !== undefined) document.getElementById('loadingDetail').textContent = detail;
+}
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+// === DRAG-AND-DROP (full-window with visual feedback) ===
 const mapContainer = document.getElementById('mapContainer');
-mapContainer.addEventListener('dragover', (e) => { e.preventDefault(); });
-mapContainer.addEventListener('drop', async (e) => {
+const fileDropOverlay = document.getElementById('fileDropOverlay');
+let fileDragCounter = 0;
+
+// Full-window drag-and-drop: show overlay when files are dragged over the window
+document.addEventListener('dragenter', (e) => {
+    if (!e.dataTransfer || !e.dataTransfer.types.includes('Files')) return;
     e.preventDefault();
-    for (const file of Array.from(e.dataTransfer.files)) {
+    fileDragCounter++;
+    if (fileDragCounter === 1) fileDropOverlay.classList.add('show');
+});
+document.addEventListener('dragleave', (e) => {
+    if (!e.dataTransfer || !e.dataTransfer.types.includes('Files')) return;
+    fileDragCounter--;
+    if (fileDragCounter <= 0) { fileDragCounter = 0; fileDropOverlay.classList.remove('show'); }
+});
+document.addEventListener('dragover', (e) => {
+    if (e.dataTransfer && e.dataTransfer.types.includes('Files')) e.preventDefault();
+});
+document.addEventListener('drop', async (e) => {
+    fileDragCounter = 0;
+    fileDropOverlay.classList.remove('show');
+    if (!e.dataTransfer || !e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
+    // Only handle external file drops (not internal tree drag-and-drop)
+    const validExts = ['.kml', '.kmz', '.geojson', '.json'];
+    const files = Array.from(e.dataTransfer.files).filter(f =>
+        validExts.some(ext => f.name.toLowerCase().endsWith(ext))
+    );
+    if (files.length === 0) return;
+    e.preventDefault();
+    for (const file of files) {
         try {
             await importFileByType(file);
             toast('Loaded ' + file.name, 'success');
@@ -1908,9 +2010,11 @@ mapContainer.addEventListener('drop', async (e) => {
     }
 });
 
-// === KML PARSER (robust) ===
-function importKML(kmlStr, fileName) {
+// === KML PARSER (robust, async for heavy files) ===
+async function importKML(kmlStr, fileName, isHeavy) {
     pushUndo();
+    if (isHeavy) { updateLoading('Parsing KML structure...'); await yieldToUI(); }
+
     // Strip any non-XML content before the actual KML (e.g. email headers)
     const kmlStart = kmlStr.indexOf('<?xml');
     if (kmlStart > 0) kmlStr = kmlStr.substring(kmlStart);
@@ -1924,10 +2028,13 @@ function importKML(kmlStr, fileName) {
     kmlStr = kmlStr.replace(/<gx:(\w)/g, '<gx_$1').replace(/<\/gx:(\w)/g, '</gx_$1');
 
     const doc = new DOMParser().parseFromString(kmlStr, 'text/xml');
+    kmlStr = null; // Free memory early
 
     // Check for parse errors
     const parseErr = doc.querySelector('parsererror');
     if (parseErr) { toast('KML parse error — file may be malformed', 'error'); }
+
+    if (isHeavy) { updateLoading('Resolving styles...'); await yieldToUI(); }
 
     // Parse shared styles
     const sharedStyles = {};
@@ -1955,15 +2062,16 @@ function importKML(kmlStr, fileName) {
     });
 
     const folderId = genFolderId();
-    const folder = { id: folderId, name: fileName.replace(/\.kml$/i, ''), expanded: true, items: [] };
+    const folder = { id: folderId, name: fileName.replace(/\.kml$/i, ''), expanded: false, items: [] };
+    let totalParsed = 0;
 
-    function processFolder(parentEl, parentFolderId) {
+    async function processFolder(parentEl, parentFolderId) {
         // Handle both <Folder> and <Document> as container elements
-        const childContainers = parentEl.querySelectorAll(':scope > Folder, :scope > Document');
-        childContainers.forEach(kf => {
+        const childContainers = Array.from(parentEl.querySelectorAll(':scope > Folder, :scope > Document'));
+        for (const kf of childContainers) {
             const sfId = genFolderId();
             const sfName = getKmlText(kf, 'name') || (kf.tagName === 'Document' ? 'Document' : 'Folder');
-            const sf = { id: sfId, name: sfName, expanded: true, items: [], parentId: parentFolderId };
+            const sf = { id: sfId, name: sfName, expanded: false, items: [], parentId: parentFolderId };
 
             // Collect styles scoped to this container
             const localStyles = {};
@@ -1989,42 +2097,63 @@ function importKML(kmlStr, fileName) {
             // Merge local styles into shared for resolution within this scope
             const mergedStyles = { ...sharedStyles, ...localStyles };
 
-            kf.querySelectorAll(':scope > Placemark').forEach(pm => {
+            const placemarks = Array.from(kf.querySelectorAll(':scope > Placemark'));
+            for (const pm of placemarks) {
                 const layers = parsePlacemark(pm, sfId, mergedStyles);
                 layers.forEach(layer => { sf.items.push(layer.id); projectData.layers[layer.id] = layer; });
-            });
+                totalParsed++;
+                if (isHeavy && totalParsed % 50 === 0) {
+                    updateLoading('Processing elements...', totalParsed + ' placemarks parsed');
+                    await yieldToUI();
+                }
+            }
 
-            processFolder(kf, sfId);
+            await processFolder(kf, sfId);
 
             if (sf.items.length > 0 || projectData.folders.some(f => f.parentId === sfId)) {
                 projectData.folders.push(sf);
                 const parent = projectData.folders.find(f => f.id === parentFolderId) || folder;
                 parent.items.push(sfId);
             }
-        });
+        }
     }
+
+    if (isHeavy) { updateLoading('Processing placemarks...', '0 placemarks parsed'); await yieldToUI(); }
 
     // Root placemarks
     const rootSel = ['Document > Placemark', 'kml > Placemark', 'kml > Document > Placemark'];
     const rootPms = new Set();
     rootSel.forEach(sel => { try { doc.querySelectorAll(sel).forEach(pm => rootPms.add(pm)); } catch(e) {} });
-    rootPms.forEach(pm => {
+    for (const pm of rootPms) {
         const layers = parsePlacemark(pm, folderId, sharedStyles);
         layers.forEach(l => { folder.items.push(l.id); projectData.layers[l.id] = l; });
-    });
+        totalParsed++;
+        if (isHeavy && totalParsed % 50 === 0) {
+            updateLoading('Processing placemarks...', totalParsed + ' placemarks parsed');
+            await yieldToUI();
+        }
+    }
 
     // Nested folders
     const docEl = doc.querySelector('Document') || doc.querySelector('kml');
-    if (docEl) processFolder(docEl, folderId);
+    if (docEl) await processFolder(docEl, folderId);
 
     // Fallback: grab all placemarks if nothing was found
     if (folder.items.filter(id => projectData.layers[id]).length === 0 &&
         !projectData.folders.some(f => f.parentId === folderId)) {
-        doc.querySelectorAll('Placemark').forEach(pm => {
+        const allPms = Array.from(doc.querySelectorAll('Placemark'));
+        for (const pm of allPms) {
             const layers = parsePlacemark(pm, folderId, sharedStyles);
             layers.forEach(l => { folder.items.push(l.id); projectData.layers[l.id] = l; });
-        });
+            totalParsed++;
+            if (isHeavy && totalParsed % 50 === 0) {
+                updateLoading('Processing placemarks...', totalParsed + ' placemarks parsed');
+                await yieldToUI();
+            }
+        }
     }
+
+    if (isHeavy) { updateLoading('Rendering ' + totalParsed + ' elements on map...'); await yieldToUI(); }
 
     projectData.folders.push(folder);
     renderAll();
@@ -2197,18 +2326,21 @@ function getKmlText(parent, tag) {
     return el ? el.textContent.trim() : null;
 }
 
-// === GEOJSON PARSER ===
-function importGeoJSON(jsonStr, fileName) {
+// === GEOJSON PARSER (async for heavy files) ===
+async function importGeoJSON(jsonStr, fileName, isHeavy) {
     pushUndo();
+    if (isHeavy) { updateLoading('Parsing GeoJSON...'); await yieldToUI(); }
     const data = JSON.parse(jsonStr);
+    jsonStr = null; // Free memory early
     const folderId = genFolderId();
-    const folder = { id: folderId, name: fileName.replace(/\.(geojson|json)$/i, ''), expanded: true, items: [] };
+    const folder = { id: folderId, name: fileName.replace(/\.(geojson|json)$/i, ''), expanded: false, items: [] };
 
     const features = data.type === 'FeatureCollection' ? data.features :
                      data.type === 'Feature' ? [data] : [];
 
-    features.forEach(f => {
-        if (!f.geometry) return;
+    for (let fi = 0; fi < features.length; fi++) {
+        const f = features[fi];
+        if (!f.geometry) continue;
         const geom = f.geometry;
         const props = f.properties || {};
         const name = props.name || props.Name || props.title || 'Unnamed';
@@ -2254,7 +2386,13 @@ function importGeoJSON(jsonStr, fileName) {
                 folderId, leafletLayer: null, vertexMarkers: []
             };
         }
-    });
+        if (isHeavy && fi % 50 === 0) {
+            updateLoading('Processing features...', (fi + 1) + ' / ' + features.length);
+            await yieldToUI();
+        }
+    }
+
+    if (isHeavy) { updateLoading('Rendering ' + folder.items.length + ' elements on map...'); await yieldToUI(); }
 
     projectData.folders.push(folder);
     renderAll();
@@ -3072,7 +3210,7 @@ window.undoSimplify = function() {
 };
 
 // =========================================================================
-// SEGMENT CHAINING FOR SIMPLIFIED EXPORT (v4.0.1)
+// SEGMENT CHAINING FOR SIMPLIFIED EXPORT (v4.1.0)
 // =========================================================================
 // 1. Deduplicates exact-copy geometries (common when KMZ has repeated folders)
 // 2. Builds endpoint degree map to detect branching junctions
