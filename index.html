@@ -2621,10 +2621,113 @@
       padding: 1px 6px;
       border-radius: 10px;
     }
-    #btnTagFilter.filtering {
+    /* Unified Filter Button */
+    #btnUnifiedFilter.filtering {
       background: #e8f4fc;
       color: #0096D6;
       border-color: #0096D6;
+    }
+    #btnUnifiedFilter .filter-badge {
+      display: none;
+      background: #0096D6;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      min-width: 16px;
+      height: 16px;
+      line-height: 16px;
+      text-align: center;
+      border-radius: 8px;
+      padding: 0 4px;
+      margin-left: 4px;
+    }
+    #btnUnifiedFilter.filtering .filter-badge { display: inline-block; }
+
+    /* Unified Filter Panel */
+    #unifiedFilterPanel {
+      position: fixed;
+      z-index: 1001;
+      background: #fff;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      width: 340px;
+      max-height: 80vh;
+      overflow-y: auto;
+      font-size: 12px;
+    }
+    .unified-filter-header {
+      padding: 8px 12px;
+      font-weight: 600;
+      font-size: 13px;
+      border-bottom: 1px solid #e0e0e0;
+      cursor: move;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8f9fa;
+      border-radius: 8px 8px 0 0;
+      user-select: none;
+    }
+    .filter-accordion-section {
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .filter-accordion-section:last-of-type {
+      border-bottom: none;
+    }
+    .filter-accordion-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      user-select: none;
+      background: #fafafa;
+      transition: background 0.15s;
+    }
+    .filter-accordion-header:hover {
+      background: #f0f4f8;
+    }
+    .filter-accordion-header .filter-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #d0d0d0;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .filter-accordion-header .filter-dot.active {
+      background: #0096D6;
+      box-shadow: 0 0 4px rgba(0,150,214,0.4);
+    }
+    .filter-accordion-header .filter-section-title {
+      flex: 1;
+      font-weight: 600;
+      font-size: 12px;
+    }
+    .filter-accordion-header .filter-arrow {
+      font-size: 10px;
+      color: #999;
+      transition: transform 0.2s;
+    }
+    .filter-accordion-section.expanded .filter-accordion-header .filter-arrow {
+      transform: rotate(90deg);
+    }
+    .filter-accordion-section.expanded .filter-accordion-header {
+      background: #e8f4fc;
+    }
+    .filter-accordion-content {
+      display: none;
+      border-top: 1px solid #e8e8e8;
+    }
+    .filter-accordion-section.expanded .filter-accordion-content {
+      display: block;
+    }
+    .filter-clear-section {
+      padding: 8px 12px;
+      border-top: 1px solid #e0e0e0;
+      background: #fafafa;
+      border-radius: 0 0 8px 8px;
     }
 
     /* Apply Style Panel */
@@ -5846,35 +5949,14 @@
 
   <!-- Toolbar Line 2: Filters and Panels -->
   <div style="display:flex; align-items:center; gap:2px; padding:4px 12px; background:#f5f5f5; border-top:1px solid #e8e8e8; flex-wrap:wrap;">
-    <!-- Tag Filter -->
-    <div style="position:relative;">
-      <button class="tool-btn" id="btnTagFilter" type="button" title="Filter by Tags">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M19 12.5l-6 6a2 2 0 0 1-2.8 0L3 11.5V4h7.5l8.5 8.5z"/>
-          <circle cx="7" cy="8" r="1.5" fill="currentColor"/>
-        </svg>
-        <span style="font-size:11px; margin-left:4px;">Tags</span>
-      </button>
-      <div class="menu" id="tagFilterMenu" hidden style="min-width:250px; max-height:450px; overflow-y:auto;">
-        <div style="padding:8px 12px; font-weight:600; border-bottom:1px solid #e0e0e0;">Filter by Tags</div>
-        <div style="padding:8px 12px;">
-          <input type="text" id="tagFilterSearch" placeholder="Search tags..." style="width:100%; padding:6px 8px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px;" />
-        </div>
-        <label class="item toggle-item"><input type="radio" name="filterMode" value="all" checked /> Show All (no filter)</label>
-        <label class="item toggle-item"><input type="radio" name="filterMode" value="include" /> Show only selected tags</label>
-        <label class="item toggle-item"><input type="radio" name="filterMode" value="exclude" /> Hide selected tags</label>
-        <div class="sep"></div>
-        <label class="item toggle-item"><input type="checkbox" id="tagFilterExclusive" /> Exclusive (ignore Cable System filter)</label>
-        <div class="sep"></div>
-        <div style="padding:4px 12px; font-size:11px; color:#666;">Tags:</div>
-        <div id="tagFilterList" style="max-height:200px; overflow-y:auto;"></div>
-        <div class="sep"></div>
-        <div style="display:flex; gap:8px; padding:8px 12px;">
-          <button class="mini-btn" id="btnTagSelectAll" type="button">Select All</button>
-          <button class="mini-btn" id="btnTagClearAll" type="button">Clear All</button>
-        </div>
-      </div>
-    </div>
+    <!-- Unified Filters Button -->
+    <button class="tool-btn" id="btnUnifiedFilter" type="button" title="Filter by Tags, Cable System, Node, Container (F)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+      </svg>
+      <span style="font-size:11px; margin-left:4px;">Filters</span>
+      <span class="filter-badge" id="filterBadge">0</span>
+    </button>
 
     <div class="tool-sep"></div>
 
@@ -5950,134 +6032,6 @@
       </svg>
       <span style="font-size:11px; margin-left:4px;">ML Groups</span>
     </button>
-
-    <div class="tool-sep"></div>
-
-    <!-- Cable System Filter -->
-    <div style="position:relative;">
-      <button class="tool-btn" id="btnCableSystemFilter" type="button" title="Filter by Cable System">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <!-- Optical fiber cable with filter -->
-          <ellipse cx="4" cy="12" rx="2" ry="5" stroke="currentColor"/>
-          <line x1="6" y1="7" x2="14" y2="6" stroke="currentColor"/>
-          <line x1="6" y1="10" x2="14" y2="9.5" stroke="currentColor"/>
-          <line x1="6" y1="12" x2="14" y2="12" stroke="currentColor"/>
-          <line x1="6" y1="14" x2="14" y2="14.5" stroke="currentColor"/>
-          <line x1="6" y1="17" x2="14" y2="18" stroke="currentColor"/>
-          <polygon points="16 4 22 4 19 10 19 14 16 14 16 10" fill="none" stroke="currentColor" stroke-width="1.5"/>
-        </svg>
-        <span style="font-size:11px; margin-left:4px;">System Filter</span>
-      </button>
-      <div class="menu draggable-panel" id="cableSystemFilterMenu" hidden style="min-width:280px; max-height:450px; overflow-y:auto; position:fixed; z-index:1000;">
-        <div class="draggable-handle" style="padding:8px 12px; font-weight:600; border-bottom:1px solid #e0e0e0; cursor:move; display:flex; justify-content:space-between; align-items:center; background:#f8f9fa;">
-          <span style="display:flex; align-items:center; gap:6px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <!-- Optical fiber cable icon - bundle of fiber strands -->
-              <ellipse cx="4" cy="12" rx="2.5" ry="6" stroke="#666"/>
-              <line x1="6.5" y1="6" x2="20" y2="4" stroke="#f59e0b" stroke-width="1.5"/>
-              <line x1="6.5" y1="9" x2="20" y2="8" stroke="#3b82f6" stroke-width="1.5"/>
-              <line x1="6.5" y1="12" x2="20" y2="12" stroke="#10b981" stroke-width="1.5"/>
-              <line x1="6.5" y1="15" x2="20" y2="16" stroke="#ef4444" stroke-width="1.5"/>
-              <line x1="6.5" y1="18" x2="20" y2="20" stroke="#8b5cf6" stroke-width="1.5"/>
-            </svg>
-            Filter by Cable System
-          </span>
-          <div style="display:flex; align-items:center; gap:8px; margin-left:16px;">
-            <span style="font-size:9px; color:#aaa;">drag to move</span>
-            <button class="panel-close-btn" style="background:none; border:none; font-size:18px; cursor:pointer; color:#888; padding:0 2px; line-height:1;" title="Close">×</button>
-          </div>
-        </div>
-        <div style="padding:8px 12px;">
-          <input type="text" id="cableSystemFilterSearch" placeholder="Search cable systems..." style="width:100%; padding:6px 8px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px;" />
-        </div>
-        <label class="item toggle-item"><input type="radio" name="cableFilterMode" value="all" checked /> Show All</label>
-        <label class="item toggle-item"><input type="radio" name="cableFilterMode" value="selected" /> Show selected systems only</label>
-        <div class="sep"></div>
-        <label class="item toggle-item"><input type="checkbox" id="cableFilterShowUnmapped" checked /> Include unmapped items</label>
-        <label class="item toggle-item"><input type="checkbox" id="cableFilterExclusive" /> Exclusive (ignore Tag filter)</label>
-        <div class="sep"></div>
-        <div style="padding:4px 12px; font-size:11px; color:#666;">Cable Systems:</div>
-        <div id="cableSystemFilterList" style="max-height:200px; overflow-y:auto;"></div>
-        <div class="sep"></div>
-        <div style="display:flex; gap:8px; padding:8px 12px;">
-          <button class="mini-btn" id="btnCableSelectAll" type="button">Select All</button>
-          <button class="mini-btn" id="btnCableClearAll" type="button">Clear All</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="tool-sep"></div>
-
-    <!-- Node Filter -->
-    <div style="position:relative;">
-      <button class="tool-btn" id="btnNodeFilter" type="button" title="Filter by Node">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="8"/>
-          <line x1="12" y1="2" x2="12" y2="6"/>
-          <line x1="12" y1="18" x2="12" y2="22"/>
-          <line x1="2" y1="12" x2="6" y2="12"/>
-          <line x1="18" y1="12" x2="22" y2="12"/>
-        </svg>
-        <span style="font-size:11px; margin-left:4px;">Node Filter</span>
-      </button>
-      <div class="menu" id="nodeFilterMenu" hidden style="min-width:280px; max-height:450px; overflow-y:auto;">
-        <div style="padding:8px 12px; font-weight:600; border-bottom:1px solid #e0e0e0;">Filter by Node</div>
-        <div style="padding:8px 12px;">
-          <input type="text" id="nodeFilterSearch" placeholder="Search nodes..." style="width:100%; padding:6px 8px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px;" />
-        </div>
-        <label class="item toggle-item"><input type="radio" name="nodeFilterMode" value="all" checked /> Show All</label>
-        <label class="item toggle-item"><input type="radio" name="nodeFilterMode" value="selected" /> Show selected nodes only</label>
-        <div class="sep"></div>
-        <div style="padding:4px 12px; font-size:11px; color:#666;">Display as:</div>
-        <label class="item toggle-item"><input type="radio" name="nodeDisplayMode" value="name" checked /> Node Name</label>
-        <label class="item toggle-item"><input type="radio" name="nodeDisplayMode" value="code" /> Node Code</label>
-        <div class="sep"></div>
-        <label class="item toggle-item"><input type="checkbox" id="nodeFilterExclusive" /> Exclusive (ignore other filters)</label>
-        <div class="sep"></div>
-        <div style="padding:4px 12px; font-size:11px; color:#666;">Nodes:</div>
-        <div id="nodeFilterList" style="max-height:200px; overflow-y:auto;"></div>
-        <div class="sep"></div>
-        <div style="display:flex; gap:8px; padding:8px 12px;">
-          <button class="mini-btn" id="btnNodeSelectAll" type="button">Select All</button>
-          <button class="mini-btn" id="btnNodeClearAll" type="button">Clear All</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="tool-sep"></div>
-
-    <!-- Container Filter -->
-    <div style="position:relative;">
-      <button class="tool-btn" id="btnContainerFilter" type="button" title="Filter by Container">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2"/>
-          <rect x="7" y="7" width="10" height="10" rx="1"/>
-        </svg>
-        <span style="font-size:11px; margin-left:4px;">Container</span>
-      </button>
-      <div class="menu" id="containerFilterMenu" hidden style="min-width:300px; max-height:500px; overflow-y:auto;">
-        <div style="padding:8px 12px; font-weight:600; border-bottom:1px solid #e0e0e0;">Filter by Container</div>
-        <div style="padding:8px 12px;">
-          <input type="text" id="containerFilterSearch" placeholder="Search containers..." style="width:100%; padding:6px 8px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px;" />
-        </div>
-        <label class="item toggle-item"><input type="radio" name="containerFilterMode" value="all" checked /> Show All</label>
-        <label class="item toggle-item"><input type="radio" name="containerFilterMode" value="selected" /> Show selected containers only</label>
-        <div class="sep"></div>
-        <label class="item toggle-item"><input type="checkbox" id="containerFilterExclusive" /> Exclusive (ignore other filters)</label>
-        <div class="sep"></div>
-        <div id="containerFilterSections">
-          <div style="padding:4px 12px; font-size:11px; color:#666; background:#f5f5f5; border-top:1px solid #e0e0e0;">▢ Container Boxes:</div>
-          <div id="containerFilterListBoxes" style="max-height:150px; overflow-y:auto;"></div>
-          <div style="padding:4px 12px; font-size:11px; color:#666; background:#f5f5f5; border-top:1px solid #e0e0e0;">▣ Groups (Container of Containers):</div>
-          <div id="containerFilterListGroups" style="max-height:150px; overflow-y:auto;"></div>
-        </div>
-        <div class="sep"></div>
-        <div style="display:flex; gap:8px; padding:8px 12px;">
-          <button class="mini-btn" id="btnContainerSelectAll" type="button">Select All</button>
-          <button class="mini-btn" id="btnContainerClearAll" type="button">Clear All</button>
-        </div>
-      </div>
-    </div>
 
     <div style="flex:1;"></div>
 
@@ -6166,6 +6120,163 @@
     </button>
   </div>
 </header>
+
+<!-- Unified Filter Panel (Accordion) -->
+<div id="unifiedFilterPanel" hidden>
+  <div class="unified-filter-header" id="unifiedFilterDragHandle">
+    <span style="display:flex; align-items:center; gap:6px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+      </svg>
+      Active Filters
+    </span>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span style="font-size:9px; color:#aaa;">drag to move</span>
+      <button id="btnUnifiedFilterClose" style="background:none; border:none; font-size:18px; cursor:pointer; color:#888; padding:0 2px; line-height:1;" title="Close">×</button>
+    </div>
+  </div>
+
+  <!-- Tags Section -->
+  <div class="filter-accordion-section" data-filter="tags">
+    <div class="filter-accordion-header" data-section="tags">
+      <span class="filter-dot" id="dotTagFilter"></span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12.5l-6 6a2 2 0 0 1-2.8 0L3 11.5V4h7.5l8.5 8.5z"/>
+        <circle cx="7" cy="8" r="1.5" fill="currentColor"/>
+      </svg>
+      <span class="filter-section-title">Tags</span>
+      <span class="filter-arrow">▶</span>
+    </div>
+    <div class="filter-accordion-content" id="tagFilterAccordion">
+      <div style="padding:8px 12px;">
+        <input type="text" id="tagFilterSearch" placeholder="Search tags..." style="width:100%; padding:6px 8px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px;" />
+      </div>
+      <label class="item toggle-item"><input type="radio" name="filterMode" value="all" checked /> Show All (no filter)</label>
+      <label class="item toggle-item"><input type="radio" name="filterMode" value="include" /> Show only selected tags</label>
+      <label class="item toggle-item"><input type="radio" name="filterMode" value="exclude" /> Hide selected tags</label>
+      <div class="sep"></div>
+      <label class="item toggle-item"><input type="checkbox" id="tagFilterExclusive" /> Exclusive (ignore Cable System filter)</label>
+      <div class="sep"></div>
+      <div style="padding:4px 12px; font-size:11px; color:#666;">Tags:</div>
+      <div id="tagFilterList" style="max-height:200px; overflow-y:auto;"></div>
+      <div class="sep"></div>
+      <div style="display:flex; gap:8px; padding:8px 12px;">
+        <button class="mini-btn" id="btnTagSelectAll" type="button">Select All</button>
+        <button class="mini-btn" id="btnTagClearAll" type="button">Clear All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cable System Section -->
+  <div class="filter-accordion-section" data-filter="cableSystem">
+    <div class="filter-accordion-header" data-section="cableSystem">
+      <span class="filter-dot" id="dotCableSystemFilter"></span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <ellipse cx="4" cy="12" rx="2" ry="5"/>
+        <line x1="6" y1="7" x2="14" y2="6"/>
+        <line x1="6" y1="12" x2="14" y2="12"/>
+        <line x1="6" y1="17" x2="14" y2="18"/>
+        <polygon points="16 4 22 4 19 10 19 14 16 14 16 10" fill="none"/>
+      </svg>
+      <span class="filter-section-title">Cable System</span>
+      <span class="filter-arrow">▶</span>
+    </div>
+    <div class="filter-accordion-content" id="cableSystemFilterAccordion">
+      <div style="padding:8px 12px;">
+        <input type="text" id="cableSystemFilterSearch" placeholder="Search cable systems..." style="width:100%; padding:6px 8px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px;" />
+      </div>
+      <label class="item toggle-item"><input type="radio" name="cableFilterMode" value="all" checked /> Show All</label>
+      <label class="item toggle-item"><input type="radio" name="cableFilterMode" value="selected" /> Show selected systems only</label>
+      <div class="sep"></div>
+      <label class="item toggle-item"><input type="checkbox" id="cableFilterShowUnmapped" checked /> Include unmapped items</label>
+      <label class="item toggle-item"><input type="checkbox" id="cableFilterExclusive" /> Exclusive (ignore Tag filter)</label>
+      <div class="sep"></div>
+      <div style="padding:4px 12px; font-size:11px; color:#666;">Cable Systems:</div>
+      <div id="cableSystemFilterList" style="max-height:200px; overflow-y:auto;"></div>
+      <div class="sep"></div>
+      <div style="display:flex; gap:8px; padding:8px 12px;">
+        <button class="mini-btn" id="btnCableSelectAll" type="button">Select All</button>
+        <button class="mini-btn" id="btnCableClearAll" type="button">Clear All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Node Section -->
+  <div class="filter-accordion-section" data-filter="node">
+    <div class="filter-accordion-header" data-section="node">
+      <span class="filter-dot" id="dotNodeFilter"></span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="8"/>
+        <line x1="12" y1="2" x2="12" y2="6"/>
+        <line x1="12" y1="18" x2="12" y2="22"/>
+        <line x1="2" y1="12" x2="6" y2="12"/>
+        <line x1="18" y1="12" x2="22" y2="12"/>
+      </svg>
+      <span class="filter-section-title">Node</span>
+      <span class="filter-arrow">▶</span>
+    </div>
+    <div class="filter-accordion-content" id="nodeFilterAccordion">
+      <div style="padding:8px 12px;">
+        <input type="text" id="nodeFilterSearch" placeholder="Search nodes..." style="width:100%; padding:6px 8px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px;" />
+      </div>
+      <label class="item toggle-item"><input type="radio" name="nodeFilterMode" value="all" checked /> Show All</label>
+      <label class="item toggle-item"><input type="radio" name="nodeFilterMode" value="selected" /> Show selected nodes only</label>
+      <div class="sep"></div>
+      <div style="padding:4px 12px; font-size:11px; color:#666;">Display as:</div>
+      <label class="item toggle-item"><input type="radio" name="nodeDisplayMode" value="name" checked /> Node Name</label>
+      <label class="item toggle-item"><input type="radio" name="nodeDisplayMode" value="code" /> Node Code</label>
+      <div class="sep"></div>
+      <label class="item toggle-item"><input type="checkbox" id="nodeFilterExclusive" /> Exclusive (ignore other filters)</label>
+      <div class="sep"></div>
+      <div style="padding:4px 12px; font-size:11px; color:#666;">Nodes:</div>
+      <div id="nodeFilterList" style="max-height:200px; overflow-y:auto;"></div>
+      <div class="sep"></div>
+      <div style="display:flex; gap:8px; padding:8px 12px;">
+        <button class="mini-btn" id="btnNodeSelectAll" type="button">Select All</button>
+        <button class="mini-btn" id="btnNodeClearAll" type="button">Clear All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Container Section -->
+  <div class="filter-accordion-section" data-filter="container">
+    <div class="filter-accordion-header" data-section="container">
+      <span class="filter-dot" id="dotContainerFilter"></span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <rect x="7" y="7" width="10" height="10" rx="1"/>
+      </svg>
+      <span class="filter-section-title">Container</span>
+      <span class="filter-arrow">▶</span>
+    </div>
+    <div class="filter-accordion-content" id="containerFilterAccordion">
+      <div style="padding:8px 12px;">
+        <input type="text" id="containerFilterSearch" placeholder="Search containers..." style="width:100%; padding:6px 8px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px;" />
+      </div>
+      <label class="item toggle-item"><input type="radio" name="containerFilterMode" value="all" checked /> Show All</label>
+      <label class="item toggle-item"><input type="radio" name="containerFilterMode" value="selected" /> Show selected containers only</label>
+      <div class="sep"></div>
+      <label class="item toggle-item"><input type="checkbox" id="containerFilterExclusive" /> Exclusive (ignore other filters)</label>
+      <div class="sep"></div>
+      <div id="containerFilterSections">
+        <div style="padding:4px 12px; font-size:11px; color:#666; background:#f5f5f5; border-top:1px solid #e0e0e0;">▢ Container Boxes:</div>
+        <div id="containerFilterListBoxes" style="max-height:150px; overflow-y:auto;"></div>
+        <div style="padding:4px 12px; font-size:11px; color:#666; background:#f5f5f5; border-top:1px solid #e0e0e0;">▣ Groups (Container of Containers):</div>
+        <div id="containerFilterListGroups" style="max-height:150px; overflow-y:auto;"></div>
+      </div>
+      <div class="sep"></div>
+      <div style="display:flex; gap:8px; padding:8px 12px;">
+        <button class="mini-btn" id="btnContainerSelectAll" type="button">Select All</button>
+        <button class="mini-btn" id="btnContainerClearAll" type="button">Clear All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clear All Filters -->
+  <div class="filter-clear-section">
+    <button class="mini-btn" id="btnClearAllFilters" type="button" style="width:100%; background:#fff0f0; color:#c62828; border-color:#ef9a9a;">Clear All Filters</button>
+  </div>
+</div>
 
 <!-- Shape Library Panel -->
 <div id="shapeLibraryPanel">
@@ -11327,12 +11438,14 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
   }
 
   // ============== TAG FILTER SYSTEM ==============
-  const btnTagFilter = document.getElementById('btnTagFilter');
-  const tagFilterMenu = document.getElementById('tagFilterMenu');
+  const btnUnifiedFilter = document.getElementById('btnUnifiedFilter');
+  const unifiedFilterPanel = document.getElementById('unifiedFilterPanel');
+  const filterBadge = document.getElementById('filterBadge');
   const tagFilterList = document.getElementById('tagFilterList');
   const btnTagSelectAll = document.getElementById('btnTagSelectAll');
   const btnTagClearAll = document.getElementById('btnTagClearAll');
   const miTagFilter = document.getElementById('miTagFilter');
+  const tagFilterAccordion = document.getElementById('tagFilterAccordion');
 
   // Collect all unique tags from nodes, edges, and groups - returns separate counts
   function collectAllTags() {
@@ -11949,24 +12062,181 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     }
   }
 
-  // Update filter button state (highlight if filtering)
+  // Update unified filter button badge and indicator dots
   function updateFilterButtonState() {
-    if (!btnTagFilter) return;
-    const isFiltering = state.tagFilter.mode !== 'all' && state.tagFilter.selectedTags.size > 0;
-    btnTagFilter.classList.toggle('filtering', isFiltering);
+    const tagActive = state.tagFilter.mode !== 'all' && state.tagFilter.selectedTags.size > 0;
+    const cableActive = state.cableSystemFilter.mode !== 'all' && state.cableSystemFilter.selectedSystems.size > 0;
+    const nodeActive = state.nodeFilter.mode !== 'all' && state.nodeFilter.selectedNodes.size > 0;
+    const containerActive = state.containerFilter.mode !== 'all' &&
+      (state.containerFilter.selectedBoxes.size > 0 || state.containerFilter.selectedGroups.size > 0);
+
+    const count = [tagActive, cableActive, nodeActive, containerActive].filter(Boolean).length;
+
+    if (btnUnifiedFilter) {
+      btnUnifiedFilter.classList.toggle('filtering', count > 0);
+    }
+    if (filterBadge) {
+      filterBadge.textContent = count;
+    }
+
+    // Update indicator dots
+    const dotTag = document.getElementById('dotTagFilter');
+    const dotCable = document.getElementById('dotCableSystemFilter');
+    const dotNode = document.getElementById('dotNodeFilter');
+    const dotContainer = document.getElementById('dotContainerFilter');
+    if (dotTag) dotTag.classList.toggle('active', tagActive);
+    if (dotCable) dotCable.classList.toggle('active', cableActive);
+    if (dotNode) dotNode.classList.toggle('active', nodeActive);
+    if (dotContainer) dotContainer.classList.toggle('active', containerActive);
   }
 
-  // Tag filter menu handling
-  if (btnTagFilter && tagFilterMenu) {
-    btnTagFilter.addEventListener('click', (ev) => {
-      ev.stopPropagation();
+  // Toggle unified filter panel
+  function toggleUnifiedFilterPanel() {
+    if (!unifiedFilterPanel) return;
+    if (unifiedFilterPanel.hidden) {
       closeAllMenus();
+      // Position near the button
+      if (btnUnifiedFilter) {
+        const rect = btnUnifiedFilter.getBoundingClientRect();
+        unifiedFilterPanel.style.left = rect.left + 'px';
+        unifiedFilterPanel.style.top = (rect.bottom + 4) + 'px';
+      }
       updateTagFilterList();
-      tagFilterMenu.hidden = !tagFilterMenu.hidden;
+      unifiedFilterPanel.hidden = false;
+    } else {
+      unifiedFilterPanel.hidden = true;
+    }
+  }
+
+  // Unified Filters button click
+  if (btnUnifiedFilter) {
+    btnUnifiedFilter.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      toggleUnifiedFilterPanel();
+    });
+  }
+
+  // Accordion toggle
+  if (unifiedFilterPanel) {
+    unifiedFilterPanel.querySelectorAll('.filter-accordion-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const section = header.closest('.filter-accordion-section');
+        const wasExpanded = section.classList.contains('expanded');
+        section.classList.toggle('expanded');
+        // Populate lists when expanding
+        if (!wasExpanded) {
+          const filterType = section.dataset.filter;
+          if (filterType === 'tags') updateTagFilterList();
+          else if (filterType === 'cableSystem') updateCableSystemFilterList();
+          else if (filterType === 'node') updateNodeFilterList();
+          else if (filterType === 'container') updateContainerFilterList();
+        }
+      });
     });
 
-    // Filter mode radio buttons
-    tagFilterMenu.querySelectorAll('input[name="filterMode"]').forEach(radio => {
+    // Prevent panel clicks from propagating
+    unifiedFilterPanel.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+    });
+  }
+
+  // Close panel button
+  const btnUnifiedFilterClose = document.getElementById('btnUnifiedFilterClose');
+  if (btnUnifiedFilterClose) {
+    btnUnifiedFilterClose.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      if (unifiedFilterPanel) unifiedFilterPanel.hidden = true;
+    });
+  }
+
+  // Make unified panel draggable
+  (function initUnifiedFilterDrag() {
+    const handle = document.getElementById('unifiedFilterDragHandle');
+    if (!handle || !unifiedFilterPanel) return;
+    let isDragging = false, startX, startY, startLeft, startTop;
+
+    handle.addEventListener('mousedown', (ev) => {
+      if (ev.target.tagName === 'BUTTON') return;
+      isDragging = true;
+      const rect = unifiedFilterPanel.getBoundingClientRect();
+      startX = ev.clientX;
+      startY = ev.clientY;
+      startLeft = rect.left;
+      startTop = rect.top;
+      unifiedFilterPanel.style.position = 'fixed';
+      unifiedFilterPanel.style.left = startLeft + 'px';
+      unifiedFilterPanel.style.top = startTop + 'px';
+      ev.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (ev) => {
+      if (!isDragging) return;
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+      let newLeft = startLeft + dx;
+      let newTop = startTop + dy;
+      const panelRect = unifiedFilterPanel.getBoundingClientRect();
+      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - panelRect.width));
+      newTop = Math.max(0, Math.min(newTop, window.innerHeight - panelRect.height));
+      unifiedFilterPanel.style.left = newLeft + 'px';
+      unifiedFilterPanel.style.top = newTop + 'px';
+    });
+
+    document.addEventListener('mouseup', () => { isDragging = false; });
+  })();
+
+  // Clear All Filters button
+  const btnClearAllFilters = document.getElementById('btnClearAllFilters');
+  if (btnClearAllFilters) {
+    btnClearAllFilters.addEventListener('click', () => {
+      // Reset tag filter
+      state.tagFilter.mode = 'all';
+      state.tagFilter.selectedTags.clear();
+      state.tagFilter.exclusive = false;
+      const tagModeAll = document.querySelector('input[name="filterMode"][value="all"]');
+      if (tagModeAll) tagModeAll.checked = true;
+      const tagExcl = document.getElementById('tagFilterExclusive');
+      if (tagExcl) tagExcl.checked = false;
+
+      // Reset cable system filter
+      state.cableSystemFilter.mode = 'all';
+      state.cableSystemFilter.selectedSystems.clear();
+      state.cableSystemFilter.showUnmapped = true;
+      state.cableSystemFilter.exclusive = false;
+      const cableModeAll = document.querySelector('input[name="cableFilterMode"][value="all"]');
+      if (cableModeAll) cableModeAll.checked = true;
+      const cableUnmapped = document.getElementById('cableFilterShowUnmapped');
+      if (cableUnmapped) cableUnmapped.checked = true;
+      const cableExcl = document.getElementById('cableFilterExclusive');
+      if (cableExcl) cableExcl.checked = false;
+
+      // Reset node filter
+      state.nodeFilter.mode = 'all';
+      state.nodeFilter.selectedNodes.clear();
+      state.nodeFilter.exclusive = false;
+      const nodeModeAll = document.querySelector('input[name="nodeFilterMode"][value="all"]');
+      if (nodeModeAll) nodeModeAll.checked = true;
+      const nodeExcl = document.getElementById('nodeFilterExclusive');
+      if (nodeExcl) nodeExcl.checked = false;
+
+      // Reset container filter
+      state.containerFilter.mode = 'all';
+      state.containerFilter.selectedBoxes.clear();
+      state.containerFilter.selectedGroups.clear();
+      state.containerFilter.exclusive = false;
+      const contModeAll = document.querySelector('input[name="containerFilterMode"][value="all"]');
+      if (contModeAll) contModeAll.checked = true;
+      const contExcl = document.getElementById('containerFilterExclusive');
+      if (contExcl) contExcl.checked = false;
+
+      updateFilterButtonState();
+      render();
+    });
+  }
+
+  // Tag filter accordion - radio/checkbox/button handlers
+  if (tagFilterAccordion) {
+    tagFilterAccordion.querySelectorAll('input[name="filterMode"]').forEach(radio => {
       radio.addEventListener('change', () => {
         state.tagFilter.mode = radio.value;
         updateFilterButtonState();
@@ -11974,7 +12244,6 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       });
     });
 
-    // Exclusive checkbox
     const tagFilterExclusive = document.getElementById('tagFilterExclusive');
     if (tagFilterExclusive) {
       tagFilterExclusive.addEventListener('change', () => {
@@ -11983,7 +12252,6 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       });
     }
 
-    // Select All button
     if (btnTagSelectAll) {
       btnTagSelectAll.addEventListener('click', () => {
         const tagCounts = collectAllTags();
@@ -11994,7 +12262,6 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       });
     }
 
-    // Clear All button
     if (btnTagClearAll) {
       btnTagClearAll.addEventListener('click', () => {
         state.tagFilter.selectedTags.clear();
@@ -12003,22 +12270,12 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
         render();
       });
     }
-
-    // Close menu when clicking outside
-    document.addEventListener('click', () => {
-      tagFilterMenu.hidden = true;
-    });
-
-    tagFilterMenu.addEventListener('click', (ev) => {
-      ev.stopPropagation();
-    });
   }
 
   // View menu - Tag Filter option
   if (miTagFilter) {
     miTagFilter.addEventListener('click', (ev) => {
       ev.stopPropagation();
-      // Close other menus but not tagFilterMenu
       fileMenu.hidden = true;
       if (editMenu) editMenu.hidden = true;
       if (viewMenu) viewMenu.hidden = true;
@@ -12027,43 +12284,41 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       const gridMenu = document.getElementById('gridMenu');
       if (gridMenu) gridMenu.hidden = true;
 
-      // Get elements directly to ensure they're found
-      const tagFilterBtn = document.getElementById('btnTagFilter');
-      const tagFilterPanel = document.getElementById('tagFilterMenu');
-
-      if (tagFilterBtn && tagFilterPanel) {
+      // Open unified filter panel with tags section expanded
+      if (unifiedFilterPanel) {
+        if (btnUnifiedFilter) {
+          const rect = btnUnifiedFilter.getBoundingClientRect();
+          unifiedFilterPanel.style.left = rect.left + 'px';
+          unifiedFilterPanel.style.top = (rect.bottom + 4) + 'px';
+        }
         updateTagFilterList();
-        tagFilterPanel.hidden = false;
-        // Position near the button
-        const rect = tagFilterBtn.getBoundingClientRect();
-        tagFilterPanel.style.position = 'fixed';
-        tagFilterPanel.style.left = rect.left + 'px';
-        tagFilterPanel.style.top = rect.bottom + 'px';
+        unifiedFilterPanel.hidden = false;
+        // Expand tags section
+        const tagsSection = unifiedFilterPanel.querySelector('[data-filter="tags"]');
+        if (tagsSection) tagsSection.classList.add('expanded');
       }
     });
   }
 
-  // Keyboard shortcut for tag filter (F key)
+  // Keyboard shortcut for filters (F key)
   window.addEventListener('keydown', (ev) => {
     if (ev.key === 'f' || ev.key === 'F') {
       if (ev.target.tagName === 'INPUT' || ev.target.tagName === 'TEXTAREA') return;
       ev.preventDefault();
-      if (btnTagFilter && tagFilterMenu) {
-        closeAllMenus();
-        updateTagFilterList();
-        tagFilterMenu.hidden = !tagFilterMenu.hidden;
-      }
+      toggleUnifiedFilterPanel();
     }
   });
 
-  // Add tagFilterMenu to closeAllMenus
+  // Close unified panel when clicking outside
+  document.addEventListener('click', () => {
+    if (unifiedFilterPanel) unifiedFilterPanel.hidden = true;
+  });
+
+  // Add unified panel to closeAllMenus
   const originalCloseAllMenus = closeAllMenus;
   closeAllMenus = function() {
     originalCloseAllMenus();
-    if (tagFilterMenu) tagFilterMenu.hidden = true;
-    const nodeFilterMenu = document.getElementById('nodeFilterMenu');
-    const cableSystemFilterMenu = document.getElementById('cableSystemFilterMenu');
-    const containerFilterMenu = document.getElementById('containerFilterMenu');
+    if (unifiedFilterPanel) unifiedFilterPanel.hidden = true;
     const fillColorMenu = document.getElementById('fillColorMenu');
     const strokeColorMenu = document.getElementById('strokeColorMenu');
     const linkStyleMenu = document.getElementById('linkStyleMenu');
@@ -12072,9 +12327,6 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     const fontTypeMenu = document.getElementById('fontTypeMenu');
     const applyStyleMenu = document.getElementById('applyStyleMenu');
     const helpMenu = document.getElementById('helpMenu');
-    if (nodeFilterMenu) nodeFilterMenu.hidden = true;
-    if (cableSystemFilterMenu) cableSystemFilterMenu.hidden = true;
-    if (containerFilterMenu) containerFilterMenu.hidden = true;
     if (fillColorMenu) fillColorMenu.hidden = true;
     if (strokeColorMenu) strokeColorMenu.hidden = true;
     if (linkStyleMenu) linkStyleMenu.hidden = true;
@@ -12086,8 +12338,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
   };
 
   // ============== NODE FILTER ==============
-  const btnNodeFilter = document.getElementById('btnNodeFilter');
-  const nodeFilterMenu = document.getElementById('nodeFilterMenu');
+  const nodeFilterAccordion = document.getElementById('nodeFilterAccordion');
   const nodeFilterList = document.getElementById('nodeFilterList');
   const nodeFilterSearch = document.getElementById('nodeFilterSearch');
   const btnNodeSelectAll = document.getElementById('btnNodeSelectAll');
@@ -12159,37 +12410,26 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
   }
 
   function updateNodeFilterButtonState() {
-    if (!btnNodeFilter) return;
-    const isFiltering = state.nodeFilter.mode !== 'all' && state.nodeFilter.selectedNodes.size > 0;
-    btnNodeFilter.classList.toggle('filtering', isFiltering);
+    updateFilterButtonState();
   }
 
-  if (btnNodeFilter && nodeFilterMenu) {
-    btnNodeFilter.addEventListener('click', (ev) => {
-      ev.stopPropagation();
-      closeAllMenus();
-      updateNodeFilterList();
-      nodeFilterMenu.hidden = !nodeFilterMenu.hidden;
-    });
-
-    // Filter mode radio buttons
-    nodeFilterMenu.querySelectorAll('input[name="nodeFilterMode"]').forEach(radio => {
+  // Node filter accordion handlers
+  if (nodeFilterAccordion) {
+    nodeFilterAccordion.querySelectorAll('input[name="nodeFilterMode"]').forEach(radio => {
       radio.addEventListener('change', () => {
         state.nodeFilter.mode = radio.value;
-        updateNodeFilterButtonState();
+        updateFilterButtonState();
         render();
       });
     });
 
-    // Display mode radio buttons
-    nodeFilterMenu.querySelectorAll('input[name="nodeDisplayMode"]').forEach(radio => {
+    nodeFilterAccordion.querySelectorAll('input[name="nodeDisplayMode"]').forEach(radio => {
       radio.addEventListener('change', () => {
         state.nodeFilter.displayMode = radio.value;
         updateNodeFilterList();
       });
     });
 
-    // Exclusive checkbox
     const nodeFilterExclusive = document.getElementById('nodeFilterExclusive');
     if (nodeFilterExclusive) {
       nodeFilterExclusive.addEventListener('change', () => {
@@ -12198,46 +12438,33 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       });
     }
 
-    // Select All button
     if (btnNodeSelectAll) {
       btnNodeSelectAll.addEventListener('click', () => {
         state.nodes.forEach(n => state.nodeFilter.selectedNodes.add(n.id));
         updateNodeFilterList();
-        updateNodeFilterButtonState();
+        updateFilterButtonState();
         render();
       });
     }
 
-    // Clear All button
     if (btnNodeClearAll) {
       btnNodeClearAll.addEventListener('click', () => {
         state.nodeFilter.selectedNodes.clear();
         updateNodeFilterList();
-        updateNodeFilterButtonState();
+        updateFilterButtonState();
         render();
       });
     }
 
-    // Search input
     if (nodeFilterSearch) {
       nodeFilterSearch.addEventListener('input', () => {
         updateNodeFilterList();
       });
     }
-
-    // Close menu when clicking outside
-    document.addEventListener('click', () => {
-      nodeFilterMenu.hidden = true;
-    });
-
-    nodeFilterMenu.addEventListener('click', (ev) => {
-      ev.stopPropagation();
-    });
   }
 
   // ============== CABLE SYSTEM FILTER ==============
-  const btnCableSystemFilter = document.getElementById('btnCableSystemFilter');
-  const cableSystemFilterMenu = document.getElementById('cableSystemFilterMenu');
+  const cableSystemFilterAccordion = document.getElementById('cableSystemFilterAccordion');
   const cableSystemFilterList = document.getElementById('cableSystemFilterList');
   const cableSystemFilterSearch = document.getElementById('cableSystemFilterSearch');
   const btnCableSelectAll = document.getElementById('btnCableSelectAll');
@@ -12295,76 +12522,19 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
   }
 
   function updateCableSystemFilterButtonState() {
-    if (!btnCableSystemFilter) return;
-    const isFiltering = state.cableSystemFilter.mode !== 'all' && state.cableSystemFilter.selectedSystems.size > 0;
-    btnCableSystemFilter.classList.toggle('filtering', isFiltering);
+    updateFilterButtonState();
   }
 
-  if (btnCableSystemFilter && cableSystemFilterMenu) {
-    // Make the panel draggable
-    let isDragging = false;
-    let dragStartX, dragStartY, panelStartX, panelStartY;
-
-    const dragHandle = cableSystemFilterMenu.querySelector('.draggable-handle');
-    if (dragHandle) {
-      dragHandle.addEventListener('mousedown', (ev) => {
-        if (ev.target.tagName === 'INPUT') return; // Don't drag when clicking inputs
-        isDragging = true;
-        dragStartX = ev.clientX;
-        dragStartY = ev.clientY;
-        const rect = cableSystemFilterMenu.getBoundingClientRect();
-        panelStartX = rect.left;
-        panelStartY = rect.top;
-        ev.preventDefault();
-      });
-
-      document.addEventListener('mousemove', (ev) => {
-        if (!isDragging) return;
-        const dx = ev.clientX - dragStartX;
-        const dy = ev.clientY - dragStartY;
-        let newX = panelStartX + dx;
-        let newY = panelStartY + dy;
-
-        // Keep within viewport
-        newX = Math.max(0, Math.min(window.innerWidth - 280, newX));
-        newY = Math.max(0, Math.min(window.innerHeight - 100, newY));
-
-        cableSystemFilterMenu.style.left = newX + 'px';
-        cableSystemFilterMenu.style.top = newY + 'px';
-        cableSystemFilterMenu.style.right = 'auto';
-      });
-
-      document.addEventListener('mouseup', () => {
-        isDragging = false;
-      });
-    }
-
-    btnCableSystemFilter.addEventListener('click', (ev) => {
-      ev.stopPropagation();
-      closeAllMenus();
-      updateCableSystemFilterList();
-
-      // Position near the button initially
-      if (cableSystemFilterMenu.hidden) {
-        const btnRect = btnCableSystemFilter.getBoundingClientRect();
-        cableSystemFilterMenu.style.left = btnRect.left + 'px';
-        cableSystemFilterMenu.style.top = (btnRect.bottom + 4) + 'px';
-        cableSystemFilterMenu.style.right = 'auto';
-      }
-
-      cableSystemFilterMenu.hidden = !cableSystemFilterMenu.hidden;
-    });
-
-    // Filter mode radio buttons
-    cableSystemFilterMenu.querySelectorAll('input[name="cableFilterMode"]').forEach(radio => {
+  // Cable system filter accordion handlers
+  if (cableSystemFilterAccordion) {
+    cableSystemFilterAccordion.querySelectorAll('input[name="cableFilterMode"]').forEach(radio => {
       radio.addEventListener('change', () => {
         state.cableSystemFilter.mode = radio.value;
-        updateCableSystemFilterButtonState();
+        updateFilterButtonState();
         render();
       });
     });
 
-    // Unmapped checkbox
     const cableFilterShowUnmapped = document.getElementById('cableFilterShowUnmapped');
     if (cableFilterShowUnmapped) {
       cableFilterShowUnmapped.addEventListener('change', () => {
@@ -12373,7 +12543,6 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       });
     }
 
-    // Exclusive checkbox
     const cableFilterExclusive = document.getElementById('cableFilterExclusive');
     if (cableFilterExclusive) {
       cableFilterExclusive.addEventListener('change', () => {
@@ -12382,103 +12551,33 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       });
     }
 
-    // Select All button
     if (btnCableSelectAll) {
       btnCableSelectAll.addEventListener('click', () => {
         state.cableSystems.forEach(cs => state.cableSystemFilter.selectedSystems.add(cs.id));
         updateCableSystemFilterList();
-        updateCableSystemFilterButtonState();
+        updateFilterButtonState();
         render();
       });
     }
 
-    // Clear All button
     if (btnCableClearAll) {
       btnCableClearAll.addEventListener('click', () => {
         state.cableSystemFilter.selectedSystems.clear();
         updateCableSystemFilterList();
-        updateCableSystemFilterButtonState();
+        updateFilterButtonState();
         render();
       });
     }
 
-    // Search input
     if (cableSystemFilterSearch) {
       cableSystemFilterSearch.addEventListener('input', () => {
         updateCableSystemFilterList();
       });
     }
-
-    // Don't close on click outside since panel is draggable
-    // User can close via toolbar button or close button
-
-    cableSystemFilterMenu.addEventListener('click', (ev) => {
-      ev.stopPropagation();
-    });
-
-    // Close button handler
-    const closeBtn = cableSystemFilterMenu.querySelector('.panel-close-btn');
-    if (closeBtn) {
-      closeBtn.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        cableSystemFilterMenu.hidden = true;
-      });
-    }
-
-    // Make panel draggable
-    const draggableHandle = cableSystemFilterMenu.querySelector('.draggable-handle');
-    if (draggableHandle) {
-      let isDragging = false;
-      let startX, startY, startLeft, startTop;
-
-      draggableHandle.addEventListener('mousedown', (ev) => {
-        if (ev.target.tagName === 'BUTTON') return; // Don't drag when clicking close button
-        isDragging = true;
-
-        // Get current position or initialize
-        const rect = cableSystemFilterMenu.getBoundingClientRect();
-        startX = ev.clientX;
-        startY = ev.clientY;
-        startLeft = rect.left;
-        startTop = rect.top;
-
-        // Set fixed positioning if not already
-        cableSystemFilterMenu.style.position = 'fixed';
-        cableSystemFilterMenu.style.left = startLeft + 'px';
-        cableSystemFilterMenu.style.top = startTop + 'px';
-        cableSystemFilterMenu.style.right = 'auto';
-        cableSystemFilterMenu.style.bottom = 'auto';
-
-        ev.preventDefault();
-      });
-
-      document.addEventListener('mousemove', (ev) => {
-        if (!isDragging) return;
-
-        const dx = ev.clientX - startX;
-        const dy = ev.clientY - startY;
-
-        let newLeft = startLeft + dx;
-        let newTop = startTop + dy;
-
-        // Keep within viewport
-        const panelRect = cableSystemFilterMenu.getBoundingClientRect();
-        newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - panelRect.width));
-        newTop = Math.max(0, Math.min(newTop, window.innerHeight - panelRect.height));
-
-        cableSystemFilterMenu.style.left = newLeft + 'px';
-        cableSystemFilterMenu.style.top = newTop + 'px';
-      });
-
-      document.addEventListener('mouseup', () => {
-        isDragging = false;
-      });
-    }
   }
 
   // ============== CONTAINER FILTER ==============
-  const btnContainerFilter = document.getElementById('btnContainerFilter');
-  const containerFilterMenu = document.getElementById('containerFilterMenu');
+  const containerFilterAccordion = document.getElementById('containerFilterAccordion');
   const containerFilterListBoxes = document.getElementById('containerFilterListBoxes');
   const containerFilterListGroups = document.getElementById('containerFilterListGroups');
   const containerFilterSearch = document.getElementById('containerFilterSearch');
@@ -12587,30 +12686,19 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
   }
 
   function updateContainerFilterButtonState() {
-    if (!btnContainerFilter) return;
-    const isFiltering = state.containerFilter.mode !== 'all' &&
-      (state.containerFilter.selectedBoxes.size > 0 || state.containerFilter.selectedGroups.size > 0);
-    btnContainerFilter.classList.toggle('filtering', isFiltering);
+    updateFilterButtonState();
   }
 
-  if (btnContainerFilter && containerFilterMenu) {
-    btnContainerFilter.addEventListener('click', (ev) => {
-      ev.stopPropagation();
-      closeAllMenus();
-      updateContainerFilterList();
-      containerFilterMenu.hidden = !containerFilterMenu.hidden;
-    });
-
-    // Filter mode radio buttons
-    containerFilterMenu.querySelectorAll('input[name="containerFilterMode"]').forEach(radio => {
+  // Container filter accordion handlers
+  if (containerFilterAccordion) {
+    containerFilterAccordion.querySelectorAll('input[name="containerFilterMode"]').forEach(radio => {
       radio.addEventListener('change', () => {
         state.containerFilter.mode = radio.value;
-        updateContainerFilterButtonState();
+        updateFilterButtonState();
         render();
       });
     });
 
-    // Exclusive checkbox
     const containerFilterExclusive = document.getElementById('containerFilterExclusive');
     if (containerFilterExclusive) {
       containerFilterExclusive.addEventListener('change', () => {
@@ -12619,7 +12707,6 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       });
     }
 
-    // Select All button
     if (btnContainerSelectAll) {
       btnContainerSelectAll.addEventListener('click', () => {
         state.groups.forEach(g => {
@@ -12630,37 +12717,26 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
           }
         });
         updateContainerFilterList();
-        updateContainerFilterButtonState();
+        updateFilterButtonState();
         render();
       });
     }
 
-    // Clear All button
     if (btnContainerClearAll) {
       btnContainerClearAll.addEventListener('click', () => {
         state.containerFilter.selectedBoxes.clear();
         state.containerFilter.selectedGroups.clear();
         updateContainerFilterList();
-        updateContainerFilterButtonState();
+        updateFilterButtonState();
         render();
       });
     }
 
-    // Search input
     if (containerFilterSearch) {
       containerFilterSearch.addEventListener('input', () => {
         updateContainerFilterList();
       });
     }
-
-    // Close menu when clicking outside
-    document.addEventListener('click', () => {
-      containerFilterMenu.hidden = true;
-    });
-
-    containerFilterMenu.addEventListener('click', (ev) => {
-      ev.stopPropagation();
-    });
   }
 
   // ============== QUICK FORMAT TOOLBAR ==============
@@ -20513,15 +20589,14 @@ function loadProjectObject(obj) {
     state.tagFilter.selectedTags = new Set();
   }
   // Update tag filter UI
-  const tagFilterMenu = document.getElementById('tagFilterMenu');
-  const btnTagFilter = document.getElementById('btnTagFilter');
-  if (tagFilterMenu) {
-    const modeRadio = tagFilterMenu.querySelector(`input[name="filterMode"][value="${state.tagFilter.mode}"]`);
+  const tagFilterAccordionLoad = document.getElementById('tagFilterAccordion');
+  if (tagFilterAccordionLoad) {
+    const modeRadio = tagFilterAccordionLoad.querySelector(`input[name="filterMode"][value="${state.tagFilter.mode}"]`);
     if (modeRadio) modeRadio.checked = true;
   }
-  if (btnTagFilter) {
-    const isFiltering = state.tagFilter.mode !== 'all' && state.tagFilter.selectedTags.size > 0;
-    btnTagFilter.classList.toggle('filtering', isFiltering);
+  // Update unified filter button badge
+  if (typeof updateFilterButtonState === 'function') {
+    updateFilterButtonState();
   }
 
   // Restore UI settings
@@ -41244,6 +41319,13 @@ function handlePathKmlImport(e) {
           const parser = new DOMParser();
           const kmlDoc = parser.parseFromString(event.target.result, 'text/xml');
 
+          // Check for XML parse errors
+          const parseErr = kmlDoc.querySelector('parsererror');
+          if (parseErr) {
+            showToast('KML parse error — file may be malformed');
+            return;
+          }
+
           // Extract each <coordinates> element as a separate segment
           const coordElements = kmlDoc.querySelectorAll('coordinates');
           coordElements.forEach(coordEl => {
@@ -41255,7 +41337,7 @@ function handlePathKmlImport(e) {
               if (parts.length >= 2) {
                 const lon = parseFloat(parts[0]);
                 const lat = parseFloat(parts[1]);
-                if (isFinite(lon) && isFinite(lat)) {
+                if (isFinite(lon) && isFinite(lat) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180) {
                   segCoords.push([lon, lat]);
                 }
               }
@@ -48347,6 +48429,7 @@ function handlePathKmlImport(e) {
   (function kmlStudioIntegration() {
     let kmlStudioWindow = null;
     const KML_STUDIO_URL = 'kml-studio.html';
+    const MSG_ORIGIN = window.location.protocol === 'file:' ? '*' : window.location.origin;
 
     // --- Utility: Extract geographic data from entities ---
     function getNodeGeoData(node) {
@@ -48467,7 +48550,7 @@ function handlePathKmlImport(e) {
       if (kmlStudioWindow && !kmlStudioWindow.closed) {
         kmlStudioWindow.focus();
         if (entities && entities.length > 0) {
-          kmlStudioWindow.postMessage({ type: 'neximap-import', entities }, '*');
+          kmlStudioWindow.postMessage({ type: 'neximap-import', entities }, MSG_ORIGIN);
           showToast('Sent ' + entities.length + ' entity(s) to KML Studio');
         }
         return;
@@ -48487,7 +48570,7 @@ function handlePathKmlImport(e) {
         const checkReady = setInterval(() => {
           try {
             if (kmlStudioWindow.closed) { clearInterval(checkReady); return; }
-            kmlStudioWindow.postMessage({ type: 'neximap-ping' }, '*');
+            kmlStudioWindow.postMessage({ type: 'neximap-ping' }, MSG_ORIGIN);
           } catch (e) { /* cross-origin before load */ }
         }, 300);
         kmlStudioWindow._pendingEntities = entities;
@@ -48498,13 +48581,14 @@ function handlePathKmlImport(e) {
     // --- Receive messages from KML Studio ---
     window.addEventListener('message', (event) => {
       if (!event.data || typeof event.data !== 'object') return;
+      if (MSG_ORIGIN !== '*' && event.origin !== window.location.origin) return;
 
       if (event.data.type === 'kml-studio-ready' || event.data.type === 'kml-studio-pong') {
         if (kmlStudioWindow && kmlStudioWindow._pendingEntities) {
           kmlStudioWindow.postMessage({
             type: 'neximap-import',
             entities: kmlStudioWindow._pendingEntities
-          }, '*');
+          }, MSG_ORIGIN);
           showToast('Sent ' + kmlStudioWindow._pendingEntities.length + ' entity(s) to KML Studio');
           delete kmlStudioWindow._pendingEntities;
           if (kmlStudioWindow._readyCheckInterval) {
@@ -48541,7 +48625,7 @@ function handlePathKmlImport(e) {
           }))
         };
         if (event.source) {
-          event.source.postMessage({ type: 'neximap-objects-response', objects }, '*');
+          event.source.postMessage({ type: 'neximap-objects-response', objects }, MSG_ORIGIN);
         }
       }
 
@@ -48567,7 +48651,7 @@ function handlePathKmlImport(e) {
           }
         });
         if (event.source && entities.length > 0) {
-          event.source.postMessage({ type: 'neximap-import', entities }, '*');
+          event.source.postMessage({ type: 'neximap-import', entities }, MSG_ORIGIN);
         }
       }
     });
