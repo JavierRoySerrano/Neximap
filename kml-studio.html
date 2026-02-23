@@ -2235,7 +2235,7 @@ async function importKML(kmlStr, fileName, isHeavy) {
 
     // Check for parse errors
     const parseErr = doc.querySelector('parsererror');
-    if (parseErr) { toast('KML parse error — file may be malformed', 'error'); }
+    if (parseErr) { toast('KML parse error — file may be malformed', 'error'); return; }
 
     if (isHeavy) { updateLoading('Resolving styles...'); await yieldToUI(); }
 
@@ -7517,19 +7517,20 @@ function moveFolderIntoFolder(sourceFolderId, targetFolderId) {
 // NEXIMAP STUDIO INTEGRATION
 // =============================================
 let neximapParent = null; // Reference to opener window
+const NXP_MSG_ORIGIN = window.location.protocol === 'file:' ? '*' : window.location.origin;
 
 // Detect if opened from NexiMap Studio
 (function initNeximapIntegration() {
     const banner = document.getElementById('neximapBanner');
     const sendBtn = document.getElementById('btnSendToNeximap');
-
     // Respond to ping from parent
     window.addEventListener('message', (event) => {
         if (!event.data || typeof event.data !== 'object') return;
+        if (NXP_MSG_ORIGIN !== '*' && event.origin !== window.location.origin) return;
 
         if (event.data.type === 'neximap-ping') {
             neximapParent = event.source;
-            event.source.postMessage({ type: 'kml-studio-pong' }, '*');
+            event.source.postMessage({ type: 'kml-studio-pong' }, NXP_MSG_ORIGIN);
             if (banner) banner.classList.add('show');
             if (sendBtn) sendBtn.classList.add('neximap-connected');
         }
@@ -7546,7 +7547,7 @@ let neximapParent = null; // Reference to opener window
     if (window.opener) {
         neximapParent = window.opener;
         try {
-            window.opener.postMessage({ type: 'kml-studio-ready' }, '*');
+            window.opener.postMessage({ type: 'kml-studio-ready' }, NXP_MSG_ORIGIN);
             if (banner) banner.classList.add('show');
             if (sendBtn) sendBtn.classList.add('neximap-connected');
         } catch (e) { /* cross-origin */ }
@@ -7805,7 +7806,7 @@ window.sendSelectionToNeximap = function() {
     }
 
     try {
-        neximapParent.postMessage({ type: 'kml-export-to-neximap', entities }, '*');
+        neximapParent.postMessage({ type: 'kml-export-to-neximap', entities }, NXP_MSG_ORIGIN);
         toast('Sent ' + entities.length + ' item(s) to NexiMap Studio', 'info');
     } catch (e) {
         toast('Failed to send to NexiMap Studio: ' + e.message, 'error');
@@ -7842,13 +7843,14 @@ window.refreshNeximapObjects = function() {
             return;
         }
     }
-    neximapParent.postMessage({ type: 'kml-request-neximap-objects' }, '*');
+    neximapParent.postMessage({ type: 'kml-request-neximap-objects' }, NXP_MSG_ORIGIN);
     toast('Refreshing NexiMap objects...', 'info');
 };
 
 // Listen for Neximap objects response
 window.addEventListener('message', (event) => {
     if (!event.data || typeof event.data !== 'object') return;
+    if (NXP_MSG_ORIGIN !== '*' && event.origin !== window.location.origin) return;
     if (event.data.type === 'neximap-objects-response') {
         neximapObjects = event.data.objects || { nodes: [], links: [], containers: [] };
         renderNeximapPanel();
@@ -8061,7 +8063,7 @@ function handleKMLToNeximapDrop(kmlItems, targetType, targetId, targetName) {
 function handleNeximapToKMLDrop(nxpItems) {
     if (!nxpItems || nxpItems.length === 0 || !neximapParent) return;
     // Request geo data from Neximap parent and it will send via neximap-import
-    neximapParent.postMessage({ type: 'kml-request-entity-geo', items: nxpItems }, '*');
+    neximapParent.postMessage({ type: 'kml-request-entity-geo', items: nxpItems }, NXP_MSG_ORIGIN);
 }
 
 // Confirmation dialog for transfers
@@ -8112,7 +8114,7 @@ function showTransferConfirmDialog(assignments, direction) {
                 layers: a.layers,
                 geometry: a.geometry
             }));
-            neximapParent.postMessage({ type: 'kml-assign-to-neximap', assignments: msgs }, '*');
+            neximapParent.postMessage({ type: 'kml-assign-to-neximap', assignments: msgs }, NXP_MSG_ORIGIN);
             toast('Sent ' + assignments.length + ' assignment(s) to NexiMap', 'info');
         }
         overlay.remove();

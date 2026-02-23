@@ -41244,6 +41244,13 @@ function handlePathKmlImport(e) {
           const parser = new DOMParser();
           const kmlDoc = parser.parseFromString(event.target.result, 'text/xml');
 
+          // Check for XML parse errors
+          const parseErr = kmlDoc.querySelector('parsererror');
+          if (parseErr) {
+            showToast('KML parse error — file may be malformed');
+            return;
+          }
+
           // Extract each <coordinates> element as a separate segment
           const coordElements = kmlDoc.querySelectorAll('coordinates');
           coordElements.forEach(coordEl => {
@@ -41255,7 +41262,7 @@ function handlePathKmlImport(e) {
               if (parts.length >= 2) {
                 const lon = parseFloat(parts[0]);
                 const lat = parseFloat(parts[1]);
-                if (isFinite(lon) && isFinite(lat)) {
+                if (isFinite(lon) && isFinite(lat) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180) {
                   segCoords.push([lon, lat]);
                 }
               }
@@ -48347,6 +48354,7 @@ function handlePathKmlImport(e) {
   (function kmlStudioIntegration() {
     let kmlStudioWindow = null;
     const KML_STUDIO_URL = 'kml-studio.html';
+    const MSG_ORIGIN = window.location.protocol === 'file:' ? '*' : window.location.origin;
 
     // --- Utility: Extract geographic data from entities ---
     function getNodeGeoData(node) {
@@ -48467,7 +48475,7 @@ function handlePathKmlImport(e) {
       if (kmlStudioWindow && !kmlStudioWindow.closed) {
         kmlStudioWindow.focus();
         if (entities && entities.length > 0) {
-          kmlStudioWindow.postMessage({ type: 'neximap-import', entities }, '*');
+          kmlStudioWindow.postMessage({ type: 'neximap-import', entities }, MSG_ORIGIN);
           showToast('Sent ' + entities.length + ' entity(s) to KML Studio');
         }
         return;
@@ -48487,7 +48495,7 @@ function handlePathKmlImport(e) {
         const checkReady = setInterval(() => {
           try {
             if (kmlStudioWindow.closed) { clearInterval(checkReady); return; }
-            kmlStudioWindow.postMessage({ type: 'neximap-ping' }, '*');
+            kmlStudioWindow.postMessage({ type: 'neximap-ping' }, MSG_ORIGIN);
           } catch (e) { /* cross-origin before load */ }
         }, 300);
         kmlStudioWindow._pendingEntities = entities;
@@ -48498,13 +48506,14 @@ function handlePathKmlImport(e) {
     // --- Receive messages from KML Studio ---
     window.addEventListener('message', (event) => {
       if (!event.data || typeof event.data !== 'object') return;
+      if (MSG_ORIGIN !== '*' && event.origin !== window.location.origin) return;
 
       if (event.data.type === 'kml-studio-ready' || event.data.type === 'kml-studio-pong') {
         if (kmlStudioWindow && kmlStudioWindow._pendingEntities) {
           kmlStudioWindow.postMessage({
             type: 'neximap-import',
             entities: kmlStudioWindow._pendingEntities
-          }, '*');
+          }, MSG_ORIGIN);
           showToast('Sent ' + kmlStudioWindow._pendingEntities.length + ' entity(s) to KML Studio');
           delete kmlStudioWindow._pendingEntities;
           if (kmlStudioWindow._readyCheckInterval) {
@@ -48541,7 +48550,7 @@ function handlePathKmlImport(e) {
           }))
         };
         if (event.source) {
-          event.source.postMessage({ type: 'neximap-objects-response', objects }, '*');
+          event.source.postMessage({ type: 'neximap-objects-response', objects }, MSG_ORIGIN);
         }
       }
 
@@ -48567,7 +48576,7 @@ function handlePathKmlImport(e) {
           }
         });
         if (event.source && entities.length > 0) {
-          event.source.postMessage({ type: 'neximap-import', entities }, '*');
+          event.source.postMessage({ type: 'neximap-import', entities }, MSG_ORIGIN);
         }
       }
     });
