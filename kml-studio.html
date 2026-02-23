@@ -143,6 +143,14 @@ header {
     border-color: var(--accent);
 }
 .tool-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+.tool-btn.locked {
+    background: #fef3c7;
+    color: #b45309;
+    border-color: #f59e0b;
+}
+.tool-btn.locked:hover {
+    background: #fde68a;
+}
 
 .spacer { flex: 1; }
 
@@ -1258,6 +1266,9 @@ header {
     <button class="tool-btn" id="btnEraser" onclick="toggleEraserMode()" title="Eraser: drag across map to delete features">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16c-.8-.8-.8-2 0-2.8l10-10c.8-.8 2-.8 2.8 0l5.6 5.6c.8.8.8 2 0 2.8L16 17"/><path d="M6 11l7 7"/></svg>
     </button>
+    <button class="tool-btn" id="btnLockMove" onclick="toggleLockMovement()" title="Lock movement — prevent accidental dragging of vertices and pins">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+    </button>
 
     <div class="tool-sep"></div>
 
@@ -1944,6 +1955,8 @@ let selectedFolderId = null; // Folder selection
 let selectedFolderIds = new Set(); // Multi-folder selection set
 let editMode = false;
 let addPointMode = false;
+let lockMovement = false;
+const DRAG_THRESHOLD_PX = 5; // Minimum pixels before a drag commits
 let ctxTargetId = null;
 
 // === UNDO / REDO SYSTEM ===
@@ -2635,7 +2648,7 @@ function renderMapLayers() {
                 iconSize: [24, 36],
                 iconAnchor: [12, 36]
             });
-            layer.leafletLayer = L.marker(layer.coords[0], { icon, interactive: true, draggable: true }).addTo(map);
+            layer.leafletLayer = L.marker(layer.coords[0], { icon, interactive: true, draggable: !lockMovement }).addTo(map);
             layer.leafletLayer.on('click', (e) => {
                 L.DomEvent.stopPropagation(e);
                 if (e.originalEvent.ctrlKey || e.originalEvent.metaKey) {
@@ -2647,20 +2660,42 @@ function renderMapLayers() {
                     selectLayer(layer.id);
                 }
             });
-            // Draggable pin: update coords on drag (no mousedown handler - it breaks map panning on simple clicks)
-            layer.leafletLayer.on('dragstart', () => { map.dragging.disable(); });
+            // Draggable pin: update coords on drag with threshold to prevent accidental moves
+            layer.leafletLayer.on('dragstart', (e) => {
+                if (lockMovement) return;
+                e.target._dragStartLatLng = e.target.getLatLng();
+                e.target._dragThresholdMet = false;
+                map.dragging.disable();
+            });
             layer.leafletLayer.on('drag', (e) => {
+                if (lockMovement) return;
                 const ll = e.target.getLatLng();
+                // Check drag threshold before committing movement
+                if (!e.target._dragThresholdMet && e.target._dragStartLatLng) {
+                    const startPt = map.latLngToContainerPoint(e.target._dragStartLatLng);
+                    const curPt = map.latLngToContainerPoint(ll);
+                    const dist = startPt.distanceTo(curPt);
+                    if (dist < DRAG_THRESHOLD_PX) return; // Ignore micro-movement
+                    e.target._dragThresholdMet = true;
+                }
                 layer.coords[0] = [ll.lat, ll.lng];
                 if (selectedLayerId === layer.id) updatePropsPanel();
             });
             layer.leafletLayer.on('dragend', (e) => {
                 map.dragging.enable();
+                if (lockMovement) return;
                 const ll = e.target.getLatLng();
-                layer.coords[0] = [ll.lat, ll.lng];
-                layer.originalCoords = JSON.parse(JSON.stringify(layer.coords));
+                // If threshold was never met, snap back to original position
+                if (!e.target._dragThresholdMet && e.target._dragStartLatLng) {
+                    const orig = e.target._dragStartLatLng;
+                    e.target.setLatLng(orig);
+                    layer.coords[0] = [orig.lat, orig.lng];
+                } else {
+                    layer.coords[0] = [ll.lat, ll.lng];
+                    layer.originalCoords = JSON.parse(JSON.stringify(layer.coords));
+                    toast('Pin moved to ' + ll.lat.toFixed(4) + ', ' + ll.lng.toFixed(4), 'info');
+                }
                 if (selectedLayerId === layer.id) updatePropsPanel();
-                toast('Pin moved to ' + ll.lat.toFixed(4) + ', ' + ll.lng.toFixed(4), 'info');
             });
         }
 
@@ -2817,24 +2852,45 @@ function renderVertexMarkers(layer) {
             iconAnchor: isEnd ? [6, 6] : [5, 5]
         });
 
-        const marker = L.marker(coord, { icon, draggable: true, zIndexOffset: 2000 }).addTo(map);
+        const marker = L.marker(coord, { icon, draggable: !lockMovement, zIndexOffset: 2000 }).addTo(map);
 
         // Prevent map drag when dragging marker
-        marker.on('mousedown', () => { map.dragging.disable(); });
-        marker.on('dragstart', () => {
+        marker.on('mousedown', () => { if (!lockMovement) map.dragging.disable(); });
+        marker.on('dragstart', (e) => {
+            if (lockMovement) return;
+            marker._dragStartLatLng = e.target.getLatLng();
+            marker._dragThresholdMet = false;
             pushUndo();
             map.dragging.disable();
             if (marker.getElement()) marker.getElement().classList.add('dragging');
         });
         marker.on('drag', (e) => {
+            if (lockMovement) return;
             const ll = e.target.getLatLng();
+            // Check drag threshold before committing movement
+            if (!marker._dragThresholdMet && marker._dragStartLatLng) {
+                const startPt = map.latLngToContainerPoint(marker._dragStartLatLng);
+                const curPt = map.latLngToContainerPoint(ll);
+                const dist = startPt.distanceTo(curPt);
+                if (dist < DRAG_THRESHOLD_PX) return; // Ignore micro-movement
+                marker._dragThresholdMet = true;
+            }
             layer.coords[idx] = [ll.lat, ll.lng];
             if (layer.leafletLayer) layer.leafletLayer.setLatLngs(layer.coords);
         });
         marker.on('dragend', (e) => {
             map.dragging.enable();
+            if (lockMovement) return;
             const ll = e.target.getLatLng();
-            layer.coords[idx] = [ll.lat, ll.lng];
+            // If threshold was never met, snap back to original position
+            if (!marker._dragThresholdMet && marker._dragStartLatLng) {
+                const orig = marker._dragStartLatLng;
+                e.target.setLatLng(orig);
+                layer.coords[idx] = [orig.lat, orig.lng];
+                if (layer.leafletLayer) layer.leafletLayer.setLatLngs(layer.coords);
+            } else {
+                layer.coords[idx] = [ll.lat, ll.lng];
+            }
             if (marker.getElement()) marker.getElement().classList.remove('dragging');
             updateStatus();
         });
@@ -3650,6 +3706,15 @@ function chainSimplifiedSegments(segments) {
         chains.reduce((s, c) => s + c.coords.length, 0) + ' pts)');
     return chains;
 }
+
+// === LOCK MOVEMENT ===
+window.toggleLockMovement = function() {
+    lockMovement = !lockMovement;
+    document.getElementById('btnLockMove').classList.toggle('locked', lockMovement);
+    // Re-render to apply/remove draggable state on markers
+    renderMapLayers();
+    toast(lockMovement ? 'Movement locked — vertices and pins cannot be dragged' : 'Movement unlocked — drag enabled', 'info');
+};
 
 // === EDIT MODE ===
 window.toggleEditMode = function() {
