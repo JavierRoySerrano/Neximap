@@ -568,7 +568,7 @@ header {
 
 /* Print styles */
 @media print {
-    header, #leftPanel, #rightPanel, .resize-handle,
+    header, #leftPanel, #rightPanel, #neximapPanel, .resize-handle,
     #mapLayerSelector, #editBanner, #distancePanel,
     #ctxMenu, #toastContainer, #logoOverlay,
     .menu-dropdown, #pinTypeWindow, #colorPalette,
@@ -1112,6 +1112,104 @@ header {
 }
 #neximapBanner button:hover { background: rgba(255,255,255,0.35); }
 #btnSendToNeximap.neximap-connected { color: #22c55e !important; }
+
+/* === NEXIMAP INTEGRATION PANEL (right side) === */
+#neximapPanel {
+    width: 260px; min-width: 200px; max-width: 360px;
+    background: var(--bg-panel); border-left: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden;
+    transition: width 0.2s, min-width 0.2s, opacity 0.2s;
+}
+#neximapPanel.hidden {
+    width: 0; min-width: 0; overflow: hidden; border-left: none; opacity: 0; padding: 0;
+}
+#neximapPanel .panel-header {
+    background: linear-gradient(135deg, #5a67d8 0%, #4c51bf 100%);
+    color: white; border-bottom: none;
+}
+#neximapPanel .panel-header h3 { color: rgba(255,255,255,0.9); }
+#neximapPanel .nxp-refresh-btn {
+    background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+    color: white; padding: 2px 6px; border-radius: 3px; cursor: pointer;
+    font-size: 10px; font-family: var(--font); display: flex; align-items: center; gap: 3px;
+}
+#neximapPanel .nxp-refresh-btn:hover { background: rgba(255,255,255,0.35); }
+#neximapPanel .nxp-section {
+    border-bottom: 1px solid var(--border); background: white;
+}
+#neximapPanel .nxp-section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 10px; cursor: pointer; user-select: none;
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--text-muted);
+}
+#neximapPanel .nxp-section-header:hover { background: var(--bg-hover); }
+#neximapPanel .nxp-section-header .nxp-count {
+    font-size: 10px; font-weight: 400; background: #eee;
+    padding: 0 6px; border-radius: 8px;
+}
+#neximapPanel .nxp-section-body { max-height: 300px; overflow-y: auto; }
+#neximapPanel .nxp-section-body.collapsed { display: none; }
+#neximapPanel .nxp-item {
+    display: flex; align-items: center; padding: 4px 10px; gap: 6px;
+    cursor: grab; font-size: 11px; color: var(--text-secondary);
+    border-bottom: 1px solid #f5f5f5; transition: background 0.1s;
+    user-select: none;
+}
+#neximapPanel .nxp-item:hover { background: var(--bg-hover); }
+#neximapPanel .nxp-item.selected { background: var(--bg-selected); }
+#neximapPanel .nxp-item.no-geo { opacity: 0.5; cursor: not-allowed; }
+#neximapPanel .nxp-item .nxp-icon { flex-shrink: 0; width: 14px; text-align: center; font-size: 10px; }
+#neximapPanel .nxp-item .nxp-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#neximapPanel .nxp-item .nxp-geo-badge {
+    font-size: 9px; padding: 1px 5px; border-radius: 3px; flex-shrink: 0;
+}
+#neximapPanel .nxp-item .nxp-geo-badge.has-geo { background: #ecfdf5; color: var(--success); }
+#neximapPanel .nxp-item .nxp-geo-badge.no-geo { background: #fef2f2; color: var(--danger); }
+#neximapPanel .nxp-item.drag-over { outline: 2px dashed var(--accent); outline-offset: -2px; }
+#neximapPanel .nxp-empty {
+    padding: 12px 10px; font-size: 11px; color: var(--text-muted); text-align: center;
+}
+#neximapPanel .nxp-drop-zone {
+    margin: 8px; padding: 12px; border: 2px dashed var(--border);
+    border-radius: 6px; text-align: center; font-size: 11px; color: var(--text-muted);
+    transition: all 0.2s;
+}
+#neximapPanel .nxp-drop-zone.drag-active {
+    border-color: var(--accent); background: var(--accent-light); color: var(--accent);
+}
+
+/* Neximap panel toggle button in toolbar */
+#btnNeximapPanel.active { background: #5a67d8; color: white !important; border-color: #5a67d8; }
+
+/* Confirm overlay for transfers */
+.nxp-confirm-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+}
+.nxp-confirm-box {
+    background: white; border-radius: 10px; box-shadow: var(--shadow-lg);
+    max-width: 420px; width: 90%; overflow: hidden;
+}
+.nxp-confirm-header {
+    padding: 12px 16px; font-size: 13px; font-weight: 600;
+    border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
+    background: var(--bg-header);
+}
+.nxp-confirm-body { padding: 14px 16px; font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+.nxp-confirm-body table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+.nxp-confirm-body th { text-align: left; padding: 4px 8px; font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+.nxp-confirm-body td { padding: 4px 8px; font-size: 11px; border-top: 1px solid #f3f4f6; }
+.nxp-confirm-footer {
+    padding: 10px 16px; display: flex; gap: 8px; justify-content: flex-end;
+    border-top: 1px solid var(--border);
+}
+.nxp-confirm-footer button {
+    padding: 6px 16px; border-radius: 5px; font-size: 12px; cursor: pointer;
+    border: 1px solid var(--border); background: white; color: var(--text); font-family: var(--font);
+}
+.nxp-confirm-footer button.primary { background: #5a67d8; color: white; border-color: #5a67d8; }
+.nxp-confirm-footer button:hover { opacity: 0.85; }
 </style>
 </head>
 <body>
@@ -1184,7 +1282,11 @@ header {
     <!-- NexiMap Integration -->
     <button class="tool-btn" id="btnSendToNeximap" onclick="sendSelectionToNeximap()" title="Send selected folder/pins to NexiMap Studio" style="color:#5a67d8;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/></svg>
-        <span style="font-size:10px; margin-left:2px;">NexiMap</span>
+        <span style="font-size:10px; margin-left:2px;">Send</span>
+    </button>
+    <button class="tool-btn" id="btnNeximapPanel" onclick="toggleNeximapPanel()" title="Toggle NexiMap Objects panel — browse and drag Neximap nodes, links, containers" style="color:#5a67d8;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/><path d="M18 8h-3M18 12h-3M18 16h-3"/></svg>
+        <span style="font-size:10px; margin-left:2px;">Objects</span>
     </button>
 
     <div class="spacer"></div>
@@ -1495,6 +1597,49 @@ header {
                 <button class="prop-btn" onclick="joinSelectedSegments()" style="background:#e67e22;color:white;">&#x1F517; Join into Single Line</button>
                 <div style="height:5px;"></div>
                 <button class="prop-btn danger" onclick="deleteMultiSelected()">Delete Selected</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEXIMAP OBJECTS PANEL -->
+    <div id="neximapPanel" class="hidden">
+        <div class="panel-header">
+            <h3>NexiMap Objects</h3>
+            <div class="panel-actions">
+                <button class="nxp-refresh-btn" onclick="refreshNeximapObjects()" title="Refresh objects from NexiMap">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+        <div id="nxpContent">
+            <!-- Drop zone for dragging KML items onto Neximap objects -->
+            <div class="nxp-drop-zone" id="nxpDropZone">
+                Drag KML layers here to assign to NexiMap objects
+            </div>
+            <!-- Nodes section -->
+            <div class="nxp-section" id="nxpNodesSection">
+                <div class="nxp-section-header" onclick="toggleNxpSection('nodes')">
+                    Nodes <span class="nxp-count" id="nxpNodesCount">0</span>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" id="nxpNodesToggle"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="nxp-section-body" id="nxpNodesList"></div>
+            </div>
+            <!-- Links section -->
+            <div class="nxp-section" id="nxpLinksSection">
+                <div class="nxp-section-header" onclick="toggleNxpSection('links')">
+                    Links <span class="nxp-count" id="nxpLinksCount">0</span>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" id="nxpLinksToggle"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="nxp-section-body" id="nxpLinksList"></div>
+            </div>
+            <!-- Containers section -->
+            <div class="nxp-section" id="nxpContainersSection">
+                <div class="nxp-section-header" onclick="toggleNxpSection('containers')">
+                    Containers <span class="nxp-count" id="nxpContainersCount">0</span>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" id="nxpContainersToggle"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="nxp-section-body" id="nxpContainersList"></div>
             </div>
         </div>
     </div>
@@ -2840,10 +2985,20 @@ function createFolderEl(folder) {
         else if (data) { moveLayerToFolder(data, folder.id); }
     });
 
+    header.dataset.folderId = folder.id;
     div.addEventListener('dragstart', (e) => {
         if (e.target !== div) return;
         e.dataTransfer.setData('text/plain', 'FOLDER:' + folder.id);
-        e.dataTransfer.effectAllowed = 'move'; e.stopPropagation();
+        // Also set KML folder data for cross-panel drag
+        const dragItems = [];
+        if (selectedFolderIds.size > 0) {
+            selectedFolderIds.forEach(id => dragItems.push({ type: 'folder', id }));
+            if (!selectedFolderIds.has(folder.id)) dragItems.push({ type: 'folder', id: folder.id });
+        } else {
+            dragItems.push({ type: 'folder', id: folder.id });
+        }
+        e.dataTransfer.setData('application/kml-layer-items', JSON.stringify(dragItems));
+        e.dataTransfer.effectAllowed = 'copyMove'; e.stopPropagation();
     });
 
     div.appendChild(header);
@@ -2867,6 +3022,7 @@ function createFolderEl(folder) {
             + (selectedLayerId === layer.id ? ' selected' : '')
             + (selectedLayerIds.has(layer.id) && selectedLayerId !== layer.id ? ' multi-selected' : '');
         item.draggable = true;
+        item.dataset.id = layer.id;
 
         const typeIcon = layer.type === 'line'
             ? '<svg class="tree-line-icon" viewBox="0 0 20 8" fill="none"><polyline points="1,6 6,2 14,5 19,1" stroke="' + layer.color + '" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
@@ -2928,7 +3084,16 @@ function createFolderEl(folder) {
 
         item.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('text/plain', layer.id);
-            e.dataTransfer.effectAllowed = 'move';
+            // Also set KML layer data for cross-panel drag
+            const dragItems = [];
+            if (selectedLayerIds.size > 0) {
+                selectedLayerIds.forEach(id => dragItems.push({ type: 'layer', id }));
+                if (!selectedLayerIds.has(layer.id)) dragItems.push({ type: 'layer', id: layer.id });
+            } else {
+                dragItems.push({ type: 'layer', id: layer.id });
+            }
+            e.dataTransfer.setData('application/kml-layer-items', JSON.stringify(dragItems));
+            e.dataTransfer.effectAllowed = 'copyMove';
         });
 
         children.appendChild(item);
@@ -7577,6 +7742,385 @@ window.sendSelectionToNeximap = function() {
         toast('Failed to send to NexiMap Studio: ' + e.message, 'error');
     }
 }
+
+// =============================================
+// NEXIMAP OBJECTS PANEL (Right side integration)
+// =============================================
+let neximapObjects = { nodes: [], links: [], containers: [] };
+let nxpSelectedItems = new Set(); // Multi-select: 'node-1', 'link-5', 'container-3'
+let neximapPanelVisible = false;
+
+window.toggleNeximapPanel = function() {
+    const panel = document.getElementById('neximapPanel');
+    const btn = document.getElementById('btnNeximapPanel');
+    neximapPanelVisible = !neximapPanelVisible;
+    if (neximapPanelVisible) {
+        panel.classList.remove('hidden');
+        if (btn) btn.classList.add('active');
+        refreshNeximapObjects();
+    } else {
+        panel.classList.add('hidden');
+        if (btn) btn.classList.remove('active');
+    }
+};
+
+window.refreshNeximapObjects = function() {
+    if (!neximapParent || neximapParent.closed) {
+        if (window.opener && !window.opener.closed) {
+            neximapParent = window.opener;
+        } else {
+            toast('Not connected to NexiMap Studio', 'warning');
+            return;
+        }
+    }
+    neximapParent.postMessage({ type: 'kml-request-neximap-objects' }, '*');
+    toast('Refreshing NexiMap objects...', 'info');
+};
+
+// Listen for Neximap objects response
+window.addEventListener('message', (event) => {
+    if (!event.data || typeof event.data !== 'object') return;
+    if (event.data.type === 'neximap-objects-response') {
+        neximapObjects = event.data.objects || { nodes: [], links: [], containers: [] };
+        renderNeximapPanel();
+        toast('Loaded ' + (neximapObjects.nodes.length + neximapObjects.links.length + neximapObjects.containers.length) + ' NexiMap objects', 'info');
+    }
+});
+
+window.toggleNxpSection = function(section) {
+    const body = document.getElementById('nxp' + section.charAt(0).toUpperCase() + section.slice(1) + 'List');
+    const toggle = document.getElementById('nxp' + section.charAt(0).toUpperCase() + section.slice(1) + 'Toggle');
+    if (body) {
+        body.classList.toggle('collapsed');
+        if (toggle) toggle.style.transform = body.classList.contains('collapsed') ? 'rotate(-90deg)' : '';
+    }
+};
+
+function renderNeximapPanel() {
+    // Nodes
+    const nodesList = document.getElementById('nxpNodesList');
+    const nodesCount = document.getElementById('nxpNodesCount');
+    if (nodesCount) nodesCount.textContent = neximapObjects.nodes.length;
+    if (nodesList) {
+        if (neximapObjects.nodes.length === 0) {
+            nodesList.innerHTML = '<div class="nxp-empty">No nodes in project</div>';
+        } else {
+            nodesList.innerHTML = neximapObjects.nodes.map(n =>
+                '<div class="nxp-item' + (n.hasGeo ? '' : ' no-geo') + (nxpSelectedItems.has('node-' + n.id) ? ' selected' : '') + '"' +
+                ' data-nxp-type="node" data-nxp-id="' + n.id + '"' +
+                ' draggable="' + (n.hasGeo ? 'true' : 'false') + '"' +
+                ' title="' + (n.hasGeo ? 'Drag to KML map to import' : 'No GPS coordinates — cannot move to KML editor') + '">' +
+                '<span class="nxp-icon">&#9679;</span>' +
+                '<span class="nxp-name">' + escapeHTML(n.name) + '</span>' +
+                '<span class="nxp-geo-badge ' + (n.hasGeo ? 'has-geo' : 'no-geo') + '">' + (n.hasGeo ? 'GPS' : 'No GPS') + '</span>' +
+                '</div>'
+            ).join('');
+        }
+    }
+
+    // Links
+    const linksList = document.getElementById('nxpLinksList');
+    const linksCount = document.getElementById('nxpLinksCount');
+    if (linksCount) linksCount.textContent = neximapObjects.links.length;
+    if (linksList) {
+        if (neximapObjects.links.length === 0) {
+            linksList.innerHTML = '<div class="nxp-empty">No links in project</div>';
+        } else {
+            linksList.innerHTML = neximapObjects.links.map(l =>
+                '<div class="nxp-item' + (l.hasGeo ? '' : ' no-geo') + (nxpSelectedItems.has('link-' + l.id) ? ' selected' : '') + '"' +
+                ' data-nxp-type="link" data-nxp-id="' + l.id + '"' +
+                ' draggable="' + (l.hasGeo ? 'true' : 'false') + '"' +
+                ' title="' + (l.hasGeo ? 'Drag to KML map to import' : 'No geo geometry — cannot move to KML editor') + '">' +
+                '<span class="nxp-icon">&#9473;</span>' +
+                '<span class="nxp-name">' + escapeHTML(l.name) + ' <span style="font-size:9px;color:var(--text-muted);">(' + escapeHTML(l.aNodeName) + ' — ' + escapeHTML(l.bNodeName) + ')</span></span>' +
+                '<span class="nxp-geo-badge ' + (l.hasGeo ? 'has-geo' : 'no-geo') + '">' + (l.hasGeo ? 'Geo' : 'No Geo') + '</span>' +
+                '</div>'
+            ).join('');
+        }
+    }
+
+    // Containers
+    const containersList = document.getElementById('nxpContainersList');
+    const containersCount = document.getElementById('nxpContainersCount');
+    if (containersCount) containersCount.textContent = neximapObjects.containers.length;
+    if (containersList) {
+        if (neximapObjects.containers.length === 0) {
+            containersList.innerHTML = '<div class="nxp-empty">No containers in project</div>';
+        } else {
+            containersList.innerHTML = neximapObjects.containers.map(c =>
+                '<div class="nxp-item' + (c.hasGeo ? '' : ' no-geo') + (nxpSelectedItems.has('container-' + c.id) ? ' selected' : '') + '"' +
+                ' data-nxp-type="container" data-nxp-id="' + c.id + '"' +
+                ' draggable="' + (c.hasGeo ? 'true' : 'false') + '"' +
+                ' title="' + (c.hasGeo ? 'Drag to KML map to import' : 'No geo geometry — cannot move to KML editor') + '">' +
+                '<span class="nxp-icon">&#9634;</span>' +
+                '<span class="nxp-name">' + escapeHTML(c.name) + '</span>' +
+                '<span class="nxp-geo-badge ' + (c.hasGeo ? 'has-geo' : 'no-geo') + '">' + (c.hasGeo ? 'GPS' : 'No GPS') + '</span>' +
+                '</div>'
+            ).join('');
+        }
+    }
+
+    // Attach event listeners
+    attachNxpItemListeners();
+}
+
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function attachNxpItemListeners() {
+    const items = document.querySelectorAll('#neximapPanel .nxp-item');
+    items.forEach(el => {
+        // Click to select (with multi-select via Shift/Ctrl)
+        el.addEventListener('click', (e) => {
+            const key = el.dataset.nxpType + '-' + el.dataset.nxpId;
+            if (e.ctrlKey || e.metaKey) {
+                if (nxpSelectedItems.has(key)) nxpSelectedItems.delete(key);
+                else nxpSelectedItems.add(key);
+            } else if (e.shiftKey) {
+                nxpSelectedItems.add(key);
+            } else {
+                nxpSelectedItems.clear();
+                nxpSelectedItems.add(key);
+            }
+            // Update visual selection
+            items.forEach(i => {
+                const k = i.dataset.nxpType + '-' + i.dataset.nxpId;
+                i.classList.toggle('selected', nxpSelectedItems.has(k));
+            });
+        });
+
+        // Drag start — drag Neximap items to KML map (left panel)
+        el.addEventListener('dragstart', (e) => {
+            if (el.classList.contains('no-geo')) { e.preventDefault(); return; }
+            const key = el.dataset.nxpType + '-' + el.dataset.nxpId;
+            // Include this item in selection if not already
+            if (!nxpSelectedItems.has(key)) {
+                nxpSelectedItems.clear();
+                nxpSelectedItems.add(key);
+                items.forEach(i => {
+                    const k = i.dataset.nxpType + '-' + i.dataset.nxpId;
+                    i.classList.toggle('selected', nxpSelectedItems.has(k));
+                });
+            }
+            // Prepare drag data
+            const dragItems = Array.from(nxpSelectedItems).map(k => {
+                const [type, id] = k.split('-');
+                return { type, id: parseInt(id) };
+            });
+            e.dataTransfer.setData('application/neximap-panel-items', JSON.stringify(dragItems));
+            e.dataTransfer.effectAllowed = 'copy';
+        });
+
+        // Drop zone: allow dropping KML items onto specific Neximap objects
+        el.addEventListener('dragover', (e) => {
+            if (e.dataTransfer.types.includes('application/kml-layer-items')) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+                el.classList.add('drag-over');
+            }
+        });
+        el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+        el.addEventListener('drop', (e) => {
+            e.preventDefault();
+            el.classList.remove('drag-over');
+            const data = e.dataTransfer.getData('application/kml-layer-items');
+            if (!data) return;
+            try {
+                const kmlItems = JSON.parse(data);
+                const targetType = el.dataset.nxpType;
+                const targetId = parseInt(el.dataset.nxpId);
+                const targetName = el.querySelector('.nxp-name')?.textContent || '';
+                handleKMLToNeximapDrop(kmlItems, targetType, targetId, targetName);
+            } catch (ex) { console.error('Drop parse error:', ex); }
+        });
+    });
+}
+
+// Handle dropping KML layers onto a specific Neximap object
+function handleKMLToNeximapDrop(kmlItems, targetType, targetId, targetName) {
+    if (!kmlItems || kmlItems.length === 0) return;
+
+    // Build assignment preview
+    const assignments = [];
+    kmlItems.forEach(item => {
+        if (item.type === 'layer') {
+            const layer = projectData.layers[item.id];
+            if (!layer) return;
+            if (targetType === 'link' && layer.type === 'line') {
+                assignments.push({
+                    entityType: 'line', sourceId: item.id, sourceName: layer.name,
+                    targetType, targetId, targetName,
+                    layers: [{ name: layer.name, type: 'line', coords: JSON.parse(JSON.stringify(layer.coords)) }]
+                });
+            } else if ((targetType === 'node' || targetType === 'container') && layer.type === 'point') {
+                assignments.push({
+                    entityType: 'pin', sourceId: item.id, sourceName: layer.name,
+                    targetType, targetId, targetName,
+                    lat: layer.coords[0][0], lng: layer.coords[0][1]
+                });
+            }
+        } else if (item.type === 'folder') {
+            const folder = projectData.folders.find(f => f.id === item.id);
+            if (!folder) return;
+            if (targetType === 'link') {
+                const layers = [];
+                folder.items.forEach(lid => {
+                    const l = projectData.layers[lid];
+                    if (l && l.type === 'line') layers.push({ name: l.name, type: 'line', coords: JSON.parse(JSON.stringify(l.coords)) });
+                });
+                if (layers.length > 0) {
+                    assignments.push({
+                        entityType: 'folder', sourceId: item.id, sourceName: folder.name,
+                        targetType, targetId, targetName, layers
+                    });
+                }
+            }
+        }
+    });
+
+    if (assignments.length === 0) {
+        toast('Incompatible: cannot assign these KML items to ' + targetType + ' "' + targetName + '"', 'warning');
+        return;
+    }
+
+    showTransferConfirmDialog(assignments, 'kml-to-neximap');
+}
+
+// Handle dropping Neximap items onto the KML map (via folderTree drop zone)
+function handleNeximapToKMLDrop(nxpItems) {
+    if (!nxpItems || nxpItems.length === 0 || !neximapParent) return;
+    // Request geo data from Neximap parent and it will send via neximap-import
+    neximapParent.postMessage({ type: 'kml-request-entity-geo', items: nxpItems }, '*');
+}
+
+// Confirmation dialog for transfers
+function showTransferConfirmDialog(assignments, direction) {
+    const overlay = document.createElement('div');
+    overlay.className = 'nxp-confirm-overlay';
+
+    let bodyHTML = '';
+    if (direction === 'kml-to-neximap') {
+        bodyHTML = '<div style="margin-bottom:8px;">The following KML items will be assigned to NexiMap objects:</div>';
+        bodyHTML += '<table><tr><th>KML Item</th><th>&#8594;</th><th>NexiMap Target</th></tr>';
+        assignments.forEach(a => {
+            const typeLabel = a.targetType.charAt(0).toUpperCase() + a.targetType.slice(1);
+            bodyHTML += '<tr><td>' + escapeHTML(a.sourceName) + ' <span style="color:var(--text-muted);font-size:10px;">(' + a.entityType + ')</span></td><td style="text-align:center;color:var(--accent);">&#8594;</td><td>' + typeLabel + ': ' + escapeHTML(a.targetName) + '</td></tr>';
+        });
+        bodyHTML += '</table>';
+    }
+
+    overlay.innerHTML = '<div class="nxp-confirm-box">' +
+        '<div class="nxp-confirm-header">' +
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5a67d8" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
+        'Confirm Transfer' +
+        '</div>' +
+        '<div class="nxp-confirm-body">' + bodyHTML + '</div>' +
+        '<div class="nxp-confirm-footer">' +
+        '<button class="nxp-cancel-btn">Cancel</button>' +
+        '<button class="nxp-apply-btn primary">Apply</button>' +
+        '</div></div>';
+
+    document.body.appendChild(overlay);
+
+    overlay.querySelector('.nxp-cancel-btn').addEventListener('click', () => overlay.remove());
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
+    overlay.querySelector('.nxp-apply-btn').addEventListener('click', () => {
+        if (direction === 'kml-to-neximap') {
+            // Send assignments to Neximap parent
+            if (!neximapParent || neximapParent.closed) {
+                toast('Not connected to NexiMap Studio', 'warning');
+                overlay.remove();
+                return;
+            }
+            const msgs = assignments.map(a => ({
+                entityType: a.entityType,
+                targetType: a.targetType,
+                targetId: a.targetId,
+                lat: a.lat, lng: a.lng,
+                layers: a.layers,
+                geometry: a.geometry
+            }));
+            neximapParent.postMessage({ type: 'kml-assign-to-neximap', assignments: msgs }, '*');
+            toast('Sent ' + assignments.length + ' assignment(s) to NexiMap', 'info');
+        }
+        overlay.remove();
+    });
+}
+
+// =============================================
+// DRAG FROM LEFT KML PANEL TO RIGHT NEXIMAP PANEL
+// =============================================
+// (Drag data is set directly in individual tree item/folder dragstart handlers above)
+
+// Drop zone in Neximap panel for general drops (not onto specific items)
+(function initNxpDropZone() {
+    const dropZone = document.getElementById('nxpDropZone');
+    if (!dropZone) return;
+
+    dropZone.addEventListener('dragover', (e) => {
+        if (e.dataTransfer.types.includes('application/kml-layer-items')) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+            dropZone.classList.add('drag-active');
+        }
+    });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-active'));
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-active');
+        toast('Drop KML items directly onto a specific Node, Link, or Container target', 'info');
+    });
+})();
+
+// =============================================
+// DRAG FROM RIGHT NEXIMAP PANEL TO LEFT KML MAP
+// =============================================
+// Allow dropping Neximap panel items onto the map or folder tree
+(function initNeximapToKMLDrop() {
+    const mapContainer = document.getElementById('mapContainer');
+    if (!mapContainer) return;
+
+    mapContainer.addEventListener('dragover', (e) => {
+        if (e.dataTransfer.types.includes('application/neximap-panel-items')) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        }
+    });
+    mapContainer.addEventListener('drop', (e) => {
+        if (!e.dataTransfer.types.includes('application/neximap-panel-items')) return;
+        e.preventDefault();
+        const data = e.dataTransfer.getData('application/neximap-panel-items');
+        if (!data) return;
+        try {
+            const items = JSON.parse(data);
+            handleNeximapToKMLDrop(items);
+        } catch (ex) { console.error('Neximap drop parse error:', ex); }
+    });
+
+    // Also allow dropping onto the folder tree
+    const folderTree = document.getElementById('folderTree');
+    if (folderTree) {
+        folderTree.addEventListener('dragover', (e) => {
+            if (e.dataTransfer.types.includes('application/neximap-panel-items')) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+            }
+        });
+        folderTree.addEventListener('drop', (e) => {
+            if (!e.dataTransfer.types.includes('application/neximap-panel-items')) return;
+            e.preventDefault();
+            const data = e.dataTransfer.getData('application/neximap-panel-items');
+            if (!data) return;
+            try {
+                const items = JSON.parse(data);
+                handleNeximapToKMLDrop(items);
+            } catch (ex) { console.error('Neximap drop parse error:', ex); }
+        });
+    }
+})();
 
 } // end initApp
 </script>
