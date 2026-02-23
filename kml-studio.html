@@ -2176,11 +2176,15 @@ const fileDropOverlay = document.getElementById('fileDropOverlay');
 let fileDragCounter = 0;
 
 // Full-window drag-and-drop: show overlay when files are dragged over the window
+// Only show the overlay when no content is loaded (emptyState visible)
+function hasLoadedContent() {
+    return document.getElementById('emptyState').classList.contains('hidden');
+}
 document.addEventListener('dragenter', (e) => {
     if (!e.dataTransfer || !e.dataTransfer.types.includes('Files')) return;
     e.preventDefault();
     fileDragCounter++;
-    if (fileDragCounter === 1) fileDropOverlay.classList.add('show');
+    if (fileDragCounter === 1 && !hasLoadedContent()) fileDropOverlay.classList.add('show');
 });
 document.addEventListener('dragleave', (e) => {
     if (!e.dataTransfer || !e.dataTransfer.types.includes('Files')) return;

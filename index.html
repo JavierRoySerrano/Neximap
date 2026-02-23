@@ -14233,7 +14233,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
             if (!state.selection.groups.has(g.id)) {
               setSingleSelection({type:'group', id:g.id});
             }
-            state.dragging = { type:'group', id:g.id, dx: g.x - m.x, dy: g.y - m.y };
+            state.dragging = { type:'group', id:g.id, dx: g.x - m.x, dy: g.y - m.y, origX: g.x, origY: g.y };
           }
           path.style.cursor = 'grabbing';
           state.connectFrom = null;
@@ -14345,7 +14345,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
         if (!state.selection.groups.has(g.id)) {
           setSingleSelection({type:'group', id:g.id});
         }
-        state.dragging = { type:'group', id:g.id, dx: g.x - m.x, dy: g.y - m.y };
+        state.dragging = { type:'group', id:g.id, dx: g.x - m.x, dy: g.y - m.y, origX: g.x, origY: g.y };
       }
       rect.style.cursor = "grabbing";
       state.connectFrom = null;
@@ -14357,7 +14357,8 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       const m = getMouse(ev);
       state.dragging = { type:'groupTitleLabel', id:g.id,
         dx: (g.x + 14 + (g.titleDx||0)) - m.x,
-        dy: (g.y + 22 + (g.titleDy||0)) - m.y
+        dy: (g.y + 22 + (g.titleDy||0)) - m.y,
+        origDx: g.titleDx||0, origDy: g.titleDy||0
       };
       select({type:'group', id:g.id});
       state.connectFrom = null;
@@ -15566,7 +15567,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
         if (!state.selection.nodes.has(n.id)) {
           setSingleSelection({type:'node', id:n.id});
         }
-        state.dragging = { type:'node', id:n.id, dx: n.x - m.x, dy: n.y - m.y };
+        state.dragging = { type:'node', id:n.id, dx: n.x - m.x, dy: n.y - m.y, origX: n.x, origY: n.y };
       }
       state.connectFrom = null;
     });
@@ -15578,7 +15579,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
         console.log(`[TEXT MOUSEDOWN] Node ${n.id} - Setting up name label drag`);
         ev.stopPropagation();
         const m = getMouse(ev);
-        state.dragging = { type:'nodeNameLabel', id:n.id, dx: nameX - m.x, dy: nameY - m.y };
+        state.dragging = { type:'nodeNameLabel', id:n.id, dx: nameX - m.x, dy: nameY - m.y, origDx: n.nameDx||0, origDy: n.nameDy||0 };
         select({type:'node', id:n.id});
         state.connectFrom = null;
         render();
@@ -15594,7 +15595,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
         console.log(`[TAGS MOUSEDOWN] Node ${n.id} - Setting up tags drag`);
         ev.stopPropagation();
         const m = getMouse(ev);
-        state.dragging = { type:'nodeTagLabel', id:n.id, dx: tagX - m.x, dy: tagY - m.y };
+        state.dragging = { type:'nodeTagLabel', id:n.id, dx: tagX - m.x, dy: tagY - m.y, origDx: n.tagDx||0, origDy: n.tagDy||0 };
         select({type:'node', id:n.id});
         state.connectFrom = null;
         render();
@@ -18134,6 +18135,54 @@ if (groupTitleFontInline) {
     // Commit changes if we were resizing a node
     if (state.resizingNode) {
       commit();
+    }
+
+    // Commit changes if we were dragging a single node (only if it actually moved)
+    if (state.dragging?.type === 'node') {
+      const n = findNode(state.dragging.id);
+      if (n && (n.x !== state.dragging.origX || n.y !== state.dragging.origY)) {
+        commit();
+      }
+    }
+
+    // Commit changes if we were dragging a selection (only if anything moved)
+    if (state.dragging?.type === 'selection') {
+      const moved = state.dragging.origNodes.some(o => {
+        const n = findNode(o.id);
+        return n && (n.x !== o.x || n.y !== o.y);
+      }) || state.dragging.origGroups.some(o => {
+        const g = findGroup(o.id);
+        return g && (g.x !== o.x || g.y !== o.y);
+      });
+      if (moved) commit();
+    }
+
+    // Commit changes if we were dragging a group (only if it actually moved)
+    if (state.dragging?.type === 'group') {
+      const g = findGroup(state.dragging.id);
+      if (g && (g.x !== state.dragging.origX || g.y !== state.dragging.origY)) {
+        commit();
+      }
+    }
+
+    // Commit changes if we were dragging a label (only if it actually moved)
+    if (state.dragging?.type === 'nodeNameLabel') {
+      const n = findNode(state.dragging.id);
+      if (n && ((n.nameDx||0) !== state.dragging.origDx || (n.nameDy||0) !== state.dragging.origDy)) {
+        commit();
+      }
+    }
+    if (state.dragging?.type === 'nodeTagLabel') {
+      const n = findNode(state.dragging.id);
+      if (n && ((n.tagDx||0) !== state.dragging.origDx || (n.tagDy||0) !== state.dragging.origDy)) {
+        commit();
+      }
+    }
+    if (state.dragging?.type === 'groupTitleLabel') {
+      const g = findGroup(state.dragging.id);
+      if (g && ((g.titleDx||0) !== state.dragging.origDx || (g.titleDy||0) !== state.dragging.origDy)) {
+        commit();
+      }
     }
 
     state.dragging = null;
