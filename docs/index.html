@@ -29833,7 +29833,7 @@ function loadProjectObject(obj) {
 
   // ---- UNIFIED SVG CONTEXTMENU HANDLER ----
   svg.addEventListener('contextmenu', (e) => {
-    // 1. Check for node
+    // 1. Check for direct node element hit
     const nodeTarget = e.target.closest('.node-circle') || e.target.closest('polygon.node-circle');
     if (nodeTarget) {
       const nodeId = parseInt(nodeTarget.closest('g')?.dataset?.nodeId);
@@ -29841,37 +29841,20 @@ function loadProjectObject(obj) {
       if (node) { showNodeContextMenu(e, node); return; }
     }
 
-    // 2. Check for edge (hit area or visible path/line)
-    const edgeTarget = e.target.closest('[data-edge-id]');
-    if (edgeTarget) {
-      const edgeId = parseInt(edgeTarget.getAttribute('data-edge-id'));
-      const edge = findEdge(edgeId);
-      if (edge) { showEdgeContextMenu(e, edge); return; }
-    }
-    // Also check transparent hit areas (no data-edge-id but near an edge)
-    if (e.target.tagName === 'path' || e.target.tagName === 'line') {
-      // Check if it is a hit area sitting next to an edge with data-edge-id
-      const sibling = e.target.previousElementSibling || e.target.nextElementSibling;
-      if (sibling && sibling.getAttribute('data-edge-id')) {
-        const edgeId = parseInt(sibling.getAttribute('data-edge-id'));
-        const edge = findEdge(edgeId);
-        if (edge) { showEdgeContextMenu(e, edge); return; }
-      }
-    }
-
-    // 3. Check for group (container rect)
+    // 2. Check for group (container) – checked BEFORE edges so that edge lines
+    //    overlapping a container don't steal the right-click.
+    //    a) Direct hit on .group-rect element
     const groupRect = e.target.closest('.group-rect');
     if (groupRect) {
       const grpEl = groupRect.closest('g');
       if (grpEl) {
-        // Find group by matching position
         const rx = parseFloat(groupRect.getAttribute('x'));
         const ry = parseFloat(groupRect.getAttribute('y'));
         const grp = state.groups.find(g => Math.abs(g.x - rx) < 1 && Math.abs(g.y - ry) < 1);
         if (grp) { showGroupContextMenu(e, grp); return; }
       }
     }
-    // Also check group title text
+    //    b) Direct hit on group title text
     const groupTitle = e.target.closest('.group-title');
     if (groupTitle) {
       const grpEl = groupTitle.closest('g');
@@ -29883,6 +29866,48 @@ function loadProjectObject(obj) {
           const grp = state.groups.find(g => Math.abs(g.x - rx) < 1 && Math.abs(g.y - ry) < 1);
           if (grp) { showGroupContextMenu(e, grp); return; }
         }
+      }
+    }
+    //    c) Fallback: right-click anywhere inside a SELECTED container's bounds
+    const ctxMouse = getMouse(e);
+    const selGroupIds = new Set(state.selection.groups);
+    if (state.selected?.type === 'group') selGroupIds.add(state.selected.id);
+    for (const gId of selGroupIds) {
+      const g = findGroup(gId);
+      if (g && ctxMouse.x >= g.x && ctxMouse.x <= g.x + g.w &&
+              ctxMouse.y >= g.y && ctxMouse.y <= g.y + g.h) {
+        showGroupContextMenu(e, g); return;
+      }
+    }
+
+    // 3. Fallback: right-click anywhere within a SELECTED node's area
+    const selNodeIds = new Set(state.selection.nodes);
+    if (state.selected?.type === 'node') selNodeIds.add(state.selected.id);
+    for (const nId of selNodeIds) {
+      const n = findNode(nId);
+      if (n) {
+        const nr = n.r ?? 24;
+        const ndx = ctxMouse.x - n.x, ndy = ctxMouse.y - n.y;
+        if (ndx * ndx + ndy * ndy <= (nr * 1.5) * (nr * 1.5)) {
+          showNodeContextMenu(e, n); return;
+        }
+      }
+    }
+
+    // 4. Check for edge (hit area or visible path/line)
+    const edgeTarget = e.target.closest('[data-edge-id]');
+    if (edgeTarget) {
+      const edgeId = parseInt(edgeTarget.getAttribute('data-edge-id'));
+      const edge = findEdge(edgeId);
+      if (edge) { showEdgeContextMenu(e, edge); return; }
+    }
+    // Also check transparent hit areas (no data-edge-id but near an edge)
+    if (e.target.tagName === 'path' || e.target.tagName === 'line') {
+      const sibling = e.target.previousElementSibling || e.target.nextElementSibling;
+      if (sibling && sibling.getAttribute('data-edge-id')) {
+        const edgeId = parseInt(sibling.getAttribute('data-edge-id'));
+        const edge = findEdge(edgeId);
+        if (edge) { showEdgeContextMenu(e, edge); return; }
       }
     }
   });
@@ -42221,7 +42246,7 @@ function handlePathKmlImport(e) {
           if (!mapLibreState.map.getLayer('neximap-edges-hitarea')) return;
 
           // Query with a tolerance box around the click point for better detection
-          const tolerance = 10; // pixels
+          const tolerance = 4; // pixels – keep tight so nearby cables can be distinguished
           const bbox = [
             [e.point.x - tolerance, e.point.y - tolerance],
             [e.point.x + tolerance, e.point.y + tolerance]
@@ -42302,7 +42327,7 @@ function handlePathKmlImport(e) {
           }
 
           // Use bbox for more reliable hover detection
-          const tolerance = 8;
+          const tolerance = 4;
           const bbox = [
             [e.point.x - tolerance, e.point.y - tolerance],
             [e.point.x + tolerance, e.point.y + tolerance]
@@ -42751,7 +42776,7 @@ function handlePathKmlImport(e) {
           source: edgesSourceId,
           paint: {
             'line-color': 'rgba(0,0,0,0.005)', // Very faint but detectable
-            'line-width': 24 // Wide hit area for easy selection
+            'line-width': 10 // Modest hit area – wide enough to click, narrow enough to distinguish nearby cables
           },
           filter: ['!=', ['get', 'isGlow'], true] // Don't create hit area for glow features
         });

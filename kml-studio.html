@@ -2361,7 +2361,6 @@ async function importKML(kmlStr, fileName, isHeavy) {
     projectData.folders.push(folder);
     renderAll();
     zoomToAllInternal();
-    document.getElementById('emptyState').classList.add('hidden');
     updateStatus();
 }
 
@@ -2600,7 +2599,6 @@ async function importGeoJSON(jsonStr, fileName, isHeavy) {
     projectData.folders.push(folder);
     renderAll();
     zoomToAllInternal();
-    document.getElementById('emptyState').classList.add('hidden');
     updateStatus();
 }
 
@@ -2921,6 +2919,13 @@ function renderFolderTree() {
     projectData.folders.filter(f => !f.parentId).forEach(f => {
         container.appendChild(createFolderEl(f));
     });
+    // Centralized empty-state toggle: hide the placeholder whenever there is any content
+    const es = document.getElementById('emptyState');
+    if (projectData.folders.length > 0 || Object.keys(projectData.layers).length > 0) {
+        es.classList.add('hidden');
+    } else {
+        es.classList.remove('hidden');
+    }
 }
 
 function createFolderEl(folder) {
@@ -4187,7 +4192,6 @@ window.clearProject = function() {
     projectData = { folders: [], layers: {} };
     selectedLayerId = null;
     renderAll(); updatePropsPanel();
-    document.getElementById('emptyState').classList.remove('hidden');
     updateStatus(); toast('Cleared', 'info');
 };
 
