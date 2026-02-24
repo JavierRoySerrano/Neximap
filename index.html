@@ -1,6 +1,28 @@
 <!doctype html>
 <html lang="en">
 <!--
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!                                                                 !!
+  !!   THIS IS THE DEVELOPMENT WORKING COPY                          !!
+  !!                                                                 !!
+  !!   The live / production site is served from /index.html          !!
+  !!   (repository root).  This docs/index.html is the development   !!
+  !!   copy where changes are made, then merged into root/index.html !!
+  !!   via Pull Request.                                             !!
+  !!                                                                 !!
+  !!   KNOWN "Failed to fetch" ERRORS DURING DEVELOPMENT:            !!
+  !!   This file references data files at relative path "data/..."   !!
+  !!   (e.g. data/telegeography_cables.json,                         !!
+  !!   data/cable_stations_db.json, data/peeringdb_facilities.json). !!
+  !!   Those files live at the REPOSITORY ROOT under /data/ and are  !!
+  !!   NOT present in /docs/data/.                                   !!
+  !!   When running this file directly, any feature that loads local  !!
+  !!   data will show "Failed to load: Failed to fetch".             !!
+  !!   This is expected and does NOT affect production.               !!
+  !!                                                                 !!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+-->
+<!--
   ====================== ENCODING WARNING ======================
   This file has 448+ UTF-8 emoji chars that WILL BREAK if edited
   with text-mode tools (str_replace, sed, awk, Python text I/O).
@@ -10,7 +32,7 @@
   If encoding breaks, start over from the clean source file.
   ===============================================================
 -->
-<!-- NexiMap Studio v62.2 - Ocean corridors, map styles, unified visor source - 2026-02-24 -->
+<!-- NexiMap Studio v62.3 - Ocean corridors, map styles, unified visor source - 2026-02-24 -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -1107,7 +1129,7 @@
       border-color: #0077b6;
     }
     #cableVisorList {
-      flex: 0 1 180px;
+      flex: 1 1 200px;
       min-height: 80px;
       overflow-y: auto;
       border-top: 1px solid #e0e0e0;
@@ -1150,11 +1172,11 @@
       color: #666;
     }
     #cableVisorFooter {
-      padding: 8px 12px;
+      padding: 3px 12px;
       background: #f8f9fa;
       border-top: 1px solid #e0e0e0;
-      font-size: 11px;
-      color: #666;
+      font-size: 10px;
+      color: #999;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -1165,29 +1187,21 @@
     .visor-map-tooltip {
       position: absolute;
       pointer-events: none;
-      background: rgba(0,0,0,0.82);
-      color: #fff;
-      padding: 5px 10px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: 500;
+      background: rgba(255,255,255,0.95);
+      color: #1a1a2e;
+      padding: 3px 8px 3px 10px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
       white-space: nowrap;
       z-index: 200;
       transform: translate(-50%, -120%);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      border: 1px solid rgba(0,0,0,0.15);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
       max-width: 280px;
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-    .visor-map-tooltip::after {
-      content: '';
-      position: absolute;
-      bottom: -5px;
-      left: 50%;
-      transform: translateX(-50%);
-      border-left: 5px solid transparent;
-      border-right: 5px solid transparent;
-      border-top: 5px solid rgba(0,0,0,0.82);
+      border-left: 3px solid #0077b6;
     }
     /* Fixed/pinned cable name labels on visor map */
     .visor-fixed-label {
@@ -1333,6 +1347,26 @@
     .visor-toggle-btn:hover { background: #e3f2fd; border-color: #0077b6; }
     .visor-toggle-btn.active { background: #0077b6; color: white; border-color: #0077b6; }
 
+    /* Collapsible filters toggle */
+    .visor-filters-toggle {
+      padding: 2px 8px; font-size: 10px; border: 1px solid #d0d0d0;
+      border-radius: 4px; background: white; cursor: pointer;
+      color: #64748b; transition: all 0.15s; display: flex;
+      align-items: center; gap: 4px; font-weight: 600;
+    }
+    .visor-filters-toggle:hover { border-color: #0077b6; color: #0077b6; }
+    .visor-filters-toggle.active { background: #e0f2fe; border-color: #0077b6; color: #0077b6; }
+    .visor-filters-toggle .filter-count {
+      background: #0077b6; color: white; font-size: 9px; font-weight: 700;
+      padding: 0 4px; border-radius: 8px; min-width: 14px; text-align: center;
+      line-height: 14px; display: none;
+    }
+    .visor-filters-toggle.has-filter .filter-count { display: inline-block; }
+    .visor-filters-section {
+      display: none; border-top: 1px solid #e9ecef; margin-top: 5px;
+      padding-top: 5px; transition: all 0.2s;
+    }
+    .visor-filters-section.show { display: block; }
     /* === Cable Visor Advanced Filters === */
     .visor-filter-row {
       display: flex; gap: 6px; align-items: center; margin-top: 5px;
@@ -5462,7 +5496,7 @@
       </svg>
       <span style="font-weight:600; font-size:15px; color:#5a67d8; letter-spacing:-0.3px;">NexiMap</span>
       <span style="font-weight:400; font-size:15px; color:#666; letter-spacing:-0.3px;">Studio</span>
-      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v62.2</span>
+      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v62.3</span>
     </div>
     <button class="menu-item" id="btnFile" type="button">File</button>
     <button class="menu-item" id="btnEditMenu" type="button">Edit</button>
@@ -22921,16 +22955,14 @@ function loadProjectObject(obj) {
       });
 
       let faCables = null;
-      if (currentYearCables.length > 0) {
-        if (listEl) listEl.innerHTML = `<div style="padding:20px; text-align:center; color:#0077b6;">🌐 Cross-checking ${currentYearCables.length} cables with RFS ${currentYear} against Live Status...</div>`;
+      if (true) { // Always load FA data for Live Status auto-linking
+        if (listEl) listEl.innerHTML = `<div style="padding:20px; text-align:center; color:#0077b6;">🌐 Loading Live Status data for cable auto-linking...</div>`;
         try {
           faCables = await fetchFiberAtlanticCables(true);
-          console.log(`[CableVisor] FiberAtlantic cable list: ${faCables ? faCables.length : 0} cables (for ${currentYearCables.length} current-year RFS cross-checks)`);
+          console.log('[CableVisor] FiberAtlantic cable list:', faCables ? faCables.length : 0, 'cables for Live Status auto-linking');
         } catch (faErr) {
           console.warn('[CableVisor] FiberAtlantic unavailable for cross-check:', faErr.message);
         }
-      } else {
-        console.log(`[CableVisor] No cables with RFS ${currentYear} — skipping FiberAtlantic cross-check`);
       }
 
       // Step 3b: Load Submarine Cable DB for metadata enrichment fallback
@@ -23064,6 +23096,15 @@ function loadProjectObject(obj) {
           } else {
             status = 'unknown';
             statusSource = 'no rfs data';
+          }
+        }
+
+        // FA auto-link pass: match any cable not already matched during status logic
+        if (!faMatchName && faCables) {
+          const faMatch = autoMatchFiberAtlantic(props.name, faCables);
+          if (faMatch && faMatch.match) {
+            faMatchName = faMatch.match.name;
+            faStatus = (faMatch.match.status || '').toLowerCase().trim();
           }
         }
 
@@ -23981,6 +24022,8 @@ function loadProjectObject(obj) {
   // Advanced Filter Initialization
   // ======================
   function initVisorAdvancedFilters() {
+    if (cableVisorState._filtersInitialized) return;
+    cableVisorState._filtersInitialized = true;
     // --- Status pills ---
     document.querySelectorAll('#visorStatusPills .visor-status-pill').forEach(pill => {
       pill.addEventListener('click', () => {
@@ -24183,6 +24226,19 @@ function loadProjectObject(obj) {
 
     const clearBtn = document.getElementById('btnVisorClearAllFilters');
     if (clearBtn) clearBtn.style.display = anyFilterActive ? 'inline-block' : 'none';
+
+    // Update filter toggle badge count
+    const filterToggle = document.getElementById('btnVisorFiltersToggle');
+    const filterCountEl = document.getElementById('visorFilterCount');
+    if (filterToggle && filterCountEl) {
+      let activeCount = 0;
+      if (!allStatuses) activeCount++;
+      if (!allRfs) activeCount++;
+      if (!noOwners) activeCount++;
+      if (cableVisorState.clsFilter && cableVisorState.clsFilter.cableSystems) activeCount++;
+      filterCountEl.textContent = activeCount;
+      filterToggle.classList.toggle('has-filter', activeCount > 0);
+    }
 
     // RFS button label
     const rfsBtn = document.getElementById('btnVisorRfsFilter');
@@ -24711,6 +24767,16 @@ function loadProjectObject(obj) {
       if (cableVisorState.clsFilter && cableVisorState.clsFilter.cableSystems) {
         if (!cableMatchesCLSFilter(cable, cableVisorState.clsFilter.cableSystems)) return;
       }
+      // Status filter
+      if (cableVisorState.statusFilter.size < 5) {
+        if (!cableVisorState.statusFilter.has(cable.status || 'unknown')) return;
+      }
+      // RFS filter
+      if (cableVisorState.rfsFilter.size < 8) {
+        if (!cableMatchesRfsFilter(cable)) return;
+      }
+      // Owner filter
+      if (!cableMatchesOwnerFilter(cable)) return;
       if (!cableVisorState.selectedCables.has(String(cable.id))) {
         cablesToAdd.push(String(cable.id));
       }
@@ -24721,12 +24787,7 @@ function loadProjectObject(obj) {
       return;
     }
 
-    // Soft warning for large selections (no hard cap — unified source handles all)
-    if (cablesToAdd.length >= VISOR_SELECT_ALL_WARN_THRESHOLD) {
-      if (!confirm(`Display ${cablesToAdd.length} cables on the map?\n\nTip: Use region or station filters to narrow your selection.`)) {
-        return;
-      }
-    }
+
 
     // Add all at once to the selection set, then rebuild source once
     cablesToAdd.forEach(id => cableVisorState.selectedCables.add(id));
@@ -24986,7 +25047,9 @@ function loadProjectObject(obj) {
       const tooltip = getVisorTooltip();
       if (features.length > 0) {
         const name = features[0].properties.name || 'Unknown Cable';
+        const cableColor = features[0].properties.color || '#0077b6';
         tooltip.textContent = name;
+        tooltip.style.borderLeftColor = cableColor;
         tooltip.style.display = 'block';
         tooltip.style.left = e.point.x + 'px';
         tooltip.style.top = e.point.y + 'px';
@@ -25260,45 +25323,35 @@ function loadProjectObject(obj) {
   // Toggle button handlers for cable visor display options
   document.addEventListener('DOMContentLoaded', () => {
     const btnShowNames = document.getElementById('btnVisorShowNames');
-    const btnFixNames = document.getElementById('btnVisorFixNames');
     const btnShowStations = document.getElementById('btnVisorShowStations');
-    const btnFixStationNames = document.getElementById('btnVisorFixStationNames');
+    const btnFiltersToggle = document.getElementById('btnVisorFiltersToggle');
+    const filtersSection = document.getElementById('visorFiltersSection');
 
+    // Consolidated Labels button: toggles both showNames + fixNames together
     if (btnShowNames) btnShowNames.addEventListener('click', () => {
-      cableVisorDisplayState.showNames = !cableVisorDisplayState.showNames;
-      btnShowNames.classList.toggle('active', cableVisorDisplayState.showNames);
-      // Show/hide the "Pin Names" button
-      if (btnFixNames) btnFixNames.style.display = cableVisorDisplayState.showNames ? '' : 'none';
-      if (!cableVisorDisplayState.showNames) {
-        cableVisorDisplayState.fixNames = false;
-        if (btnFixNames) btnFixNames.classList.remove('active');
-        updateFixedCableLabels();
-      }
-    });
-
-    if (btnFixNames) btnFixNames.addEventListener('click', () => {
-      cableVisorDisplayState.fixNames = !cableVisorDisplayState.fixNames;
-      btnFixNames.classList.toggle('active', cableVisorDisplayState.fixNames);
+      const newState = !cableVisorDisplayState.fixNames;
+      cableVisorDisplayState.showNames = newState;
+      cableVisorDisplayState.fixNames = newState;
+      btnShowNames.classList.toggle('active', newState);
       updateFixedCableLabels();
     });
 
+    // Consolidated Stations button: toggles both showStations + fixStationNames together
     if (btnShowStations) btnShowStations.addEventListener('click', () => {
-      cableVisorDisplayState.showStations = !cableVisorDisplayState.showStations;
-      btnShowStations.classList.toggle('active', cableVisorDisplayState.showStations);
-      // Show/hide the "Pin Stations" button
-      if (btnFixStationNames) btnFixStationNames.style.display = cableVisorDisplayState.showStations ? '' : 'none';
-      if (!cableVisorDisplayState.showStations) {
-        cableVisorDisplayState.fixStationNames = false;
-        if (btnFixStationNames) btnFixStationNames.classList.remove('active');
-      }
+      const newState = !cableVisorDisplayState.showStations;
+      cableVisorDisplayState.showStations = newState;
+      cableVisorDisplayState.fixStationNames = newState;
+      btnShowStations.classList.toggle('active', newState);
       updateStationMarkers();
     });
 
-    if (btnFixStationNames) btnFixStationNames.addEventListener('click', () => {
-      cableVisorDisplayState.fixStationNames = !cableVisorDisplayState.fixStationNames;
-      btnFixStationNames.classList.toggle('active', cableVisorDisplayState.fixStationNames);
-      updateStationMarkers();
-    });
+    // Collapsible filters toggle
+    if (btnFiltersToggle && filtersSection) {
+      btnFiltersToggle.addEventListener('click', () => {
+        filtersSection.classList.toggle('show');
+        btnFiltersToggle.classList.toggle('active', filtersSection.classList.contains('show'));
+      });
+    }
   });
 
   // ======================
@@ -51776,11 +51829,9 @@ function handlePathKmlImport(e) {
       <button class="btn" id="btnVisorClearAll" style="padding:4px 8px; font-size:11px;" title="Clear selection">✗ Clear</button>
     </div>
     <div style="display:flex; gap:6px; align-items:center; margin-top:4px;">
-      <span style="font-size:10px; font-weight:600; color:#64748b;">Display:</span>
-      <button class="visor-toggle-btn" id="btnVisorShowNames" title="Show/hide cable names on map">Names</button>
-      <button class="visor-toggle-btn" id="btnVisorShowStations" title="Show/hide cable landing stations on map">Stations</button>
-      <button class="visor-toggle-btn" id="btnVisorFixNames" title="Pin cable names permanently on map" style="display:none;">Pin Names</button>
-      <button class="visor-toggle-btn" id="btnVisorFixStationNames" title="Pin station names permanently on map" style="display:none;">Pin Stations</button>
+      <button class="visor-toggle-btn" id="btnVisorShowNames" title="Show cable name labels on map">🏷️ Labels</button>
+      <button class="visor-toggle-btn" id="btnVisorShowStations" title="Show cable landing stations on map">📍 Stations</button>
+      <button class="visor-filters-toggle" id="btnVisorFiltersToggle" title="Show/hide data filters">⚙️ Filters <span class="filter-count" id="visorFilterCount">0</span></button>
       <div style="flex:1;"></div>
       <div style="position:relative;">
         <button class="btn" id="btnCableVisorActions" style="padding:3px 8px;font-size:10px;" title="Image actions">&#x1F5BC;&#xFE0F; Image &#x25BC;</button>
@@ -51793,7 +51844,8 @@ function handlePathKmlImport(e) {
         </div>
       </div>
     </div>
-    <div style="display:flex; gap:6px; align-items:center; margin-top:5px; padding-top:5px; border-top:1px solid #e9ecef;">
+    <div class="visor-filters-section" id="visorFiltersSection">
+    <div style="display:flex; gap:6px; align-items:center;">
       <span style="font-size:10px; font-weight:600; color:#64748b;">Map Style:</span>
       <select id="cableVisorMapStyle" style="padding:3px 6px; font-size:10px; border:1px solid #d0d0d0; border-radius:4px; background:white; max-width:160px;">
         <option value="osm">OpenStreetMap</option>
@@ -51804,7 +51856,7 @@ function handlePathKmlImport(e) {
         <option value="cartoDark">Carto Dark</option>
       </select>
     </div>
-    <div style="display:flex; gap:6px; align-items:center; margin-top:5px; padding-top:5px; border-top:1px solid #e9ecef;">
+    <div style="display:flex; gap:6px; align-items:center; margin-top:4px;">
       <span style="font-size:10px; font-weight:600; color:#64748b;">CLS Filter:</span>
       <select id="cableVisorCLSMode" style="padding:3px 6px; font-size:10px; border:1px solid #d0d0d0; border-radius:4px; background:white;">
         <option value="">Off</option>
@@ -51857,6 +51909,7 @@ function handlePathKmlImport(e) {
       <button class="visor-filter-clear-all" id="btnVisorClearAllFilters" title="Reset all filters" style="display:none;">Clear Filters</button>
     </div>
     <div class="visor-owner-tags" id="visorOwnerTags"></div>
+    </div>
   </div>
   <div id="cableVisorMap">
     <div id="cableVisorMapContainer" style="width:100%; height:100%;"></div>
@@ -51886,7 +51939,7 @@ function handlePathKmlImport(e) {
     </div>
   </div>
   <div id="cableVisorList">
-    <div style="padding:8px 12px; background:#f8f9fa; border-bottom:1px solid #e0e0e0; font-size:11px; font-weight:600; color:#495057; position:sticky; top:0; z-index:5;">
+    <div style="padding:3px 12px; background:#f8f9fa; border-bottom:1px solid #e0e0e0; font-size:10px; font-weight:600; color:#495057; position:sticky; top:0; z-index:5;">
       <span id="cableVisorListTitle">Cables from Database</span>
       <span id="cableVisorSelectedCount" style="float:right; color:#0077b6;">0 selected</span>
     </div>
@@ -51894,9 +51947,9 @@ function handlePathKmlImport(e) {
       <!-- Dynamic list -->
     </div>
   </div>
-  <div id="cableVisorFooter">
+  <div id="cableVisorFooter" style="padding:4px 12px;">
     <span id="cableVisorCableCount">0 cables</span>
-    <span>Click cables to show on map • Double-click to zoom</span>
+    <span style="font-size:9px;">Click cables to show on map • Double-click to zoom</span>
   </div>
 </aside>
 
@@ -52672,7 +52725,7 @@ function handlePathKmlImport(e) {
         <circle cx="24" cy="24" r="2.5" fill="white"/>
       </svg>
       <h2 style="margin:0 0 4px; font-size:20px; color:#333;">NexiMap Studio</h2>
-      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 62.1 <span style="color:#b0b0b0; font-size:11px;">• Build 2026-02-24</span></p>
+      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 62.3 <span style="color:#b0b0b0; font-size:11px;">• Build 2026-02-24</span></p>
       <p style="margin:0 0 20px; color:#555; font-size:13px; line-height:1.6;">
         Professional network topology and diagram design tool with geographic mapping, cost analysis, and route optimization.
       </p>
