@@ -32,7 +32,7 @@
   If encoding breaks, start over from the clean source file.
   ===============================================================
 -->
-<!-- NexiMap Studio v62.3 - Ocean corridors, map styles, unified visor source - 2026-02-24 -->
+<!-- NexiMap Studio v62.4 - Auto-refresh, CLS dots, cable/station highlight - 2026-02-24 -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -1221,6 +1221,43 @@
     .visor-fixed-label:active {
       cursor: grabbing;
       box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    /* Auto-refresh toggle button */
+    .visor-autorefresh-btn {
+      padding: 3px 8px;
+      font-size: 10px;
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+      color: #495057;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .visor-autorefresh-btn:hover { background: #e3f2fd; border-color: #0077b6; }
+    .visor-autorefresh-btn.active { background: #22c55e; color: white; border-color: #22c55e; }
+    .visor-autorefresh-btn .ar-indicator {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #d0d0d0; transition: background 0.15s;
+    }
+    .visor-autorefresh-btn.active .ar-indicator { background: white; }
+    /* Cable highlight on map */
+    .visor-cable-item.map-highlighted {
+      background: #fffbeb !important;
+      box-shadow: inset 3px 0 0 #f59e0b;
+    }
+    /* Station highlight pulse */
+    @keyframes stationPulse {
+      0% { box-shadow: 0 0 0 0 rgba(59,130,246,0.5); }
+      70% { box-shadow: 0 0 0 8px rgba(59,130,246,0); }
+      100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); }
+    }
+    .visor-station-highlight {
+      animation: stationPulse 1.5s ease-in-out infinite;
+      border-color: #3b82f6 !important;
+      z-index: 10;
     }
     /* CLS Filter searchable dropdown */
     .cls-filter-wrap {
@@ -5496,7 +5533,7 @@
       </svg>
       <span style="font-weight:600; font-size:15px; color:#5a67d8; letter-spacing:-0.3px;">NexiMap</span>
       <span style="font-weight:400; font-size:15px; color:#666; letter-spacing:-0.3px;">Studio</span>
-      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v62.3</span>
+      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v62.4</span>
     </div>
     <button class="menu-item" id="btnFile" type="button">File</button>
     <button class="menu-item" id="btnEditMenu" type="button">Edit</button>
@@ -23741,6 +23778,7 @@ function loadProjectObject(obj) {
 
     // Re-render cable list with filter
     renderCableVisorList();
+    visorAutoRefreshSelection();
 
     // Zoom map
     const map = cableVisorState.map;
@@ -24036,6 +24074,7 @@ function loadProjectObject(obj) {
         }
         updateVisorFilterBadges();
         renderCableVisorList();
+        visorAutoRefreshSelection();
       });
     });
 
@@ -24057,6 +24096,7 @@ function loadProjectObject(obj) {
           }
           updateVisorFilterBadges();
           renderCableVisorList();
+          visorAutoRefreshSelection();
         });
       });
       // Select all / clear all
@@ -24064,12 +24104,14 @@ function loadProjectObject(obj) {
         rfsMenu.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = true; cableVisorState.rfsFilter.add(cb.value); });
         updateVisorFilterBadges();
         renderCableVisorList();
+        visorAutoRefreshSelection();
       });
       document.getElementById('btnRfsClearAll')?.addEventListener('click', () => {
         rfsMenu.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = false; });
         cableVisorState.rfsFilter.clear();
         updateVisorFilterBadges();
         renderCableVisorList();
+        visorAutoRefreshSelection();
       });
       // Close dropdown on outside click
       document.addEventListener('click', (e) => {
@@ -24107,6 +24149,7 @@ function loadProjectObject(obj) {
         renderOwnerTags();
         updateVisorFilterBadges();
         renderCableVisorList();
+        visorAutoRefreshSelection();
       });
     }
 
@@ -24128,6 +24171,7 @@ function loadProjectObject(obj) {
       renderOwnerTags();
       updateVisorFilterBadges();
       renderCableVisorList();
+      visorAutoRefreshSelection();
     });
   }
 
@@ -24209,6 +24253,7 @@ function loadProjectObject(obj) {
         renderOwnerDropdown(document.getElementById('visorOwnerSearch')?.value || '');
         updateVisorFilterBadges();
         renderCableVisorList();
+        visorAutoRefreshSelection();
       });
     });
 
@@ -24701,6 +24746,7 @@ function loadProjectObject(obj) {
     if (typeof cableVisorDisplayState !== 'undefined') {
       if (cableVisorDisplayState.fixNames) updateFixedCableLabels();
       if (cableVisorDisplayState.showStations) updateStationMarkers();
+      if (cableVisorDisplayState.showCLSDots) updateCLSDotMarkers();
     }
   }
 
@@ -25006,11 +25052,16 @@ function loadProjectObject(obj) {
     fixNames: false,        // Pin cable names permanently on map
     showStations: false,    // Show landing station markers
     fixStationNames: false, // Pin station names permanently on map
+    showCLSDots: false,     // Show CLS dots only (no names)
     stationMarkers: [],     // MapLibre marker references for stations
     stationPopup: null,     // Reusable hover popup for stations
     fixedLabels: [],        // MapLibre marker references for fixed cable name labels
     fixedStationLabels: [], // MapLibre marker references for fixed station name labels
-    tooltip: null           // DOM element for hover tooltip
+    clsDotMarkers: [],      // MapLibre marker refs for CLS dots-only mode
+    tooltip: null,          // DOM element for hover tooltip
+    autoRefresh: true,      // Auto clear+select-all on filter change
+    highlightedCableId: null,   // Currently highlighted cable on map
+    highlightedStationKey: null // Currently highlighted station on map
   };
 
   // Create or get the hover tooltip element for the cable visor map
@@ -25066,6 +25117,311 @@ function loadProjectObject(obj) {
     });
 
     console.log('[CableVisor] Hover events set up (unified source)');
+
+    // --- Cable click-to-highlight on map ---
+    map.on('click', (e) => {
+      const layers = [];
+      if (map.getLayer(VISOR_HIT_LAYER_ID)) layers.push(VISOR_HIT_LAYER_ID);
+      if (map.getLayer(VISOR_LINE_LAYER_ID)) layers.push(VISOR_LINE_LAYER_ID);
+      if (layers.length === 0) return;
+
+      const features = map.queryRenderedFeatures(
+        [[e.point.x - 6, e.point.y - 6], [e.point.x + 6, e.point.y + 6]],
+        { layers: layers }
+      );
+
+      if (features.length > 0) {
+        const cableId = features[0].properties.id;
+        highlightCableOnMap(cableId);
+        e.originalEvent.stopPropagation();
+      } else {
+        // Click on empty map - clear highlight
+        clearCableHighlight();
+      }
+    });
+  }
+
+  // Highlight a cable on the map (thicker line, glow effect)
+  function highlightCableOnMap(cableId) {
+    const map = cableVisorState.map;
+    if (!map) return;
+
+    // Clear previous highlight
+    clearCableHighlight();
+
+    cableVisorDisplayState.highlightedCableId = cableId;
+
+    const db = cableVisorState.cableDatabase;
+    const cable = db && db.cables ? db.cables[cableId] : null;
+    if (!cable || !cable.geometry) return;
+
+    const color = getCableColorById(cableId);
+
+    // Add glow layer (wider, semi-transparent)
+    try {
+      map.addSource('cable-highlight-glow', {
+        type: 'geojson',
+        data: { type: 'Feature', properties: {}, geometry: cable.geometry }
+      });
+      map.addLayer({
+        id: 'cable-highlight-glow',
+        type: 'line',
+        source: 'cable-highlight-glow',
+        paint: {
+          'line-color': color,
+          'line-width': 10,
+          'line-opacity': 0.35
+        }
+      });
+      map.addLayer({
+        id: 'cable-highlight-line',
+        type: 'line',
+        source: 'cable-highlight-glow',
+        paint: {
+          'line-color': color,
+          'line-width': 5,
+          'line-opacity': 1
+        }
+      });
+    } catch(err) {
+      console.warn('[CableVisor] Highlight error:', err);
+    }
+
+    // Highlight in list
+    document.querySelectorAll('.visor-cable-item').forEach(item => {
+      item.classList.toggle('map-highlighted', item.dataset.cableId === cableId);
+    });
+
+    console.log('[CableVisor] Cable highlighted:', cable.name || cableId);
+  }
+
+  function clearCableHighlight() {
+    const map = cableVisorState.map;
+    if (!map) return;
+
+    cableVisorDisplayState.highlightedCableId = null;
+
+    try {
+      if (map.getLayer('cable-highlight-line')) map.removeLayer('cable-highlight-line');
+      if (map.getLayer('cable-highlight-glow')) map.removeLayer('cable-highlight-glow');
+      if (map.getSource('cable-highlight-glow')) map.removeSource('cable-highlight-glow');
+    } catch(err) {}
+
+    document.querySelectorAll('.visor-cable-item.map-highlighted').forEach(item => {
+      item.classList.remove('map-highlighted');
+    });
+  }
+
+  // Highlight a station on the map
+  function highlightStationOnMap(stationKey, markerEl) {
+    clearStationHighlight();
+    cableVisorDisplayState.highlightedStationKey = stationKey;
+    if (markerEl) {
+      markerEl.classList.add('visor-station-highlight');
+    }
+  }
+
+  function clearStationHighlight() {
+    cableVisorDisplayState.highlightedStationKey = null;
+    document.querySelectorAll('.visor-station-highlight').forEach(el => {
+      el.classList.remove('visor-station-highlight');
+    });
+  }
+
+  // Auto-refresh: clear selection and select all matching
+  function visorAutoRefreshSelection() {
+    if (!cableVisorDisplayState.autoRefresh) return;
+    // Defer slightly to let the filter state update
+    clearTimeout(cableVisorDisplayState._autoRefreshTimer);
+    cableVisorDisplayState._autoRefreshTimer = setTimeout(() => {
+      cableVisorState.selectedCables.clear();
+      // Select all visible/matching cables
+      const db = cableVisorState.cableDatabase;
+      if (!db || !db.cables) { rebuildVisorMapSource(); return; }
+      const search = (document.getElementById('cableVisorSearch')?.value || '').toLowerCase().trim();
+      const regionFilter = document.getElementById('cableVisorRegionFilter')?.value || '';
+      Object.values(db.cables).forEach(cable => {
+        if (regionFilter && cable.region !== regionFilter) return;
+        if (search) {
+          const name = (cable.name || '').toLowerCase();
+          const shortName = (cable.shortName || '').toLowerCase();
+          const owners = (cable.owners || []).join(' ').toLowerCase();
+          if (!(name.includes(search) || shortName.includes(search) || owners.includes(search))) return;
+        }
+        if (cableVisorState.clsFilter && cableVisorState.clsFilter.cableSystems) {
+          if (!cableMatchesCLSFilter(cable, cableVisorState.clsFilter.cableSystems)) return;
+        }
+        if (cableVisorState.statusFilter.size < 5) {
+          if (!cableVisorState.statusFilter.has(cable.status || 'unknown')) return;
+        }
+        if (cableVisorState.rfsFilter.size < 8) {
+          if (!cableMatchesRfsFilter(cable)) return;
+        }
+        if (!cableMatchesOwnerFilter(cable)) return;
+        cableVisorState.selectedCables.add(String(cable.id));
+      });
+      rebuildVisorMapSource();
+      renderCableVisorList();
+    }, 50);
+  }
+
+  // Update CLS dot-only markers (similar to updateStationMarkers but smaller dots, no names)
+  function updateCLSDotMarkers() {
+    const map = cableVisorState.map;
+    if (!map || !cableVisorState.mapReady) return;
+
+    // Remove existing CLS dot markers
+    (cableVisorDisplayState.clsDotMarkers || []).forEach(m => m.remove());
+    cableVisorDisplayState.clsDotMarkers = [];
+
+    if (!cableVisorDisplayState.showCLSDots) return;
+
+    const db = cableVisorState.cableDatabase;
+    if (!db || !db.cables) return;
+
+    const stationMap = new Map();
+
+    cableVisorState.selectedCables.forEach(cableId => {
+      const cable = db.cables[cableId];
+      if (!cable) return;
+
+      const lps = cable.landingPoints || [];
+      let hasCoordLPs = false;
+
+      lps.forEach(lp => {
+        let lat = lp.lat, lon = lp.lon;
+        if (!lat && lp.coordinates && Array.isArray(lp.coordinates)) {
+          lon = lp.coordinates[0];
+          lat = lp.coordinates[1];
+        }
+        if (!lat || !lon) return;
+        hasCoordLPs = true;
+        lat = parseFloat(lat);
+        lon = parseFloat(lon);
+        const key = `${lat.toFixed(3)}_${lon.toFixed(3)}`;
+        if (!stationMap.has(key)) {
+          stationMap.set(key, {
+            name: lp.name || 'Unknown Station',
+            country: lp.country || '',
+            lat: lat,
+            lon: lon,
+            cables: [cable.shortName || cable.name]
+          });
+        } else {
+          const existing = stationMap.get(key);
+          if (!existing.cables.includes(cable.shortName || cable.name)) {
+            existing.cables.push(cable.shortName || cable.name);
+          }
+        }
+      });
+
+      if (!hasCoordLPs && lps.length > 0) {
+        const cableName = cable.shortName || cable.name;
+        const fullCableName = cable.name || '';
+        const namedLPs = lps.filter(lp => lp.name);
+        const dbFacilities = (window._dcDatabase && window._dcDatabase.facilities) || [];
+
+        namedLPs.forEach(lp => {
+          const lpCity = (lp.name || '').toLowerCase().trim();
+          const lpCountry = (lp.country || '').toLowerCase().trim();
+
+          let match = dbFacilities.find(fac => {
+            if (!fac.latitude || !fac.longitude) return false;
+            if (fac.facility_type !== 'cable_station') return false;
+            const facCables = (fac.cable_systems || []).map(c => c.toLowerCase());
+            const cableNameLow = fullCableName.toLowerCase();
+            if (!facCables.some(c => c === cableNameLow || cableNameLow.includes(c) || c.includes(cableNameLow))) return false;
+            const facCity = (fac.city || '').toLowerCase().trim();
+            return facCity === lpCity || lpCity.includes(facCity) || facCity.includes(lpCity);
+          });
+
+          if (!match) {
+            match = dbFacilities.find(fac => {
+              if (!fac.latitude || !fac.longitude) return false;
+              if (fac.facility_type !== 'cable_station') return false;
+              const facCity = (fac.city || '').toLowerCase().trim();
+              if (!(facCity === lpCity || lpCity.includes(facCity) || facCity.includes(lpCity))) return false;
+              if (lpCountry) {
+                const facCountry = (fac.country || '').toLowerCase().trim();
+                return lpCountry.includes(facCountry) || facCountry.includes(lpCountry);
+              }
+              return true;
+            });
+          }
+
+          if (match) {
+            const lat = parseFloat(match.latitude);
+            const lon = parseFloat(match.longitude);
+            const key = `${lat.toFixed(3)}_${lon.toFixed(3)}`;
+            if (!stationMap.has(key)) {
+              stationMap.set(key, {
+                name: lp.name,
+                country: lp.country || match.country || '',
+                lat: lat,
+                lon: lon,
+                cables: [cableName]
+              });
+            } else {
+              const existing = stationMap.get(key);
+              if (!existing.cables.includes(cableName)) {
+                existing.cables.push(cableName);
+              }
+            }
+          }
+        });
+      }
+    });
+
+    // Create small dots (like submarinecablemaps.com style)
+    stationMap.forEach((station, key) => {
+      const el = document.createElement('div');
+      el.style.cssText = 'width:7px; height:7px; border-radius:50%; background:#e63946; border:1.5px solid white; box-shadow:0 0 3px rgba(0,0,0,0.3); cursor:pointer; transition: transform 0.15s;';
+
+      const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([station.lon, station.lat])
+        .addTo(map);
+
+      // Hover tooltip showing station name
+      const popup = new maplibregl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        offset: 8,
+        className: 'visor-station-popup'
+      });
+
+      el.addEventListener('mouseenter', () => {
+        el.style.transform = 'scale(1.5)';
+        const cablesText = station.cables.length > 1
+          ? `<br><span style="font-size:10px;color:#94a3b8;">Cables: ${station.cables.join(', ')}</span>`
+          : '';
+        popup.setLngLat([station.lon, station.lat])
+          .setHTML(`<strong>${escapeHtml(station.name)}</strong>${station.country ? ', ' + escapeHtml(station.country) : ''}${cablesText}`)
+          .addTo(map);
+      });
+
+      el.addEventListener('mouseleave', () => {
+        if (!el.classList.contains('visor-station-highlight')) {
+          el.style.transform = '';
+        }
+        popup.remove();
+      });
+
+      // Click to highlight
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (el.classList.contains('visor-station-highlight')) {
+          clearStationHighlight();
+          el.style.transform = '';
+        } else {
+          highlightStationOnMap(key, el);
+          el.style.transform = 'scale(1.5)';
+        }
+      });
+
+      cableVisorDisplayState.clsDotMarkers.push(marker);
+    });
+
+    console.log('[CableVisor] CLS dot markers updated:', stationMap.size, 'stations');
   }
 
   // Calculate midpoint of a cable geometry for label placement
@@ -25293,6 +25649,16 @@ function loadProjectObject(obj) {
         popup.remove();
       });
 
+      // Click to highlight station
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (el.classList.contains('visor-station-highlight')) {
+          clearStationHighlight();
+        } else {
+          highlightStationOnMap(key, el);
+        }
+      });
+
       cableVisorDisplayState.stationMarkers.push(marker);
 
       // Fixed station name labels
@@ -25342,7 +25708,37 @@ function loadProjectObject(obj) {
       cableVisorDisplayState.showStations = newState;
       cableVisorDisplayState.fixStationNames = newState;
       btnShowStations.classList.toggle('active', newState);
+      // Turn off CLS dots if Stations turned on (mutually exclusive)
+      if (newState && cableVisorDisplayState.showCLSDots) {
+        cableVisorDisplayState.showCLSDots = false;
+        const dotsBtn = document.getElementById('btnVisorShowCLSDots');
+        if (dotsBtn) dotsBtn.classList.remove('active');
+        updateCLSDotMarkers();
+      }
       updateStationMarkers();
+    });
+
+    // CLS Dots-only button: show small dots without names
+    const btnShowCLSDots = document.getElementById('btnVisorShowCLSDots');
+    if (btnShowCLSDots) btnShowCLSDots.addEventListener('click', () => {
+      const newState = !cableVisorDisplayState.showCLSDots;
+      cableVisorDisplayState.showCLSDots = newState;
+      btnShowCLSDots.classList.toggle('active', newState);
+      // Turn off Stations if CLS dots turned on (mutually exclusive)
+      if (newState && cableVisorDisplayState.showStations) {
+        cableVisorDisplayState.showStations = false;
+        cableVisorDisplayState.fixStationNames = false;
+        btnShowStations.classList.remove('active');
+        updateStationMarkers();
+      }
+      updateCLSDotMarkers();
+    });
+
+    // Auto-refresh toggle
+    const btnAutoRefresh = document.getElementById('btnVisorAutoRefresh');
+    if (btnAutoRefresh) btnAutoRefresh.addEventListener('click', () => {
+      cableVisorDisplayState.autoRefresh = !cableVisorDisplayState.autoRefresh;
+      btnAutoRefresh.classList.toggle('active', cableVisorDisplayState.autoRefresh);
     });
 
     // Collapsible filters toggle
@@ -51830,7 +52226,9 @@ function handlePathKmlImport(e) {
     </div>
     <div style="display:flex; gap:6px; align-items:center; margin-top:4px;">
       <button class="visor-toggle-btn" id="btnVisorShowNames" title="Show cable name labels on map">🏷️ Labels</button>
-      <button class="visor-toggle-btn" id="btnVisorShowStations" title="Show cable landing stations on map">📍 Stations</button>
+      <button class="visor-toggle-btn" id="btnVisorShowStations" title="Show cable landing stations with names on map">📍 Stations</button>
+      <button class="visor-toggle-btn" id="btnVisorShowCLSDots" title="Show cable landing station dots on map (no names)">🔵 CLS</button>
+      <button class="visor-autorefresh-btn active" id="btnVisorAutoRefresh" title="Auto-refresh: Clear and re-select when filters change"><span class="ar-indicator"></span>↻ Auto</button>
       <button class="visor-filters-toggle" id="btnVisorFiltersToggle" title="Show/hide data filters">⚙️ Filters <span class="filter-count" id="visorFilterCount">0</span></button>
       <div style="flex:1;"></div>
       <div style="position:relative;">
