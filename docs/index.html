@@ -22193,6 +22193,7 @@ function loadProjectObject(obj) {
         (cable.owners && cable.owners.length ? { label: 'Owners', value: Array.isArray(cable.owners) ? cable.owners.join(', ') : cable.owners } : null),
       cable.suppliers && cable.suppliers.length ? { label: 'Suppliers', value: Array.isArray(cable.suppliers) ? cable.suppliers.join(', ') : cable.suppliers } : null,
       cable.url ? { label: 'Website', value: cable.url } : null,
+      cable._sdbEnriched ? { label: 'DB Enriched', value: cable._sdbEnriched.join(', ') } : null,
     ].filter(Boolean);
 
     grid.innerHTML = items.map(item => {
@@ -22230,6 +22231,11 @@ function loadProjectObject(obj) {
       // Style debug fields
       if (item.label === 'Status Source') {
         valueHtml = `<span style="color:#94a3b8;font-style:italic;font-size:11px;">${escapeHtml(String(item.value))}</span>`;
+      }
+
+      // Style SDB enrichment indicator
+      if (item.label === 'DB Enriched') {
+        valueHtml = `<span style="color:#8b5cf6;font-size:11px;font-style:italic;">${escapeHtml(String(item.value))}</span>`;
       }
 
       return `
@@ -22799,6 +22805,26 @@ function loadProjectObject(obj) {
         console.log(`[CableVisor] No cables with RFS ${currentYear} — skipping FiberAtlantic cross-check`);
       }
 
+      // Step 3b: Load Submarine Cable DB for metadata enrichment fallback
+      let sdbLookup = {};
+      let sdbNameLookup = {};
+      try {
+        const sdbResp = await fetch('data/submarine_cables_db.json');
+        if (sdbResp.ok) {
+          const sdbData = await sdbResp.json();
+          if (sdbData && sdbData.cables) {
+            for (const [key, cable] of Object.entries(sdbData.cables)) {
+              sdbLookup[key] = cable;
+              const normName = cable.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+              sdbNameLookup[normName] = cable;
+            }
+            console.log(`[CableVisor] Loaded submarine_cables_db.json: ${Object.keys(sdbLookup).length} cables for metadata enrichment`);
+          }
+        }
+      } catch (sdbErr) {
+        console.warn('[CableVisor] submarine_cables_db.json not available for enrichment:', sdbErr.message);
+      }
+
       // Step 4: Build cable database with smart status logic
       const cables = {};
       let statusDebugLog = [];
@@ -22950,12 +22976,70 @@ function loadProjectObject(obj) {
           if (isNaN(length_km)) length_km = null;
         }
 
+        // SDB enrichment: fill missing metadata from submarine_cables_db.json
+        const sdbMatch = sdbLookup[props.id] || sdbNameLookup[(props.name || '').toLowerCase().replace(/[^a-z0-9]/g, '')] || null;
+        let sdbEnriched = [];
+        let fiberPairs = null;
+        let designCapacity = null;
+        let capacityTbps = null;
+
+        if (sdbMatch) {
+          // Enrich owners if missing from TG metadata
+          if (owners.length === 0 && sdbMatch.owners && sdbMatch.owners.length > 0) {
+            owners = Array.isArray(sdbMatch.owners) ? sdbMatch.owners : [sdbMatch.owners];
+            sdbEnriched.push('owners');
+          }
+          // Enrich length if missing
+          if (!length_km && sdbMatch.length_km) {
+            length_km = sdbMatch.length_km;
+            sdbEnriched.push('length');
+          }
+          // Enrich RFS year if missing
+          if (!rfsYear && sdbMatch.rfs) {
+            const sdbRfs = parseInt(sdbMatch.rfs);
+            if (!isNaN(sdbRfs) && sdbRfs > 1990 && sdbRfs < 2100) {
+              rfsYear = sdbRfs;
+              sdbEnriched.push('rfs');
+            }
+          }
+          // Fiber pairs (TG API doesn't provide this)
+          if (sdbMatch.fiberPairs) {
+            fiberPairs = sdbMatch.fiberPairs;
+            sdbEnriched.push('fiberPairs');
+          }
+          // Design capacity (TG API doesn't provide this)
+          if (sdbMatch.designCapacity && sdbMatch.designCapacity !== 'Unknown') {
+            designCapacity = sdbMatch.designCapacity;
+            sdbEnriched.push('designCapacity');
+          }
+          if (sdbMatch.capacityTbps) {
+            capacityTbps = sdbMatch.capacityTbps;
+          }
+          // Enrich suppliers if missing
+          if (suppliers.length === 0 && sdbMatch.suppliers && sdbMatch.suppliers.length > 0) {
+            suppliers = Array.isArray(sdbMatch.suppliers) ? sdbMatch.suppliers : [sdbMatch.suppliers];
+            sdbEnriched.push('suppliers');
+          }
+          if (sdbEnriched.length > 0) {
+            console.log(`[CableVisor] SDB enriched ${props.name}: ${sdbEnriched.join(', ')}`);
+          }
+        }
+
+        // Determine landing points: TG metadata first, SDB fallback
+        const landingPoints = (meta.landing_points && meta.landing_points.length > 0)
+          ? meta.landing_points
+          : (sdbMatch && sdbMatch.landingPoints && sdbMatch.landingPoints.length > 0
+            ? sdbMatch.landingPoints : []);
+        if (!meta.landing_points?.length && landingPoints.length > 0) {
+          sdbEnriched.push('landingPoints');
+        }
+
         cables[props.id] = {
           id: props.id,
           name: props.name,
           shortName: props.name.length > 20 ? props.name.substring(0, 18) + '...' : props.name,
           color: props.color || '#939597',
-          region: inferRegionFromLandingPoints(meta.landing_points || [], feature.geometry),
+          region: inferRegionFromLandingPoints(landingPoints, feature.geometry),
           status: status,
           rfs: meta.rfs || (rfsYear ? String(rfsYear) : ''),
           rfsYear: rfsYear,
@@ -22963,16 +23047,20 @@ function loadProjectObject(obj) {
           owners: owners,
           ownersText: owners.length > 0 ? owners.join(', ') : 'Unknown',
           suppliers: suppliers,
+          fiberPairs: fiberPairs,
+          designCapacity: designCapacity,
+          capacityTbps: capacityTbps,
           description: props.name + ' submarine cable',
           length_km: length_km,
           url: meta.url || null,
-          landingPoints: meta.landing_points || [],
+          landingPoints: landingPoints,
           geometry: feature.geometry,
           source: 'TeleGeography API',
           // Debug fields for current-year RFS cables
           _faStatus: faStatus,
           _faMatchName: faMatchName,
-          _statusSource: statusSource
+          _statusSource: statusSource,
+          _sdbEnriched: sdbEnriched.length > 0 ? sdbEnriched : null
         };
       });
 
@@ -22989,6 +23077,12 @@ function loadProjectObject(obj) {
       const dcCount = Object.values(cables).filter(c => c.status === 'decommissioned').length;
       const ukCount = Object.values(cables).filter(c => c.status === 'unknown').length;
       console.log(`[CableVisor] Status summary: ${opCount} operational, ${ucCount} under-construction/pending, ${plCount} planned, ${dcCount} decommissioned, ${ukCount} unknown`);
+
+      // Log SDB enrichment summary
+      const sdbEnrichedCount = Object.values(cables).filter(c => c._sdbEnriched).length;
+      if (sdbEnrichedCount > 0) {
+        console.log(`[CableVisor] SDB enrichment: ${sdbEnrichedCount} cables enriched from submarine_cables_db.json`);
+      }
 
       return {
         version: '1.0',
