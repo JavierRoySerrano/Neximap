@@ -25061,7 +25061,8 @@ function loadProjectObject(obj) {
     tooltip: null,          // DOM element for hover tooltip
     autoRefresh: true,      // Auto clear+select-all on filter change
     highlightedCableId: null,   // Currently highlighted cable on map
-    highlightedStationKey: null // Currently highlighted station on map
+    highlightedStationKey: null, // Currently highlighted station on map
+    highlightedStationPopup: null // Persistent popup for highlighted station
   };
 
   // Create or get the hover tooltip element for the cable visor map
@@ -25133,6 +25134,7 @@ function loadProjectObject(obj) {
       if (features.length > 0) {
         const cableId = features[0].properties.id;
         highlightCableOnMap(cableId);
+        showVisorCableDetail(cableId);
         e.originalEvent.stopPropagation();
       } else {
         // Click on empty map - clear highlight
@@ -25213,16 +25215,38 @@ function loadProjectObject(obj) {
   }
 
   // Highlight a station on the map
-  function highlightStationOnMap(stationKey, markerEl) {
+  function highlightStationOnMap(stationKey, markerEl, stationData) {
     clearStationHighlight();
     cableVisorDisplayState.highlightedStationKey = stationKey;
     if (markerEl) {
       markerEl.classList.add('visor-station-highlight');
     }
+    // Show persistent name label on map while station is selected
+    if (stationData && cableVisorState.map) {
+      const cablesText = stationData.cables && stationData.cables.length > 1
+        ? `<br><span style="font-size:10px;color:#94a3b8;">Cables: ${stationData.cables.join(', ')}</span>`
+        : '';
+      const popupHtml = `<strong>${escapeHtml(stationData.name)}</strong>${stationData.country ? ', ' + escapeHtml(stationData.country) : ''}${cablesText}`;
+      const persistentPopup = new maplibregl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        offset: 14,
+        className: 'visor-station-popup'
+      })
+        .setLngLat([stationData.lon, stationData.lat])
+        .setHTML(popupHtml)
+        .addTo(cableVisorState.map);
+      cableVisorDisplayState.highlightedStationPopup = persistentPopup;
+    }
   }
 
   function clearStationHighlight() {
     cableVisorDisplayState.highlightedStationKey = null;
+    // Remove persistent station name popup
+    if (cableVisorDisplayState.highlightedStationPopup) {
+      cableVisorDisplayState.highlightedStationPopup.remove();
+      cableVisorDisplayState.highlightedStationPopup = null;
+    }
     document.querySelectorAll('.visor-station-highlight').forEach(el => {
       el.classList.remove('visor-station-highlight');
     });
@@ -25413,7 +25437,7 @@ function loadProjectObject(obj) {
           clearStationHighlight();
           el.style.transform = '';
         } else {
-          highlightStationOnMap(key, el);
+          highlightStationOnMap(key, el, station);
           el.style.transform = 'scale(1.5)';
         }
       });
@@ -25655,7 +25679,7 @@ function loadProjectObject(obj) {
         if (el.classList.contains('visor-station-highlight')) {
           clearStationHighlight();
         } else {
-          highlightStationOnMap(key, el);
+          highlightStationOnMap(key, el, station);
         }
       });
 
