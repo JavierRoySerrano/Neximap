@@ -10,7 +10,7 @@
   If encoding breaks, start over from the clean source file.
   ===============================================================
 -->
-<!-- NexiMap Studio v61.69 - Remove region outlines from Shape Library - 2026-02-16 -->
+<!-- NexiMap Studio v62.01 - CLS visor filtering, font menu fixes - 2026-02-24 -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -1202,6 +1202,117 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.12);
       pointer-events: none;
     }
+    /* CLS Filter searchable dropdown */
+    .cls-filter-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 140px;
+    }
+    .cls-filter-wrap input[type="text"] {
+      width: 100%;
+      padding: 5px 28px 5px 8px;
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      font-size: 11px;
+      box-sizing: border-box;
+      background: white;
+    }
+    .cls-filter-wrap input[type="text"]:focus {
+      border-color: #0077b6;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0,119,182,0.15);
+    }
+    .cls-filter-wrap .cls-search-icon {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      color: #94a3b8;
+      pointer-events: none;
+    }
+    .cls-filter-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      max-height: 240px;
+      overflow-y: auto;
+      background: white;
+      border: 1px solid #d0d0d0;
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+      z-index: 1000;
+    }
+    .cls-filter-dropdown.open { display: block; }
+    .cls-filter-dropdown-item {
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .cls-filter-dropdown-item:last-child { border-bottom: none; }
+    .cls-filter-dropdown-item:hover,
+    .cls-filter-dropdown-item.highlighted {
+      background: #e3f2fd;
+    }
+    .cls-filter-dropdown-item .cls-item-name {
+      flex: 1;
+      font-weight: 500;
+      color: #1a1a2e;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .cls-filter-dropdown-item .cls-item-sub {
+      font-size: 10px;
+      color: #64748b;
+      white-space: nowrap;
+    }
+    .cls-filter-dropdown-item .cls-item-badge {
+      font-size: 9px;
+      background: #e3f2fd;
+      color: #0077b6;
+      padding: 1px 5px;
+      border-radius: 8px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .cls-filter-dropdown-hint {
+      padding: 8px 10px;
+      font-size: 10px;
+      color: #94a3b8;
+      text-align: center;
+      font-style: italic;
+    }
+    .cls-active-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #0077b6;
+      color: white;
+      padding: 2px 8px 2px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .cls-active-tag .cls-tag-close {
+      cursor: pointer;
+      font-size: 12px;
+      margin-left: 2px;
+      opacity: 0.8;
+    }
+    .cls-active-tag .cls-tag-close:hover { opacity: 1; }
+
     /* Visor toolbar toggle buttons */
     .visor-toggle-btn {
       padding: 3px 8px;
@@ -5213,7 +5324,7 @@
       </svg>
       <span style="font-weight:600; font-size:15px; color:#5a67d8; letter-spacing:-0.3px;">NexiMap</span>
       <span style="font-weight:400; font-size:15px; color:#666; letter-spacing:-0.3px;">Studio</span>
-      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v61.69</span>
+      <span id="appVersionBadge" style="font-size:9px; font-weight:500; color:#94a3b8; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:1px 5px; margin-left:2px; letter-spacing:0.2px; cursor:default; user-select:none;" title="Click for version info">v62.01</span>
     </div>
     <button class="menu-item" id="btnFile" type="button">File</button>
     <button class="menu-item" id="btnEditMenu" type="button">Edit</button>
@@ -5875,7 +5986,7 @@
           <rect x="3" y="19" width="18" height="3" fill="#e53935" stroke="none"/>
         </svg>
       </button>
-      <div class="menu" id="fontColorMenu" hidden style="min-width:260px; max-height:400px; overflow-y:auto;">
+      <div class="menu" id="fontColorMenu" hidden style="min-width:260px; max-height:400px; overflow-y:auto; left:auto; right:0;">
         <div style="padding:8px 12px; font-weight:600; border-bottom:1px solid #e0e0e0;">Font Colour & Visibility</div>
         <div id="fontColorNoSelection" class="muted" style="padding:12px;">Select a node, link, or container to format text.</div>
         <div id="fontColorFields" style="display:none;"></div>
@@ -5890,7 +6001,7 @@
           <text x="13" y="16" font-size="10" fill="currentColor" stroke="none">T</text>
         </svg>
       </button>
-      <div class="menu" id="fontTypeMenu" hidden style="min-width:280px; max-height:400px; overflow-y:auto;">
+      <div class="menu" id="fontTypeMenu" hidden style="min-width:280px; max-height:400px; overflow-y:auto; left:auto; right:0;">
         <div style="padding:8px 12px; font-weight:600; border-bottom:1px solid #e0e0e0;">Font Type & Size</div>
         <div id="fontTypeNoSelection" class="muted" style="padding:12px;">Select a node, link, or container to format text.</div>
         <div id="fontTypeFields" style="display:none;"></div>
@@ -10547,6 +10658,32 @@
     if (helpMenuEl) helpMenuEl.hidden = true;
   }
 
+  // Reposition a menu to prevent viewport overflow (right and bottom edges)
+  function repositionMenuInViewport(menu) {
+    if (!menu || menu.hidden) return;
+    // Let the browser render, then check bounds
+    requestAnimationFrame(() => {
+      const rect = menu.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      // Fix right overflow
+      if (rect.right > vw - 8) {
+        menu.style.left = 'auto';
+        menu.style.right = '0';
+      }
+      // Fix left overflow (if right-aligned pushes it left)
+      if (rect.left < 8) {
+        menu.style.left = '0';
+        menu.style.right = 'auto';
+      }
+      // Fix bottom overflow
+      if (rect.bottom > vh - 8) {
+        menu.style.top = 'auto';
+        menu.style.bottom = '100%';
+      }
+    });
+  }
+
   function toggleMenu(btn, menu) {
     closeAllMenus();
     menu.hidden = !menu.hidden;
@@ -13450,7 +13587,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
 
   // Font families and sizes available
   const fontFamilies = ['Arial', 'Times New Roman', 'Courier New', 'Verdana', 'Georgia', 'Helvetica'];
-  const fontSizes = [6, 8, 9, 10, 11, 12, 14, 16, 18, 20, 24];
+  const fontSizes = [6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 22, 24, 28, 32, 36, 40];
 
   // Text field definitions per object type
   // Simplified to match actual rendering: one text block per visual element
@@ -13480,6 +13617,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       closeAllMenus();
       updateFontColorMenu();
       fontColorMenu.hidden = !fontColorMenu.hidden;
+      if (!fontColorMenu.hidden) repositionMenuInViewport(fontColorMenu);
     });
 
     fontColorMenu.addEventListener('click', (ev) => ev.stopPropagation());
@@ -13607,6 +13745,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       closeAllMenus();
       updateFontTypeMenu();
       fontTypeMenu.hidden = !fontTypeMenu.hidden;
+      if (!fontTypeMenu.hidden) repositionMenuInViewport(fontTypeMenu);
     });
 
     fontTypeMenu.addEventListener('click', (ev) => ev.stopPropagation());
@@ -13653,24 +13792,115 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
         commit(); render();
       });
 
-      // Font size select
-      const sizeSelect = document.createElement('select');
-      sizeSelect.style.cssText = 'width:50px; font-size:11px; padding:2px 4px; border:1px solid #ccc; border-radius:3px;';
-      fontSizes.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s;
-        opt.textContent = s + 'px';
-        opt.selected = (obj[field.sizeKey] || 12) === s;
-        sizeSelect.appendChild(opt);
-      });
-      sizeSelect.addEventListener('change', () => {
-        obj[field.sizeKey] = parseInt(sizeSelect.value);
+      // Font size stepper: [−] [input/dropdown] [+]
+      const currentSize = obj[field.sizeKey] || 12;
+
+      const sizeWrap = document.createElement('div');
+      sizeWrap.style.cssText = 'display:flex; align-items:center; gap:0; flex-shrink:0; position:relative;';
+
+      const applySize = (val) => {
+        const n = Math.max(1, Math.min(200, parseInt(val) || 12));
+        obj[field.sizeKey] = n;
+        sizeInput.value = n;
         commit(); render();
+      };
+
+      // Decrease button
+      const btnDec = document.createElement('button');
+      btnDec.type = 'button';
+      btnDec.textContent = '\u2212';
+      btnDec.title = 'Decrease font size';
+      btnDec.style.cssText = 'width:22px; height:24px; border:1px solid #ccc; border-radius:3px 0 0 3px; background:#f8f9fa; cursor:pointer; font-size:13px; font-weight:600; color:#333; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;';
+      btnDec.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const cur = obj[field.sizeKey] || 12;
+        // Step to previous preset, or -1 if between presets
+        const smaller = fontSizes.filter(s => s < cur);
+        applySize(smaller.length > 0 ? smaller[smaller.length - 1] : Math.max(1, cur - 1));
       });
+      btnDec.addEventListener('mouseenter', () => { btnDec.style.background = '#e3f2fd'; });
+      btnDec.addEventListener('mouseleave', () => { btnDec.style.background = '#f8f9fa'; });
+
+      // Editable input with dropdown
+      const sizeInput = document.createElement('input');
+      sizeInput.type = 'text';
+      sizeInput.value = currentSize;
+      sizeInput.title = 'Type a custom size or click to select';
+      sizeInput.style.cssText = 'width:38px; height:24px; border:1px solid #ccc; border-left:none; border-right:none; text-align:center; font-size:11px; padding:0 2px; box-sizing:border-box; outline:none; background:white;';
+
+      // Select all on focus for easy replacement
+      sizeInput.addEventListener('focus', () => {
+        sizeInput.select();
+        sizeDropdown.style.display = 'block';
+      });
+      sizeInput.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') {
+          ev.preventDefault();
+          applySize(sizeInput.value);
+          sizeDropdown.style.display = 'none';
+          sizeInput.blur();
+        } else if (ev.key === 'Escape') {
+          sizeInput.value = obj[field.sizeKey] || 12;
+          sizeDropdown.style.display = 'none';
+          sizeInput.blur();
+        } else if (ev.key === 'ArrowUp') {
+          ev.preventDefault();
+          const cur = parseInt(sizeInput.value) || 12;
+          const bigger = fontSizes.filter(s => s > cur);
+          sizeInput.value = bigger.length > 0 ? bigger[0] : Math.min(200, cur + 1);
+        } else if (ev.key === 'ArrowDown') {
+          ev.preventDefault();
+          const cur = parseInt(sizeInput.value) || 12;
+          const smaller = fontSizes.filter(s => s < cur);
+          sizeInput.value = smaller.length > 0 ? smaller[smaller.length - 1] : Math.max(1, cur - 1);
+        }
+      });
+      sizeInput.addEventListener('blur', () => {
+        // Delay to allow dropdown click
+        setTimeout(() => { sizeDropdown.style.display = 'none'; }, 150);
+      });
+
+      // Preset size dropdown
+      const sizeDropdown = document.createElement('div');
+      sizeDropdown.style.cssText = 'display:none; position:absolute; top:100%; left:0; right:0; max-height:160px; overflow-y:auto; background:white; border:1px solid #ccc; border-radius:0 0 4px 4px; box-shadow:0 4px 12px rgba(0,0,0,0.12); z-index:1000;';
+      fontSizes.forEach(s => {
+        const item = document.createElement('div');
+        item.textContent = s + 'px';
+        item.style.cssText = `padding:3px 8px; font-size:11px; cursor:pointer; ${s === currentSize ? 'background:#e3f2fd; font-weight:600;' : ''}`;
+        item.addEventListener('mouseenter', () => { item.style.background = '#e3f2fd'; });
+        item.addEventListener('mouseleave', () => { item.style.background = s === (obj[field.sizeKey] || 12) ? '#e3f2fd' : 'white'; });
+        item.addEventListener('mousedown', (ev) => {
+          ev.preventDefault(); // Prevent input blur
+          applySize(s);
+          sizeDropdown.style.display = 'none';
+        });
+        sizeDropdown.appendChild(item);
+      });
+
+      // Increase button
+      const btnInc = document.createElement('button');
+      btnInc.type = 'button';
+      btnInc.textContent = '+';
+      btnInc.title = 'Increase font size';
+      btnInc.style.cssText = 'width:22px; height:24px; border:1px solid #ccc; border-radius:0 3px 3px 0; background:#f8f9fa; cursor:pointer; font-size:13px; font-weight:600; color:#333; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;';
+      btnInc.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const cur = obj[field.sizeKey] || 12;
+        // Step to next preset, or +1 if between presets
+        const bigger = fontSizes.filter(s => s > cur);
+        applySize(bigger.length > 0 ? bigger[0] : Math.min(200, cur + 1));
+      });
+      btnInc.addEventListener('mouseenter', () => { btnInc.style.background = '#e3f2fd'; });
+      btnInc.addEventListener('mouseleave', () => { btnInc.style.background = '#f8f9fa'; });
+
+      sizeWrap.appendChild(btnDec);
+      sizeWrap.appendChild(sizeInput);
+      sizeWrap.appendChild(btnInc);
+      sizeWrap.appendChild(sizeDropdown);
 
       row.appendChild(label);
       row.appendChild(fontSelect);
-      row.appendChild(sizeSelect);
+      row.appendChild(sizeWrap);
       fontTypeFields.appendChild(row);
     });
   }
@@ -22292,6 +22522,8 @@ function loadProjectObject(obj) {
       if (db && db.cables) {
         cableVisorState.cableDatabase = db;
         populateCableVisorRegionFilter(db);
+        // Initialize CLS filter (indices from cable_stations_db)
+        initCLSFilter();
         renderCableVisorList();
       } else {
         if (listEl) listEl.innerHTML = '<div style="padding:20px; text-align:center; color:#888;">No cables found</div>';
@@ -22712,6 +22944,431 @@ function loadProjectObject(obj) {
     console.log('[CableVisor] Regions populated:', sortedRegions.length);
   }
 
+  // ======================
+  // CLS Filter: Filter cables by Cable Landing Station, City, or Country
+  // ======================
+
+  // Country code to name mapping for display
+  const CLS_COUNTRY_NAMES = {
+    US:'United States',GB:'United Kingdom',JP:'Japan',AU:'Australia',DE:'Germany',FR:'France',
+    BR:'Brazil',IN:'India',CN:'China',SG:'Singapore',HK:'Hong Kong',KR:'South Korea',
+    TW:'Taiwan',NZ:'New Zealand',CA:'Canada',MX:'Mexico',CL:'Chile',AR:'Argentina',
+    PE:'Peru',CO:'Colombia',IT:'Italy',ES:'Spain',PT:'Portugal',NL:'Netherlands',
+    BE:'Belgium',DK:'Denmark',NO:'Norway',SE:'Sweden',FI:'Finland',IE:'Ireland',
+    EG:'Egypt',ZA:'South Africa',KE:'Kenya',NG:'Nigeria',AE:'United Arab Emirates',
+    SA:'Saudi Arabia',OM:'Oman',QA:'Qatar',MY:'Malaysia',TH:'Thailand',VN:'Vietnam',
+    PH:'Philippines',ID:'Indonesia',BD:'Bangladesh',PK:'Pakistan',LK:'Sri Lanka',
+    MM:'Myanmar',GR:'Greece',TR:'Turkey',CY:'Cyprus',MT:'Malta',HR:'Croatia',
+    IL:'Israel',JO:'Jordan',LB:'Lebanon',GH:'Ghana',SN:'Senegal',DJ:'Djibouti',
+    MZ:'Mozambique',TZ:'Tanzania',MG:'Madagascar',MU:'Mauritius',RU:'Russia',
+    PL:'Poland',RO:'Romania',BG:'Bulgaria',UA:'Ukraine',IS:'Iceland',FO:'Faroe Islands',
+    PA:'Panama',CR:'Costa Rica',GT:'Guatemala',HN:'Honduras',NI:'Nicaragua',
+    TT:'Trinidad and Tobago',JM:'Jamaica',BB:'Barbados',CU:'Cuba',DO:'Dominican Republic',
+    PR:'Puerto Rico',VI:'US Virgin Islands',GU:'Guam',FJ:'Fiji',PG:'Papua New Guinea',
+    NC:'New Caledonia',PF:'French Polynesia',WS:'Samoa',TO:'Tonga',VU:'Vanuatu',
+    MV:'Maldives',SC:'Seychelles',RE:'Reunion',YT:'Mayotte',KW:'Kuwait',BH:'Bahrain',
+    IR:'Iran',IQ:'Iraq',AT:'Austria',CH:'Switzerland',LU:'Luxembourg',CZ:'Czech Republic',
+    SK:'Slovakia',HU:'Hungary',RS:'Serbia',SI:'Slovenia',BA:'Bosnia and Herzegovina',
+    ME:'Montenegro',MK:'North Macedonia',AL:'Albania',LT:'Lithuania',LV:'Latvia',EE:'Estonia',
+    GE:'Georgia',AZ:'Azerbaijan',EC:'Ecuador',UY:'Uruguay',PY:'Paraguay',VE:'Venezuela',
+    BO:'Bolivia',GY:'Guyana',SR:'Suriname',AO:'Angola',CM:'Cameroon',GA:'Gabon',
+    CG:'Congo',CD:'DR Congo',CI:'Ivory Coast',GM:'Gambia',GN:'Guinea',SL:'Sierra Leone',
+    LR:'Liberia',TG:'Togo',BJ:'Benin',MR:'Mauritania',SO:'Somalia',ER:'Eritrea',
+    SD:'Sudan',ET:'Ethiopia',LY:'Libya',TN:'Tunisia',DZ:'Algeria',MA:'Morocco',
+    CV:'Cape Verde',ST:'Sao Tome and Principe',KM:'Comoros',YE:'Yemen',BN:'Brunei',
+    KH:'Cambodia',LA:'Laos',TL:'Timor-Leste',NP:'Nepal',BT:'Bhutan',AF:'Afghanistan',
+    UZ:'Uzbekistan',TM:'Turkmenistan',KZ:'Kazakhstan',KG:'Kyrgyzstan',TJ:'Tajikistan',
+    MN:'Mongolia'
+  };
+
+  function getCountryName(code) {
+    if (!code) return '';
+    return CLS_COUNTRY_NAMES[code.toUpperCase()] || code;
+  }
+
+  // CLS filter data indices (built once from cable_stations_db)
+  const clsFilterData = {
+    byName: new Map(),       // stationName -> { lat, lon, city, country, cable_systems }
+    byCity: new Map(),       // "city|country" -> [{ name, lat, lon, cable_systems }, ...]
+    byCountry: new Map(),    // countryCode -> [{ name, city, lat, lon, cable_systems }, ...]
+    built: false
+  };
+
+  function buildCLSFilterIndices() {
+    if (clsFilterData.built) return;
+    const facilities = (window._dcDatabase && window._dcDatabase.facilities) || [];
+    if (facilities.length === 0) {
+      console.warn('[CLS Filter] No facilities loaded yet');
+      return;
+    }
+
+    const stations = facilities.filter(f => f.facility_type === 'cable_station' && f.latitude && f.longitude);
+    console.log('[CLS Filter] Building indices from', stations.length, 'cable stations');
+
+    stations.forEach(fac => {
+      const name = fac.name || `${fac.city || 'Unknown'} CLS`;
+      const city = fac.city || '';
+      const country = fac.country || '';
+      const lat = parseFloat(fac.latitude);
+      const lon = parseFloat(fac.longitude);
+      const cable_systems = fac.cable_systems || [];
+
+      // By name
+      clsFilterData.byName.set(name, { lat, lon, city, country, cable_systems });
+
+      // By city (key = "city|country" for uniqueness)
+      const cityKey = `${city.toLowerCase()}|${country.toLowerCase()}`;
+      if (city) {
+        if (!clsFilterData.byCity.has(cityKey)) {
+          clsFilterData.byCity.set(cityKey, { city, country, stations: [] });
+        }
+        clsFilterData.byCity.get(cityKey).stations.push({ name, lat, lon, cable_systems });
+      }
+
+      // By country
+      if (country) {
+        if (!clsFilterData.byCountry.has(country)) {
+          clsFilterData.byCountry.set(country, []);
+        }
+        clsFilterData.byCountry.get(country).push({ name, city, lat, lon, cable_systems });
+      }
+    });
+
+    clsFilterData.built = true;
+    console.log('[CLS Filter] Indices built:', clsFilterData.byName.size, 'stations,', clsFilterData.byCity.size, 'cities,', clsFilterData.byCountry.size, 'countries');
+  }
+
+  // Resolve CLS filter to a set of cable system names
+  function resolveCLSCableSystems(mode, key) {
+    const cableNames = new Set();
+    if (mode === 'station') {
+      const station = clsFilterData.byName.get(key);
+      if (station) station.cable_systems.forEach(c => cableNames.add(c.toLowerCase()));
+    } else if (mode === 'city') {
+      const cityData = clsFilterData.byCity.get(key);
+      if (cityData) {
+        cityData.stations.forEach(s => s.cable_systems.forEach(c => cableNames.add(c.toLowerCase())));
+      }
+    } else if (mode === 'country') {
+      const countryStations = clsFilterData.byCountry.get(key);
+      if (countryStations) {
+        countryStations.forEach(s => s.cable_systems.forEach(c => cableNames.add(c.toLowerCase())));
+      }
+    }
+    return cableNames;
+  }
+
+  // Check if a cable matches the CLS filter cable names set
+  function cableMatchesCLSFilter(cable, allowedCableNames) {
+    if (!allowedCableNames || allowedCableNames.size === 0) return false;
+    const name = (cable.name || '').toLowerCase();
+    const shortName = (cable.shortName || '').toLowerCase();
+    // Direct match
+    if (allowedCableNames.has(name) || allowedCableNames.has(shortName)) return true;
+    // Check if any allowed name is contained within cable name or vice versa
+    for (const allowed of allowedCableNames) {
+      if (name.includes(allowed) || allowed.includes(name)) return true;
+      if (shortName && (shortName.includes(allowed) || allowed.includes(shortName))) return true;
+      // Handle parenthetical abbreviations: "Asia Pacific Gateway (APG)" matches "apg"
+      const parenMatch = name.match(/\(([^)]+)\)/);
+      if (parenMatch && parenMatch[1].toLowerCase() === allowed) return true;
+    }
+    return false;
+  }
+
+  // Compute bounding box for CLS filter zoom
+  function computeCLSBounds(mode, key) {
+    const coords = [];
+    if (mode === 'station') {
+      const station = clsFilterData.byName.get(key);
+      if (station) coords.push([station.lon, station.lat]);
+    } else if (mode === 'city') {
+      const cityData = clsFilterData.byCity.get(key);
+      if (cityData) cityData.stations.forEach(s => coords.push([s.lon, s.lat]));
+    } else if (mode === 'country') {
+      const countryStations = clsFilterData.byCountry.get(key);
+      if (countryStations) countryStations.forEach(s => coords.push([s.lon, s.lat]));
+    }
+    if (coords.length === 0) return null;
+    if (coords.length === 1) return { center: coords[0], zoom: 11 };
+
+    let minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
+    coords.forEach(([lon, lat]) => {
+      if (lon < minLon) minLon = lon;
+      if (lon > maxLon) maxLon = lon;
+      if (lat < minLat) minLat = lat;
+      if (lat > maxLat) maxLat = lat;
+    });
+    return { bounds: [[minLon, minLat], [maxLon, maxLat]] };
+  }
+
+  // Apply CLS filter
+  function applyCLSFilter(mode, key, displayLabel) {
+    const cableSystems = resolveCLSCableSystems(mode, key);
+    cableVisorState.clsFilter = { mode, key, cableSystems, label: displayLabel };
+
+    // Show active tag
+    const tagEl = document.getElementById('cableVisorCLSTag');
+    if (tagEl) {
+      const modeLabel = mode === 'station' ? 'Station' : mode === 'city' ? 'City' : 'Country';
+      tagEl.innerHTML = `<span class="cls-active-tag"><span>${escapeHtml(modeLabel)}: ${escapeHtml(displayLabel)}</span><span class="cls-tag-close" id="btnClearCLSTag">&times;</span></span>`;
+      tagEl.style.display = '';
+      document.getElementById('btnClearCLSTag')?.addEventListener('click', clearCLSFilter);
+    }
+
+    // Hide search wrap, show tag
+    const wrapEl = document.getElementById('cableVisorCLSWrap');
+    if (wrapEl) wrapEl.style.display = 'none';
+
+    // Close dropdown
+    const dropdown = document.getElementById('cableVisorCLSDropdown');
+    if (dropdown) dropdown.classList.remove('open');
+
+    // Re-render cable list with filter
+    renderCableVisorList();
+
+    // Zoom map
+    const map = cableVisorState.map;
+    if (map && cableVisorState.mapReady) {
+      const boundsInfo = computeCLSBounds(mode, key);
+      if (boundsInfo) {
+        if (boundsInfo.center) {
+          map.flyTo({ center: boundsInfo.center, zoom: boundsInfo.zoom, duration: 1500 });
+        } else if (boundsInfo.bounds) {
+          map.fitBounds(boundsInfo.bounds, { padding: 60, duration: 1500 });
+        }
+      }
+    }
+
+    console.log('[CLS Filter] Applied:', mode, key, '- matching', cableSystems.size, 'cable systems');
+  }
+
+  // Clear CLS filter
+  function clearCLSFilter() {
+    cableVisorState.clsFilter = null;
+
+    const tagEl = document.getElementById('cableVisorCLSTag');
+    if (tagEl) { tagEl.innerHTML = ''; tagEl.style.display = 'none'; }
+
+    const modeSelect = document.getElementById('cableVisorCLSMode');
+    if (modeSelect) modeSelect.value = '';
+
+    const wrapEl = document.getElementById('cableVisorCLSWrap');
+    if (wrapEl) wrapEl.style.display = 'none';
+
+    const inputEl = document.getElementById('cableVisorCLSInput');
+    if (inputEl) inputEl.value = '';
+
+    renderCableVisorList();
+  }
+
+  // Populate dropdown items based on mode
+  function getCLSDropdownItems(mode) {
+    const items = [];
+    if (mode === 'station') {
+      clsFilterData.byName.forEach((data, name) => {
+        const cableCount = data.cable_systems.length;
+        items.push({
+          key: name,
+          label: name,
+          sub: `${data.city}${data.country ? ', ' + getCountryName(data.country) : ''}`,
+          badge: cableCount > 0 ? `${cableCount} cable${cableCount !== 1 ? 's' : ''}` : '',
+          searchText: `${name} ${data.city} ${getCountryName(data.country)} ${data.country}`.toLowerCase()
+        });
+      });
+    } else if (mode === 'city') {
+      clsFilterData.byCity.forEach((data, cityKey) => {
+        const stationCount = data.stations.length;
+        const totalCables = new Set();
+        data.stations.forEach(s => s.cable_systems.forEach(c => totalCables.add(c)));
+        items.push({
+          key: cityKey,
+          label: data.city,
+          sub: getCountryName(data.country),
+          badge: `${stationCount} stn${stationCount !== 1 ? 's' : ''}, ${totalCables.size} cable${totalCables.size !== 1 ? 's' : ''}`,
+          searchText: `${data.city} ${getCountryName(data.country)} ${data.country}`.toLowerCase()
+        });
+      });
+    } else if (mode === 'country') {
+      clsFilterData.byCountry.forEach((stations, code) => {
+        const totalCables = new Set();
+        const cities = new Set();
+        stations.forEach(s => {
+          s.cable_systems.forEach(c => totalCables.add(c));
+          if (s.city) cities.add(s.city);
+        });
+        items.push({
+          key: code,
+          label: getCountryName(code),
+          sub: `${code}`,
+          badge: `${stations.length} stn${stations.length !== 1 ? 's' : ''}, ${totalCables.size} cable${totalCables.size !== 1 ? 's' : ''}`,
+          searchText: `${getCountryName(code)} ${code}`.toLowerCase()
+        });
+      });
+    }
+    items.sort((a, b) => a.label.localeCompare(b.label));
+    return items;
+  }
+
+  // CLS Filter dropdown rendering and interaction
+  let _clsDropdownItems = [];
+  let _clsHighlightIdx = -1;
+
+  function renderCLSDropdown(items, query) {
+    const dropdown = document.getElementById('cableVisorCLSDropdown');
+    if (!dropdown) return;
+
+    const q = (query || '').toLowerCase().trim();
+    const filtered = q ? items.filter(it => it.searchText.includes(q)) : items;
+    const limited = filtered.slice(0, 50);
+
+    _clsDropdownItems = limited;
+    _clsHighlightIdx = -1;
+
+    if (limited.length === 0) {
+      dropdown.innerHTML = '<div class="cls-filter-dropdown-hint">No matches found</div>';
+      dropdown.classList.add('open');
+      return;
+    }
+
+    let html = '';
+    if (!q && filtered.length > 50) {
+      html += '<div class="cls-filter-dropdown-hint">Showing first 50 — type to narrow results</div>';
+    }
+    limited.forEach((item, idx) => {
+      html += `<div class="cls-filter-dropdown-item" data-idx="${idx}">
+        <span class="cls-item-name">${escapeHtml(item.label)}</span>
+        <span class="cls-item-sub">${escapeHtml(item.sub)}</span>
+        ${item.badge ? `<span class="cls-item-badge">${escapeHtml(item.badge)}</span>` : ''}
+      </div>`;
+    });
+
+    dropdown.innerHTML = html;
+    dropdown.classList.add('open');
+
+    // Click handlers
+    dropdown.querySelectorAll('.cls-filter-dropdown-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const idx = parseInt(el.dataset.idx);
+        const item = _clsDropdownItems[idx];
+        if (item) {
+          const mode = document.getElementById('cableVisorCLSMode')?.value;
+          applyCLSFilter(mode, item.key, item.label);
+        }
+      });
+    });
+  }
+
+  function highlightCLSDropdownItem(idx) {
+    const dropdown = document.getElementById('cableVisorCLSDropdown');
+    if (!dropdown) return;
+    dropdown.querySelectorAll('.cls-filter-dropdown-item').forEach(el => el.classList.remove('highlighted'));
+    if (idx >= 0 && idx < _clsDropdownItems.length) {
+      const el = dropdown.querySelector(`[data-idx="${idx}"]`);
+      if (el) {
+        el.classList.add('highlighted');
+        el.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }
+
+  // Initialize CLS Filter event listeners
+  let _clsFilterInitialized = false;
+  function initCLSFilter() {
+    if (_clsFilterInitialized) return;
+    _clsFilterInitialized = true;
+
+    buildCLSFilterIndices();
+
+    const modeSelect = document.getElementById('cableVisorCLSMode');
+    const wrapEl = document.getElementById('cableVisorCLSWrap');
+    const inputEl = document.getElementById('cableVisorCLSInput');
+    const dropdown = document.getElementById('cableVisorCLSDropdown');
+
+    if (!modeSelect || !wrapEl || !inputEl || !dropdown) return;
+
+    let _allItems = [];
+    let _debounceTimer = null;
+
+    // Mode change
+    modeSelect.addEventListener('change', () => {
+      const mode = modeSelect.value;
+      // Clear any active filter when changing mode
+      if (cableVisorState.clsFilter) clearCLSFilter();
+      // Restore mode selection since clearCLSFilter resets it
+      modeSelect.value = mode;
+
+      if (!mode) {
+        wrapEl.style.display = 'none';
+        return;
+      }
+
+      // Ensure indices are built
+      buildCLSFilterIndices();
+
+      const placeholders = {
+        station: 'Search station name...',
+        city: 'Search city...',
+        country: 'Search country...'
+      };
+      inputEl.placeholder = placeholders[mode] || 'Search...';
+      inputEl.value = '';
+      wrapEl.style.display = '';
+
+      _allItems = getCLSDropdownItems(mode);
+      renderCLSDropdown(_allItems, '');
+      inputEl.focus();
+    });
+
+    // Search input
+    inputEl.addEventListener('input', () => {
+      clearTimeout(_debounceTimer);
+      _debounceTimer = setTimeout(() => {
+        renderCLSDropdown(_allItems, inputEl.value);
+      }, 120);
+    });
+
+    inputEl.addEventListener('focus', () => {
+      if (_allItems.length > 0) {
+        renderCLSDropdown(_allItems, inputEl.value);
+      }
+    });
+
+    // Keyboard navigation
+    inputEl.addEventListener('keydown', (e) => {
+      if (!dropdown.classList.contains('open')) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        _clsHighlightIdx = Math.min(_clsHighlightIdx + 1, _clsDropdownItems.length - 1);
+        highlightCLSDropdownItem(_clsHighlightIdx);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        _clsHighlightIdx = Math.max(_clsHighlightIdx - 1, 0);
+        highlightCLSDropdownItem(_clsHighlightIdx);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (_clsHighlightIdx >= 0 && _clsHighlightIdx < _clsDropdownItems.length) {
+          const item = _clsDropdownItems[_clsHighlightIdx];
+          const mode = modeSelect.value;
+          applyCLSFilter(mode, item.key, item.label);
+        }
+      } else if (e.key === 'Escape') {
+        dropdown.classList.remove('open');
+        inputEl.blur();
+      }
+    });
+
+    // Click outside to close
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.cls-filter-wrap')) {
+        dropdown.classList.remove('open');
+      }
+    });
+
+    console.log('[CLS Filter] Initialized');
+  }
+
   function renderCableVisorList() {
     const listEl = document.getElementById('cableVisorCableList');
     const countEl = document.getElementById('cableVisorCableCount');
@@ -22735,7 +23392,11 @@ function loadProjectObject(obj) {
         const name = (cable.name || '').toLowerCase();
         const shortName = (cable.shortName || '').toLowerCase();
         const owners = (cable.owners || []).join(' ').toLowerCase();
-        return name.includes(search) || shortName.includes(search) || owners.includes(search);
+        if (!(name.includes(search) || shortName.includes(search) || owners.includes(search))) return false;
+      }
+      // CLS filter
+      if (cableVisorState.clsFilter && cableVisorState.clsFilter.cableSystems) {
+        if (!cableMatchesCLSFilter(cable, cableVisorState.clsFilter.cableSystems)) return false;
       }
       return true;
     });
@@ -22995,6 +23656,10 @@ function loadProjectObject(obj) {
         const shortName = (cable.shortName || '').toLowerCase();
         if (!name.includes(search) && !shortName.includes(search)) return;
       }
+      // CLS filter
+      if (cableVisorState.clsFilter && cableVisorState.clsFilter.cableSystems) {
+        if (!cableMatchesCLSFilter(cable, cableVisorState.clsFilter.cableSystems)) return;
+      }
       if (!cableVisorState.selectedCables.has(String(cable.id))) {
         cableVisorState.selectedCables.add(String(cable.id));
         addCableToVisorMap(String(cable.id));
@@ -23148,12 +23813,14 @@ function loadProjectObject(obj) {
     if (srcList) srcList.addEventListener('change', () => {
       if (srcList.checked) {
         cableVisorState.cableDatabase = null; // Clear cache
+        if (cableVisorState.clsFilter) clearCLSFilter();
         loadCableVisorData(true);
       }
     });
     if (srcAPI) srcAPI.addEventListener('change', () => {
       if (srcAPI.checked) {
         cableVisorState.cableDatabase = null;
+        if (cableVisorState.clsFilter) clearCLSFilter();
         loadCableVisorData(true);
       }
     });
@@ -50052,6 +50719,21 @@ function handlePathKmlImport(e) {
         </div>
       </div>
     </div>
+    <div style="display:flex; gap:6px; align-items:center; margin-top:5px; padding-top:5px; border-top:1px solid #e9ecef;">
+      <span style="font-size:10px; font-weight:600; color:#64748b;">CLS Filter:</span>
+      <select id="cableVisorCLSMode" style="padding:3px 6px; font-size:10px; border:1px solid #d0d0d0; border-radius:4px; background:white;">
+        <option value="">Off</option>
+        <option value="station">By Station</option>
+        <option value="city">By City</option>
+        <option value="country">By Country</option>
+      </select>
+      <div class="cls-filter-wrap" id="cableVisorCLSWrap" style="display:none;">
+        <input type="text" id="cableVisorCLSInput" placeholder="Type to search..." autocomplete="off" />
+        <span class="cls-search-icon">&#x1F50D;</span>
+        <div class="cls-filter-dropdown" id="cableVisorCLSDropdown"></div>
+      </div>
+      <span id="cableVisorCLSTag" style="display:none;"></span>
+    </div>
   </div>
   <div id="cableVisorMap">
     <div id="cableVisorMapContainer" style="width:100%; height:100%;"></div>
@@ -50867,7 +51549,7 @@ function handlePathKmlImport(e) {
         <circle cx="24" cy="24" r="2.5" fill="white"/>
       </svg>
       <h2 style="margin:0 0 4px; font-size:20px; color:#333;">NexiMap Studio</h2>
-      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 61.69 <span style="color:#b0b0b0; font-size:11px;">• Build 2026-02-16</span></p>
+      <p style="margin:0 0 16px; color:#888; font-size:13px;" id="aboutVersionText">Version 62.01 <span style="color:#b0b0b0; font-size:11px;">• Build 2026-02-24</span></p>
       <p style="margin:0 0 20px; color:#555; font-size:13px; line-height:1.6;">
         Professional network topology and diagram design tool with geographic mapping, cost analysis, and route optimization.
       </p>
