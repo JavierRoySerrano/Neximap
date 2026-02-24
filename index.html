@@ -23451,93 +23451,71 @@ function loadProjectObject(obj) {
         }
       });
 
-      // If landing points have no coordinates, use cable geometry endpoints
-      if (!hasCoordLPs && cable.geometry && cable.geometry.coordinates) {
-        const geom = cable.geometry;
-        let segments = [];
-        if (geom.type === 'MultiLineString') {
-          segments = geom.coordinates;
-        } else if (geom.type === 'LineString') {
-          segments = [geom.coordinates];
-        }
-
-        // Get unique endpoints (first and last of each segment)
-        const endpointsList = [];
-        const endpointKeys = new Set();
-        segments.forEach(seg => {
-          if (seg.length > 0) {
-            [seg[0], seg[seg.length - 1]].forEach(pt => {
-              const k = `${pt[1].toFixed(3)}_${pt[0].toFixed(3)}`;
-              if (!endpointKeys.has(k)) {
-                endpointKeys.add(k);
-                endpointsList.push(pt);
-              }
-            });
-          }
-        });
-
-        // Sort endpoints by longitude for geographic-order matching with landing points
-        endpointsList.sort((a, b) => a[0] - b[0]);
-
-        // Match landing points to geometry endpoints
-        // Strategy: assign named landing points to endpoints, skip excess unnamed endpoints
+      // If landing points have no coordinates, resolve them from cable_stations_db
+      // (the same database used by the DC Visor, which has accurate lat/lon for
+      // 1241 cable stations). This replaces the old approach of matching stations
+      // to geometry endpoints by sequential order, which produced wrong positions
+      // when the API list order didn't match geographic order (e.g. FALCON).
+      if (!hasCoordLPs && lps.length > 0) {
+        const cableName = cable.shortName || cable.name;
+        const fullCableName = cable.name || '';
         const namedLPs = lps.filter(lp => lp.name);
 
-        if (namedLPs.length > 0 && endpointsList.length > namedLPs.length) {
-          // More geometry endpoints than landing points:
-          // Select the best-matching endpoints (most spread-out subset)
-          // by picking endpoints at even intervals
-          const step = endpointsList.length / namedLPs.length;
-          const selectedIndices = [];
-          for (let i = 0; i < namedLPs.length; i++) {
-            selectedIndices.push(Math.round(i * step));
+        // Use cable stations database (window._dcDatabase) for accurate coordinates
+        const dbFacilities = (window._dcDatabase && window._dcDatabase.facilities) || [];
+
+        namedLPs.forEach(lp => {
+          const lpCity = (lp.name || '').toLowerCase().trim();
+          const lpCountry = (lp.country || '').toLowerCase().trim();
+
+          // Strategy 1: cable_station whose cable_systems includes this cable AND city matches
+          let match = dbFacilities.find(fac => {
+            if (!fac.latitude || !fac.longitude) return false;
+            if (fac.facility_type !== 'cable_station') return false;
+            const facCables = (fac.cable_systems || []).map(c => c.toLowerCase());
+            const cableNameLow = fullCableName.toLowerCase();
+            if (!facCables.some(c => c === cableNameLow || cableNameLow.includes(c) || c.includes(cableNameLow))) return false;
+            const facCity = (fac.city || '').toLowerCase().trim();
+            return facCity === lpCity || lpCity.includes(facCity) || facCity.includes(lpCity);
+          });
+
+          // Strategy 2: any cable_station matching city + country
+          if (!match) {
+            match = dbFacilities.find(fac => {
+              if (!fac.latitude || !fac.longitude) return false;
+              if (fac.facility_type !== 'cable_station') return false;
+              const facCity = (fac.city || '').toLowerCase().trim();
+              if (!(facCity === lpCity || lpCity.includes(facCity) || facCity.includes(lpCity))) return false;
+              if (lpCountry) {
+                const facCountry = (fac.country || '').toLowerCase().trim();
+                return lpCountry.includes(facCountry) || facCountry.includes(lpCountry);
+              }
+              return true;
+            });
           }
 
-          selectedIndices.forEach((epIdx, lpIdx) => {
-            const pt = endpointsList[epIdx];
-            const lon = pt[0], lat = pt[1];
+          if (match) {
+            const lat = parseFloat(match.latitude);
+            const lon = parseFloat(match.longitude);
             const key = `${lat.toFixed(3)}_${lon.toFixed(3)}`;
-            const lpName = namedLPs[lpIdx].name;
-            const lpCountry = namedLPs[lpIdx].country || '';
             if (!stationMap.has(key)) {
               stationMap.set(key, {
-                name: lpName,
-                country: lpCountry,
+                name: lp.name,
+                country: lp.country || match.country || '',
                 lat: lat,
                 lon: lon,
-                cables: [cable.shortName || cable.name]
+                cables: [cableName]
               });
             } else {
               const existing = stationMap.get(key);
-              if (!existing.cables.includes(cable.shortName || cable.name)) {
-                existing.cables.push(cable.shortName || cable.name);
+              if (!existing.cables.includes(cableName)) {
+                existing.cables.push(cableName);
               }
             }
-          });
-        } else {
-          // Equal or more landing points than endpoints: assign by index
-          endpointsList.forEach((pt, idx) => {
-            const lon = pt[0], lat = pt[1];
-            const key = `${lat.toFixed(3)}_${lon.toFixed(3)}`;
-            const lp = namedLPs[idx];
-            const lpName = lp ? lp.name : (cable.name + ' station');
-            const lpCountry = lp ? (lp.country || '') : '';
-            if (!stationMap.has(key)) {
-              stationMap.set(key, {
-                name: lpName,
-                country: lpCountry,
-                lat: lat,
-                lon: lon,
-                cables: [cable.shortName || cable.name]
-              });
-            } else {
-              const existing = stationMap.get(key);
-              if (!existing.cables.includes(cable.shortName || cable.name)) {
-                existing.cables.push(cable.shortName || cable.name);
-              }
-            }
-          });
-        }
+          }
+          // If no DB match found, skip rather than guess from geometry endpoints
+          // (wrong position is worse than no marker)
+        });
       }
     });
 
