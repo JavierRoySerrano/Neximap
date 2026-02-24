@@ -2933,19 +2933,19 @@
       "designCapacity": "350+ Tbps",
       "landingPoints": [
         {
-          "name": "Japan",
+          "name": "Shima",
           "country": "Japan",
           "coordinates": [
-            136.87,
-            34.34
+            136.874281,
+            34.33689
           ]
         },
         {
-          "name": "USA",
-          "country": "USA",
+          "name": "Eureka",
+          "country": "United States",
           "coordinates": [
-            -122.85,
-            34.63
+            -124.159554,
+            40.803255
           ]
         }
       ],
@@ -2954,8 +2954,8 @@
         "coordinates": [
           [
             [
-              136.87,
-              34.34
+              136.874281,
+              34.33689
             ],
             [
               143.1,
@@ -2989,15 +2989,15 @@
             ],
             [
               -138.8,
-              39.46
+              42.0
             ],
             [
               -129.6,
-              35.73
+              41.5
             ],
             [
-              -122.85,
-              34.63
+              -124.159554,
+              40.803255
             ]
           ]
         ]
@@ -3005,19 +3005,19 @@
       "segments": [
         {
           "index": 0,
-          "name": "Japan \u2192 Point (180.0, 42.7)",
-          "description": "Segment 1: Japan to Point (180.0, 42.7) (~4936 km, 6 waypoints)",
-          "startPoint": "Japan",
+          "name": "Shima \u2192 Point (180.0, 42.7)",
+          "description": "Segment 1: Shima to Point (180.0, 42.7) (~4936 km, 6 waypoints)",
+          "startPoint": "Shima",
           "endPoint": "Point (180.0, 42.7)",
           "approxLength_km": 4936,
           "waypointCount": 6
         },
         {
           "index": 1,
-          "name": "Point (-180.0, 42.7) \u2192 USA",
-          "description": "Segment 2: Point (-180.0, 42.7) to USA (~6481 km, 5 waypoints)",
+          "name": "Point (-180.0, 42.7) \u2192 Eureka",
+          "description": "Segment 2: Point (-180.0, 42.7) to Eureka (~6481 km, 5 waypoints)",
           "startPoint": "Point (-180.0, 42.7)",
-          "endPoint": "USA",
+          "endPoint": "Eureka",
           "approxLength_km": 6481,
           "waypointCount": 5
         }
