@@ -1222,7 +1222,13 @@
       white-space: nowrap;
       border: 1px solid rgba(0,0,0,0.15);
       box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-      pointer-events: none;
+      pointer-events: auto;
+      cursor: grab;
+      transition: box-shadow 0.15s;
+    }
+    .visor-fixed-label:active {
+      cursor: grabbing;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
     }
     /* CLS Filter searchable dropdown */
     .cls-filter-wrap {
@@ -24067,8 +24073,9 @@ function loadProjectObject(obj) {
   }
 
   // Calculate midpoint of a cable geometry for label placement
-  function getCableMidpoint(geometry) {
+  function getCableMidpoint(geometry, position) {
     if (!geometry || !geometry.coordinates) return null;
+    if (position === undefined) position = 0.5;
 
     let coords = [];
     if (geometry.type === 'MultiLineString') {
@@ -24081,8 +24088,9 @@ function loadProjectObject(obj) {
     }
 
     if (coords.length === 0) return null;
-    const mid = coords[Math.floor(coords.length / 2)];
-    return mid ? [mid[0], mid[1]] : null;
+    const idx = Math.min(Math.floor(coords.length * Math.max(0, Math.min(1, position))), coords.length - 1);
+    const pt = coords[idx];
+    return pt ? [pt[0], pt[1]] : null;
   }
 
   // Update fixed cable name labels on the map
@@ -24099,11 +24107,16 @@ function loadProjectObject(obj) {
     const db = cableVisorState.cableDatabase;
     if (!db || !db.cables) return;
 
-    cableVisorState.selectedCables.forEach(cableId => {
+    const cableIds = Array.from(cableVisorState.selectedCables);
+    const cableCount = cableIds.length;
+
+    cableIds.forEach((cableId, index) => {
       const cable = db.cables[cableId];
       if (!cable || !cable.geometry) return;
 
-      const midpoint = getCableMidpoint(cable.geometry);
+      // Distribute labels along cable: spread between 30%-70% of the line to reduce overlap
+      const position = cableCount <= 1 ? 0.5 : 0.3 + (0.4 * index / (cableCount - 1));
+      const midpoint = getCableMidpoint(cable.geometry, position);
       if (!midpoint) return;
 
       const el = document.createElement('div');
@@ -24111,7 +24124,7 @@ function loadProjectObject(obj) {
       el.textContent = cable.shortName || cable.name;
       el.style.borderLeft = `3px solid ${getCableColorById(cableId)}`;
 
-      const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+      const marker = new maplibregl.Marker({ element: el, anchor: 'bottom', draggable: true })
         .setLngLat(midpoint)
         .addTo(map);
 
@@ -24253,6 +24266,7 @@ function loadProjectObject(obj) {
     });
 
     // Create markers for each station
+    let stationIdx = 0;
     stationMap.forEach((station, key) => {
       // Station marker dot
       const el = document.createElement('div');
@@ -24293,12 +24307,18 @@ function loadProjectObject(obj) {
         labelEl.style.borderLeft = '3px solid #e63946';
         labelEl.style.fontSize = '9px';
 
-        const labelMarker = new maplibregl.Marker({ element: labelEl, anchor: 'left', offset: [8, 0] })
+        // Alternate anchor direction to reduce overlap when stations are near each other
+        const anchors = ['left', 'right', 'top', 'bottom'];
+        const offsets = [[8, 0], [-8, 0], [0, -8], [0, 8]];
+        const aIdx = stationIdx % anchors.length;
+
+        const labelMarker = new maplibregl.Marker({ element: labelEl, anchor: anchors[aIdx], offset: offsets[aIdx], draggable: true })
           .setLngLat([station.lon, station.lat])
           .addTo(map);
 
         cableVisorDisplayState.fixedStationLabels.push(labelMarker);
       }
+      stationIdx++;
     });
 
     console.log('[CableVisor] Station markers updated:', stationMap.size, 'stations');
