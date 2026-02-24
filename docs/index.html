@@ -1347,6 +1347,26 @@
     .visor-toggle-btn:hover { background: #e3f2fd; border-color: #0077b6; }
     .visor-toggle-btn.active { background: #0077b6; color: white; border-color: #0077b6; }
 
+    /* Collapsible filters toggle */
+    .visor-filters-toggle {
+      padding: 2px 8px; font-size: 10px; border: 1px solid #d0d0d0;
+      border-radius: 4px; background: white; cursor: pointer;
+      color: #64748b; transition: all 0.15s; display: flex;
+      align-items: center; gap: 4px; font-weight: 600;
+    }
+    .visor-filters-toggle:hover { border-color: #0077b6; color: #0077b6; }
+    .visor-filters-toggle.active { background: #e0f2fe; border-color: #0077b6; color: #0077b6; }
+    .visor-filters-toggle .filter-count {
+      background: #0077b6; color: white; font-size: 9px; font-weight: 700;
+      padding: 0 4px; border-radius: 8px; min-width: 14px; text-align: center;
+      line-height: 14px; display: none;
+    }
+    .visor-filters-toggle.has-filter .filter-count { display: inline-block; }
+    .visor-filters-section {
+      display: none; border-top: 1px solid #e9ecef; margin-top: 5px;
+      padding-top: 5px; transition: all 0.2s;
+    }
+    .visor-filters-section.show { display: block; }
     /* === Cable Visor Advanced Filters === */
     .visor-filter-row {
       display: flex; gap: 6px; align-items: center; margin-top: 5px;
@@ -24207,6 +24227,19 @@ function loadProjectObject(obj) {
     const clearBtn = document.getElementById('btnVisorClearAllFilters');
     if (clearBtn) clearBtn.style.display = anyFilterActive ? 'inline-block' : 'none';
 
+    // Update filter toggle badge count
+    const filterToggle = document.getElementById('btnVisorFiltersToggle');
+    const filterCountEl = document.getElementById('visorFilterCount');
+    if (filterToggle && filterCountEl) {
+      let activeCount = 0;
+      if (!allStatuses) activeCount++;
+      if (!allRfs) activeCount++;
+      if (!noOwners) activeCount++;
+      if (cableVisorState.clsFilter && cableVisorState.clsFilter.cableSystems) activeCount++;
+      filterCountEl.textContent = activeCount;
+      filterToggle.classList.toggle('has-filter', activeCount > 0);
+    }
+
     // RFS button label
     const rfsBtn = document.getElementById('btnVisorRfsFilter');
     if (rfsBtn) {
@@ -25290,45 +25323,35 @@ function loadProjectObject(obj) {
   // Toggle button handlers for cable visor display options
   document.addEventListener('DOMContentLoaded', () => {
     const btnShowNames = document.getElementById('btnVisorShowNames');
-    const btnFixNames = document.getElementById('btnVisorFixNames');
     const btnShowStations = document.getElementById('btnVisorShowStations');
-    const btnFixStationNames = document.getElementById('btnVisorFixStationNames');
+    const btnFiltersToggle = document.getElementById('btnVisorFiltersToggle');
+    const filtersSection = document.getElementById('visorFiltersSection');
 
+    // Consolidated Labels button: toggles both showNames + fixNames together
     if (btnShowNames) btnShowNames.addEventListener('click', () => {
-      cableVisorDisplayState.showNames = !cableVisorDisplayState.showNames;
-      btnShowNames.classList.toggle('active', cableVisorDisplayState.showNames);
-      // Show/hide the "Pin Names" button
-      if (btnFixNames) btnFixNames.style.display = cableVisorDisplayState.showNames ? '' : 'none';
-      if (!cableVisorDisplayState.showNames) {
-        cableVisorDisplayState.fixNames = false;
-        if (btnFixNames) btnFixNames.classList.remove('active');
-        updateFixedCableLabels();
-      }
-    });
-
-    if (btnFixNames) btnFixNames.addEventListener('click', () => {
-      cableVisorDisplayState.fixNames = !cableVisorDisplayState.fixNames;
-      btnFixNames.classList.toggle('active', cableVisorDisplayState.fixNames);
+      const newState = !cableVisorDisplayState.fixNames;
+      cableVisorDisplayState.showNames = newState;
+      cableVisorDisplayState.fixNames = newState;
+      btnShowNames.classList.toggle('active', newState);
       updateFixedCableLabels();
     });
 
+    // Consolidated Stations button: toggles both showStations + fixStationNames together
     if (btnShowStations) btnShowStations.addEventListener('click', () => {
-      cableVisorDisplayState.showStations = !cableVisorDisplayState.showStations;
-      btnShowStations.classList.toggle('active', cableVisorDisplayState.showStations);
-      // Show/hide the "Pin Stations" button
-      if (btnFixStationNames) btnFixStationNames.style.display = cableVisorDisplayState.showStations ? '' : 'none';
-      if (!cableVisorDisplayState.showStations) {
-        cableVisorDisplayState.fixStationNames = false;
-        if (btnFixStationNames) btnFixStationNames.classList.remove('active');
-      }
+      const newState = !cableVisorDisplayState.showStations;
+      cableVisorDisplayState.showStations = newState;
+      cableVisorDisplayState.fixStationNames = newState;
+      btnShowStations.classList.toggle('active', newState);
       updateStationMarkers();
     });
 
-    if (btnFixStationNames) btnFixStationNames.addEventListener('click', () => {
-      cableVisorDisplayState.fixStationNames = !cableVisorDisplayState.fixStationNames;
-      btnFixStationNames.classList.toggle('active', cableVisorDisplayState.fixStationNames);
-      updateStationMarkers();
-    });
+    // Collapsible filters toggle
+    if (btnFiltersToggle && filtersSection) {
+      btnFiltersToggle.addEventListener('click', () => {
+        filtersSection.classList.toggle('show');
+        btnFiltersToggle.classList.toggle('active', filtersSection.classList.contains('show'));
+      });
+    }
   });
 
   // ======================
@@ -51806,11 +51829,9 @@ function handlePathKmlImport(e) {
       <button class="btn" id="btnVisorClearAll" style="padding:4px 8px; font-size:11px;" title="Clear selection">✗ Clear</button>
     </div>
     <div style="display:flex; gap:6px; align-items:center; margin-top:4px;">
-      <span style="font-size:10px; font-weight:600; color:#64748b;">Display:</span>
-      <button class="visor-toggle-btn" id="btnVisorShowNames" title="Show/hide cable names on map">Names</button>
-      <button class="visor-toggle-btn" id="btnVisorShowStations" title="Show/hide cable landing stations on map">Stations</button>
-      <button class="visor-toggle-btn" id="btnVisorFixNames" title="Pin cable names permanently on map" style="display:none;">Pin Names</button>
-      <button class="visor-toggle-btn" id="btnVisorFixStationNames" title="Pin station names permanently on map" style="display:none;">Pin Stations</button>
+      <button class="visor-toggle-btn" id="btnVisorShowNames" title="Show cable name labels on map">🏷️ Labels</button>
+      <button class="visor-toggle-btn" id="btnVisorShowStations" title="Show cable landing stations on map">📍 Stations</button>
+      <button class="visor-filters-toggle" id="btnVisorFiltersToggle" title="Show/hide data filters">⚙️ Filters <span class="filter-count" id="visorFilterCount">0</span></button>
       <div style="flex:1;"></div>
       <div style="position:relative;">
         <button class="btn" id="btnCableVisorActions" style="padding:3px 8px;font-size:10px;" title="Image actions">&#x1F5BC;&#xFE0F; Image &#x25BC;</button>
@@ -51823,7 +51844,8 @@ function handlePathKmlImport(e) {
         </div>
       </div>
     </div>
-    <div style="display:flex; gap:6px; align-items:center; margin-top:5px; padding-top:5px; border-top:1px solid #e9ecef;">
+    <div class="visor-filters-section" id="visorFiltersSection">
+    <div style="display:flex; gap:6px; align-items:center;">
       <span style="font-size:10px; font-weight:600; color:#64748b;">Map Style:</span>
       <select id="cableVisorMapStyle" style="padding:3px 6px; font-size:10px; border:1px solid #d0d0d0; border-radius:4px; background:white; max-width:160px;">
         <option value="osm">OpenStreetMap</option>
@@ -51834,7 +51856,7 @@ function handlePathKmlImport(e) {
         <option value="cartoDark">Carto Dark</option>
       </select>
     </div>
-    <div style="display:flex; gap:6px; align-items:center; margin-top:5px; padding-top:5px; border-top:1px solid #e9ecef;">
+    <div style="display:flex; gap:6px; align-items:center; margin-top:4px;">
       <span style="font-size:10px; font-weight:600; color:#64748b;">CLS Filter:</span>
       <select id="cableVisorCLSMode" style="padding:3px 6px; font-size:10px; border:1px solid #d0d0d0; border-radius:4px; background:white;">
         <option value="">Off</option>
@@ -51887,6 +51909,7 @@ function handlePathKmlImport(e) {
       <button class="visor-filter-clear-all" id="btnVisorClearAllFilters" title="Reset all filters" style="display:none;">Clear Filters</button>
     </div>
     <div class="visor-owner-tags" id="visorOwnerTags"></div>
+    </div>
   </div>
   <div id="cableVisorMap">
     <div id="cableVisorMapContainer" style="width:100%; height:100%;"></div>
