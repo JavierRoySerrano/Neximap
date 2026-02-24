@@ -4,6 +4,17 @@
   "source": "TeleGeography SubmarineCableMap + Manual Enrichment",
   "license": "Database structure by NexiMap Studio. Geometry data from TeleGeography (CC BY-NC-SA 3.0)",
   "regionDefinitions": {
+    "corridors": [
+      "Transatlantic",
+      "Transpacific",
+      "Indian Ocean",
+      "Africa Coastal",
+      "Intra-Asia",
+      "Intra-Europe",
+      "Intra-Americas",
+      "Intra-Middle East",
+      "Intra-Oceania"
+    ],
     "continents": [
       "North America",
       "Central America",
@@ -19,29 +30,13 @@
       "North Asia",
       "South Asia",
       "Oceania"
-    ],
-    "transitTypes": [
-      "Europe-North America",
-      "North Asia-North America",
-      "Europe-Asia",
-      "Europe-India",
-      "India-Asia",
-      "IntraEurope",
-      "IntraAsia",
-      "IntraIndia",
-      "Europe-Africa",
-      "Africa-Asia",
-      "Oceania-North America",
-      "Asia-Oceania",
-      "North America-South America",
-      "Europe-South America"
     ]
   },
   "cables": {
     "amitie": {
       "id": "amitie",
-      "name": "Amiti\u00e9",
-      "region": "Europe-North America",
+      "name": "Amitié",
+      "region": "Transatlantic",
       "rfs": "2022",
       "length_km": 6234,
       "owners": [
@@ -150,7 +145,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Lynn, Massachusetts \u2192 Le Porge",
+          "name": "Lynn, Massachusetts → Le Porge",
           "description": "Segment 1: Lynn, Massachusetts to Le Porge (~7984 km, 11 waypoints)",
           "startPoint": "Lynn, Massachusetts",
           "endPoint": "Le Porge",
@@ -159,7 +154,7 @@
         },
         {
           "index": 1,
-          "name": "Point (-10.8, 49.4) \u2192 Bude",
+          "name": "Point (-10.8, 49.4) → Bude",
           "description": "Segment 2: Point (-10.8, 49.4) to Bude (~728 km, 4 waypoints)",
           "startPoint": "Point (-10.8, 49.4)",
           "endPoint": "Bude",
@@ -170,12 +165,12 @@
       "status": "Active",
       "rfsYear": 2022,
       "capacityTbps": 400,
-      "shortName": "Amiti\u00e9"
+      "shortName": "Amitié"
     },
     "marea": {
       "id": "marea",
       "name": "MAREA",
-      "region": "Europe-North America",
+      "region": "Transatlantic",
       "rfs": "2018",
       "length_km": 6605,
       "owners": [
@@ -244,7 +239,7 @@
     "dunant": {
       "id": "dunant",
       "name": "Dunant",
-      "region": "Europe-North America",
+      "region": "Transatlantic",
       "rfs": "2021",
       "length_km": 6400,
       "owners": [
@@ -311,7 +306,7 @@
     "havfrue-aec-2": {
       "id": "havfrue-aec-2",
       "name": "Havfrue/AEC-2",
-      "region": "Europe-North America",
+      "region": "Transatlantic",
       "rfs": "2020",
       "length_km": 7200,
       "owners": [
@@ -400,7 +395,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Wall Township, New Jersey \u2192 Blaabjerg",
+          "name": "Wall Township, New Jersey → Blaabjerg",
           "description": "Segment 1: Wall Township, New Jersey to Blaabjerg (~9366 km, 7 waypoints)",
           "startPoint": "Wall Township, New Jersey",
           "endPoint": "Blaabjerg",
@@ -409,7 +404,7 @@
         },
         {
           "index": 1,
-          "name": "Point (0.0, 56.0) \u2192 Kristiansand",
+          "name": "Point (0.0, 56.0) → Kristiansand",
           "description": "Segment 2: Point (0.0, 56.0) to Kristiansand (~920 km, 3 waypoints)",
           "startPoint": "Point (0.0, 56.0)",
           "endPoint": "Kristiansand",
@@ -425,7 +420,7 @@
     "aec-1": {
       "id": "aec-1",
       "name": "AEC-1",
-      "region": "Europe-North America",
+      "region": "Transatlantic",
       "rfs": "2016",
       "length_km": 5536,
       "owners": [
@@ -488,7 +483,7 @@
     "seabras-1": {
       "id": "seabras-1",
       "name": "SEABRAS-1",
-      "region": "North America-South America",
+      "region": "Intra-Americas",
       "rfs": "2018",
       "length_km": 10800,
       "owners": [
@@ -551,7 +546,7 @@
     "seacom": {
       "id": "seacom",
       "name": "SEACOM",
-      "region": "Europe-Africa-India",
+      "region": "Indian Ocean",
       "rfs": "2009",
       "length_km": 17000,
       "owners": [
@@ -685,7 +680,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Marseille \u2192 Mumbai",
+          "name": "Marseille → Mumbai",
           "description": "Segment 1: Marseille to Mumbai (~9376 km, 11 waypoints)",
           "startPoint": "Marseille",
           "endPoint": "Mumbai",
@@ -694,7 +689,7 @@
         },
         {
           "index": 1,
-          "name": "Point (40.0, 15.0) \u2192 Mtunzini",
+          "name": "Point (40.0, 15.0) → Mtunzini",
           "description": "Segment 2: Point (40.0, 15.0) to Mtunzini (~5102 km, 7 waypoints)",
           "startPoint": "Point (40.0, 15.0)",
           "endPoint": "Mtunzini",
@@ -710,7 +705,7 @@
     "seamewe-4": {
       "id": "seamewe-4",
       "name": "SEA-ME-WE 4",
-      "region": "Europe-Middle East-Asia",
+      "region": "Indian Ocean",
       "rfs": "2005",
       "length_km": 18800,
       "owners": [
@@ -801,7 +796,7 @@
     "peace": {
       "id": "peace",
       "name": "PEACE",
-      "region": "Europe-Africa-Asia",
+      "region": "Indian Ocean",
       "rfs": "2022",
       "length_km": 15000,
       "owners": [
@@ -904,7 +899,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Marseille \u2192 Karachi",
+          "name": "Marseille → Karachi",
           "description": "Segment 1: Marseille to Karachi (~8482 km, 9 waypoints)",
           "startPoint": "Marseille",
           "endPoint": "Karachi",
@@ -913,7 +908,7 @@
         },
         {
           "index": 1,
-          "name": "Karachi \u2192 Singapore",
+          "name": "Karachi → Singapore",
           "description": "Segment 2: Karachi to Singapore (~5018 km, 5 waypoints)",
           "startPoint": "Karachi",
           "endPoint": "Singapore",
@@ -929,7 +924,7 @@
     "seamewe-5": {
       "id": "seamewe-5",
       "name": "SEA-ME-WE 5",
-      "region": "Europe-Middle East-Asia",
+      "region": "Indian Ocean",
       "rfs": "2016",
       "length_km": 20000,
       "owners": [
@@ -1016,7 +1011,7 @@
     "seamewe-6": {
       "id": "seamewe-6",
       "name": "SEA-ME-WE 6",
-      "region": "Europe-Middle East-Asia",
+      "region": "Indian Ocean",
       "rfs": "2025",
       "length_km": 21000,
       "owners": [
@@ -1140,7 +1135,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Singapore \u2192 Marseille",
+          "name": "Singapore → Marseille",
           "description": "Segment 1: Singapore to Marseille (~15060 km, 15 waypoints)",
           "startPoint": "Singapore",
           "endPoint": "Marseille",
@@ -1149,7 +1144,7 @@
         },
         {
           "index": 1,
-          "name": "Point (75.0, 5.0) \u2192 Point (72.9, 19.1)",
+          "name": "Point (75.0, 5.0) → Point (72.9, 19.1)",
           "description": "Segment 2: Point (75.0, 5.0) to Point (72.9, 19.1) (~2086 km, 3 waypoints)",
           "startPoint": "Point (75.0, 5.0)",
           "endPoint": "Point (72.9, 19.1)",
@@ -1158,7 +1153,7 @@
         },
         {
           "index": 2,
-          "name": "Point (55.0, 25.0) \u2192 Point (58.4, 23.6)",
+          "name": "Point (55.0, 25.0) → Point (58.4, 23.6)",
           "description": "Segment 3: Point (55.0, 25.0) to Point (58.4, 23.6) (~410 km, 3 waypoints)",
           "startPoint": "Point (55.0, 25.0)",
           "endPoint": "Point (58.4, 23.6)",
@@ -1174,7 +1169,7 @@
     "imewe": {
       "id": "imewe",
       "name": "IMEWE",
-      "region": "Europe-Middle East-India",
+      "region": "Indian Ocean",
       "rfs": "2010",
       "length_km": 12091,
       "owners": [
@@ -1276,7 +1271,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Mumbai \u2192 Catania",
+          "name": "Mumbai → Catania",
           "description": "Segment 1: Mumbai to Catania (~8730 km, 11 waypoints)",
           "startPoint": "Mumbai",
           "endPoint": "Catania",
@@ -1285,7 +1280,7 @@
         },
         {
           "index": 1,
-          "name": "Catania \u2192 Marseille",
+          "name": "Catania → Marseille",
           "description": "Segment 2: Catania to Marseille (~1260 km, 3 waypoints)",
           "startPoint": "Catania",
           "endPoint": "Marseille",
@@ -1301,7 +1296,7 @@
     "aae-1": {
       "id": "aae-1",
       "name": "AAE-1",
-      "region": "Europe-Middle East-Asia",
+      "region": "Indian Ocean",
       "rfs": "2017",
       "length_km": 25000,
       "owners": [
@@ -1396,7 +1391,7 @@
     "blue": {
       "id": "blue",
       "name": "Blue",
-      "region": "Europe-Middle East",
+      "region": "Indian Ocean",
       "rfs": "2024",
       "length_km": 15500,
       "owners": [
@@ -1491,7 +1486,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Genoa \u2192 Muscat",
+          "name": "Genoa → Muscat",
           "description": "Segment 1: Genoa to Muscat (~7660 km, 11 waypoints)",
           "startPoint": "Genoa",
           "endPoint": "Muscat",
@@ -1500,7 +1495,7 @@
         },
         {
           "index": 1,
-          "name": "Point (35.0, 28.0) \u2192 Point (35.7, 27.4)",
+          "name": "Point (35.0, 28.0) → Point (35.7, 27.4)",
           "description": "Segment 2: Point (35.0, 28.0) to Point (35.7, 27.4) (~134 km, 3 waypoints)",
           "startPoint": "Point (35.0, 28.0)",
           "endPoint": "Point (35.7, 27.4)",
@@ -1516,7 +1511,7 @@
     "raman": {
       "id": "raman",
       "name": "Raman",
-      "region": "Middle East-India",
+      "region": "Indian Ocean",
       "rfs": "2024",
       "length_km": 4200,
       "owners": [
@@ -1749,7 +1744,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Mumbai \u2192 Point (43.1, 11.6)",
+          "name": "Mumbai → Point (43.1, 11.6)",
           "description": "Segment 1: Mumbai to Point (43.1, 11.6) (~3577 km, 9 waypoints)",
           "startPoint": "Mumbai",
           "endPoint": "Point (43.1, 11.6)",
@@ -1758,7 +1753,7 @@
         },
         {
           "index": 1,
-          "name": "Point (55.0, 15.0) \u2192 Muscat",
+          "name": "Point (55.0, 15.0) → Muscat",
           "description": "Segment 2: Point (55.0, 15.0) to Muscat (~2719 km, 10 waypoints)",
           "startPoint": "Point (55.0, 15.0)",
           "endPoint": "Muscat",
@@ -1767,7 +1762,7 @@
         },
         {
           "index": 2,
-          "name": "Aqaba \u2192 Mumbai",
+          "name": "Aqaba → Mumbai",
           "description": "Segment 3: Aqaba to Mumbai (~5562 km, 27 waypoints)",
           "startPoint": "Aqaba",
           "endPoint": "Mumbai",
@@ -1783,7 +1778,7 @@
     "iex": {
       "id": "iex",
       "name": "IEX",
-      "region": "Europe-India",
+      "region": "Indian Ocean",
       "rfs": "2024",
       "length_km": 11000,
       "owners": [
@@ -1858,7 +1853,7 @@
     "iax": {
       "id": "iax",
       "name": "IAX",
-      "region": "India-Asia",
+      "region": "Indian Ocean",
       "rfs": "2024",
       "length_km": 8400,
       "owners": [
@@ -1936,7 +1931,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Mumbai \u2192 Singapore",
+          "name": "Mumbai → Singapore",
           "description": "Segment 1: Mumbai to Singapore (~4691 km, 6 waypoints)",
           "startPoint": "Mumbai",
           "endPoint": "Singapore",
@@ -1945,7 +1940,7 @@
         },
         {
           "index": 1,
-          "name": "Point (95.0, 5.0) \u2192 Sattahip",
+          "name": "Point (95.0, 5.0) → Sattahip",
           "description": "Segment 2: Point (95.0, 5.0) to Sattahip (~1073 km, 2 waypoints)",
           "startPoint": "Point (95.0, 5.0)",
           "endPoint": "Sattahip",
@@ -1961,7 +1956,7 @@
     "mist": {
       "id": "mist",
       "name": "MIST",
-      "region": "India-Asia",
+      "region": "Indian Ocean",
       "rfs": "2021",
       "length_km": 8700,
       "owners": [
@@ -2024,7 +2019,7 @@
     "bbg": {
       "id": "bbg",
       "name": "BBG",
-      "region": "Middle East-India-Asia",
+      "region": "Indian Ocean",
       "rfs": "2016",
       "length_km": 8100,
       "owners": [
@@ -2113,7 +2108,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Mumbai \u2192 Chennai",
+          "name": "Mumbai → Chennai",
           "description": "Segment 1: Mumbai to Chennai (~1130 km, 3 waypoints)",
           "startPoint": "Mumbai",
           "endPoint": "Chennai",
@@ -2122,7 +2117,7 @@
         },
         {
           "index": 1,
-          "name": "Chennai \u2192 Singapore",
+          "name": "Chennai → Singapore",
           "description": "Segment 2: Chennai to Singapore (~2935 km, 4 waypoints)",
           "startPoint": "Chennai",
           "endPoint": "Singapore",
@@ -2131,7 +2126,7 @@
         },
         {
           "index": 2,
-          "name": "Mumbai \u2192 Point (58.0, 23.5)",
+          "name": "Mumbai → Point (58.0, 23.5)",
           "description": "Segment 3: Mumbai to Point (58.0, 23.5) (~1749 km, 3 waypoints)",
           "startPoint": "Mumbai",
           "endPoint": "Point (58.0, 23.5)",
@@ -2147,7 +2142,7 @@
     "falcon": {
       "id": "falcon",
       "name": "FALCON",
-      "region": "Middle East-India",
+      "region": "Indian Ocean",
       "rfs": "2006",
       "length_km": 9200,
       "owners": [
@@ -2210,7 +2205,7 @@
     "hawk": {
       "id": "hawk",
       "name": "HAWK",
-      "region": "Middle East-Africa",
+      "region": "Indian Ocean",
       "rfs": "2017",
       "length_km": 2000,
       "owners": [
@@ -2265,7 +2260,7 @@
     "tgn-gulf": {
       "id": "tgn-gulf",
       "name": "TGN-Gulf",
-      "region": "IntraMiddle East",
+      "region": "Intra-Middle East",
       "rfs": "1999",
       "length_km": 2000,
       "owners": [
@@ -2316,7 +2311,7 @@
     "tic": {
       "id": "tic",
       "name": "TIC",
-      "region": "India-Asia",
+      "region": "Indian Ocean",
       "rfs": "2009",
       "length_km": 4000,
       "owners": [
@@ -2375,7 +2370,7 @@
     "i2i": {
       "id": "i2i",
       "name": "i2i",
-      "region": "India-Asia",
+      "region": "Indian Ocean",
       "rfs": "2002",
       "length_km": 3200,
       "owners": [
@@ -2431,7 +2426,7 @@
     "sjc2": {
       "id": "sjc2",
       "name": "SJC2",
-      "region": "Asia-North Asia",
+      "region": "Intra-Asia",
       "rfs": "2023",
       "length_km": 10500,
       "owners": [
@@ -2498,7 +2493,7 @@
     "tgn-ia": {
       "id": "tgn-ia",
       "name": "TGN-Intra Asia",
-      "region": "IntraAsia",
+      "region": "Intra-Asia",
       "rfs": "2002",
       "length_km": 7000,
       "owners": [
@@ -2553,7 +2548,7 @@
     "aag": {
       "id": "aag",
       "name": "AAG",
-      "region": "North Asia-North America",
+      "region": "Transpacific",
       "rfs": "2009",
       "length_km": 20000,
       "owners": [
@@ -2624,7 +2619,7 @@
     "adc": {
       "id": "adc",
       "name": "ADC",
-      "region": "IntraAsia",
+      "region": "Intra-Asia",
       "rfs": "2023",
       "length_km": 9400,
       "owners": [
@@ -2690,7 +2685,7 @@
     "echo": {
       "id": "echo",
       "name": "Echo",
-      "region": "North Asia-North America",
+      "region": "Transpacific",
       "rfs": "2024",
       "length_km": 15000,
       "owners": [
@@ -2777,7 +2772,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Singapore \u2192 Point (180.0, 27.0)",
+          "name": "Singapore → Point (180.0, 27.0)",
           "description": "Segment 1: Singapore to Point (180.0, 27.0) (~9141 km, 6 waypoints)",
           "startPoint": "Singapore",
           "endPoint": "Point (180.0, 27.0)",
@@ -2786,7 +2781,7 @@
         },
         {
           "index": 1,
-          "name": "Point (-180.0, 27.0) \u2192 USA",
+          "name": "Point (-180.0, 27.0) → USA",
           "description": "Segment 2: Point (-180.0, 27.0) to USA (~6389 km, 4 waypoints)",
           "startPoint": "Point (-180.0, 27.0)",
           "endPoint": "USA",
@@ -2802,7 +2797,7 @@
     "bifrost": {
       "id": "bifrost",
       "name": "Bifrost",
-      "region": "North Asia-North America",
+      "region": "Transpacific",
       "rfs": "2024",
       "length_km": 15000,
       "owners": [
@@ -2898,7 +2893,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Singapore \u2192 Point (180.0, 27.1)",
+          "name": "Singapore → Point (180.0, 27.1)",
           "description": "Segment 1: Singapore to Point (180.0, 27.1) (~9622 km, 8 waypoints)",
           "startPoint": "Singapore",
           "endPoint": "Point (180.0, 27.1)",
@@ -2907,7 +2902,7 @@
         },
         {
           "index": 1,
-          "name": "Point (-180.0, 27.1) \u2192 USA",
+          "name": "Point (-180.0, 27.1) → USA",
           "description": "Segment 2: Point (-180.0, 27.1) to USA (~6551 km, 6 waypoints)",
           "startPoint": "Point (-180.0, 27.1)",
           "endPoint": "USA",
@@ -2923,7 +2918,7 @@
     "juno": {
       "id": "juno",
       "name": "JUNO",
-      "region": "North Asia-North America",
+      "region": "Transpacific",
       "rfs": "2025",
       "length_km": 14000,
       "owners": [
@@ -3005,7 +3000,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Shima \u2192 Point (180.0, 42.7)",
+          "name": "Shima → Point (180.0, 42.7)",
           "description": "Segment 1: Shima to Point (180.0, 42.7) (~4936 km, 6 waypoints)",
           "startPoint": "Shima",
           "endPoint": "Point (180.0, 42.7)",
@@ -3014,7 +3009,7 @@
         },
         {
           "index": 1,
-          "name": "Point (-180.0, 42.7) \u2192 Eureka",
+          "name": "Point (-180.0, 42.7) → Eureka",
           "description": "Segment 2: Point (-180.0, 42.7) to Eureka (~6481 km, 5 waypoints)",
           "startPoint": "Point (-180.0, 42.7)",
           "endPoint": "Eureka",
@@ -3030,7 +3025,7 @@
     "jupiter": {
       "id": "jupiter",
       "name": "Jupiter",
-      "region": "North Asia-North America",
+      "region": "Transpacific",
       "rfs": "2020",
       "length_km": 14000,
       "owners": [
@@ -3131,7 +3126,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Japan \u2192 Philippines",
+          "name": "Japan → Philippines",
           "description": "Segment 1: Japan to Philippines (~4843 km, 5 waypoints)",
           "startPoint": "Japan",
           "endPoint": "Philippines",
@@ -3140,7 +3135,7 @@
         },
         {
           "index": 1,
-          "name": "Point (145.0, 20.0) \u2192 Point (180.0, 30.0)",
+          "name": "Point (145.0, 20.0) → Point (180.0, 30.0)",
           "description": "Segment 2: Point (145.0, 20.0) to Point (180.0, 30.0) (~4043 km, 3 waypoints)",
           "startPoint": "Point (145.0, 20.0)",
           "endPoint": "Point (180.0, 30.0)",
@@ -3149,7 +3144,7 @@
         },
         {
           "index": 2,
-          "name": "Point (-180.0, 30.0) \u2192 USA",
+          "name": "Point (-180.0, 30.0) → USA",
           "description": "Segment 3: Point (-180.0, 30.0) to USA (~6932 km, 4 waypoints)",
           "startPoint": "Point (-180.0, 30.0)",
           "endPoint": "USA",
@@ -3165,7 +3160,7 @@
     "faster": {
       "id": "faster",
       "name": "FASTER",
-      "region": "North Asia-North America",
+      "region": "Transpacific",
       "rfs": "2016",
       "length_km": 9000,
       "owners": [
@@ -3240,7 +3235,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Shima and Chikura \u2192 Point (180.0, 42.0)",
+          "name": "Shima and Chikura → Point (180.0, 42.0)",
           "description": "Segment 1: Shima and Chikura to Point (180.0, 42.0) (~4867 km, 4 waypoints)",
           "startPoint": "Shima and Chikura",
           "endPoint": "Point (180.0, 42.0)",
@@ -3249,7 +3244,7 @@
         },
         {
           "index": 1,
-          "name": "Point (-180.0, 42.0) \u2192 Oregon",
+          "name": "Point (-180.0, 42.0) → Oregon",
           "description": "Segment 2: Point (-180.0, 42.0) to Oregon (~6220 km, 4 waypoints)",
           "startPoint": "Point (-180.0, 42.0)",
           "endPoint": "Oregon",
@@ -3265,7 +3260,7 @@
     "tgn-pacific": {
       "id": "tgn-pacific",
       "name": "TGN-Pacific",
-      "region": "North Asia-North America",
+      "region": "Transpacific",
       "rfs": "2002",
       "length_km": 18000,
       "owners": [
@@ -3335,7 +3330,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Japan \u2192 Point (180.0, 43.0)",
+          "name": "Japan → Point (180.0, 43.0)",
           "description": "Segment 1: Japan to Point (180.0, 43.0) (~4538 km, 4 waypoints)",
           "startPoint": "Japan",
           "endPoint": "Point (180.0, 43.0)",
@@ -3344,7 +3339,7 @@
         },
         {
           "index": 1,
-          "name": "Point (-180.0, 43.0) \u2192 USA",
+          "name": "Point (-180.0, 43.0) → USA",
           "description": "Segment 2: Point (-180.0, 43.0) to USA (~6479 km, 4 waypoints)",
           "startPoint": "Point (-180.0, 43.0)",
           "endPoint": "USA",
@@ -3360,7 +3355,7 @@
     "e2a": {
       "id": "e2a",
       "name": "E2A",
-      "region": "North Asia-North America",
+      "region": "Transpacific",
       "rfs": "2025",
       "length_km": 14500,
       "owners": [
@@ -3491,7 +3486,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Taiwan \u2192 Point (180.0, 41.9)",
+          "name": "Taiwan → Point (180.0, 41.9)",
           "description": "Segment 1: Taiwan to Point (180.0, 41.9) (~6812 km, 8 waypoints)",
           "startPoint": "Taiwan",
           "endPoint": "Point (180.0, 41.9)",
@@ -3500,7 +3495,7 @@
         },
         {
           "index": 1,
-          "name": "Point (129.0, 35.2) \u2192 Point (129.4, 28.4)",
+          "name": "Point (129.0, 35.2) → Point (129.4, 28.4)",
           "description": "Segment 2: Point (129.0, 35.2) to Point (129.4, 28.4) (~882 km, 3 waypoints)",
           "startPoint": "Point (129.0, 35.2)",
           "endPoint": "Point (129.4, 28.4)",
@@ -3509,7 +3504,7 @@
         },
         {
           "index": 2,
-          "name": "Point (-180.0, 41.9) \u2192 USA",
+          "name": "Point (-180.0, 41.9) → USA",
           "description": "Segment 3: Point (-180.0, 41.9) to USA (~6674 km, 5 waypoints)",
           "startPoint": "Point (-180.0, 41.9)",
           "endPoint": "USA",
@@ -3518,7 +3513,7 @@
         },
         {
           "index": 3,
-          "name": "Japan \u2192 Japan",
+          "name": "Japan → Japan",
           "description": "Segment 4: Japan to Japan (~429 km, 4 waypoints)",
           "startPoint": "Japan",
           "endPoint": "Japan",
@@ -3534,7 +3529,7 @@
     "unity": {
       "id": "unity",
       "name": "Unity",
-      "region": "North Asia-North America",
+      "region": "Transpacific",
       "rfs": "2010",
       "length_km": 9600,
       "owners": [
@@ -3609,7 +3604,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Chikura \u2192 Point (180.0, 41.0)",
+          "name": "Chikura → Point (180.0, 41.0)",
           "description": "Segment 1: Chikura to Point (180.0, 41.0) (~4492 km, 4 waypoints)",
           "startPoint": "Chikura",
           "endPoint": "Point (180.0, 41.0)",
@@ -3618,7 +3613,7 @@
         },
         {
           "index": 1,
-          "name": "Point (-180.0, 41.0) \u2192 Los Angeles",
+          "name": "Point (-180.0, 41.0) → Los Angeles",
           "description": "Segment 2: Point (-180.0, 41.0) to Los Angeles (~6932 km, 4 waypoints)",
           "startPoint": "Point (-180.0, 41.0)",
           "endPoint": "Los Angeles",
@@ -3634,7 +3629,7 @@
     "ace": {
       "id": "ace",
       "name": "ACE",
-      "region": "Europe-Africa",
+      "region": "Africa Coastal",
       "rfs": "2012",
       "length_km": 17000,
       "owners": [
@@ -3740,7 +3735,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Penmarch \u2192 Point (10.0, 0.0)",
+          "name": "Penmarch → Point (10.0, 0.0)",
           "description": "Segment 1: Penmarch to Point (10.0, 0.0) (~7759 km, 11 waypoints)",
           "startPoint": "Penmarch",
           "endPoint": "Point (10.0, 0.0)",
@@ -3749,7 +3744,7 @@
         },
         {
           "index": 1,
-          "name": "Various African locations \u2192 Fortaleza",
+          "name": "Various African locations → Fortaleza",
           "description": "Segment 2: Various African locations to Fortaleza (~3163 km, 4 waypoints)",
           "startPoint": "Various African locations",
           "endPoint": "Fortaleza",
@@ -3765,7 +3760,7 @@
     "main-one": {
       "id": "main-one",
       "name": "MainOne",
-      "region": "Europe-Africa",
+      "region": "Africa Coastal",
       "rfs": "2010",
       "length_km": 7000,
       "owners": [
@@ -3836,7 +3831,7 @@
     "wacs": {
       "id": "wacs",
       "name": "WACS",
-      "region": "Europe-Africa",
+      "region": "Africa Coastal",
       "rfs": "2012",
       "length_km": 14530,
       "owners": [
@@ -3931,7 +3926,7 @@
     "equiano": {
       "id": "equiano",
       "name": "Equiano",
-      "region": "Europe-Africa",
+      "region": "Africa Coastal",
       "rfs": "2022",
       "length_km": 12000,
       "owners": [
@@ -4010,7 +4005,7 @@
     "2africa": {
       "id": "2africa",
       "name": "2Africa",
-      "region": "Europe-Africa-Middle East-Asia",
+      "region": "Indian Ocean",
       "rfs": "2024",
       "length_km": 45000,
       "owners": [
@@ -4153,7 +4148,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Point (-9.0, 38.7) \u2192 Point (72.0, 19.0)",
+          "name": "Point (-9.0, 38.7) → Point (72.0, 19.0)",
           "description": "Segment 1: Point (-9.0, 38.7) to Point (72.0, 19.0) (~21056 km, 17 waypoints)",
           "startPoint": "Point (-9.0, 38.7)",
           "endPoint": "Point (72.0, 19.0)",
@@ -4162,7 +4157,7 @@
         },
         {
           "index": 1,
-          "name": "Point (45.0, 12.0) \u2192 Point (5.0, 43.0)",
+          "name": "Point (45.0, 12.0) → Point (5.0, 43.0)",
           "description": "Segment 2: Point (45.0, 12.0) to Point (5.0, 43.0) (~5828 km, 6 waypoints)",
           "startPoint": "Point (45.0, 12.0)",
           "endPoint": "Point (5.0, 43.0)",
@@ -4171,7 +4166,7 @@
         },
         {
           "index": 2,
-          "name": "Point (5.0, 43.0) \u2192 Point (-3.0, 43.5)",
+          "name": "Point (5.0, 43.0) → Point (-3.0, 43.5)",
           "description": "Segment 3: Point (5.0, 43.0) to Point (-3.0, 43.5) (~934 km, 3 waypoints)",
           "startPoint": "Point (5.0, 43.0)",
           "endPoint": "Point (-3.0, 43.5)",
@@ -4187,7 +4182,7 @@
     "indigo-west": {
       "id": "indigo-west",
       "name": "Indigo West",
-      "region": "Asia-Oceania",
+      "region": "Intra-Asia",
       "rfs": "2019",
       "length_km": 4600,
       "owners": [
@@ -4246,7 +4241,7 @@
     "indigo-central": {
       "id": "indigo-central",
       "name": "Indigo Central",
-      "region": "Asia-Oceania",
+      "region": "Intra-Asia",
       "rfs": "2019",
       "length_km": 3600,
       "owners": [
@@ -4309,7 +4304,7 @@
     "asc": {
       "id": "asc",
       "name": "ASC",
-      "region": "Asia-Oceania",
+      "region": "Intra-Asia",
       "rfs": "2018",
       "length_km": 4600,
       "owners": [
@@ -4369,7 +4364,7 @@
     "southern-cross-next": {
       "id": "southern-cross-next",
       "name": "Southern Cross NEXT",
-      "region": "Oceania-North America",
+      "region": "Transpacific",
       "rfs": "2022",
       "length_km": 15000,
       "owners": [
@@ -4457,7 +4452,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Sydney \u2192 Auckland",
+          "name": "Sydney → Auckland",
           "description": "Segment 1: Sydney to Auckland (~2634 km, 3 waypoints)",
           "startPoint": "Sydney",
           "endPoint": "Auckland",
@@ -4466,7 +4461,7 @@
         },
         {
           "index": 1,
-          "name": "Auckland \u2192 Point (180.0, -30.0)",
+          "name": "Auckland → Point (180.0, -30.0)",
           "description": "Segment 2: Auckland to Point (180.0, -30.0) (~957 km, 2 waypoints)",
           "startPoint": "Auckland",
           "endPoint": "Point (180.0, -30.0)",
@@ -4475,7 +4470,7 @@
         },
         {
           "index": 2,
-          "name": "Point (-180.0, -30.0) \u2192 Los Angeles",
+          "name": "Point (-180.0, -30.0) → Los Angeles",
           "description": "Segment 3: Point (-180.0, -30.0) to Los Angeles (~10520 km, 5 waypoints)",
           "startPoint": "Point (-180.0, -30.0)",
           "endPoint": "Los Angeles",
@@ -4491,7 +4486,7 @@
     "sccn": {
       "id": "sccn",
       "name": "SCCN",
-      "region": "Oceania-North America",
+      "region": "Transpacific",
       "rfs": "2000",
       "length_km": 30500,
       "owners": [
@@ -4591,7 +4586,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Sydney \u2192 Auckland",
+          "name": "Sydney → Auckland",
           "description": "Segment 1: Sydney to Auckland (~2638 km, 3 waypoints)",
           "startPoint": "Sydney",
           "endPoint": "Auckland",
@@ -4600,7 +4595,7 @@
         },
         {
           "index": 1,
-          "name": "Auckland \u2192 Point (180.0, -10.0)",
+          "name": "Auckland → Point (180.0, -10.0)",
           "description": "Segment 2: Auckland to Point (180.0, -10.0) (~3038 km, 3 waypoints)",
           "startPoint": "Auckland",
           "endPoint": "Point (180.0, -10.0)",
@@ -4609,7 +4604,7 @@
         },
         {
           "index": 2,
-          "name": "Point (-180.0, -10.0) \u2192 USA",
+          "name": "Point (-180.0, -10.0) → USA",
           "description": "Segment 3: Point (-180.0, -10.0) to USA (~8460 km, 5 waypoints)",
           "startPoint": "Point (-180.0, -10.0)",
           "endPoint": "USA",
@@ -4625,7 +4620,7 @@
     "globe": {
       "id": "globe",
       "name": "Globe",
-      "region": "IntraOceania",
+      "region": "Intra-Oceania",
       "rfs": "2023",
       "length_km": 3000,
       "owners": [
@@ -4672,7 +4667,7 @@
     "firmina": {
       "id": "firmina",
       "name": "Firmina",
-      "region": "North America-South America",
+      "region": "Intra-Americas",
       "rfs": "2023",
       "length_km": 14000,
       "owners": [
@@ -5228,7 +5223,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Myrtle Beach \u2192 Point (72.9, 19.1)",
+          "name": "Myrtle Beach → Point (72.9, 19.1)",
           "description": "Segment 1: Myrtle Beach to Point (72.9, 19.1) (~24414 km, 83 waypoints)",
           "startPoint": "Myrtle Beach",
           "endPoint": "Point (72.9, 19.1)",
@@ -5237,7 +5232,7 @@
         },
         {
           "index": 1,
-          "name": "Point (80.2, 13.1) \u2192 Point (180.0, 3.1)",
+          "name": "Point (80.2, 13.1) → Point (180.0, 3.1)",
           "description": "Segment 2: Point (80.2, 13.1) to Point (180.0, 3.1) (~13583 km, 21 waypoints)",
           "startPoint": "Point (80.2, 13.1)",
           "endPoint": "Point (180.0, 3.1)",
@@ -5246,7 +5241,7 @@
         },
         {
           "index": 2,
-          "name": "Point (-180.0, 3.1) \u2192 Point (-118.2, 34.0)",
+          "name": "Point (-180.0, 3.1) → Point (-118.2, 34.0)",
           "description": "Segment 3: Point (-180.0, 3.1) to Point (-118.2, 34.0) (~8074 km, 9 waypoints)",
           "startPoint": "Point (-180.0, 3.1)",
           "endPoint": "Point (-118.2, 34.0)",
@@ -5255,7 +5250,7 @@
         },
         {
           "index": 3,
-          "name": "Point (76.9, 0.8) \u2192 Point (87.3, -0.9)",
+          "name": "Point (76.9, 0.8) → Point (87.3, -0.9)",
           "description": "Segment 4: Point (76.9, 0.8) to Point (87.3, -0.9) (~1285 km, 4 waypoints)",
           "startPoint": "Point (76.9, 0.8)",
           "endPoint": "Point (87.3, -0.9)",
@@ -5264,7 +5259,7 @@
         },
         {
           "index": 4,
-          "name": "Point (87.7, -1.8) \u2192 Point (100.1, 6.6)",
+          "name": "Point (87.7, -1.8) → Point (100.1, 6.6)",
           "description": "Segment 5: Point (87.7, -1.8) to Point (100.1, 6.6) (~1788 km, 7 waypoints)",
           "startPoint": "Point (87.7, -1.8)",
           "endPoint": "Point (100.1, 6.6)",
@@ -5280,7 +5275,7 @@
     "amx-1": {
       "id": "amx-1",
       "name": "AMX-1",
-      "region": "North America-Central America-South America",
+      "region": "Intra-Americas",
       "rfs": "2014",
       "length_km": 17500,
       "owners": [
@@ -5366,7 +5361,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Multiple Americas locations \u2192 Point (-100.0, 20.0)",
+          "name": "Multiple Americas locations → Point (-100.0, 20.0)",
           "description": "Segment 1: Multiple Americas locations to Point (-100.0, 20.0) (~2814 km, 7 waypoints)",
           "startPoint": "Multiple Americas locations",
           "endPoint": "Point (-100.0, 20.0)",
@@ -5375,7 +5370,7 @@
         },
         {
           "index": 1,
-          "name": "Point (-85.0, 20.0) \u2192 Point (-50.0, -20.0)",
+          "name": "Point (-85.0, 20.0) → Point (-50.0, -20.0)",
           "description": "Segment 2: Point (-85.0, 20.0) to Point (-50.0, -20.0) (~6056 km, 7 waypoints)",
           "startPoint": "Point (-85.0, 20.0)",
           "endPoint": "Point (-50.0, -20.0)",
@@ -5391,7 +5386,7 @@
     "brusa": {
       "id": "brusa",
       "name": "BRUSA",
-      "region": "North America-South America",
+      "region": "Intra-Americas",
       "rfs": "2018",
       "length_km": 11000,
       "owners": [
@@ -5466,7 +5461,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Virginia Beach \u2192 San Juan",
+          "name": "Virginia Beach → San Juan",
           "description": "Segment 1: Virginia Beach to San Juan (~2360 km, 3 waypoints)",
           "startPoint": "Virginia Beach",
           "endPoint": "San Juan",
@@ -5475,7 +5470,7 @@
         },
         {
           "index": 1,
-          "name": "San Juan \u2192 Rio de Janeiro",
+          "name": "San Juan → Rio de Janeiro",
           "description": "Segment 2: San Juan to Rio de Janeiro (~5386 km, 4 waypoints)",
           "startPoint": "San Juan",
           "endPoint": "Rio de Janeiro",
@@ -5491,7 +5486,7 @@
     "ellalink": {
       "id": "ellalink",
       "name": "EllaLink",
-      "region": "Europe-South America",
+      "region": "Transatlantic",
       "rfs": "2021",
       "length_km": 6000,
       "owners": [
@@ -5550,7 +5545,7 @@
     "medusa": {
       "id": "medusa",
       "name": "Medusa",
-      "region": "IntraEurope-North Africa",
+      "region": "Intra-Europe",
       "rfs": "2025",
       "length_km": 8700,
       "owners": [
@@ -5918,7 +5913,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Point (-9.3, 38.7) \u2192 Point (32.3, 31.3)",
+          "name": "Point (-9.3, 38.7) → Point (32.3, 31.3)",
           "description": "Segment 1: Point (-9.3, 38.7) to Point (32.3, 31.3) (~5215 km, 30 waypoints)",
           "startPoint": "Point (-9.3, 38.7)",
           "endPoint": "Point (32.3, 31.3)",
@@ -5927,7 +5922,7 @@
         },
         {
           "index": 1,
-          "name": "Point (-4.5, 35.8) \u2192 Point (-5.4, 35.6)",
+          "name": "Point (-4.5, 35.8) → Point (-5.4, 35.6)",
           "description": "Segment 2: Point (-4.5, 35.8) to Point (-5.4, 35.6) (~106 km, 3 waypoints)",
           "startPoint": "Point (-4.5, 35.8)",
           "endPoint": "Point (-5.4, 35.6)",
@@ -5936,7 +5931,7 @@
         },
         {
           "index": 2,
-          "name": "Point (-2.2, 35.9) \u2192 Point (-2.9, 35.2)",
+          "name": "Point (-2.2, 35.9) → Point (-2.9, 35.2)",
           "description": "Segment 3: Point (-2.2, 35.9) to Point (-2.9, 35.2) (~113 km, 3 waypoints)",
           "startPoint": "Point (-2.2, 35.9)",
           "endPoint": "Point (-2.9, 35.2)",
@@ -5945,7 +5940,7 @@
         },
         {
           "index": 3,
-          "name": "Various Mediterranean \u2192 Point (4.7, 38.6)",
+          "name": "Various Mediterranean → Point (4.7, 38.6)",
           "description": "Segment 4: Various Mediterranean to Point (4.7, 38.6) (~1043 km, 7 waypoints)",
           "startPoint": "Various Mediterranean",
           "endPoint": "Point (4.7, 38.6)",
@@ -5954,7 +5949,7 @@
         },
         {
           "index": 4,
-          "name": "Point (5.0, 41.2) \u2192 Point (2.2, 41.4)",
+          "name": "Point (5.0, 41.2) → Point (2.2, 41.4)",
           "description": "Segment 5: Point (5.0, 41.2) to Point (2.2, 41.4) (~313 km, 3 waypoints)",
           "startPoint": "Point (5.0, 41.2)",
           "endPoint": "Point (2.2, 41.4)",
@@ -5963,7 +5958,7 @@
         },
         {
           "index": 5,
-          "name": "Point (2.2, 37.4) \u2192 Point (3.0, 36.8)",
+          "name": "Point (2.2, 37.4) → Point (3.0, 36.8)",
           "description": "Segment 6: Point (2.2, 37.4) to Point (3.0, 36.8) (~123 km, 3 waypoints)",
           "startPoint": "Point (2.2, 37.4)",
           "endPoint": "Point (3.0, 36.8)",
@@ -5972,7 +5967,7 @@
         },
         {
           "index": 6,
-          "name": "Various Mediterranean \u2192 Various Mediterranean",
+          "name": "Various Mediterranean → Various Mediterranean",
           "description": "Segment 7: Various Mediterranean to Various Mediterranean (~218 km, 3 waypoints)",
           "startPoint": "Various Mediterranean",
           "endPoint": "Various Mediterranean",
@@ -5981,7 +5976,7 @@
         },
         {
           "index": 7,
-          "name": "Various Mediterranean \u2192 Various Mediterranean",
+          "name": "Various Mediterranean → Various Mediterranean",
           "description": "Segment 8: Various Mediterranean to Various Mediterranean (~104 km, 3 waypoints)",
           "startPoint": "Various Mediterranean",
           "endPoint": "Various Mediterranean",
@@ -5990,7 +5985,7 @@
         },
         {
           "index": 8,
-          "name": "Various Mediterranean \u2192 Various Mediterranean",
+          "name": "Various Mediterranean → Various Mediterranean",
           "description": "Segment 9: Various Mediterranean to Various Mediterranean (~122 km, 3 waypoints)",
           "startPoint": "Various Mediterranean",
           "endPoint": "Various Mediterranean",
@@ -5999,7 +5994,7 @@
         },
         {
           "index": 9,
-          "name": "Point (22.9, 34.6) \u2192 Point (23.7, 38.0)",
+          "name": "Point (22.9, 34.6) → Point (23.7, 38.0)",
           "description": "Segment 10: Point (22.9, 34.6) to Point (23.7, 38.0) (~417 km, 5 waypoints)",
           "startPoint": "Point (22.9, 34.6)",
           "endPoint": "Point (23.7, 38.0)",
@@ -6008,7 +6003,7 @@
         },
         {
           "index": 10,
-          "name": "Point (31.1, 32.9) \u2192 Point (32.5, 34.8)",
+          "name": "Point (31.1, 32.9) → Point (32.5, 34.8)",
           "description": "Segment 11: Point (31.1, 32.9) to Point (32.5, 34.8) (~262 km, 3 waypoints)",
           "startPoint": "Point (31.1, 32.9)",
           "endPoint": "Point (32.5, 34.8)",
@@ -6017,7 +6012,7 @@
         },
         {
           "index": 11,
-          "name": "Point (14.4, 35.2) \u2192 Point (15.1, 32.4)",
+          "name": "Point (14.4, 35.2) → Point (15.1, 32.4)",
           "description": "Segment 12: Point (14.4, 35.2) to Point (15.1, 32.4) (~345 km, 3 waypoints)",
           "startPoint": "Point (14.4, 35.2)",
           "endPoint": "Point (15.1, 32.4)",
@@ -6026,7 +6021,7 @@
         },
         {
           "index": 12,
-          "name": "Point (20.1, 32.1) \u2192 Point (19.4, 35.2)",
+          "name": "Point (20.1, 32.1) → Point (19.4, 35.2)",
           "description": "Segment 13: Point (20.1, 32.1) to Point (19.4, 35.2) (~362 km, 4 waypoints)",
           "startPoint": "Point (20.1, 32.1)",
           "endPoint": "Point (19.4, 35.2)",
@@ -6035,7 +6030,7 @@
         },
         {
           "index": 13,
-          "name": "Various Mediterranean \u2192 Various Mediterranean",
+          "name": "Various Mediterranean → Various Mediterranean",
           "description": "Segment 14: Various Mediterranean to Various Mediterranean (~83 km, 2 waypoints)",
           "startPoint": "Various Mediterranean",
           "endPoint": "Various Mediterranean",
@@ -6044,7 +6039,7 @@
         },
         {
           "index": 14,
-          "name": "Point (32.0, 34.4) \u2192 Point (35.9, 34.9)",
+          "name": "Point (32.0, 34.4) → Point (35.9, 34.9)",
           "description": "Segment 15: Point (32.0, 34.4) to Point (35.9, 34.9) (~436 km, 3 waypoints)",
           "startPoint": "Point (32.0, 34.4)",
           "endPoint": "Point (35.9, 34.9)",
@@ -6060,7 +6055,7 @@
     "ice-iv": {
       "id": "ice-iv",
       "name": "ICE IV",
-      "region": "Asia-Middle East-Europe",
+      "region": "Indian Ocean",
       "rfs": "2024",
       "length_km": 16000,
       "owners": [
@@ -6410,7 +6405,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Singapore \u2192 Point (32.6, 29.1)",
+          "name": "Singapore → Point (32.6, 29.1)",
           "description": "Segment 1: Singapore to Point (32.6, 29.1) (~10218 km, 46 waypoints)",
           "startPoint": "Singapore",
           "endPoint": "Point (32.6, 29.1)",
@@ -6419,7 +6414,7 @@
         },
         {
           "index": 1,
-          "name": "Point (71.5, 9.1) \u2192 Point (76.3, 9.9)",
+          "name": "Point (71.5, 9.1) → Point (76.3, 9.9)",
           "description": "Segment 2: Point (71.5, 9.1) to Point (76.3, 9.9) (~532 km, 3 waypoints)",
           "startPoint": "Point (71.5, 9.1)",
           "endPoint": "Point (76.3, 9.9)",
@@ -6428,7 +6423,7 @@
         },
         {
           "index": 2,
-          "name": "Point (76.3, 9.9) \u2192 Point (80.2, 13.1)",
+          "name": "Point (76.3, 9.9) → Point (80.2, 13.1)",
           "description": "Segment 3: Point (76.3, 9.9) to Point (80.2, 13.1) (~560 km, 2 waypoints)",
           "startPoint": "Point (76.3, 9.9)",
           "endPoint": "Point (80.2, 13.1)",
@@ -6437,7 +6432,7 @@
         },
         {
           "index": 3,
-          "name": "Point (65.8, 16.0) \u2192 Various Middle East",
+          "name": "Point (65.8, 16.0) → Various Middle East",
           "description": "Segment 4: Point (65.8, 16.0) to Various Middle East (~1641 km, 8 waypoints)",
           "startPoint": "Point (65.8, 16.0)",
           "endPoint": "Various Middle East",
@@ -6446,7 +6441,7 @@
         },
         {
           "index": 4,
-          "name": "Various Middle East \u2192 Various Middle East",
+          "name": "Various Middle East → Various Middle East",
           "description": "Segment 5: Various Middle East to Various Middle East (~191 km, 3 waypoints)",
           "startPoint": "Various Middle East",
           "endPoint": "Various Middle East",
@@ -6455,7 +6450,7 @@
         },
         {
           "index": 5,
-          "name": "Singapore \u2192 Point (106.8, -6.2)",
+          "name": "Singapore → Point (106.8, -6.2)",
           "description": "Segment 6: Singapore to Point (106.8, -6.2) (~1017 km, 12 waypoints)",
           "startPoint": "Singapore",
           "endPoint": "Point (106.8, -6.2)",
@@ -6471,7 +6466,7 @@
     "plcn": {
       "id": "plcn",
       "name": "PLCN",
-      "region": "Asia-North America",
+      "region": "Transpacific",
       "rfs": "2022",
       "length_km": 13000,
       "owners": [
@@ -6572,7 +6567,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Taiwan \u2192 Point (180.0, 32.0)",
+          "name": "Taiwan → Point (180.0, 32.0)",
           "description": "Segment 1: Taiwan to Point (180.0, 32.0) (~6650 km, 5 waypoints)",
           "startPoint": "Taiwan",
           "endPoint": "Point (180.0, 32.0)",
@@ -6581,7 +6576,7 @@
         },
         {
           "index": 1,
-          "name": "Point (-180.0, 32.0) \u2192 USA",
+          "name": "Point (-180.0, 32.0) → USA",
           "description": "Segment 2: Point (-180.0, 32.0) to USA (~6887 km, 4 waypoints)",
           "startPoint": "Point (-180.0, 32.0)",
           "endPoint": "USA",
@@ -6590,7 +6585,7 @@
         },
         {
           "index": 2,
-          "name": "Philippines \u2192 Point (130.0, 25.0)",
+          "name": "Philippines → Point (130.0, 25.0)",
           "description": "Segment 3: Philippines to Point (130.0, 25.0) (~1671 km, 4 waypoints)",
           "startPoint": "Philippines",
           "endPoint": "Point (130.0, 25.0)",
@@ -6606,7 +6601,7 @@
     "tgn-wer": {
       "id": "tgn-wer",
       "name": "TGN Western Europe Ring",
-      "region": "IntraEurope",
+      "region": "Intra-Europe",
       "rfs": "2002",
       "length_km": 3578,
       "owners": [
@@ -6726,7 +6721,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Seixal \u2192 Bilbao",
+          "name": "Seixal → Bilbao",
           "description": "Segment 1: Seixal to Bilbao (~1146 km, 6 waypoints)",
           "startPoint": "Seixal",
           "endPoint": "Bilbao",
@@ -6735,7 +6730,7 @@
         },
         {
           "index": 1,
-          "name": "Bilbao \u2192 Highbridge",
+          "name": "Bilbao → Highbridge",
           "description": "Segment 2: Bilbao to Highbridge (~1010 km, 6 waypoints)",
           "startPoint": "Bilbao",
           "endPoint": "Highbridge",
@@ -6744,7 +6739,7 @@
         },
         {
           "index": 2,
-          "name": "Highbridge \u2192 Seixal",
+          "name": "Highbridge → Seixal",
           "description": "Segment 3: Highbridge to Seixal (~1763 km, 6 waypoints)",
           "startPoint": "Highbridge",
           "endPoint": "Seixal",
@@ -6760,7 +6755,7 @@
     "apcn-2": {
       "id": "apcn-2",
       "name": "APCN-2",
-      "region": "IntraAsia",
+      "region": "Intra-Asia",
       "rfs": "2001",
       "length_km": 19000,
       "owners": [
@@ -7056,7 +7051,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Changi \u2192 Batangas",
+          "name": "Changi → Batangas",
           "description": "Segment 1: Changi to Batangas (~2475 km, 6 waypoints)",
           "startPoint": "Changi",
           "endPoint": "Batangas",
@@ -7065,7 +7060,7 @@
         },
         {
           "index": 1,
-          "name": "Batangas \u2192 Lantau Island",
+          "name": "Batangas → Lantau Island",
           "description": "Segment 2: Batangas to Lantau Island (~1344 km, 4 waypoints)",
           "startPoint": "Batangas",
           "endPoint": "Lantau Island",
@@ -7074,7 +7069,7 @@
         },
         {
           "index": 2,
-          "name": "Lantau Island \u2192 Shantou",
+          "name": "Lantau Island → Shantou",
           "description": "Segment 3: Lantau Island to Shantou (~327 km, 3 waypoints)",
           "startPoint": "Lantau Island",
           "endPoint": "Shantou",
@@ -7083,7 +7078,7 @@
         },
         {
           "index": 3,
-          "name": "Shantou \u2192 Tanshui",
+          "name": "Shantou → Tanshui",
           "description": "Segment 4: Shantou to Tanshui (~564 km, 3 waypoints)",
           "startPoint": "Shantou",
           "endPoint": "Tanshui",
@@ -7092,7 +7087,7 @@
         },
         {
           "index": 4,
-          "name": "Tanshui \u2192 Toucheng",
+          "name": "Tanshui → Toucheng",
           "description": "Segment 5: Tanshui to Toucheng (~56 km, 2 waypoints)",
           "startPoint": "Tanshui",
           "endPoint": "Toucheng",
@@ -7101,7 +7096,7 @@
         },
         {
           "index": 5,
-          "name": "Toucheng \u2192 Chongming",
+          "name": "Toucheng → Chongming",
           "description": "Segment 6: Toucheng to Chongming (~1110 km, 4 waypoints)",
           "startPoint": "Toucheng",
           "endPoint": "Chongming",
@@ -7110,7 +7105,7 @@
         },
         {
           "index": 6,
-          "name": "Chongming \u2192 Qingdao",
+          "name": "Chongming → Qingdao",
           "description": "Segment 7: Chongming to Qingdao (~506 km, 2 waypoints)",
           "startPoint": "Chongming",
           "endPoint": "Qingdao",
@@ -7119,7 +7114,7 @@
         },
         {
           "index": 7,
-          "name": "Qingdao \u2192 Busan",
+          "name": "Qingdao → Busan",
           "description": "Segment 8: Qingdao to Busan (~971 km, 3 waypoints)",
           "startPoint": "Qingdao",
           "endPoint": "Busan",
@@ -7128,7 +7123,7 @@
         },
         {
           "index": 8,
-          "name": "Busan \u2192 Shima",
+          "name": "Busan → Shima",
           "description": "Segment 9: Busan to Shima (~868 km, 3 waypoints)",
           "startPoint": "Busan",
           "endPoint": "Shima",
@@ -7137,7 +7132,7 @@
         },
         {
           "index": 9,
-          "name": "Shima \u2192 Ajigaura",
+          "name": "Shima → Ajigaura",
           "description": "Segment 10: Shima to Ajigaura (~485 km, 3 waypoints)",
           "startPoint": "Shima",
           "endPoint": "Ajigaura",
@@ -7146,7 +7141,7 @@
         },
         {
           "index": 10,
-          "name": "Ajigaura \u2192 Batangas",
+          "name": "Ajigaura → Batangas",
           "description": "Segment 11: Ajigaura to Batangas (~3589 km, 7 waypoints)",
           "startPoint": "Ajigaura",
           "endPoint": "Batangas",
@@ -7162,7 +7157,7 @@
     "eac-c2c": {
       "id": "eac-c2c",
       "name": "EAC-C2C",
-      "region": "IntraAsia",
+      "region": "Intra-Asia",
       "rfs": "2002",
       "length_km": 36800,
       "owners": [
@@ -7448,7 +7443,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Changi \u2192 Nasugbu",
+          "name": "Changi → Nasugbu",
           "description": "Segment 1: Changi to Nasugbu (~2327 km, 4 waypoints)",
           "startPoint": "Changi",
           "endPoint": "Nasugbu",
@@ -7457,7 +7452,7 @@
         },
         {
           "index": 1,
-          "name": "Nasugbu \u2192 Cavite",
+          "name": "Nasugbu → Cavite",
           "description": "Segment 2: Nasugbu to Cavite (~54 km, 2 waypoints)",
           "startPoint": "Nasugbu",
           "endPoint": "Cavite",
@@ -7466,7 +7461,7 @@
         },
         {
           "index": 2,
-          "name": "Cavite \u2192 Tseung Kwan O",
+          "name": "Cavite → Tseung Kwan O",
           "description": "Segment 3: Cavite to Tseung Kwan O (~1139 km, 3 waypoints)",
           "startPoint": "Cavite",
           "endPoint": "Tseung Kwan O",
@@ -7475,7 +7470,7 @@
         },
         {
           "index": 3,
-          "name": "Tseung Kwan O \u2192 Shenzhen",
+          "name": "Tseung Kwan O → Shenzhen",
           "description": "Segment 4: Tseung Kwan O to Shenzhen (~35 km, 2 waypoints)",
           "startPoint": "Tseung Kwan O",
           "endPoint": "Shenzhen",
@@ -7484,7 +7479,7 @@
         },
         {
           "index": 4,
-          "name": "Shenzhen \u2192 Fangshan",
+          "name": "Shenzhen → Fangshan",
           "description": "Segment 5: Shenzhen to Fangshan (~739 km, 3 waypoints)",
           "startPoint": "Shenzhen",
           "endPoint": "Fangshan",
@@ -7493,7 +7488,7 @@
         },
         {
           "index": 5,
-          "name": "Fangshan \u2192 Toucheng",
+          "name": "Fangshan → Toucheng",
           "description": "Segment 6: Fangshan to Toucheng (~325 km, 3 waypoints)",
           "startPoint": "Fangshan",
           "endPoint": "Toucheng",
@@ -7502,7 +7497,7 @@
         },
         {
           "index": 6,
-          "name": "Toucheng \u2192 Shanghai",
+          "name": "Toucheng → Shanghai",
           "description": "Segment 7: Toucheng to Shanghai (~768 km, 3 waypoints)",
           "startPoint": "Toucheng",
           "endPoint": "Shanghai",
@@ -7511,7 +7506,7 @@
         },
         {
           "index": 7,
-          "name": "Shanghai \u2192 Qingdao",
+          "name": "Shanghai → Qingdao",
           "description": "Segment 8: Shanghai to Qingdao (~551 km, 2 waypoints)",
           "startPoint": "Shanghai",
           "endPoint": "Qingdao",
@@ -7520,7 +7515,7 @@
         },
         {
           "index": 8,
-          "name": "Qingdao \u2192 Busan",
+          "name": "Qingdao → Busan",
           "description": "Segment 9: Qingdao to Busan (~970 km, 3 waypoints)",
           "startPoint": "Qingdao",
           "endPoint": "Busan",
@@ -7529,7 +7524,7 @@
         },
         {
           "index": 9,
-          "name": "Busan \u2192 Shima",
+          "name": "Busan → Shima",
           "description": "Segment 10: Busan to Shima (~879 km, 3 waypoints)",
           "startPoint": "Busan",
           "endPoint": "Shima",
@@ -7538,7 +7533,7 @@
         },
         {
           "index": 10,
-          "name": "Shima \u2192 Ajigaura",
+          "name": "Shima → Ajigaura",
           "description": "Segment 11: Shima to Ajigaura (~492 km, 3 waypoints)",
           "startPoint": "Shima",
           "endPoint": "Ajigaura",
@@ -7547,7 +7542,7 @@
         },
         {
           "index": 11,
-          "name": "Ajigaura \u2192 Cavite",
+          "name": "Ajigaura → Cavite",
           "description": "Segment 12: Ajigaura to Cavite (~3546 km, 6 waypoints)",
           "startPoint": "Ajigaura",
           "endPoint": "Cavite",
@@ -7563,7 +7558,7 @@
     "grace-hopper": {
       "id": "grace-hopper",
       "name": "Grace Hopper",
-      "region": "Europe-North America",
+      "region": "Transatlantic",
       "rfs": "2022",
       "length_km": 7191,
       "owners": [
@@ -7669,7 +7664,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Bellport, New York \u2192 Bude",
+          "name": "Bellport, New York → Bude",
           "description": "Segment 1: Bellport, New York to Bude (~7714 km, 9 waypoints)",
           "startPoint": "Bellport, New York",
           "endPoint": "Bude",
@@ -7678,7 +7673,7 @@
         },
         {
           "index": 1,
-          "name": "Point (-25.0, 50.0) \u2192 Bilbao (Sopelana)",
+          "name": "Point (-25.0, 50.0) → Bilbao (Sopelana)",
           "description": "Segment 2: Point (-25.0, 50.0) to Bilbao (Sopelana) (~2564 km, 6 waypoints)",
           "startPoint": "Point (-25.0, 50.0)",
           "endPoint": "Bilbao (Sopelana)",
@@ -7694,7 +7689,7 @@
     "tgn-a-south": {
       "id": "tgn-a-south",
       "name": "TGN-Atlantic South",
-      "region": "Europe-South America",
+      "region": "Transatlantic",
       "rfs": "2001",
       "length_km": 9500,
       "owners": [
@@ -7793,7 +7788,7 @@
       "segments": [
         {
           "index": 0,
-          "name": "Highbridge \u2192 Fortaleza",
+          "name": "Highbridge → Fortaleza",
           "description": "Segment 1: UK to Northeast Brazil (~7500 km, 8 waypoints)",
           "startPoint": "Highbridge",
           "endPoint": "Fortaleza",
@@ -7802,7 +7797,7 @@
         },
         {
           "index": 1,
-          "name": "Fortaleza \u2192 Rio de Janeiro",
+          "name": "Fortaleza → Rio de Janeiro",
           "description": "Segment 2: Brazilian coastal route (~2000 km, 5 waypoints)",
           "startPoint": "Fortaleza",
           "endPoint": "Rio de Janeiro",
