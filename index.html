@@ -1333,6 +1333,138 @@
     .visor-toggle-btn:hover { background: #e3f2fd; border-color: #0077b6; }
     .visor-toggle-btn.active { background: #0077b6; color: white; border-color: #0077b6; }
 
+    /* === Cable Visor Advanced Filters === */
+    .visor-filter-row {
+      display: flex; gap: 6px; align-items: center; margin-top: 5px;
+      padding-top: 5px; border-top: 1px solid #e9ecef; flex-wrap: wrap;
+    }
+    .visor-filter-label {
+      font-size: 10px; font-weight: 600; color: #64748b; white-space: nowrap;
+    }
+    /* Status filter pills */
+    .visor-status-pills {
+      display: flex; gap: 3px; flex-wrap: wrap;
+    }
+    .visor-status-pill {
+      display: flex; align-items: center; gap: 3px;
+      padding: 2px 7px; font-size: 10px; border-radius: 10px;
+      cursor: pointer; border: 1px solid #d0d0d0;
+      background: white; color: #495057; transition: all 0.15s;
+      user-select: none; white-space: nowrap;
+    }
+    .visor-status-pill:hover { border-color: #0077b6; }
+    .visor-status-pill.active { color: white; border-color: transparent; }
+    .visor-status-pill.active[data-status="operational"] { background: #22c55e; }
+    .visor-status-pill.active[data-status="under-construction"] { background: #f59e0b; }
+    .visor-status-pill.active[data-status="planned"] { background: #3b82f6; }
+    .visor-status-pill.active[data-status="decommissioned"] { background: #6b7280; }
+    .visor-status-pill.active[data-status="unknown"] { background: #94a3b8; }
+    .visor-status-pill .pill-dot {
+      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    }
+    .visor-status-pill[data-status="operational"] .pill-dot { background: #22c55e; }
+    .visor-status-pill[data-status="under-construction"] .pill-dot { background: #f59e0b; }
+    .visor-status-pill[data-status="planned"] .pill-dot { background: #3b82f6; }
+    .visor-status-pill[data-status="decommissioned"] .pill-dot { background: #6b7280; }
+    .visor-status-pill[data-status="unknown"] .pill-dot { background: #94a3b8; }
+    .visor-status-pill.active .pill-dot { background: rgba(255,255,255,0.8); }
+    /* RFS date filter dropdown */
+    .visor-rfs-dropdown {
+      position: relative; display: inline-block;
+    }
+    .visor-rfs-btn {
+      padding: 2px 8px; font-size: 10px; border: 1px solid #d0d0d0;
+      border-radius: 4px; background: white; cursor: pointer;
+      color: #495057; transition: all 0.15s; display: flex;
+      align-items: center; gap: 4px;
+    }
+    .visor-rfs-btn:hover { border-color: #0077b6; }
+    .visor-rfs-btn.has-filter { background: #e0f2fe; border-color: #0077b6; color: #0077b6; font-weight: 600; }
+    .visor-rfs-menu {
+      display: none; position: absolute; top: 100%; left: 0;
+      background: white; border: 1px solid #d0d0d0; border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 300;
+      min-width: 160px; padding: 4px 0; margin-top: 2px;
+    }
+    .visor-rfs-menu.show { display: block; }
+    .visor-rfs-menu label {
+      display: flex; align-items: center; gap: 6px; padding: 4px 10px;
+      font-size: 11px; cursor: pointer; transition: background 0.1s;
+    }
+    .visor-rfs-menu label:hover { background: #f0f9ff; }
+    .visor-rfs-menu input[type="checkbox"] { width: 13px; height: 13px; accent-color: #0077b6; }
+    .visor-rfs-menu .rfs-menu-footer {
+      border-top: 1px solid #e5e7eb; padding: 4px 10px; display: flex;
+      justify-content: space-between; margin-top: 2px;
+    }
+    .visor-rfs-menu .rfs-menu-footer button {
+      font-size: 10px; padding: 2px 8px; border: none; border-radius: 3px;
+      cursor: pointer; background: #f1f5f9; color: #64748b;
+    }
+    .visor-rfs-menu .rfs-menu-footer button:hover { background: #e2e8f0; }
+    /* Owner filter with search */
+    .visor-owner-filter {
+      position: relative; flex: 1; min-width: 120px; max-width: 220px;
+    }
+    .visor-owner-filter input[type="text"] {
+      width: 100%; padding: 3px 24px 3px 8px; border: 1px solid #d0d0d0;
+      border-radius: 4px; font-size: 10px; outline: none; box-sizing: border-box;
+    }
+    .visor-owner-filter input[type="text"]:focus { border-color: #0077b6; }
+    .visor-owner-filter .owner-clear-btn {
+      position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: #9ca3af;
+      font-size: 12px; padding: 0 2px; display: none;
+    }
+    .visor-owner-filter .owner-clear-btn.show { display: block; }
+    .visor-owner-dropdown {
+      display: none; position: absolute; top: 100%; left: 0; right: 0;
+      background: white; border: 1px solid #d0d0d0; border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 300;
+      max-height: 200px; overflow-y: auto; margin-top: 2px;
+    }
+    .visor-owner-dropdown.show { display: block; }
+    .visor-owner-item {
+      padding: 4px 10px; font-size: 11px; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid #f3f4f6; transition: background 0.1s;
+    }
+    .visor-owner-item:hover { background: #f0f9ff; }
+    .visor-owner-item.selected { background: #e0f2fe; font-weight: 600; }
+    .visor-owner-item .owner-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .visor-owner-item .owner-count { color: #94a3b8; font-size: 9px; margin-left: 6px; flex-shrink: 0; }
+    .visor-owner-tags {
+      display: flex; gap: 3px; flex-wrap: wrap; margin-top: 2px;
+    }
+    .visor-owner-tag {
+      display: flex; align-items: center; gap: 2px;
+      padding: 1px 6px; font-size: 9px; border-radius: 8px;
+      background: #e0f2fe; color: #0077b6; border: 1px solid #7dd3fc;
+    }
+    .visor-owner-tag button {
+      background: none; border: none; cursor: pointer; color: #0077b6;
+      font-size: 10px; padding: 0 1px; line-height: 1;
+    }
+    .visor-owner-tag button:hover { color: #c00; }
+    /* Active filter count badge */
+    .visor-filter-clear-all {
+      padding: 2px 8px; font-size: 9px; border: 1px solid #fca5a5;
+      border-radius: 4px; background: #fef2f2; cursor: pointer;
+      color: #dc2626; transition: all 0.15s; white-space: nowrap;
+    }
+    .visor-filter-clear-all:hover { background: #fee2e2; border-color: #f87171; }
+    /* FA Manual Match in visor */
+    .visor-fa-match-btn {
+      display: inline-flex; align-items: center; gap: 2px;
+      padding: 0px 4px; font-size: 9px; border-radius: 3px;
+      cursor: pointer; border: 1px solid #e5e7eb; background: #f9fafb;
+      color: #9ca3af; line-height: 1.4; transition: all 0.15s;
+      margin-left: 3px; vertical-align: middle;
+    }
+    .visor-fa-match-btn:hover { border-color: #0077b6; color: #0077b6; background: #f0f9ff; }
+    .visor-fa-match-btn.linked { border-color: #86efac; background: #f0fdf4; color: #166534; }
+
+
     /* Datacenter Visor Panel - Floating Draggable (matches Cable Visor) */
     #dcVisorPanel {
       position: absolute;
@@ -21816,7 +21948,12 @@ function loadProjectObject(obj) {
     cableDatabase: null,
     initialized: false,
     mapReady: false,
-    mapStyle: 'osm'
+    mapStyle: 'osm',
+    // Advanced filter state
+    statusFilter: new Set(['operational', 'under-construction', 'planned', 'decommissioned', 'unknown']),
+    rfsFilter: new Set(['unknown', 'pre2000', '2000-2005', '2006-2010', '2011-2015', '2016-2020', '2021-2025', '2026+']),
+    ownerFilter: new Set(),  // selected owner names (empty = show all)
+    ownerIndex: null         // { ownerName -> [cableId, ...] } built on data load
   };
 
   // Cable Visor map style definitions (raster tile sources)
@@ -22159,10 +22296,10 @@ function loadProjectObject(obj) {
       cable.region ? { label: 'Region', value: cable.region } : null,
       cable.rfs ? { label: 'RFS', value: cable.rfs } : null,
       cable.status ? { label: 'Status', value: cable.status.charAt(0).toUpperCase() + cable.status.slice(1).replace('-', ' ') } : null,
-      // Show debug fields only for current-year RFS cables
-      (cable.rfsYear === currentYear && cable._statusSource) ? { label: 'Status Source', value: cable._statusSource } : null,
-      (cable.rfsYear === currentYear && cable._faMatchName) ? { label: 'FA Match', value: cable._faMatchName } : null,
-      (cable.rfsYear === currentYear && cable._faStatus) ? { label: 'FA Live Status', value: cable._faStatus } : null,
+      // Show debug fields when available (for all cables with FA data)
+      cable._statusSource ? { label: 'Status Source', value: cable._statusSource } : null,
+      cable._faMatchName ? { label: 'FA Match', value: cable._faMatchName } : null,
+      cable._faStatus ? { label: 'FA Live Status', value: cable._faStatus } : null,
       cable.length_km ? { label: 'Length', value: `${Math.round(cable.length_km).toLocaleString()} km` } : null,
       cable.fiberPairs ? { label: 'Fiber Pairs', value: cable.fiberPairs } : null,
       cable.designCapacity && cable.designCapacity !== 'Unknown' ? { label: 'Capacity', value: cable.designCapacity } :
@@ -22171,6 +22308,8 @@ function loadProjectObject(obj) {
         (cable.owners && cable.owners.length ? { label: 'Owners', value: Array.isArray(cable.owners) ? cable.owners.join(', ') : cable.owners } : null),
       cable.suppliers && cable.suppliers.length ? { label: 'Suppliers', value: Array.isArray(cable.suppliers) ? cable.suppliers.join(', ') : cable.suppliers } : null,
       cable.url ? { label: 'Website', value: cable.url } : null,
+      { label: 'Live Status', value: cable._faMatchName ? (cable._faMatchName + ' (' + (cable._faStatus || 'pending') + ')') : 'Not linked', _isFaLink: true, _cableId: cableId },
+      cable._sdbEnriched ? { label: 'DB Enriched', value: cable._sdbEnriched.join(', ') } : null,
     ].filter(Boolean);
 
     grid.innerHTML = items.map(item => {
@@ -22208,6 +22347,19 @@ function loadProjectObject(obj) {
       // Style debug fields
       if (item.label === 'Status Source') {
         valueHtml = `<span style="color:#94a3b8;font-style:italic;font-size:11px;">${escapeHtml(String(item.value))}</span>`;
+      }
+
+      // Style SDB enrichment indicator
+      if (item.label === 'DB Enriched') {
+        valueHtml = `<span style="color:#8b5cf6;font-size:11px;font-style:italic;">${escapeHtml(String(item.value))}</span>`;
+      }
+
+      // Live Status link with manual match button
+      if (item.label === 'Live Status' && item._isFaLink) {
+        const hasMatch = item.value !== 'Not linked';
+        const faColor = hasMatch ? '#166534' : '#9ca3af';
+        const faIcon = hasMatch ? '&#x2713;' : '&#x1F517;';
+        valueHtml = `<span style="color:${faColor};font-size:11px;">${hasMatch ? escapeHtml(String(item.value)) : 'Not linked'}</span> <span class="visor-fa-match-btn ${hasMatch ? 'linked' : ''}" data-cable-id="${item._cableId}" style="font-size:9px;" title="Click to search &amp; assign Live Status manually">${faIcon} ${hasMatch ? 'Change' : 'Link'}</span>`;
       }
 
       return `
@@ -22618,6 +22770,10 @@ function loadProjectObject(obj) {
         populateCableVisorRegionFilter(db);
         // Initialize CLS filter (indices from cable_stations_db)
         initCLSFilter();
+        // Build owner index for owner filter
+        buildOwnerIndex(db);
+        // Initialize advanced filter event handlers
+        initVisorAdvancedFilters();
         renderCableVisorList();
       } else {
         if (listEl) listEl.innerHTML = '<div style="padding:20px; text-align:center; color:#888;">No cables found</div>';
@@ -22777,6 +22933,26 @@ function loadProjectObject(obj) {
         console.log(`[CableVisor] No cables with RFS ${currentYear} — skipping FiberAtlantic cross-check`);
       }
 
+      // Step 3b: Load Submarine Cable DB for metadata enrichment fallback
+      let sdbLookup = {};
+      let sdbNameLookup = {};
+      try {
+        const sdbResp = await fetch('data/submarine_cables_db.json');
+        if (sdbResp.ok) {
+          const sdbData = await sdbResp.json();
+          if (sdbData && sdbData.cables) {
+            for (const [key, cable] of Object.entries(sdbData.cables)) {
+              sdbLookup[key] = cable;
+              const normName = cable.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+              sdbNameLookup[normName] = cable;
+            }
+            console.log(`[CableVisor] Loaded submarine_cables_db.json: ${Object.keys(sdbLookup).length} cables for metadata enrichment`);
+          }
+        }
+      } catch (sdbErr) {
+        console.warn('[CableVisor] submarine_cables_db.json not available for enrichment:', sdbErr.message);
+      }
+
       // Step 4: Build cable database with smart status logic
       const cables = {};
       let statusDebugLog = [];
@@ -22928,12 +23104,70 @@ function loadProjectObject(obj) {
           if (isNaN(length_km)) length_km = null;
         }
 
+        // SDB enrichment: fill missing metadata from submarine_cables_db.json
+        const sdbMatch = sdbLookup[props.id] || sdbNameLookup[(props.name || '').toLowerCase().replace(/[^a-z0-9]/g, '')] || null;
+        let sdbEnriched = [];
+        let fiberPairs = null;
+        let designCapacity = null;
+        let capacityTbps = null;
+
+        if (sdbMatch) {
+          // Enrich owners if missing from TG metadata
+          if (owners.length === 0 && sdbMatch.owners && sdbMatch.owners.length > 0) {
+            owners = Array.isArray(sdbMatch.owners) ? sdbMatch.owners : [sdbMatch.owners];
+            sdbEnriched.push('owners');
+          }
+          // Enrich length if missing
+          if (!length_km && sdbMatch.length_km) {
+            length_km = sdbMatch.length_km;
+            sdbEnriched.push('length');
+          }
+          // Enrich RFS year if missing
+          if (!rfsYear && sdbMatch.rfs) {
+            const sdbRfs = parseInt(sdbMatch.rfs);
+            if (!isNaN(sdbRfs) && sdbRfs > 1990 && sdbRfs < 2100) {
+              rfsYear = sdbRfs;
+              sdbEnriched.push('rfs');
+            }
+          }
+          // Fiber pairs (TG API doesn't provide this)
+          if (sdbMatch.fiberPairs) {
+            fiberPairs = sdbMatch.fiberPairs;
+            sdbEnriched.push('fiberPairs');
+          }
+          // Design capacity (TG API doesn't provide this)
+          if (sdbMatch.designCapacity && sdbMatch.designCapacity !== 'Unknown') {
+            designCapacity = sdbMatch.designCapacity;
+            sdbEnriched.push('designCapacity');
+          }
+          if (sdbMatch.capacityTbps) {
+            capacityTbps = sdbMatch.capacityTbps;
+          }
+          // Enrich suppliers if missing
+          if (suppliers.length === 0 && sdbMatch.suppliers && sdbMatch.suppliers.length > 0) {
+            suppliers = Array.isArray(sdbMatch.suppliers) ? sdbMatch.suppliers : [sdbMatch.suppliers];
+            sdbEnriched.push('suppliers');
+          }
+          if (sdbEnriched.length > 0) {
+            console.log(`[CableVisor] SDB enriched ${props.name}: ${sdbEnriched.join(', ')}`);
+          }
+        }
+
+        // Determine landing points: TG metadata first, SDB fallback
+        const landingPoints = (meta.landing_points && meta.landing_points.length > 0)
+          ? meta.landing_points
+          : (sdbMatch && sdbMatch.landingPoints && sdbMatch.landingPoints.length > 0
+            ? sdbMatch.landingPoints : []);
+        if (!meta.landing_points?.length && landingPoints.length > 0) {
+          sdbEnriched.push('landingPoints');
+        }
+
         cables[props.id] = {
           id: props.id,
           name: props.name,
           shortName: props.name.length > 20 ? props.name.substring(0, 18) + '...' : props.name,
           color: props.color || '#939597',
-          region: inferRegionFromLandingPoints(meta.landing_points || [], feature.geometry),
+          region: inferRegionFromLandingPoints(landingPoints, feature.geometry),
           status: status,
           rfs: meta.rfs || (rfsYear ? String(rfsYear) : ''),
           rfsYear: rfsYear,
@@ -22941,16 +23175,20 @@ function loadProjectObject(obj) {
           owners: owners,
           ownersText: owners.length > 0 ? owners.join(', ') : 'Unknown',
           suppliers: suppliers,
+          fiberPairs: fiberPairs,
+          designCapacity: designCapacity,
+          capacityTbps: capacityTbps,
           description: props.name + ' submarine cable',
           length_km: length_km,
           url: meta.url || null,
-          landingPoints: meta.landing_points || [],
+          landingPoints: landingPoints,
           geometry: feature.geometry,
           source: 'TeleGeography API',
           // Debug fields for current-year RFS cables
           _faStatus: faStatus,
           _faMatchName: faMatchName,
-          _statusSource: statusSource
+          _statusSource: statusSource,
+          _sdbEnriched: sdbEnriched.length > 0 ? sdbEnriched : null
         };
       });
 
@@ -22967,6 +23205,12 @@ function loadProjectObject(obj) {
       const dcCount = Object.values(cables).filter(c => c.status === 'decommissioned').length;
       const ukCount = Object.values(cables).filter(c => c.status === 'unknown').length;
       console.log(`[CableVisor] Status summary: ${opCount} operational, ${ucCount} under-construction/pending, ${plCount} planned, ${dcCount} decommissioned, ${ukCount} unknown`);
+
+      // Log SDB enrichment summary
+      const sdbEnrichedCount = Object.values(cables).filter(c => c._sdbEnriched).length;
+      if (sdbEnrichedCount > 0) {
+        console.log(`[CableVisor] SDB enrichment: ${sdbEnrichedCount} cables enriched from submarine_cables_db.json`);
+      }
 
       return {
         version: '1.0',
@@ -23158,21 +23402,50 @@ function loadProjectObject(obj) {
       return 'Unknown';
     }
 
-    // Fallback: coordinate-based inference (less accurate)
+    // Fallback: coordinate-based inference using both endpoints
     if (!geometry || !geometry.coordinates) return 'Unknown';
-    let coords = geometry.coordinates;
-    if (geometry.type === 'MultiLineString' && coords[0] && coords[0][0]) {
-      coords = coords[0][0];
-    } else if (geometry.type === 'LineString' && coords[0]) {
-      coords = coords[0];
+    let startCoord = null, endCoord = null;
+    if (geometry.type === 'MultiLineString') {
+      const segs = geometry.coordinates;
+      if (segs.length > 0 && segs[0].length > 0) {
+        startCoord = segs[0][0];
+        const lastSeg = segs[segs.length - 1];
+        if (lastSeg && lastSeg.length > 0) endCoord = lastSeg[lastSeg.length - 1];
+      }
+    } else if (geometry.type === 'LineString') {
+      const pts = geometry.coordinates;
+      if (pts.length > 0) startCoord = pts[0];
+      if (pts.length > 1) endCoord = pts[pts.length - 1];
     }
-    if (!Array.isArray(coords) || coords.length < 2) return 'Unknown';
-    const lon = coords[0];
-    const lat = coords[1];
-    if (lon >= -30 && lon <= 60 && lat >= 35) return 'Intra-Europe';
-    if (lon >= 60 && lon <= 150) return 'Intra-Asia';
-    if (lon >= 150 || lon <= -150) return 'Transpacific';
-    if (lon >= -130 && lon <= -30 && lat >= 15) return 'Intra-Americas';
+    if (!startCoord) return 'Unknown';
+
+    // Classify a coordinate into a broad geographic region
+    function geoRegionFromCoord(coord) {
+      const lon = coord[0], lat = coord[1];
+      if (lon >= -30 && lon <= 60 && lat >= 35) return 'Europe';
+      if (lon >= -130 && lon <= -30 && lat >= 15) return 'NorthAmerica';
+      if (lon >= -90 && lon <= -30 && lat < 15 && lat >= -60) return 'SouthAmerica';
+      if (lon >= 60 && lon <= 180) return 'Asia';
+      if (lon <= -130 || lon >= 150) return 'Pacific';
+      if (lon >= -30 && lon <= 75 && lat >= -40 && lat < 35) return 'AfricaME';
+      return 'Unknown';
+    }
+
+    const r1 = geoRegionFromCoord(startCoord);
+    const r2 = endCoord ? geoRegionFromCoord(endCoord) : r1;
+    const hasEur = r1 === 'Europe' || r2 === 'Europe';
+    const hasAmer = r1 === 'NorthAmerica' || r2 === 'NorthAmerica' || r1 === 'SouthAmerica' || r2 === 'SouthAmerica';
+    const hasAsia = r1 === 'Asia' || r2 === 'Asia' || r1 === 'Pacific' || r2 === 'Pacific';
+
+    // Cross-ocean corridors
+    if (hasEur && hasAmer) return 'Transatlantic';
+    if (hasAmer && hasAsia) return 'Transpacific';
+    if (hasEur && hasAsia) return 'Indian Ocean';
+
+    // Single-region fallback
+    if (hasEur) return 'Intra-Europe';
+    if (hasAsia) return 'Intra-Asia';
+    if (hasAmer) return 'Intra-Americas';
     return 'Unknown';
   }
 
@@ -23685,6 +23958,414 @@ function loadProjectObject(obj) {
     console.log('[CLS Filter] Initialized');
   }
 
+  // ======================
+  // Owner Index for Owner Filter
+  // ======================
+  function buildOwnerIndex(db) {
+    const index = {};
+    if (!db || !db.cables) { cableVisorState.ownerIndex = index; return; }
+    Object.values(db.cables).forEach(cable => {
+      const owners = cable.owners || [];
+      owners.forEach(owner => {
+        const name = owner.trim();
+        if (!name) return;
+        if (!index[name]) index[name] = [];
+        index[name].push(cable.id);
+      });
+    });
+    cableVisorState.ownerIndex = index;
+    console.log('[CableVisor] Owner index built:', Object.keys(index).length, 'unique owners');
+  }
+
+  // ======================
+  // Advanced Filter Initialization
+  // ======================
+  function initVisorAdvancedFilters() {
+    // --- Status pills ---
+    document.querySelectorAll('#visorStatusPills .visor-status-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const status = pill.dataset.status;
+        pill.classList.toggle('active');
+        if (pill.classList.contains('active')) {
+          cableVisorState.statusFilter.add(status);
+        } else {
+          cableVisorState.statusFilter.delete(status);
+        }
+        updateVisorFilterBadges();
+        renderCableVisorList();
+      });
+    });
+
+    // --- RFS dropdown ---
+    const rfsBtn = document.getElementById('btnVisorRfsFilter');
+    const rfsMenu = document.getElementById('visorRfsMenu');
+    if (rfsBtn && rfsMenu) {
+      rfsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        rfsMenu.classList.toggle('show');
+      });
+      // Checkbox changes
+      rfsMenu.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          if (cb.checked) {
+            cableVisorState.rfsFilter.add(cb.value);
+          } else {
+            cableVisorState.rfsFilter.delete(cb.value);
+          }
+          updateVisorFilterBadges();
+          renderCableVisorList();
+        });
+      });
+      // Select all / clear all
+      document.getElementById('btnRfsSelectAll')?.addEventListener('click', () => {
+        rfsMenu.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = true; cableVisorState.rfsFilter.add(cb.value); });
+        updateVisorFilterBadges();
+        renderCableVisorList();
+      });
+      document.getElementById('btnRfsClearAll')?.addEventListener('click', () => {
+        rfsMenu.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = false; });
+        cableVisorState.rfsFilter.clear();
+        updateVisorFilterBadges();
+        renderCableVisorList();
+      });
+      // Close dropdown on outside click
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#visorRfsDropdown')) {
+          rfsMenu.classList.remove('show');
+        }
+      });
+    }
+
+    // --- Owner filter ---
+    const ownerSearch = document.getElementById('visorOwnerSearch');
+    const ownerDropdown = document.getElementById('visorOwnerDropdown');
+    const ownerClear = document.getElementById('visorOwnerClear');
+
+    if (ownerSearch && ownerDropdown) {
+      ownerSearch.addEventListener('focus', () => {
+        renderOwnerDropdown(ownerSearch.value);
+        ownerDropdown.classList.add('show');
+      });
+      ownerSearch.addEventListener('input', () => {
+        renderOwnerDropdown(ownerSearch.value);
+        ownerDropdown.classList.add('show');
+      });
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#visorOwnerFilter')) {
+          ownerDropdown.classList.remove('show');
+        }
+      });
+    }
+    if (ownerClear) {
+      ownerClear.addEventListener('click', () => {
+        cableVisorState.ownerFilter.clear();
+        ownerSearch.value = '';
+        ownerClear.classList.remove('show');
+        renderOwnerTags();
+        updateVisorFilterBadges();
+        renderCableVisorList();
+      });
+    }
+
+    // --- Clear all filters button ---
+    document.getElementById('btnVisorClearAllFilters')?.addEventListener('click', () => {
+      // Reset status pills
+      cableVisorState.statusFilter = new Set(['operational', 'under-construction', 'planned', 'decommissioned', 'unknown']);
+      document.querySelectorAll('#visorStatusPills .visor-status-pill').forEach(p => p.classList.add('active'));
+      // Reset RFS
+      cableVisorState.rfsFilter = new Set(['unknown', 'pre2000', '2000-2005', '2006-2010', '2011-2015', '2016-2020', '2021-2025', '2026+']);
+      const rfsMenuEl = document.getElementById('visorRfsMenu');
+      if (rfsMenuEl) rfsMenuEl.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = true; });
+      // Reset owners
+      cableVisorState.ownerFilter.clear();
+      const os = document.getElementById('visorOwnerSearch');
+      if (os) os.value = '';
+      const oc = document.getElementById('visorOwnerClear');
+      if (oc) oc.classList.remove('show');
+      renderOwnerTags();
+      updateVisorFilterBadges();
+      renderCableVisorList();
+    });
+  }
+
+  // Render owner dropdown list
+  function renderOwnerDropdown(searchTerm) {
+    const dropdown = document.getElementById('visorOwnerDropdown');
+    if (!dropdown || !cableVisorState.ownerIndex) return;
+
+    const term = (searchTerm || '').toLowerCase().trim();
+    const index = cableVisorState.ownerIndex;
+    let owners = Object.keys(index);
+
+    if (term) {
+      owners = owners.filter(name => name.toLowerCase().includes(term));
+    }
+
+    // Sort: selected first, then alphabetically
+    owners.sort((a, b) => {
+      const aSelected = cableVisorState.ownerFilter.has(a) ? 0 : 1;
+      const bSelected = cableVisorState.ownerFilter.has(b) ? 0 : 1;
+      if (aSelected !== bSelected) return aSelected - bSelected;
+      return a.localeCompare(b);
+    });
+
+    // Limit to 50 items
+    const items = owners.slice(0, 50);
+
+    if (items.length === 0) {
+      dropdown.innerHTML = '<div style="padding:8px 10px; color:#9ca3af; font-size:10px; text-align:center;">No owners found</div>';
+      return;
+    }
+
+    dropdown.innerHTML = items.map(name => {
+      const count = index[name].length;
+      const selected = cableVisorState.ownerFilter.has(name);
+      return '<div class="visor-owner-item ' + (selected ? 'selected' : '') + '" data-owner="' + escapeHtml(name) + '">' +
+        '<span class="owner-name">' + escapeHtml(name) + '</span>' +
+        '<span class="owner-count">(' + count + ')</span>' +
+      '</div>';
+    }).join('');
+
+    dropdown.querySelectorAll('.visor-owner-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const ownerName = item.dataset.owner;
+        if (cableVisorState.ownerFilter.has(ownerName)) {
+          cableVisorState.ownerFilter.delete(ownerName);
+        } else {
+          cableVisorState.ownerFilter.add(ownerName);
+        }
+        renderOwnerDropdown(document.getElementById('visorOwnerSearch')?.value || '');
+        renderOwnerTags();
+        updateVisorFilterBadges();
+        renderCableVisorList();
+      });
+    });
+  }
+
+  // Render selected owner tags
+  function renderOwnerTags() {
+    const container = document.getElementById('visorOwnerTags');
+    if (!container) return;
+    const owners = Array.from(cableVisorState.ownerFilter);
+    if (owners.length === 0) {
+      container.innerHTML = '';
+      container.style.display = 'none';
+      return;
+    }
+    container.style.display = 'flex';
+    container.innerHTML = owners.map(name =>
+      '<span class="visor-owner-tag">' + escapeHtml(name) +
+      '<button data-owner="' + escapeHtml(name) + '" title="Remove">&times;</button></span>'
+    ).join('');
+
+    container.querySelectorAll('.visor-owner-tag button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        cableVisorState.ownerFilter.delete(btn.dataset.owner);
+        renderOwnerTags();
+        renderOwnerDropdown(document.getElementById('visorOwnerSearch')?.value || '');
+        updateVisorFilterBadges();
+        renderCableVisorList();
+      });
+    });
+
+    // Update clear button visibility
+    const ownerClear = document.getElementById('visorOwnerClear');
+    if (ownerClear) ownerClear.classList.toggle('show', owners.length > 0);
+  }
+
+  // Update filter badges (Clear All button visibility, RFS button label)
+  function updateVisorFilterBadges() {
+    const allStatuses = cableVisorState.statusFilter.size === 5;
+    const allRfs = cableVisorState.rfsFilter.size === 8;
+    const noOwners = cableVisorState.ownerFilter.size === 0;
+    const anyFilterActive = !allStatuses || !allRfs || !noOwners;
+
+    const clearBtn = document.getElementById('btnVisorClearAllFilters');
+    if (clearBtn) clearBtn.style.display = anyFilterActive ? 'inline-block' : 'none';
+
+    // RFS button label
+    const rfsBtn = document.getElementById('btnVisorRfsFilter');
+    if (rfsBtn) {
+      if (allRfs) {
+        rfsBtn.textContent = 'All Periods ▼';
+        rfsBtn.classList.remove('has-filter');
+      } else if (cableVisorState.rfsFilter.size === 0) {
+        rfsBtn.textContent = 'None ▼';
+        rfsBtn.classList.add('has-filter');
+      } else {
+        rfsBtn.textContent = cableVisorState.rfsFilter.size + ' selected ▼';
+        rfsBtn.classList.add('has-filter');
+      }
+    }
+  }
+
+  // Helper: check if a cable's RFS year matches the active RFS filter
+  function cableMatchesRfsFilter(cable) {
+    const rfsFilter = cableVisorState.rfsFilter;
+    if (rfsFilter.size === 8) return true; // all selected
+    const year = cable.rfsYear;
+    if (!year) return rfsFilter.has('unknown');
+    if (year < 2000) return rfsFilter.has('pre2000');
+    if (year <= 2005) return rfsFilter.has('2000-2005');
+    if (year <= 2010) return rfsFilter.has('2006-2010');
+    if (year <= 2015) return rfsFilter.has('2011-2015');
+    if (year <= 2020) return rfsFilter.has('2016-2020');
+    if (year <= 2025) return rfsFilter.has('2021-2025');
+    return rfsFilter.has('2026+');
+  }
+
+  // Helper: check if cable matches owner filter
+  function cableMatchesOwnerFilter(cable) {
+    if (cableVisorState.ownerFilter.size === 0) return true; // no filter
+    const owners = cable.owners || [];
+    if (owners.length === 0) return false;
+    return owners.some(o => cableVisorState.ownerFilter.has(o.trim()));
+  }
+
+  // ======================
+  // Manual FA Match in Cable Visor (for mismatches / unlinked cables)
+  // ======================
+  async function showVisorFaMatchPopover(cableId, anchorEl) {
+    closeInlinePopover(); // reuse the same global popover close
+
+    const db = cableVisorState.cableDatabase;
+    if (!db || !db.cables || !db.cables[cableId]) return;
+    const cable = db.cables[cableId];
+
+    const rect = anchorEl.getBoundingClientRect();
+    const popover = document.createElement('div');
+    popover.className = 'fa-inline-popover';
+    popover.style.top = (rect.bottom + 4) + 'px';
+    popover.style.left = Math.max(8, rect.right - 280) + 'px';
+    popover.style.position = 'fixed';
+    popover.style.width = '280px';
+
+    popover.innerHTML = '<div class="fa-inline-popover-header">' +
+      '<span>Link "' + escapeHtml(cable.shortName || cable.name) + '" to Live Status</span>' +
+      '<button class="fa-popover-close" style="background:none; border:none; cursor:pointer; font-size:14px; color:#6b7280; padding:0 2px;">&#x2715;</button>' +
+      '</div>' +
+      '<input class="fa-inline-popover-search" placeholder="Search Live Status cables..." autofocus />' +
+      '<div class="fa-inline-popover-list">' +
+        '<div style="padding:12px; text-align:center; color:#9ca3af; font-size:11px;">Loading cables...</div>' +
+      '</div>';
+
+    document.body.appendChild(popover);
+    activeInlinePopover = popover;
+
+    popover.querySelector('.fa-popover-close').addEventListener('click', closeInlinePopover);
+
+    setTimeout(() => {
+      const outsideHandler = (e) => {
+        if (activeInlinePopover && !activeInlinePopover.contains(e.target)) {
+          closeInlinePopover();
+          document.removeEventListener('mousedown', outsideHandler);
+        }
+      };
+      document.addEventListener('mousedown', outsideHandler);
+    }, 100);
+
+    const cables = await fetchFiberAtlanticCables();
+    if (!cables || !activeInlinePopover) return;
+
+    const listEl = popover.querySelector('.fa-inline-popover-list');
+    const searchInput = popover.querySelector('.fa-inline-popover-search');
+
+    function renderList(filter) {
+      const term = (filter || '').toLowerCase().trim();
+      let filtered = cables;
+      if (term) {
+        filtered = cables.filter(c => (c.name || '').toLowerCase().includes(term));
+      }
+
+      const cName = (cable.name || '').toLowerCase();
+      const cShort = (cable.shortName || '').toLowerCase();
+      filtered = filtered.slice().sort((a, b) => {
+        const aName = (a.name || '').toLowerCase();
+        const bName = (b.name || '').toLowerCase();
+        const aMatch = aName.includes(cName) || cName.includes(aName) || aName.includes(cShort) || cShort.includes(aName);
+        const bMatch = bName.includes(cName) || cName.includes(bName) || bName.includes(cShort) || cShort.includes(bName);
+        if (aMatch && !bMatch) return -1;
+        if (!aMatch && bMatch) return 1;
+        return aName.localeCompare(bName);
+      });
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = '<div style="padding:12px; text-align:center; color:#9ca3af; font-size:11px;">No matches found</div>';
+        return;
+      }
+
+      const items = filtered.slice(0, 50);
+      listEl.innerHTML = items.map(c => {
+        const status = (c.status || '').toLowerCase();
+        let statusClass = 'other', statusLabel = c.status || '\u2014';
+        if (status === 'online' || status === 'active') { statusClass = 'online'; statusLabel = 'Online'; }
+        else if (status === 'outage') { statusClass = 'outage'; statusLabel = 'Outage'; }
+        return '<div class="fa-inline-popover-item" data-fa-id="' + escapeHtml(c.id || c.slug || c.name) + '" data-fa-name="' + escapeHtml(c.name) + '" data-fa-status="' + escapeHtml(c.status || '') + '">' +
+          '<span class="fa-item-name" title="' + escapeHtml(c.name) + '">' + escapeHtml(c.name) + '</span>' +
+          '<span class="fa-item-status ' + statusClass + '">' + statusLabel + '</span>' +
+        '</div>';
+      }).join('');
+
+      listEl.querySelectorAll('.fa-inline-popover-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const faId = item.dataset.faId;
+          const faName = item.dataset.faName;
+          const faStatus = item.dataset.faStatus;
+
+          // Update the cable in the visor database
+          cable._faStatus = (faStatus || '').toLowerCase().trim() || null;
+          cable._faMatchName = faName;
+          cable._statusSource = 'manual-visor-link';
+          cable._manualFaId = faId;
+
+          // If cable was unknown/decommissioned and FA says online, update status
+          if (cable._faStatus === 'online' || cable._faStatus === 'active') {
+            if (cable.status === 'unknown' || cable.status === 'decommissioned') {
+              cable.status = 'operational';
+            }
+          }
+
+          // Also update the cable list manager if this cable exists there
+          if (state.cableSystems) {
+            const csMatch = state.cableSystems.find(cs =>
+              cs.name === cable.name || cs.shortName === cable.shortName ||
+              (cable.name && cs.name && cs.name.toLowerCase() === cable.name.toLowerCase())
+            );
+            if (csMatch) {
+              csMatch.fiberAtlanticId = faId;
+              csMatch.fiberAtlanticName = faName;
+              csMatch.fiberAtlanticConfidence = 'manual-visor';
+              csMatch.faLiveStatus = faStatus || '';
+              if (typeof commit === 'function') commit();
+              if (typeof updateCableNavigatorList === 'function') updateCableNavigatorList();
+            }
+          }
+
+          closeInlinePopover();
+          renderCableVisorList();
+          showVisorCableDetail(cableId);
+          if (typeof showToast === 'function') showToast('Linked "' + (cable.shortName || cable.name) + '" to "' + faName + '"', 'success');
+        });
+      });
+    }
+
+    searchInput.value = cable.shortName || cable.name || '';
+    renderList(searchInput.value);
+    searchInput.select();
+    searchInput.addEventListener('input', () => { renderList(searchInput.value); });
+  }
+
+  // Event delegation for visor FA match buttons
+  document.addEventListener('click', (e) => {
+    const faBtn = e.target.closest('.visor-fa-match-btn');
+    if (faBtn) {
+      e.stopPropagation();
+      const cableId = faBtn.dataset.cableId;
+      if (cableId) showVisorFaMatchPopover(cableId, faBtn);
+    }
+  });
+
   function renderCableVisorList() {
     const listEl = document.getElementById('cableVisorCableList');
     const countEl = document.getElementById('cableVisorCableCount');
@@ -23701,7 +24382,7 @@ function loadProjectObject(obj) {
     const search = (document.getElementById('cableVisorSearch')?.value || '').toLowerCase().trim();
     const regionFilter = document.getElementById('cableVisorRegionFilter')?.value || '';
 
-    // Filter cables
+    // Filter cables (all filters AND-combined)
     let cables = Object.values(db.cables).filter(cable => {
       if (regionFilter && cable.region !== regionFilter) return false;
       if (search) {
@@ -23714,6 +24395,16 @@ function loadProjectObject(obj) {
       if (cableVisorState.clsFilter && cableVisorState.clsFilter.cableSystems) {
         if (!cableMatchesCLSFilter(cable, cableVisorState.clsFilter.cableSystems)) return false;
       }
+      // Status filter
+      if (cableVisorState.statusFilter.size < 5) {
+        if (!cableVisorState.statusFilter.has(cable.status || 'unknown')) return false;
+      }
+      // RFS date range filter
+      if (cableVisorState.rfsFilter.size < 8) {
+        if (!cableMatchesRfsFilter(cable)) return false;
+      }
+      // Owner filter
+      if (!cableMatchesOwnerFilter(cable)) return false;
       return true;
     });
 
@@ -23772,17 +24463,21 @@ function loadProjectObject(obj) {
       const length = cable.length_km ? `${Math.round(cable.length_km).toLocaleString()} km` : '';
       const hasGeometry = cable.geometry && cable.geometry.coordinates;
 
-      // FA cross-check indicator for current-year RFS cables only
+      // FA match indicator: show for ALL cables (not just current-year)
       const currentYear = new Date().getFullYear();
       let faIndicator = '';
-      if (cable.rfsYear === currentYear) {
-        if (cable._faStatus === 'online' || cable._faStatus === 'active') {
-          faIndicator = '<span style="color:#22c55e;font-size:9px;font-weight:600;margin-left:4px;" title="Live Status confirms ONLINE">✓LS</span>';
-        } else if (cable._faStatus) {
-          faIndicator = `<span style="color:#f59e0b;font-size:9px;font-weight:600;margin-left:4px;" title="Live Status: ${escapeHtml(cable._faStatus)}">⏳LS</span>`;
-        } else {
-          faIndicator = '<span style="color:#94a3b8;font-size:9px;margin-left:4px;" title="No Live Status match found">?LS</span>';
-        }
+      if (cable._faStatus === 'online' || cable._faStatus === 'active') {
+        faIndicator = '<span class="visor-fa-match-btn linked" data-cable-id="' + cable.id + '" title="Live Status: ONLINE (click to re-link)"><span style="color:#22c55e;">&#x2713;</span>LS</span>';
+      } else if (cable._faStatus) {
+        faIndicator = '<span class="visor-fa-match-btn linked" data-cable-id="' + cable.id + '" title="Live Status: ' + escapeHtml(cable._faStatus) + ' (click to re-link)"><span style="color:#f59e0b;">&#x23f3;</span>LS</span>';
+      } else {
+        faIndicator = '<span class="visor-fa-match-btn" data-cable-id="' + cable.id + '" title="Click to search &amp; link Live Status manually">&#x1F517;LS</span>';
+      }
+
+      // Status link to TeleGeography page
+      let statusLink = '';
+      if (cable.url) {
+        statusLink = '<a href="' + escapeHtml(cable.url) + '" target="_blank" rel="noopener" style="color:#0077b6;font-size:9px;text-decoration:none;margin-left:3px;" title="View on TeleGeography">&#x1F517;</a>';
       }
 
       html += `
@@ -23791,8 +24486,8 @@ function loadProjectObject(obj) {
           <span class="cs-status-badge ${statusClass}"></span>
           <div class="cable-color" style="background:${color};"></div>
           <div class="visor-cable-info">
-            <div class="visor-cable-name">${escapeHtml(cable.shortName || cable.name)}${faIndicator}</div>
-            <div class="visor-cable-meta">${rfsDisplay}${length ? ' • ' + length : ''}${cable.rfsYear === currentYear && cable._statusSource ? ' • ' + escapeHtml(cable._statusSource) : ''}${!hasGeometry ? ' • No map data' : ''}</div>
+            <div class="visor-cable-name">${escapeHtml(cable.shortName || cable.name)}${statusLink}${faIndicator}</div>
+            <div class="visor-cable-meta">${rfsDisplay}${length ? ' \u2022 ' + length : ''}${cable._faMatchName ? ' \u2022 FA: ' + escapeHtml(cable._faMatchName) : ''}${!hasGeometry ? ' \u2022 No map data' : ''}</div>
           </div>
         </div>
       `;
@@ -23808,6 +24503,9 @@ function loadProjectObject(obj) {
       }
       if (regionFilter) activeFilters.push('Region: <b>' + escapeHtml(regionFilter) + '</b>');
       if (search) activeFilters.push('Search: <b>' + escapeHtml(search) + '</b>');
+      if (cableVisorState.statusFilter.size < 5) activeFilters.push('Status: <b>' + Array.from(cableVisorState.statusFilter).join(', ') + '</b>');
+      if (cableVisorState.rfsFilter.size < 8) activeFilters.push('RFS Period: <b>' + cableVisorState.rfsFilter.size + ' selected</b>');
+      if (cableVisorState.ownerFilter.size > 0) activeFilters.push('Owner: <b>' + Array.from(cableVisorState.ownerFilter).join(', ') + '</b>');
       if (activeFilters.length > 0) {
         noResultsMsg += '<div style="color:#666; font-size:12px; margin-bottom:12px;">Active filters:<br>' + activeFilters.join('<br>') + '</div>';
         noResultsMsg += '<div style="color:#888; font-size:11px;">Try removing or changing filters to see results.</div>';
@@ -51121,6 +51819,44 @@ function handlePathKmlImport(e) {
       </div>
       <span id="cableVisorCLSTag" style="display:none;"></span>
     </div>
+    <div class="visor-filter-row" id="visorStatusFilterRow">
+      <span class="visor-filter-label">Status:</span>
+      <div class="visor-status-pills" id="visorStatusPills">
+        <span class="visor-status-pill active" data-status="operational"><span class="pill-dot"></span>Operational</span>
+        <span class="visor-status-pill active" data-status="under-construction"><span class="pill-dot"></span>Building</span>
+        <span class="visor-status-pill active" data-status="planned"><span class="pill-dot"></span>Planned</span>
+        <span class="visor-status-pill active" data-status="decommissioned"><span class="pill-dot"></span>EOL</span>
+        <span class="visor-status-pill active" data-status="unknown"><span class="pill-dot"></span>Unknown</span>
+      </div>
+    </div>
+    <div class="visor-filter-row" id="visorRfsOwnerFilterRow">
+      <span class="visor-filter-label">RFS:</span>
+      <div class="visor-rfs-dropdown" id="visorRfsDropdown">
+        <button class="visor-rfs-btn" id="btnVisorRfsFilter" title="Filter by RFS date range">All Periods &#x25BC;</button>
+        <div class="visor-rfs-menu" id="visorRfsMenu">
+          <label><input type="checkbox" value="unknown" checked /> Unknown</label>
+          <label><input type="checkbox" value="pre2000" checked /> Before 2000</label>
+          <label><input type="checkbox" value="2000-2005" checked /> 2000 - 2005</label>
+          <label><input type="checkbox" value="2006-2010" checked /> 2006 - 2010</label>
+          <label><input type="checkbox" value="2011-2015" checked /> 2011 - 2015</label>
+          <label><input type="checkbox" value="2016-2020" checked /> 2016 - 2020</label>
+          <label><input type="checkbox" value="2021-2025" checked /> 2021 - 2025</label>
+          <label><input type="checkbox" value="2026+" checked /> 2026+</label>
+          <div class="rfs-menu-footer">
+            <button id="btnRfsSelectAll">Select All</button>
+            <button id="btnRfsClearAll">Clear All</button>
+          </div>
+        </div>
+      </div>
+      <span class="visor-filter-label" style="margin-left:8px;">Owner:</span>
+      <div class="visor-owner-filter" id="visorOwnerFilter">
+        <input type="text" id="visorOwnerSearch" placeholder="Search owners..." autocomplete="off" />
+        <button class="owner-clear-btn" id="visorOwnerClear" title="Clear owner filter">&#x2715;</button>
+        <div class="visor-owner-dropdown" id="visorOwnerDropdown"></div>
+      </div>
+      <button class="visor-filter-clear-all" id="btnVisorClearAllFilters" title="Reset all filters" style="display:none;">Clear Filters</button>
+    </div>
+    <div class="visor-owner-tags" id="visorOwnerTags"></div>
   </div>
   <div id="cableVisorMap">
     <div id="cableVisorMapContainer" style="width:100%; height:100%;"></div>
