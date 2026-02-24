@@ -23128,7 +23128,8 @@ function loadProjectObject(obj) {
   }
 
   // Apply CLS filter
-  function applyCLSFilter(mode, key, displayLabel) {
+  // Automatically switches to full Public Cable System DB so ALL matching cables are shown
+  async function applyCLSFilter(mode, key, displayLabel) {
     const cableSystems = resolveCLSCableSystems(mode, key);
     cableVisorState.clsFilter = { mode, key, cableSystems, label: displayLabel };
 
@@ -23148,6 +23149,26 @@ function loadProjectObject(obj) {
     // Close dropdown
     const dropdown = document.getElementById('cableVisorCLSDropdown');
     if (dropdown) dropdown.classList.remove('open');
+
+    // Switch to full Public Cable System DB so user sees ALL matching cables
+    const srcAPI = document.getElementById('visorSrcAPI');
+    const srcList = document.getElementById('visorSrcList');
+    if (srcAPI && srcList) {
+      // Remember previous source so we can restore on clear
+      if (!cableVisorState._clsPreFilterSource) {
+        cableVisorState._clsPreFilterSource = srcList.checked ? 'list' : 'api';
+      }
+      if (srcList.checked) {
+        // Switch to full DB
+        srcAPI.checked = true;
+        cableVisorState.cableDatabase = null;
+        const titleEl = document.getElementById('cableVisorListTitle');
+        if (titleEl) titleEl.textContent = 'Cables from Public Cable System DB';
+        await loadCableVisorData(true);
+        // Re-apply CLS filter after DB reload (loadCableVisorData resets it via initCLSFilter)
+        cableVisorState.clsFilter = { mode, key, cableSystems, label: displayLabel };
+      }
+    }
 
     // Re-render cable list with filter
     renderCableVisorList();
@@ -23183,6 +23204,19 @@ function loadProjectObject(obj) {
 
     const inputEl = document.getElementById('cableVisorCLSInput');
     if (inputEl) inputEl.value = '';
+
+    // Restore previous source if CLS filter switched it
+    if (cableVisorState._clsPreFilterSource === 'list') {
+      const srcList = document.getElementById('visorSrcList');
+      if (srcList && !srcList.checked) {
+        srcList.checked = true;
+        cableVisorState.cableDatabase = null;
+        cableVisorState._clsPreFilterSource = null;
+        loadCableVisorData(true);
+        return; // loadCableVisorData will call renderCableVisorList
+      }
+    }
+    cableVisorState._clsPreFilterSource = null;
 
     renderCableVisorList();
   }
@@ -49552,7 +49586,7 @@ function handlePathKmlImport(e) {
         openKMLStudio(result.entities.length > 0 ? result.entities : null);
       });
 
-      // Drop zone for dragging canvas items onto the button
+      // Drop zone for dragging canvas items, cable systems, or datacenters onto the button
       kmlBtn.addEventListener('dragover', (e) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'copy';
@@ -49562,10 +49596,50 @@ function handlePathKmlImport(e) {
       kmlBtn.addEventListener('drop', (e) => {
         e.preventDefault();
         kmlBtn.classList.remove('kml-drop-active');
+
+        // Handle application/neximap-entity (canvas drag)
         const data = e.dataTransfer.getData('application/neximap-entity');
         if (data) {
           try { openKMLStudio([JSON.parse(data)]); return; } catch (ex) { /* ignore */ }
         }
+
+        // Handle cable-system drag from Cable System List
+        const textData = e.dataTransfer.getData('text/plain');
+        if (textData && textData.startsWith('cable-system:')) {
+          const csId = parseInt(textData.split(':')[1]);
+          const cs = state.cableSystems.find(c => c.id === csId);
+          if (cs) {
+            const entities = [];
+            // Add cable geometry as a link entity
+            if (cs.geometry && cs.geometry.coordinates) {
+              entities.push({ entityType: 'link', id: cs.id, name: cs.shortName || cs.name, code: cs.name, geometry: cs.geometry });
+            }
+            // Add landing points as node entities
+            if (cs.landingPoints && cs.landingPoints.length > 0) {
+              cs.landingPoints.forEach((lp, idx) => {
+                if (lp.latitude && lp.longitude) {
+                  entities.push({ entityType: 'node', id: 'cls-' + cs.id + '-' + idx, name: lp.name || lp.city || ('Station ' + (idx + 1)), lat: lp.latitude, lng: lp.longitude });
+                }
+              });
+            }
+            if (entities.length > 0) { openKMLStudio(entities); return; }
+            showToast('Cable system "' + (cs.shortName || cs.name) + '" has no geographic data');
+            return;
+          }
+        }
+
+        // Handle datacenter drag from DC Navigator
+        if (textData && textData.startsWith('datacenter:')) {
+          const dcId = parseInt(textData.split(':')[1]);
+          const fac = window._dcDatabase && window._dcDatabase.facilities.find(f => f.id === dcId);
+          if (fac && fac.latitude && fac.longitude) {
+            openKMLStudio([{ entityType: 'node', id: 'dc-' + fac.id, name: fac.name, lat: parseFloat(fac.latitude), lng: parseFloat(fac.longitude) }]);
+            return;
+          }
+          if (fac) { showToast('Datacenter "' + fac.name + '" has no coordinates'); return; }
+        }
+
+        // Fallback: use canvas selection
         const result = getSelectedGeoEntities(true);
         showKMLGeoWarnings(result.warnings);
         if (result.entities.length > 0) openKMLStudio(result.entities);
