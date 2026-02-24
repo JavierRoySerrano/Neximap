@@ -21833,7 +21833,6 @@ function loadProjectObject(obj) {
     map: null,
     selectedCables: new Set(),
     cableDatabase: null,
-    cableLayers: {},  // Store layer IDs for each cable
     initialized: false,
     mapReady: false
   };
@@ -22493,10 +22492,11 @@ function loadProjectObject(obj) {
         cableVisorState.initialized = true;
         cableVisorState.mapReady = true;
 
-        // Add any already selected cables to map
-        cableVisorState.selectedCables.forEach(cableId => {
-          addCableToVisorMap(cableId);
-        });
+        // Set up hover events once
+        setupCableVisorHoverEvents();
+
+        // Rebuild unified source for any already-selected cables
+        rebuildVisorMapSource();
       });
 
     } catch (err) {
@@ -23634,93 +23634,106 @@ function loadProjectObject(obj) {
   function toggleCableVisorSelection(cableId) {
     if (cableVisorState.selectedCables.has(cableId)) {
       cableVisorState.selectedCables.delete(cableId);
-      removeCableFromVisorMap(cableId);
     } else {
       cableVisorState.selectedCables.add(cableId);
-      addCableToVisorMap(cableId);
     }
+    rebuildVisorMapSource();
     renderCableVisorList();
   }
 
-  function addCableToVisorMap(cableId) {
-    const map = cableVisorState.map;
-    const db = cableVisorState.cableDatabase;
+  // Unified GeoJSON source approach: all selected cables in ONE source + ONE layer.
+  // This mirrors how SubmarineCableMap.com renders all 700+ cables without freezing:
+  // a single data layer with data-driven styling, instead of per-cable sources/layers.
+  const VISOR_SOURCE_ID = 'cable-visor-all';
+  const VISOR_LINE_LAYER_ID = 'cable-visor-lines';
+  const VISOR_HIT_LAYER_ID = 'cable-visor-hit';
 
-    if (!map || !cableVisorState.mapReady) {
-      console.log('[CableVisor] Map not ready, will add cable later');
-      return;
-    }
-
-    if (!db || !db.cables || !db.cables[cableId]) {
-      console.log('[CableVisor] Cable not found:', cableId);
-      return;
-    }
-
-    const cable = db.cables[cableId];
-    if (!cable.geometry || !cable.geometry.coordinates) {
-      console.log('[CableVisor] Cable has no geometry:', cableId);
-      showToast(`${cable.shortName || cable.name} has no map data`, 'warning');
-      return;
-    }
-
-    const sourceId = `cable-${cableId}`;
-    const layerId = `cable-layer-${cableId}`;
-
-    // Generate color
-    const colors = ['#e63946', '#f4a261', '#2a9d8f', '#264653', '#8338ec', '#3a86ff', '#ff006e', '#fb5607', '#06d6a0', '#118ab2'];
-    let hash = 0;
-    for (let i = 0; i < cableId.length; i++) hash = ((hash << 5) - hash) + cableId.charCodeAt(i);
-    const color = colors[Math.abs(hash) % colors.length];
-
-    try {
-      // Remove existing if any
-      if (map.getLayer(layerId)) map.removeLayer(layerId);
-      if (map.getSource(sourceId)) map.removeSource(sourceId);
-
-      // Add source
-      map.addSource(sourceId, {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          properties: { name: cable.name, id: cableId },
-          geometry: cable.geometry
-        }
-      });
-
-      // Add layer
-      map.addLayer({
-        id: layerId,
-        type: 'line',
-        source: sourceId,
-        paint: {
-          'line-color': color,
-          'line-width': 3,
-          'line-opacity': 0.85
-        }
-      });
-
-      cableVisorState.cableLayers[cableId] = { sourceId, layerId };
-      console.log('[CableVisor] Added cable to map:', cableId);
-
-    } catch (err) {
-      console.error('[CableVisor] Error adding cable to map:', err);
-    }
-  }
-
-  function removeCableFromVisorMap(cableId) {
+  function rebuildVisorMapSource() {
     const map = cableVisorState.map;
     if (!map || !cableVisorState.mapReady) return;
 
-    const layerInfo = cableVisorState.cableLayers[cableId];
-    if (layerInfo) {
-      try {
-        if (map.getLayer(layerInfo.layerId)) map.removeLayer(layerInfo.layerId);
-        if (map.getSource(layerInfo.sourceId)) map.removeSource(layerInfo.sourceId);
-        delete cableVisorState.cableLayers[cableId];
-      } catch (err) {
-        console.error('[CableVisor] Error removing cable from map:', err);
+    const db = cableVisorState.cableDatabase;
+    if (!db || !db.cables) return;
+
+    // Build FeatureCollection from all selected cables
+    const features = [];
+    cableVisorState.selectedCables.forEach(cableId => {
+      const cable = db.cables[cableId];
+      if (!cable || !cable.geometry || !cable.geometry.coordinates) return;
+
+      features.push({
+        type: 'Feature',
+        properties: {
+          id: cableId,
+          name: cable.name || cable.shortName || 'Unknown',
+          color: getCableColorById(cableId)
+        },
+        geometry: cable.geometry
+      });
+    });
+
+    const featureCollection = {
+      type: 'FeatureCollection',
+      features: features
+    };
+
+    try {
+      // If source exists, just update its data (fast — no layer recreation)
+      if (map.getSource(VISOR_SOURCE_ID)) {
+        map.getSource(VISOR_SOURCE_ID).setData(featureCollection);
+      } else {
+        // First time: create source + layers once
+        map.addSource(VISOR_SOURCE_ID, {
+          type: 'geojson',
+          data: featureCollection
+        });
+
+        // Visible cable line layer with data-driven color from feature properties
+        map.addLayer({
+          id: VISOR_LINE_LAYER_ID,
+          type: 'line',
+          source: VISOR_SOURCE_ID,
+          paint: {
+            'line-color': ['get', 'color'],
+            'line-width': 3,
+            'line-opacity': 0.85
+          }
+        });
+
+        // Invisible wider hit-area layer for easier hover detection
+        map.addLayer({
+          id: VISOR_HIT_LAYER_ID,
+          type: 'line',
+          source: VISOR_SOURCE_ID,
+          paint: {
+            'line-color': 'transparent',
+            'line-width': 16,
+            'line-opacity': 0
+          }
+        });
       }
+
+      console.log('[CableVisor] Map source updated:', features.length, 'cables');
+    } catch (err) {
+      console.error('[CableVisor] Error updating map source:', err);
     }
+
+    // Update labels and stations if those display modes are active
+    if (typeof cableVisorDisplayState !== 'undefined') {
+      if (cableVisorDisplayState.fixNames) updateFixedCableLabels();
+      if (cableVisorDisplayState.showStations) updateStationMarkers();
+    }
+  }
+
+  // Legacy wrappers kept for compatibility with showCableSystemInVisor etc.
+  function addCableToVisorMap(cableId) {
+    // Just rebuild the unified source — no per-cable layers
+    rebuildVisorMapSource();
+  }
+
+  function removeCableFromVisorMap(cableId) {
+    // Just rebuild the unified source — no per-cable layers
+    rebuildVisorMapSource();
   }
 
   function zoomToCable(cableId) {
@@ -23753,15 +23766,13 @@ function loadProjectObject(obj) {
     map.fitBounds([[minLon, minLat], [maxLon, maxLat]], { padding: 50, duration: 1000 });
   }
 
-  const VISOR_SELECT_ALL_WARN_THRESHOLD = 50;
-  const VISOR_SELECT_ALL_MAX_CABLES = 200;
-  const VISOR_BATCH_SIZE = 10;
+  const VISOR_SELECT_ALL_WARN_THRESHOLD = 100;
 
   function selectAllVisorCables() {
     const db = cableVisorState.cableDatabase;
     if (!db || !db.cables) return;
 
-    // Collect matching cables first (don't add yet)
+    // Collect matching cables
     const search = (document.getElementById('cableVisorSearch')?.value || '').toLowerCase().trim();
     const regionFilter = document.getElementById('cableVisorRegionFilter')?.value || '';
 
@@ -23787,72 +23798,22 @@ function loadProjectObject(obj) {
       return;
     }
 
-    const alreadySelected = cableVisorState.selectedCables.size;
-    const totalAfter = alreadySelected + cablesToAdd.length;
-
-    // Hard cap: prevent adding more than max
-    if (totalAfter > VISOR_SELECT_ALL_MAX_CABLES) {
-      const canAdd = Math.max(0, VISOR_SELECT_ALL_MAX_CABLES - alreadySelected);
-      if (canAdd === 0) {
-        showToast(`Maximum ${VISOR_SELECT_ALL_MAX_CABLES} cables can be displayed on the map at once. Deselect some cables first.`);
-        return;
-      }
-      if (!confirm(`Showing all ${cablesToAdd.length} cables would exceed the ${VISOR_SELECT_ALL_MAX_CABLES}-cable map limit.\n\nAdd the first ${canAdd} cables (sorted by name) instead?\n\nTip: Use region or station filters to narrow your selection.`)) {
-        return;
-      }
-      // Sort by name and take only what fits
-      cablesToAdd.sort((a, b) => {
-        const ca = db.cables[a], cb = db.cables[b];
-        return ((ca && ca.shortName) || (ca && ca.name) || '').localeCompare((cb && cb.shortName) || (cb && cb.name) || '');
-      });
-      cablesToAdd.length = canAdd;
-    } else if (cablesToAdd.length >= VISOR_SELECT_ALL_WARN_THRESHOLD) {
-      // Warning threshold: ask user to confirm
-      if (!confirm(`You are about to display ${cablesToAdd.length} cables on the map.\n\nThis may take a moment to render. Continue?\n\nTip: Use region or station filters to narrow your selection.`)) {
+    // Soft warning for large selections (no hard cap — unified source handles all)
+    if (cablesToAdd.length >= VISOR_SELECT_ALL_WARN_THRESHOLD) {
+      if (!confirm(`Display ${cablesToAdd.length} cables on the map?\n\nTip: Use region or station filters to narrow your selection.`)) {
         return;
       }
     }
 
-    // Batched progressive loading to avoid freezing the UI
-    _batchAddCablesToVisorMap(cablesToAdd);
-  }
-
-  function _batchAddCablesToVisorMap(cableIds) {
-    let index = 0;
-    const total = cableIds.length;
-
-    // Show progress
-    const selectedCountEl = document.getElementById('cableVisorSelectedCount');
-
-    function addBatch() {
-      const end = Math.min(index + VISOR_BATCH_SIZE, total);
-      for (let i = index; i < end; i++) {
-        const id = cableIds[i];
-        cableVisorState.selectedCables.add(id);
-        addCableToVisorMap(id);
-      }
-      index = end;
-
-      // Update progress
-      if (selectedCountEl) selectedCountEl.textContent = `${cableVisorState.selectedCables.size} selected (loading ${index}/${total})`;
-
-      if (index < total) {
-        requestAnimationFrame(addBatch);
-      } else {
-        // Done — final render
-        renderCableVisorList();
-        if (selectedCountEl) selectedCountEl.textContent = `${cableVisorState.selectedCables.size} selected`;
-      }
-    }
-
-    addBatch();
+    // Add all at once to the selection set, then rebuild source once
+    cablesToAdd.forEach(id => cableVisorState.selectedCables.add(id));
+    rebuildVisorMapSource();
+    renderCableVisorList();
   }
 
   function clearAllVisorCables() {
-    cableVisorState.selectedCables.forEach(cableId => {
-      removeCableFromVisorMap(cableId);
-    });
     cableVisorState.selectedCables.clear();
+    rebuildVisorMapSource();
     renderCableVisorList();
   }
 
@@ -24066,19 +24027,21 @@ function loadProjectObject(obj) {
   }
 
   // Setup hover events on the cable visor map (called after map loads)
+  // Uses the unified source layers (VISOR_HIT_LAYER_ID / VISOR_LINE_LAYER_ID)
+  // instead of querying N individual layers — fast regardless of cable count.
   function setupCableVisorHoverEvents() {
     const map = cableVisorState.map;
     if (!map) return;
 
-    // Mousemove handler for cable line hover tooltips
     map.on('mousemove', (e) => {
-      // Query all cable layers for hover
-      const layerIds = Object.values(cableVisorState.cableLayers).map(l => l.layerId).filter(id => map.getLayer(id));
-      if (layerIds.length === 0) return;
+      const layers = [];
+      if (map.getLayer(VISOR_HIT_LAYER_ID)) layers.push(VISOR_HIT_LAYER_ID);
+      if (map.getLayer(VISOR_LINE_LAYER_ID)) layers.push(VISOR_LINE_LAYER_ID);
+      if (layers.length === 0) return;
 
       const features = map.queryRenderedFeatures(
         [[e.point.x - 6, e.point.y - 6], [e.point.x + 6, e.point.y + 6]],
-        { layers: layerIds }
+        { layers: layers }
       );
 
       const tooltip = getVisorTooltip();
@@ -24100,84 +24063,8 @@ function loadProjectObject(obj) {
       tooltip.style.display = 'none';
     });
 
-    console.log('[CableVisor] Hover events set up');
+    console.log('[CableVisor] Hover events set up (unified source)');
   }
-
-  // Add a hit-area layer for each cable (wider invisible line for easier hover detection)
-  const _origAddCableToVisorMap = addCableToVisorMap;
-  addCableToVisorMap = function(cableId) {
-    _origAddCableToVisorMap(cableId);
-
-    const map = cableVisorState.map;
-    if (!map || !cableVisorState.mapReady) return;
-
-    const layerInfo = cableVisorState.cableLayers[cableId];
-    if (!layerInfo) return;
-
-    const hitLayerId = `cable-hit-${cableId}`;
-    try {
-      if (map.getLayer(hitLayerId)) map.removeLayer(hitLayerId);
-
-      // Add invisible wider hit-area layer for easier hover
-      map.addLayer({
-        id: hitLayerId,
-        type: 'line',
-        source: layerInfo.sourceId,
-        paint: {
-          'line-color': 'transparent',
-          'line-width': 16,
-          'line-opacity': 0
-        }
-      });
-
-      layerInfo.hitLayerId = hitLayerId;
-    } catch (err) {
-      console.warn('[CableVisor] Could not add hit-area layer:', err);
-    }
-
-    // Update fixed labels and stations if those modes are active
-    if (cableVisorDisplayState.fixNames) updateFixedCableLabels();
-    if (cableVisorDisplayState.showStations) updateStationMarkers();
-  };
-
-  // Extend removeCableFromVisorMap to also remove hit-area + labels
-  const _origRemoveCableFromVisorMap = removeCableFromVisorMap;
-  removeCableFromVisorMap = function(cableId) {
-    const map = cableVisorState.map;
-    if (map && cableVisorState.mapReady) {
-      const layerInfo = cableVisorState.cableLayers[cableId];
-      if (layerInfo?.hitLayerId) {
-        try { if (map.getLayer(layerInfo.hitLayerId)) map.removeLayer(layerInfo.hitLayerId); } catch (e) {}
-      }
-    }
-    _origRemoveCableFromVisorMap(cableId);
-
-    // Update fixed labels and stations if those modes are active
-    if (cableVisorDisplayState.fixNames) updateFixedCableLabels();
-    if (cableVisorDisplayState.showStations) updateStationMarkers();
-  };
-
-  // Hook into map load to set up hover events
-  let _cableVisorHoverSetUp = false;
-  const _origInitCableVisorMap = initCableVisorMap;
-  initCableVisorMap = function() {
-    _origInitCableVisorMap();
-
-    // Wait for map to be ready, then set up hover events (only once)
-    if (cableVisorState.map && !_cableVisorHoverSetUp) {
-      if (cableVisorState.mapReady) {
-        _cableVisorHoverSetUp = true;
-        setupCableVisorHoverEvents();
-      } else {
-        cableVisorState.map.on('load', () => {
-          if (!_cableVisorHoverSetUp) {
-            _cableVisorHoverSetUp = true;
-            setupCableVisorHoverEvents();
-          }
-        });
-      }
-    }
-  };
 
   // Calculate midpoint of a cable geometry for label placement
   function getCableMidpoint(geometry) {
