@@ -8153,7 +8153,7 @@
       <div style="padding:12px 20px; border-bottom:1px solid #e0e0e0; display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
         <input type="text" id="csBulkSearchInput" placeholder="Search cables..." style="flex:1; min-width:200px; padding:8px 12px; border:1px solid #d0d0d0; border-radius:6px; font-size:13px;" />
         <select id="csBulkRegionFilter" style="padding:8px 12px; border:1px solid #d0d0d0; border-radius:6px; font-size:13px;">
-          <option value="">All Regions</option>
+          <option value="">All Corridors</option>
         </select>
         <div style="display:flex; gap:8px;">
           <button id="btnCsBulkSelectAll" class="btn" style="padding:6px 12px; font-size:12px;">✓ Select All</button>
@@ -21422,11 +21422,8 @@ function loadProjectObject(obj) {
       const noRegion = [];
 
       filtered.forEach(cs => {
-        // Extract region from filterTags (usually second tag after 'submarine')
-        const tags = cs.filterTags || [];
-        let region = tags.find(t => t !== 'submarine' && !t.includes('-')) || 'Other';
-        // Clean up region name
-        region = region.replace(/^Intra/i, 'Intra-').replace(/([a-z])([A-Z])/g, '$1 $2');
+        // Use the corridor-based region directly from cable system
+        let region = cs.region || 'Other';
 
         if (!regionGroups[region]) regionGroups[region] = [];
         regionGroups[region].push(cs);
@@ -21840,8 +21837,95 @@ function loadProjectObject(obj) {
     selectedCables: new Set(),
     cableDatabase: null,
     initialized: false,
-    mapReady: false
+    mapReady: false,
+    mapStyle: 'osm'
   };
+
+  // Cable Visor map style definitions (raster tile sources)
+  const cableVisorMapStyles = {
+    osm: {
+      label: 'OpenStreetMap',
+      tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+      tileSize: 256,
+      attribution: '\u00a9 OpenStreetMap contributors',
+      maxzoom: 19
+    },
+    satellite: {
+      label: 'Satellite (ESRI)',
+      tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+      tileSize: 256,
+      attribution: '\u00a9 Esri, Maxar, Earthstar Geographics',
+      maxzoom: 18
+    },
+    topo: {
+      label: 'Topo (ESRI)',
+      tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'],
+      tileSize: 256,
+      attribution: '\u00a9 Esri, HERE, Garmin',
+      maxzoom: 18
+    },
+    openTopo: {
+      label: 'OpenTopoMap',
+      tiles: ['https://tile.opentopomap.org/{z}/{x}/{y}.png'],
+      tileSize: 256,
+      attribution: '\u00a9 OpenTopoMap contributors',
+      maxzoom: 17
+    },
+    cartoLight: {
+      label: 'Carto Light',
+      tiles: ['https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'],
+      tileSize: 256,
+      attribution: '\u00a9 CARTO',
+      maxzoom: 19
+    },
+    cartoDark: {
+      label: 'Carto Dark',
+      tiles: ['https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'],
+      tileSize: 256,
+      attribution: '\u00a9 CARTO',
+      maxzoom: 19
+    }
+  };
+
+  // Change the Cable Visor map style
+  function changeCableVisorMapStyle(styleName) {
+    if (!cableVisorState.map) return;
+    const def = cableVisorMapStyles[styleName];
+    if (!def) return;
+
+    cableVisorState.mapStyle = styleName;
+
+    const newStyle = {
+      version: 8,
+      sources: {
+        'visor-tiles': {
+          type: 'raster',
+          tiles: def.tiles,
+          tileSize: def.tileSize,
+          attribution: def.attribution
+        }
+      },
+      layers: [{
+        id: 'visor-base-layer',
+        type: 'raster',
+        source: 'visor-tiles',
+        minzoom: 0,
+        maxzoom: def.maxzoom || 19
+      }]
+    };
+
+    cableVisorState.map.setStyle(newStyle);
+
+    // Re-render cable layers after style change
+    cableVisorState.map.once('idle', () => {
+      rebuildVisorMapSource();
+    });
+
+    // Save preference
+    try {
+      localStorage.setItem('neximap-visor-map-style', styleName);
+    } catch(e) {}
+  }
 
   // ======================
   // FiberAtlantic Live Cable Status Integration
@@ -22464,25 +22548,29 @@ function loadProjectObject(obj) {
     }
 
     try {
+      // Use saved map style preference or default to OSM
+      const visorStyleKey = cableVisorState.mapStyle || 'osm';
+      const visorStyleDef = cableVisorMapStyles[visorStyleKey] || cableVisorMapStyles.osm;
+
       cableVisorState.map = new maplibregl.Map({
         container: container,
         preserveDrawingBuffer: true,
         style: {
           version: 8,
           sources: {
-            'osm-tiles': {
+            'visor-tiles': {
               type: 'raster',
-              tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-              tileSize: 256,
-              attribution: '© OpenStreetMap contributors'
+              tiles: visorStyleDef.tiles,
+              tileSize: visorStyleDef.tileSize,
+              attribution: visorStyleDef.attribution
             }
           },
           layers: [{
-            id: 'osm-layer',
+            id: 'visor-base-layer',
             type: 'raster',
-            source: 'osm-tiles',
+            source: 'visor-tiles',
             minzoom: 0,
-            maxzoom: 19
+            maxzoom: visorStyleDef.maxzoom || 19
           }]
         },
         center: [0, 20],
@@ -22867,7 +22955,7 @@ function loadProjectObject(obj) {
           name: props.name,
           shortName: props.name.length > 20 ? props.name.substring(0, 18) + '...' : props.name,
           color: props.color || '#939597',
-          region: inferRegionFromCoordinates(feature.geometry),
+          region: inferRegionFromLandingPoints(meta.landing_points || [], feature.geometry),
           status: status,
           rfs: meta.rfs || (rfsYear ? String(rfsYear) : ''),
           rfsYear: rfsYear,
@@ -22910,51 +22998,204 @@ function loadProjectObject(obj) {
       };
   }
 
-  // Infer region from cable coordinates
-  function inferRegionFromCoordinates(geometry) {
-    if (!geometry || !geometry.coordinates) return 'Unknown';
+  // Country-to-region mapping for accurate cable region classification
+  const countryToRegion = {
+    // Europe
+    'Albania': 'Europe', 'Andorra': 'Europe', 'Austria': 'Europe', 'Belarus': 'Europe',
+    'Belgium': 'Europe', 'Bosnia and Herzegovina': 'Europe', 'Bulgaria': 'Europe',
+    'Croatia': 'Europe', 'Cyprus': 'Europe', 'Czech Republic': 'Europe', 'Czechia': 'Europe',
+    'Denmark': 'Europe', 'Estonia': 'Europe', 'Finland': 'Europe', 'France': 'Europe',
+    'Germany': 'Europe', 'Greece': 'Europe', 'Hungary': 'Europe', 'Iceland': 'Europe',
+    'Ireland': 'Europe', 'Italy': 'Europe', 'Kosovo': 'Europe', 'Latvia': 'Europe',
+    'Lithuania': 'Europe', 'Luxembourg': 'Europe', 'Malta': 'Europe', 'Moldova': 'Europe',
+    'Monaco': 'Europe', 'Montenegro': 'Europe', 'Netherlands': 'Europe', 'North Macedonia': 'Europe',
+    'Norway': 'Europe', 'Poland': 'Europe', 'Portugal': 'Europe', 'Romania': 'Europe',
+    'Russia': 'Europe', 'Serbia': 'Europe', 'Slovakia': 'Europe', 'Slovenia': 'Europe',
+    'Spain': 'Europe', 'Sweden': 'Europe', 'Switzerland': 'Europe', 'Turkey': 'Europe',
+    'Ukraine': 'Europe', 'United Kingdom': 'Europe', 'Faroe Islands': 'Europe',
+    'Gibraltar': 'Europe', 'Guernsey': 'Europe', 'Isle of Man': 'Europe', 'Jersey': 'Europe',
+    'Svalbard and Jan Mayen': 'Europe',
+    // North America
+    'Canada': 'North America', 'United States': 'North America', 'Mexico': 'North America',
+    'Greenland': 'North America', 'Saint Pierre and Miquelon': 'North America',
+    'Bermuda': 'North America',
+    // Central America & Caribbean
+    'Belize': 'Central America & Caribbean', 'Costa Rica': 'Central America & Caribbean',
+    'El Salvador': 'Central America & Caribbean', 'Guatemala': 'Central America & Caribbean',
+    'Honduras': 'Central America & Caribbean', 'Nicaragua': 'Central America & Caribbean',
+    'Panama': 'Central America & Caribbean', 'Antigua and Barbuda': 'Central America & Caribbean',
+    'Bahamas': 'Central America & Caribbean', 'Barbados': 'Central America & Caribbean',
+    'Cuba': 'Central America & Caribbean', 'Dominica': 'Central America & Caribbean',
+    'Dominican Republic': 'Central America & Caribbean', 'Grenada': 'Central America & Caribbean',
+    'Haiti': 'Central America & Caribbean', 'Jamaica': 'Central America & Caribbean',
+    'Saint Kitts and Nevis': 'Central America & Caribbean', 'Saint Lucia': 'Central America & Caribbean',
+    'Saint Vincent and the Grenadines': 'Central America & Caribbean',
+    'Trinidad and Tobago': 'Central America & Caribbean',
+    'Anguilla': 'Central America & Caribbean', 'Aruba': 'Central America & Caribbean',
+    'Bonaire, Sint Eustatius and Saba': 'Central America & Caribbean',
+    'British Virgin Islands': 'Central America & Caribbean',
+    'Cayman Islands': 'Central America & Caribbean', 'Curacao': 'Central America & Caribbean',
+    'Guadeloupe': 'Central America & Caribbean', 'Martinique': 'Central America & Caribbean',
+    'Montserrat': 'Central America & Caribbean', 'Puerto Rico': 'Central America & Caribbean',
+    'Sint Maarten': 'Central America & Caribbean', 'Turks and Caicos Islands': 'Central America & Caribbean',
+    'U.S. Virgin Islands': 'Central America & Caribbean',
+    // South America
+    'Argentina': 'South America', 'Bolivia': 'South America', 'Brazil': 'South America',
+    'Chile': 'South America', 'Colombia': 'South America', 'Ecuador': 'South America',
+    'Guyana': 'South America', 'Paraguay': 'South America', 'Peru': 'South America',
+    'Suriname': 'South America', 'Uruguay': 'South America', 'Venezuela': 'South America',
+    'French Guiana': 'South America', 'Falkland Islands': 'South America',
+    // Middle East
+    'Bahrain': 'Middle East', 'Iran': 'Middle East', 'Iraq': 'Middle East',
+    'Israel': 'Middle East', 'Jordan': 'Middle East', 'Kuwait': 'Middle East',
+    'Lebanon': 'Middle East', 'Oman': 'Middle East', 'Palestine': 'Middle East',
+    'Qatar': 'Middle East', 'Saudi Arabia': 'Middle East', 'Syria': 'Middle East',
+    'United Arab Emirates': 'Middle East', 'Yemen': 'Middle East',
+    // Africa
+    'Algeria': 'Africa', 'Angola': 'Africa', 'Benin': 'Africa', 'Botswana': 'Africa',
+    'Burkina Faso': 'Africa', 'Burundi': 'Africa', 'Cameroon': 'Africa',
+    'Cape Verde': 'Africa', 'Central African Republic': 'Africa', 'Chad': 'Africa',
+    'Comoros': 'Africa', 'Congo, Dem. Rep.': 'Africa', 'Congo, Rep.': 'Africa',
+    "C\xc3\xb4te d'Ivoire": 'Africa', 'Djibouti': 'Africa', 'Egypt': 'Africa',
+    'Equatorial Guinea': 'Africa', 'Eritrea': 'Africa', 'Eswatini': 'Africa',
+    'Ethiopia': 'Africa', 'Gabon': 'Africa', 'Gambia': 'Africa', 'Ghana': 'Africa',
+    'Guinea': 'Africa', 'Guinea-Bissau': 'Africa', 'Kenya': 'Africa', 'Lesotho': 'Africa',
+    'Liberia': 'Africa', 'Libya': 'Africa', 'Madagascar': 'Africa', 'Malawi': 'Africa',
+    'Mali': 'Africa', 'Mauritania': 'Africa', 'Mauritius': 'Africa', 'Morocco': 'Africa',
+    'Mozambique': 'Africa', 'Namibia': 'Africa', 'Niger': 'Africa', 'Nigeria': 'Africa',
+    'Rwanda': 'Africa', 'Sao Tome and Principe': 'Africa', 'Senegal': 'Africa',
+    'Seychelles': 'Africa', 'Sierra Leone': 'Africa', 'Somalia': 'Africa',
+    'South Africa': 'Africa', 'South Sudan': 'Africa', 'Sudan': 'Africa',
+    'Tanzania': 'Africa', 'Togo': 'Africa', 'Tunisia': 'Africa', 'Uganda': 'Africa',
+    'Zambia': 'Africa', 'Zimbabwe': 'Africa', 'Reunion': 'Africa', 'Mayotte': 'Africa',
+    // South Asia
+    'Afghanistan': 'South Asia', 'Bangladesh': 'South Asia', 'Bhutan': 'South Asia',
+    'India': 'South Asia', 'Maldives': 'South Asia', 'Nepal': 'South Asia',
+    'Pakistan': 'South Asia', 'Sri Lanka': 'South Asia',
+    // East Asia
+    'China': 'East Asia', 'Hong Kong': 'East Asia', 'Japan': 'East Asia',
+    'Macau': 'East Asia', 'Mongolia': 'East Asia', 'North Korea': 'East Asia',
+    'South Korea': 'East Asia', 'Taiwan': 'East Asia',
+    // Southeast Asia
+    'Brunei': 'Southeast Asia', 'Cambodia': 'Southeast Asia', 'Indonesia': 'Southeast Asia',
+    'Laos': 'Southeast Asia', 'Malaysia': 'Southeast Asia', 'Myanmar': 'Southeast Asia',
+    'Philippines': 'Southeast Asia', 'Singapore': 'Southeast Asia', 'Thailand': 'Southeast Asia',
+    'Timor-Leste': 'Southeast Asia', 'Vietnam': 'Southeast Asia',
+    // Oceania
+    'Australia': 'Oceania', 'Fiji': 'Oceania', 'Kiribati': 'Oceania',
+    'Marshall Islands': 'Oceania', 'Micronesia': 'Oceania', 'Nauru': 'Oceania',
+    'New Zealand': 'Oceania', 'Palau': 'Oceania', 'Papua New Guinea': 'Oceania',
+    'Samoa': 'Oceania', 'Solomon Islands': 'Oceania', 'Tonga': 'Oceania',
+    'Tuvalu': 'Oceania', 'Vanuatu': 'Oceania',
+    'American Samoa': 'Oceania', 'Christmas Island': 'Oceania', 'Cocos (Keeling) Islands': 'Oceania',
+    'Cook Islands': 'Oceania', 'French Polynesia': 'Oceania', 'Guam': 'Oceania',
+    'New Caledonia': 'Oceania', 'Niue': 'Oceania', 'Norfolk Island': 'Oceania',
+    'Northern Mariana Islands': 'Oceania', 'Tokelau': 'Oceania',
+    'Wallis and Futuna': 'Oceania',
+    // Central Asia
+    'Kazakhstan': 'Central Asia', 'Kyrgyzstan': 'Central Asia',
+    'Tajikistan': 'Central Asia', 'Turkmenistan': 'Central Asia', 'Uzbekistan': 'Central Asia',
+    // Indian Ocean territories
+    'British Indian Ocean Territory': 'Indian Ocean',
+    'French Southern Territories': 'Indian Ocean',
+    // Additional country name variants found in TeleGeography data
+    'Georgia': 'Europe', 'Monaco': 'Europe', 'Guernsey': 'Europe',
+    'Isle of Man': 'Europe', 'Jersey': 'Europe',
+    'Lebanon': 'Middle East', 'Syria': 'Middle East',
+    'Cocos (Keeling) Islands': 'Oceania', 'Tokelau': 'Oceania',
+    'R\xc3\xa9union': 'Africa',
+    'Saint Helena, Ascension and Tristan da Cunha': 'Africa',
+    'Saint Pierre and Miquelon': 'North America',
+    'Cura\xc3\xa7ao': 'Central America & Caribbean',
+    'Saint Barth\xc3\xa9lemy': 'Central America & Caribbean',
+    'Saint Martin': 'Central America & Caribbean',
+    'Virgin Islands (U.K.)': 'Central America & Caribbean',
+    'Virgin Islands (U.S.)': 'Central America & Caribbean'
+  };
 
-    // Get first coordinate
+  // Infer region from cable landing points (uses country data for accuracy)
+  function inferRegionFromLandingPoints(landingPoints, geometry) {
+    // Infer ocean-basin corridor from landing point countries
+    if (landingPoints && landingPoints.length > 0) {
+      const regionSet = new Set();
+      landingPoints.forEach(lp => {
+        const country = lp.country || '';
+        const region = countryToRegion[country];
+        if (region) regionSet.add(region);
+      });
+
+      const regions = Array.from(regionSet);
+      if (regions.length === 0) return 'Unknown';
+
+      const has = r => regions.includes(r);
+      const hasEurope = has('Europe');
+      const hasNorthAmerica = has('North America');
+      const hasCAC = has('Central America & Caribbean');
+      const hasSouthAmerica = has('South America');
+      const hasAmericas = hasNorthAmerica || hasCAC || hasSouthAmerica;
+      const hasEastAsia = has('East Asia');
+      const hasSEAsia = has('Southeast Asia');
+      const hasAsia = hasEastAsia || hasSEAsia;
+      const hasOceania = has('Oceania');
+      const hasMiddleEast = has('Middle East');
+      const hasAfrica = has('Africa');
+      const hasSouthAsia = has('South Asia');
+
+      // Single-region cables = intra-regional
+      if (regions.length === 1) {
+        if (hasEurope) return 'Intra-Europe';
+        if (hasAsia || hasOceania) return 'Intra-Asia';
+        if (hasAmericas) return 'Intra-Americas';
+        if (hasMiddleEast) return 'Intra-Middle East';
+        if (hasAfrica) return 'Africa Coastal';
+        if (hasSouthAsia) return 'Indian Ocean';
+        return 'Unknown';
+      }
+
+      // Multi-region: determine corridor by ocean basin crossed
+      // Transpacific: Americas to Asia/Oceania across the Pacific
+      if (hasAmericas && (hasAsia || hasOceania)) return 'Transpacific';
+
+      // Transatlantic: Europe to Americas across the Atlantic
+      if (hasEurope && hasAmericas) return 'Transatlantic';
+
+      // Indian Ocean: Europe/Middle East to India/Asia, or India-Asia, or Middle East-Africa
+      if (hasEurope && (hasAsia || hasSouthAsia || hasMiddleEast)) return 'Indian Ocean';
+      if (hasMiddleEast && (hasAsia || hasSouthAsia || hasAfrica)) return 'Indian Ocean';
+      if (hasSouthAsia && hasAsia) return 'Indian Ocean';
+      if (hasSouthAsia && hasAfrica) return 'Indian Ocean';
+
+      // Africa Coastal: Europe to Africa (Atlantic side, no Asian/ME transit)
+      if (hasEurope && hasAfrica && !hasAsia && !hasMiddleEast && !hasSouthAsia) return 'Africa Coastal';
+
+      // Intra-Asia: within Asia + Oceania
+      if ((hasAsia || hasOceania) && !hasEurope && !hasAmericas) return 'Intra-Asia';
+
+      // Intra-Americas: within the Americas
+      if (hasAmericas && !hasEurope && !hasAsia) return 'Intra-Americas';
+
+      // Intra-Europe: Europe + nearby (e.g. North Africa via Mediterranean)
+      if (hasEurope && hasAfrica && !hasAsia && !hasMiddleEast) return 'Intra-Europe';
+
+      return 'Unknown';
+    }
+
+    // Fallback: coordinate-based inference (less accurate)
+    if (!geometry || !geometry.coordinates) return 'Unknown';
     let coords = geometry.coordinates;
     if (geometry.type === 'MultiLineString' && coords[0] && coords[0][0]) {
       coords = coords[0][0];
     } else if (geometry.type === 'LineString' && coords[0]) {
       coords = coords[0];
     }
-
     if (!Array.isArray(coords) || coords.length < 2) return 'Unknown';
-
     const lon = coords[0];
     const lat = coords[1];
-
-    // Simple region inference based on coordinates
-    if (lat > 60) return 'Arctic';
-    if (lat < -50) return 'Antarctic';
-
-    if (lon >= -30 && lon <= 60) {
-      if (lat >= 35) return 'Europe';
-      if (lat >= 0) return 'Africa';
-      return 'Africa';
-    }
-
-    if (lon >= 60 && lon <= 150) {
-      if (lat >= 25) return 'Asia';
-      if (lat >= -10) return 'Southeast Asia';
-      return 'Oceania';
-    }
-
-    if (lon >= 150 || lon <= -150) {
-      if (lat >= 0) return 'Pacific';
-      return 'Oceania';
-    }
-
-    if (lon >= -130 && lon <= -30) {
-      if (lat >= 15) return 'North America';
-      if (lat >= -15) return 'Central America';
-      return 'South America';
-    }
-
-    return 'Transatlantic';
+    if (lon >= -30 && lon <= 60 && lat >= 35) return 'Intra-Europe';
+    if (lon >= 60 && lon <= 150) return 'Intra-Asia';
+    if (lon >= 150 || lon <= -150) return 'Transpacific';
+    if (lon >= -130 && lon <= -30 && lat >= 15) return 'Intra-Americas';
+    return 'Unknown';
   }
 
   // Reload visor data with new source
@@ -22975,7 +23216,7 @@ function loadProjectObject(obj) {
     });
 
     const sortedRegions = Array.from(regions).sort();
-    select.innerHTML = '<option value="">All Regions</option>' +
+    select.innerHTML = '<option value="">All Corridors</option>' +
       sortedRegions.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
 
     console.log('[CableVisor] Regions populated:', sortedRegions.length);
@@ -23955,6 +24196,22 @@ function loadProjectObject(obj) {
     if (searchInput) searchInput.addEventListener('input', () => renderCableVisorList());
     if (regionFilter) regionFilter.addEventListener('change', () => renderCableVisorList());
 
+    // Map style selector handler
+    const visorMapStyleSelect = document.getElementById('cableVisorMapStyle');
+    if (visorMapStyleSelect) {
+      visorMapStyleSelect.addEventListener('change', () => {
+        changeCableVisorMapStyle(visorMapStyleSelect.value);
+      });
+      // Restore saved preference
+      try {
+        const savedVisorStyle = localStorage.getItem('neximap-visor-map-style');
+        if (savedVisorStyle && cableVisorMapStyles[savedVisorStyle]) {
+          visorMapStyleSelect.value = savedVisorStyle;
+          cableVisorState.mapStyle = savedVisorStyle;
+        }
+      } catch(e) {}
+    }
+
     // Source toggle handlers - reload data when source changes
     if (srcList) srcList.addEventListener('change', () => {
       if (srcList.checked) {
@@ -24567,7 +24824,7 @@ function loadProjectObject(obj) {
     });
 
     const sorted = Array.from(regions).sort();
-    select.innerHTML = '<option value="">All Regions</option>' +
+    select.innerHTML = '<option value="">All Corridors</option>' +
       sorted.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
   }
 
@@ -25395,7 +25652,7 @@ function loadProjectObject(obj) {
           updateCsBulkImportCount();
           const regions = [...new Set(Object.values(cables).map(c => c.region))].sort();
           const regionFilter = document.getElementById('csBulkRegionFilter');
-          if (regionFilter) regionFilter.innerHTML = '<option value="">All Regions</option>' + regions.map(r => '<option value="' + r + '">' + r + '</option>').join('');
+          if (regionFilter) regionFilter.innerHTML = '<option value="">All Corridors</option>' + regions.map(r => '<option value="' + r + '">' + r + '</option>').join('');
           renderCsBulkCableList();
         } catch (err) {
           const cl = document.getElementById('csBulkCableList');
@@ -25445,7 +25702,7 @@ function loadProjectObject(obj) {
       const regions = [...new Set(Object.values(cables).map(c => c.region))].sort();
 
       // Populate region filter
-      regionFilter.innerHTML = '<option value="">All Regions</option>' +
+      regionFilter.innerHTML = '<option value="">All Corridors</option>' +
         regions.map(r => '<option value="' + r + '">' + r + '</option>').join('');
 
       // Clear search
@@ -42454,7 +42711,7 @@ function handlePathKmlImport(e) {
 
         <div style="margin-bottom: 8px;">
           <select id="cableRegionFilter" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 11px;">
-            <option value="">All Regions</option>
+            <option value="">All Corridors</option>
             ${regionOptions}
           </select>
         </div>
@@ -50837,7 +51094,7 @@ function handlePathKmlImport(e) {
     <div style="display:flex; gap:8px; align-items:center;">
       <input type="text" id="cableVisorSearch" placeholder="Search cables..." style="flex:1;" />
       <select id="cableVisorRegionFilter">
-        <option value="">All Regions</option>
+        <option value="">All Corridors</option>
       </select>
       <button class="btn" id="btnVisorSelectAll" style="padding:4px 8px; font-size:11px;" title="Select all visible">✓ All</button>
       <button class="btn" id="btnVisorClearAll" style="padding:4px 8px; font-size:11px;" title="Clear selection">✗ Clear</button>
@@ -50859,6 +51116,17 @@ function handlePathKmlImport(e) {
           <button id="btnCableVisorPrint">&#x1F5A8;&#xFE0F; Print</button>
         </div>
       </div>
+    </div>
+    <div style="display:flex; gap:6px; align-items:center; margin-top:5px; padding-top:5px; border-top:1px solid #e9ecef;">
+      <span style="font-size:10px; font-weight:600; color:#64748b;">Map Style:</span>
+      <select id="cableVisorMapStyle" style="padding:3px 6px; font-size:10px; border:1px solid #d0d0d0; border-radius:4px; background:white; max-width:160px;">
+        <option value="osm">OpenStreetMap</option>
+        <option value="satellite">Satellite (ESRI)</option>
+        <option value="topo">Topo (ESRI)</option>
+        <option value="openTopo">OpenTopoMap</option>
+        <option value="cartoLight">Carto Light</option>
+        <option value="cartoDark">Carto Dark</option>
+      </select>
     </div>
     <div style="display:flex; gap:6px; align-items:center; margin-top:5px; padding-top:5px; border-top:1px solid #e9ecef;">
       <span style="font-size:10px; font-weight:600; color:#64748b;">CLS Filter:</span>
@@ -50937,7 +51205,7 @@ function handlePathKmlImport(e) {
         <option value="cable_station">Cable Stations</option>
       </select>
       <select id="dcVisorRegionFilter" style="padding:6px 10px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px; background:white; max-width:140px;">
-        <option value="">All Regions</option>
+        <option value="">All Corridors</option>
       </select>
     </div>
     <div style="display:flex; gap:6px; align-items:center; margin-top:4px;">
