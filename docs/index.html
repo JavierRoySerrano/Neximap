@@ -22552,7 +22552,15 @@ function loadProjectObject(obj) {
       }
     } catch (err) {
       console.error('[CableVisor] Failed to load cables:', err);
-      if (listEl) listEl.innerHTML = '<div style="padding:20px; text-align:center; color:#c00;">Error: ' + err.message + '</div>';
+      if (listEl) {
+        let errHtml = '<div style="padding:20px; text-align:center;">';
+        errHtml += '<div style="color:#c00; margin-bottom:8px;">Failed to load cable data: ' + escapeHtml(err.message) + '</div>';
+        if (err.message && err.message.includes('Failed to fetch')) {
+          errHtml += '<div style="color:#888; font-size:11px;">This may be caused by running from a local file or network issues.<br>Try using "Refresh from API" or check your connection.</div>';
+        }
+        errHtml += '</div>';
+        listEl.innerHTML = errHtml;
+      }
     }
   }
 
@@ -23565,7 +23573,27 @@ function loadProjectObject(obj) {
       `;
     });
 
-    listEl.innerHTML = html || '<div style="padding:12px; text-align:center; color:#666;">No cables match your filter</div>';
+    if (!html) {
+      // Build informative no-results message showing which filters are active
+      let noResultsMsg = '<div style="padding:20px; text-align:center;">';
+      noResultsMsg += '<div style="color:#f59e0b; font-size:18px; margin-bottom:8px;">No cables match current filters</div>';
+      const activeFilters = [];
+      if (cableVisorState.clsFilter && cableVisorState.clsFilter.label) {
+        activeFilters.push('Cable Station filter: <b>' + escapeHtml(cableVisorState.clsFilter.label) + '</b>');
+      }
+      if (regionFilter) activeFilters.push('Region: <b>' + escapeHtml(regionFilter) + '</b>');
+      if (search) activeFilters.push('Search: <b>' + escapeHtml(search) + '</b>');
+      if (activeFilters.length > 0) {
+        noResultsMsg += '<div style="color:#666; font-size:12px; margin-bottom:12px;">Active filters:<br>' + activeFilters.join('<br>') + '</div>';
+        noResultsMsg += '<div style="color:#888; font-size:11px;">Try removing or changing filters to see results.</div>';
+      } else {
+        noResultsMsg += '<div style="color:#666; font-size:12px;">No cable data available.</div>';
+      }
+      noResultsMsg += '</div>';
+      listEl.innerHTML = noResultsMsg;
+    } else {
+      listEl.innerHTML = html;
+    }
 
     // Update counts
     if (countEl) countEl.textContent = `${cables.length} cables`;
@@ -23725,13 +23753,19 @@ function loadProjectObject(obj) {
     map.fitBounds([[minLon, minLat], [maxLon, maxLat]], { padding: 50, duration: 1000 });
   }
 
+  const VISOR_SELECT_ALL_WARN_THRESHOLD = 50;
+  const VISOR_SELECT_ALL_MAX_CABLES = 200;
+  const VISOR_BATCH_SIZE = 10;
+
   function selectAllVisorCables() {
     const db = cableVisorState.cableDatabase;
     if (!db || !db.cables) return;
 
+    // Collect matching cables first (don't add yet)
     const search = (document.getElementById('cableVisorSearch')?.value || '').toLowerCase().trim();
     const regionFilter = document.getElementById('cableVisorRegionFilter')?.value || '';
 
+    const cablesToAdd = [];
     Object.values(db.cables).forEach(cable => {
       if (regionFilter && cable.region !== regionFilter) return;
       if (search) {
@@ -23744,12 +23778,74 @@ function loadProjectObject(obj) {
         if (!cableMatchesCLSFilter(cable, cableVisorState.clsFilter.cableSystems)) return;
       }
       if (!cableVisorState.selectedCables.has(String(cable.id))) {
-        cableVisorState.selectedCables.add(String(cable.id));
-        addCableToVisorMap(String(cable.id));
+        cablesToAdd.push(String(cable.id));
       }
     });
 
-    renderCableVisorList();
+    if (cablesToAdd.length === 0) {
+      showToast('All matching cables are already selected.');
+      return;
+    }
+
+    const alreadySelected = cableVisorState.selectedCables.size;
+    const totalAfter = alreadySelected + cablesToAdd.length;
+
+    // Hard cap: prevent adding more than max
+    if (totalAfter > VISOR_SELECT_ALL_MAX_CABLES) {
+      const canAdd = Math.max(0, VISOR_SELECT_ALL_MAX_CABLES - alreadySelected);
+      if (canAdd === 0) {
+        showToast(`Maximum ${VISOR_SELECT_ALL_MAX_CABLES} cables can be displayed on the map at once. Deselect some cables first.`);
+        return;
+      }
+      if (!confirm(`Showing all ${cablesToAdd.length} cables would exceed the ${VISOR_SELECT_ALL_MAX_CABLES}-cable map limit.\n\nAdd the first ${canAdd} cables (sorted by name) instead?\n\nTip: Use region or station filters to narrow your selection.`)) {
+        return;
+      }
+      // Sort by name and take only what fits
+      cablesToAdd.sort((a, b) => {
+        const ca = db.cables[a], cb = db.cables[b];
+        return ((ca && ca.shortName) || (ca && ca.name) || '').localeCompare((cb && cb.shortName) || (cb && cb.name) || '');
+      });
+      cablesToAdd.length = canAdd;
+    } else if (cablesToAdd.length >= VISOR_SELECT_ALL_WARN_THRESHOLD) {
+      // Warning threshold: ask user to confirm
+      if (!confirm(`You are about to display ${cablesToAdd.length} cables on the map.\n\nThis may take a moment to render. Continue?\n\nTip: Use region or station filters to narrow your selection.`)) {
+        return;
+      }
+    }
+
+    // Batched progressive loading to avoid freezing the UI
+    _batchAddCablesToVisorMap(cablesToAdd);
+  }
+
+  function _batchAddCablesToVisorMap(cableIds) {
+    let index = 0;
+    const total = cableIds.length;
+
+    // Show progress
+    const selectedCountEl = document.getElementById('cableVisorSelectedCount');
+
+    function addBatch() {
+      const end = Math.min(index + VISOR_BATCH_SIZE, total);
+      for (let i = index; i < end; i++) {
+        const id = cableIds[i];
+        cableVisorState.selectedCables.add(id);
+        addCableToVisorMap(id);
+      }
+      index = end;
+
+      // Update progress
+      if (selectedCountEl) selectedCountEl.textContent = `${cableVisorState.selectedCables.size} selected (loading ${index}/${total})`;
+
+      if (index < total) {
+        requestAnimationFrame(addBatch);
+      } else {
+        // Done — final render
+        renderCableVisorList();
+        if (selectedCountEl) selectedCountEl.textContent = `${cableVisorState.selectedCables.size} selected`;
+      }
+    }
+
+    addBatch();
   }
 
   function clearAllVisorCables() {
@@ -25452,11 +25548,14 @@ function loadProjectObject(obj) {
       renderCsBulkImportList();
 
     } catch (error) {
-      cableList.innerHTML = '<div style="color:#ef4444; padding:20px; text-align:center;">' +
-        '⚠️ Failed to load: ' + error.message +
-        '<br><br>' +
-        '<button onclick="loadBulkImportCables()" class="btn">🔄 Retry</button>' +
-        '</div>';
+      let errHtml = '<div style="color:#ef4444; padding:20px; text-align:center;">';
+      errHtml += 'Failed to load cable database: ' + escapeHtml(error.message);
+      if (error.message && error.message.includes('Failed to fetch')) {
+        errHtml += '<br><span style="color:#888; font-size:11px;">This may be caused by running from a local file or network issues.</span>';
+      }
+      errHtml += '<br><br><button onclick="loadBulkImportCables()" class="btn">Retry</button>';
+      errHtml += '</div>';
+      cableList.innerHTML = errHtml;
     }
   }
 
@@ -25469,6 +25568,13 @@ function loadProjectObject(obj) {
 
     const searchTerm = (searchInput?.value || '').toLowerCase();
     const selectedRegion = regionFilter?.value || '';
+
+    // Build set of already-imported cable names for duplicate detection
+    const importedNames = new Set();
+    (state.cableSystems || []).forEach(cs => {
+      if (cs.name) importedNames.add(cs.name.toLowerCase());
+      if (cs.shortName) importedNames.add(cs.shortName.toLowerCase());
+    });
 
     // Filter cables
     const filteredCables = Object.entries(csBulkImportCables).filter(([key, cable]) => {
@@ -25517,6 +25623,7 @@ function loadProjectObject(obj) {
           <div style="border:1px solid #e0e0e0; border-radius:0 0 8px 8px; background:white;">
             ${cables.map(({ key, cable }) => {
               const isSelected = csBulkImportSelection.has(key);
+              const alreadyImported = importedNames.has((cable.name || '').toLowerCase());
               const statusIcon = getStatusIcon(cable.rfs, cable.status);
               // Use enriched capacityTbps if available, otherwise fallback to designCapacity
               const capacityInfo = cable.capacityTbps ? `${cable.capacityTbps} Tbps` : (cable.designCapacity !== 'Unknown' ? cable.designCapacity : '');
@@ -25526,11 +25633,12 @@ function loadProjectObject(obj) {
               const metaInfo = [cable.status || '', rfsInfo, fpInfo, capacityInfo].filter(Boolean).join(' · ');
 
               return `
-                <label class="cs-bulk-item" data-key="${key}" style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; cursor:pointer; border-bottom:1px solid #f0f0f0; ${isSelected ? 'background:#f0fdf4;' : ''}">
+                <label class="cs-bulk-item" data-key="${key}" style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; cursor:pointer; border-bottom:1px solid #f0f0f0; ${isSelected ? 'background:#f0fdf4;' : ''}${alreadyImported ? 'opacity:0.6;' : ''}">
                   <input type="checkbox" class="cs-bulk-cable-cb" data-key="${key}" ${isSelected ? 'checked' : ''} style="margin-top:3px;" />
                   <div style="flex:1; min-width:0;">
                     <div style="font-weight:500; display:flex; align-items:center; gap:6px;">
                       ${statusIcon} ${cable.name}
+                      ${alreadyImported ? '<span style="font-size:10px; background:#d1fae5; color:#065f46; padding:1px 4px; border-radius:3px;">Imported</span>' : ''}
                       ${cable.isMultiSegment ? '<span style="font-size:10px; background:#e0e7ff; color:#3730a3; padding:1px 4px; border-radius:3px;">Multi-segment</span>' : ''}
                     </div>
                     <div style="font-size:11px; color:#666; margin-top:2px;">${metaInfo}</div>
@@ -25875,7 +25983,10 @@ function loadProjectObject(obj) {
       showToast(`Imported ${importedCount} cable system${importedCount > 1 ? 's' : ''} from database.`);
     }
 
-    closeCsBulkImportModal();
+    // Keep modal open for further imports — just clear selection and refresh list
+    csBulkImportSelection.clear();
+    updateCsBulkImportCount();
+    renderCsBulkImportList();
   }
 
   // Set up bulk import modal event handlers
