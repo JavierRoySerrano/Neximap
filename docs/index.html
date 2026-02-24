@@ -23180,21 +23180,50 @@ function loadProjectObject(obj) {
       return 'Unknown';
     }
 
-    // Fallback: coordinate-based inference (less accurate)
+    // Fallback: coordinate-based inference using both endpoints
     if (!geometry || !geometry.coordinates) return 'Unknown';
-    let coords = geometry.coordinates;
-    if (geometry.type === 'MultiLineString' && coords[0] && coords[0][0]) {
-      coords = coords[0][0];
-    } else if (geometry.type === 'LineString' && coords[0]) {
-      coords = coords[0];
+    let startCoord = null, endCoord = null;
+    if (geometry.type === 'MultiLineString') {
+      const segs = geometry.coordinates;
+      if (segs.length > 0 && segs[0].length > 0) {
+        startCoord = segs[0][0];
+        const lastSeg = segs[segs.length - 1];
+        if (lastSeg && lastSeg.length > 0) endCoord = lastSeg[lastSeg.length - 1];
+      }
+    } else if (geometry.type === 'LineString') {
+      const pts = geometry.coordinates;
+      if (pts.length > 0) startCoord = pts[0];
+      if (pts.length > 1) endCoord = pts[pts.length - 1];
     }
-    if (!Array.isArray(coords) || coords.length < 2) return 'Unknown';
-    const lon = coords[0];
-    const lat = coords[1];
-    if (lon >= -30 && lon <= 60 && lat >= 35) return 'Intra-Europe';
-    if (lon >= 60 && lon <= 150) return 'Intra-Asia';
-    if (lon >= 150 || lon <= -150) return 'Transpacific';
-    if (lon >= -130 && lon <= -30 && lat >= 15) return 'Intra-Americas';
+    if (!startCoord) return 'Unknown';
+
+    // Classify a coordinate into a broad geographic region
+    function geoRegionFromCoord(coord) {
+      const lon = coord[0], lat = coord[1];
+      if (lon >= -30 && lon <= 60 && lat >= 35) return 'Europe';
+      if (lon >= -130 && lon <= -30 && lat >= 15) return 'NorthAmerica';
+      if (lon >= -90 && lon <= -30 && lat < 15 && lat >= -60) return 'SouthAmerica';
+      if (lon >= 60 && lon <= 180) return 'Asia';
+      if (lon <= -130 || lon >= 150) return 'Pacific';
+      if (lon >= -30 && lon <= 75 && lat >= -40 && lat < 35) return 'AfricaME';
+      return 'Unknown';
+    }
+
+    const r1 = geoRegionFromCoord(startCoord);
+    const r2 = endCoord ? geoRegionFromCoord(endCoord) : r1;
+    const hasEur = r1 === 'Europe' || r2 === 'Europe';
+    const hasAmer = r1 === 'NorthAmerica' || r2 === 'NorthAmerica' || r1 === 'SouthAmerica' || r2 === 'SouthAmerica';
+    const hasAsia = r1 === 'Asia' || r2 === 'Asia' || r1 === 'Pacific' || r2 === 'Pacific';
+
+    // Cross-ocean corridors
+    if (hasEur && hasAmer) return 'Transatlantic';
+    if (hasAmer && hasAsia) return 'Transpacific';
+    if (hasEur && hasAsia) return 'Indian Ocean';
+
+    // Single-region fallback
+    if (hasEur) return 'Intra-Europe';
+    if (hasAsia) return 'Intra-Asia';
+    if (hasAmer) return 'Intra-Americas';
     return 'Unknown';
   }
 
