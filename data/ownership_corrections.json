@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-02-25",
+  "description": "Manual ownership corrections for cables where upstream TeleGeography data contains known errors. Applied after TG metadata is loaded, overriding specific owner entries.",
+  "corrections": {
+    "aden-djibouti": {
+      "name": "Aden-Djibouti",
+      "remove_owners": ["Tata Communications"],
+      "reason": "TeleGeography incorrectly lists Tata Communications as owner. Verified: Aden-Djibouti is owned by Djibouti Telecom, Orange, Sparkle, and TeleYemen.",
+      "verified_date": "2026-02-25"
+    },
+    "cadmos": {
+      "name": "CADMOS",
+      "remove_owners": ["Tata Communications"],
+      "reason": "TeleGeography incorrectly lists Tata Communications as owner. CADMOS connects Cyprus-Lebanon and is owned by A1 Telekom Austria, AT&T, Cyta, Deutsche Telekom, Lebanese MoT, Orange, Sparkle, and Syrian Telecom.",
+      "verified_date": "2026-02-25"
+    }
+  }
+}

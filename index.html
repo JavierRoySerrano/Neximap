@@ -23022,6 +23022,21 @@ function loadProjectObject(obj) {
         console.warn('[CableVisor] submarine_cables_db.json not available for enrichment:', sdbErr.message);
       }
 
+      // Step 3c: Load ownership corrections (manual overrides for known TG data errors)
+      let ownershipCorrections = {};
+      try {
+        const ocResp = await fetch('data/ownership_corrections.json');
+        if (ocResp.ok) {
+          const ocData = await ocResp.json();
+          if (ocData && ocData.corrections) {
+            ownershipCorrections = ocData.corrections;
+            console.log(`[CableVisor] Loaded ownership_corrections.json: ${Object.keys(ownershipCorrections).length} corrections`);
+          }
+        }
+      } catch (ocErr) {
+        console.warn('[CableVisor] ownership_corrections.json not available:', ocErr.message);
+      }
+
       // Step 4: Build cable database with smart status logic
       const cables = {};
       let statusDebugLog = [];
@@ -23167,6 +23182,26 @@ function loadProjectObject(obj) {
           owners = meta.owners;
         }
 
+        // Apply ownership corrections (manual overrides for known TG data errors)
+        const ownerCorrection = ownershipCorrections[props.id];
+        if (ownerCorrection) {
+          const beforeCount = owners.length;
+          if (ownerCorrection.remove_owners) {
+            const removeSet = new Set(ownerCorrection.remove_owners.map(o => o.toLowerCase()));
+            owners = owners.filter(o => !removeSet.has(o.toLowerCase()));
+          }
+          if (ownerCorrection.add_owners) {
+            ownerCorrection.add_owners.forEach(o => {
+              if (!owners.some(existing => existing.toLowerCase() === o.toLowerCase())) {
+                owners.push(o);
+              }
+            });
+          }
+          if (beforeCount !== owners.length) {
+            console.log(`[CableVisor] Ownership correction applied to ${props.name}: removed ${beforeCount - owners.length} owner(s)`);
+          }
+        }
+
         // Parse suppliers
         let suppliers = [];
         if (typeof meta.suppliers === 'string' && meta.suppliers) {
@@ -23289,6 +23324,95 @@ function loadProjectObject(obj) {
       if (sdbEnrichedCount > 0) {
         console.log(`[CableVisor] SDB enrichment: ${sdbEnrichedCount} cables enriched from submarine_cables_db.json`);
       }
+
+      // FiberAtlantic ownership cross-check (async, non-blocking)
+      // Fetches FA detail data for cables and flags ownership discrepancies
+      (async () => {
+        try {
+          const faCables = await fetchFiberAtlanticCables();
+          if (!faCables || faCables.length === 0) return;
+
+          const discrepancies = [];
+          let faEnrichedCount = 0;
+          const cableEntries = Object.values(cables);
+
+          // Process in batches to avoid overwhelming the API
+          const BATCH_SIZE = 10;
+          const BATCH_DELAY = 500;
+
+          for (let i = 0; i < cableEntries.length; i += BATCH_SIZE) {
+            const batch = cableEntries.slice(i, i + BATCH_SIZE);
+            const batchPromises = batch.map(async (cable) => {
+              try {
+                const faMatch = autoMatchFiberAtlantic(cable.name, faCables);
+                if (!faMatch || !faMatch.match) return;
+
+                const detail = await fetchFiberAtlanticDetail(faMatch.match.id);
+                if (!detail || !detail.details) return;
+
+                const faOwners = detail.details.owners;
+                if (!faOwners || !Array.isArray(faOwners) || faOwners.length === 0) return;
+
+                const faOwnerNames = faOwners.map(o => (o.name || '').trim()).filter(Boolean);
+                if (faOwnerNames.length === 0) return;
+
+                // Store FA owners on cable for reference
+                cable._faOwners = faOwnerNames;
+
+                // Enrich: if cable has no owners, use FA owners
+                if (!cable.owners || cable.owners.length === 0) {
+                  cable.owners = faOwnerNames;
+                  cable.ownersText = faOwnerNames.join(', ');
+                  cable._faOwnerEnriched = true;
+                  faEnrichedCount++;
+                  return;
+                }
+
+                // Cross-check: compare TG owners vs FA owners
+                const tgSet = new Set(cable.owners.map(o => o.toLowerCase().trim()));
+                const faSet = new Set(faOwnerNames.map(o => o.toLowerCase().trim()));
+
+                const inTgNotFa = cable.owners.filter(o => !faSet.has(o.toLowerCase().trim()));
+                const inFaNotTg = faOwnerNames.filter(o => !tgSet.has(o.toLowerCase().trim()));
+
+                if (inTgNotFa.length > 0 || inFaNotTg.length > 0) {
+                  discrepancies.push({
+                    cable: cable.name,
+                    id: cable.id,
+                    tgOwners: cable.owners,
+                    faOwners: faOwnerNames,
+                    onlyInTG: inTgNotFa,
+                    onlyInFA: inFaNotTg
+                  });
+                }
+              } catch (e) { /* skip individual cable errors */ }
+            });
+
+            await Promise.all(batchPromises);
+            if (i + BATCH_SIZE < cableEntries.length) {
+              await new Promise(r => setTimeout(r, BATCH_DELAY));
+            }
+          }
+
+          if (faEnrichedCount > 0) {
+            console.log(`[CableVisor] FA ownership enrichment: ${faEnrichedCount} cables got owners from FiberAtlantic`);
+          }
+
+          if (discrepancies.length > 0) {
+            console.group(`[CableVisor] \u26A0\uFE0F Ownership discrepancies: TeleGeography vs FiberAtlantic (${discrepancies.length} cables)`);
+            discrepancies.forEach(d => {
+              console.log(`${d.cable} (${d.id}):`);
+              if (d.onlyInTG.length) console.log(`  Only in TG: ${d.onlyInTG.join(', ')}`);
+              if (d.onlyInFA.length) console.log(`  Only in FA: ${d.onlyInFA.join(', ')}`);
+            });
+            console.groupEnd();
+          } else {
+            console.log('[CableVisor] FA ownership cross-check: no discrepancies found');
+          }
+        } catch (e) {
+          console.warn('[CableVisor] FA ownership cross-check failed:', e.message);
+        }
+      })();
 
       return {
         version: '1.0',
