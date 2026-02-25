@@ -4,18 +4,18 @@
 
 ### Critical: File Structure & Editing Rules
 
-- **Production file:** `/index.html` (repository root) — the live site is served from here.
-- **Development file:** `/docs/index.html` — this is the working copy where Claude makes changes. Changes are merged into `/index.html` via Pull Request.
+- **Production file:** `/docs/index.html` — the live site is served from here (GitHub Pages serves from `/docs`). All changes go directly in this file.
+- **Legacy file:** `/index.html` (repository root) — no longer the production file. Kept for reference only.
 - **All data files** live under `/data/` at the repository root (NOT under `/docs/data/`).
 
 ### Known Issue: "Failed to fetch" in docs/index.html
 
-When running `docs/index.html` directly, features that load local data
+When running `docs/index.html` locally, features that load local data
 (e.g. "Import Cable Systems" > "Public Cable System DB") will show
 **"Failed to load: Failed to fetch"**. This is expected because
 `docs/index.html` references `data/...` which resolves to `docs/data/`
 — a directory that does not exist. All data files are at `/data/`.
-This does NOT affect production (`/index.html`).
+This does NOT affect the deployed production site.
 
 Affected data paths:
 - `data/telegeography_cables.json`
