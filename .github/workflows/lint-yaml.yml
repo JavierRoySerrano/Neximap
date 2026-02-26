@@ -1,0 +1,26 @@
+name: Lint YAML Workflows
+
+on:
+  push:
+    paths:
+      - '.github/workflows/**.yml'
+      - '.github/workflows/**.yaml'
+  pull_request:
+    paths:
+      - '.github/workflows/**.yml'
+      - '.github/workflows/**.yaml'
+
+jobs:
+  lint:
+    name: Validate workflow YAML syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Lint all workflow YAML files
+        run: |
+          yamllint -d "{extends: default, rules: {line-length: disable, truthy: disable}}" .github/workflows/
