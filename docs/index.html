@@ -14278,7 +14278,15 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     for (let i = state.groups.length - 1; i >= 0; i--) {
       const g = state.groups[i];
       if (g.type !== 'country') continue;
+      if (g.lockNodes === false) continue; // Skip disconnected containers
       if (pointInGroup(node.x, node.y, g)) { gid = g.id; break; }
+    }
+    // Preserve existing DC container assignment if node is still inside and container is connected
+    if (gid === null && node.groupId) {
+      const existingGroup = findGroup(node.groupId);
+      if (existingGroup && existingGroup.type === 'dc' && existingGroup.lockNodes !== false && pointInGroup(node.x, node.y, existingGroup)) {
+        gid = existingGroup.id;
+      }
     }
     node.groupId = gid;
   }
@@ -15097,6 +15105,114 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       grp.appendChild(iconG);
     }
 
+    // Chain link toggle button (connect/disconnect nodes from container)
+    {
+      const isLocked = g.lockNodes !== false; // default true = nodes connected
+      const chainIconG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      // Position: top-right corner, offset left for DC icon if present
+      const chainOffsetX = (g.type === 'dc') ? g.x + g.w - 54 : g.x + g.w - 26;
+      const chainOffsetY = g.y + 4;
+      chainIconG.setAttribute('transform', `translate(${chainOffsetX}, ${chainOffsetY})`);
+      chainIconG.style.cursor = 'pointer';
+      chainIconG.style.opacity = '0.85';
+
+      // Tooltip
+      const chainTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      chainTitle.textContent = isLocked
+        ? 'Nodes connected \u2014 click to disconnect from container'
+        : 'Nodes disconnected \u2014 click to connect to container';
+      chainIconG.appendChild(chainTitle);
+
+      // Background circle button
+      const chainBg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      chainBg.setAttribute('cx', '9');
+      chainBg.setAttribute('cy', '9');
+      chainBg.setAttribute('r', '9');
+      chainBg.setAttribute('fill', isLocked ? '#10b981' : '#ef4444');
+      chainBg.setAttribute('fill-opacity', '0.9');
+      chainBg.setAttribute('stroke', isLocked ? '#059669' : '#dc2626');
+      chainBg.setAttribute('stroke-width', '0.5');
+      chainIconG.appendChild(chainBg);
+
+      if (isLocked) {
+        // Connected: chain link icon (two interlocked arcs)
+        const cp1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        cp1.setAttribute('d', 'M6.5 10.5a2.5 2.5 0 0 0 3.54.27l1.96-1.96A2.5 2.5 0 0 0 8.46 5.27L7.6 6.1');
+        cp1.setAttribute('fill', 'none');
+        cp1.setAttribute('stroke', 'white');
+        cp1.setAttribute('stroke-width', '1.8');
+        cp1.setAttribute('stroke-linecap', 'round');
+        chainIconG.appendChild(cp1);
+        const cp2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        cp2.setAttribute('d', 'M11.5 7.5a2.5 2.5 0 0 0-3.54-.27L6 9.23A2.5 2.5 0 0 0 9.54 12.73L10.4 11.9');
+        cp2.setAttribute('fill', 'none');
+        cp2.setAttribute('stroke', 'white');
+        cp2.setAttribute('stroke-width', '1.8');
+        cp2.setAttribute('stroke-linecap', 'round');
+        chainIconG.appendChild(cp2);
+      } else {
+        // Disconnected: broken chain icon
+        const cp1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        cp1.setAttribute('d', 'M7.5 11a2.5 2.5 0 0 0 3.54.27l1.5-1.5A2.5 2.5 0 0 0 9 5.73');
+        cp1.setAttribute('fill', 'none');
+        cp1.setAttribute('stroke', 'white');
+        cp1.setAttribute('stroke-width', '1.8');
+        cp1.setAttribute('stroke-linecap', 'round');
+        chainIconG.appendChild(cp1);
+        const cp2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        cp2.setAttribute('d', 'M10.5 7a2.5 2.5 0 0 0-3.54-.27l-1.5 1.5A2.5 2.5 0 0 0 9 12.27');
+        cp2.setAttribute('fill', 'none');
+        cp2.setAttribute('stroke', 'white');
+        cp2.setAttribute('stroke-width', '1.8');
+        cp2.setAttribute('stroke-linecap', 'round');
+        chainIconG.appendChild(cp2);
+        // Break gap indicator (diagonal slash)
+        const cslash = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        cslash.setAttribute('x1', '13');
+        cslash.setAttribute('y1', '5');
+        cslash.setAttribute('x2', '5');
+        cslash.setAttribute('y2', '13');
+        cslash.setAttribute('stroke', 'white');
+        cslash.setAttribute('stroke-width', '1.8');
+        cslash.setAttribute('stroke-linecap', 'round');
+        chainIconG.appendChild(cslash);
+      }
+
+      // Prevent drag propagation when clicking chain button
+      chainIconG.addEventListener('mousedown', (ev) => { ev.stopPropagation(); });
+
+      // Toggle connect/disconnect on click
+      chainIconG.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        if (g.lockNodes !== false) {
+          // Disconnect: free child nodes from container
+          g.lockNodes = false;
+          if (g.type === 'country' || g.type === 'dc') {
+            // Clear groupId for all nodes belonging to this container
+            state.nodes.forEach(n => { if (n.groupId === g.id) n.groupId = null; });
+          }
+          // For region type: child country containers keep parentId but won't move with region
+          showToast('\u26D3\uFE0F Nodes disconnected from "' + (g.title || 'Container') + '"');
+        } else {
+          // Connect: re-attach nodes inside bounds
+          g.lockNodes = true;
+          if (g.type === 'country' || g.type === 'dc') {
+            // Re-assign nodes that are physically inside this container
+            state.nodes.forEach(n => { if (pointInGroup(n.x, n.y, g)) n.groupId = g.id; });
+          }
+          // For region type: child country containers already have parentId, drag will resume moving them
+          showToast('\uD83D\uDD17 Nodes connected to "' + (g.title || 'Container') + '"');
+        }
+        commit();
+        render();
+      });
+
+      // Hover effect
+      chainIconG.addEventListener('mouseenter', () => { chainIconG.style.opacity = '1'; });
+      chainIconG.addEventListener('mouseleave', () => { chainIconG.style.opacity = '0.85'; });
+
+      grp.appendChild(chainIconG);
+    }
     grp.appendChild(label);
     // Append all 4 corner handles
     handles.forEach(h => grp.appendChild(h));
@@ -18601,28 +18717,32 @@ if (groupTitleFontInline) {
       const dy = g.y - oldY;
 
       if (g.type === 'region') {
-        // Move all child countries (and their nodes) along with the region
-        state.groups.forEach(c => {
-          if (c.type === 'country' && c.parentId === g.id) {
-            c.x = c.x + dx;
-            c.y = c.y + dy;
-          }
-        });
-        state.nodes.forEach(n => {
-          const country = n.groupId ? findGroup(n.groupId) : null;
-          if (country && country.type === 'country' && country.parentId === g.id) {
-            n.x = n.x + dx;
-            n.y = n.y + dy;
-          }
-        });
+        if (g.lockNodes !== false) {
+          // Move all child countries (and their locked nodes) along with the region
+          state.groups.forEach(c => {
+            if (c.type === 'country' && c.parentId === g.id) {
+              c.x = c.x + dx;
+              c.y = c.y + dy;
+            }
+          });
+          state.nodes.forEach(n => {
+            const country = n.groupId ? findGroup(n.groupId) : null;
+            if (country && country.type === 'country' && country.parentId === g.id && country.lockNodes !== false) {
+              n.x = n.x + dx;
+              n.y = n.y + dy;
+            }
+          });
+        }
       } else {
-        // Move nodes inside the country box along with it
-        state.nodes.forEach(n => {
-          if (n.groupId === g.id) {
-            n.x = n.x + dx;
-            n.y = n.y + dy;
-          }
-        });
+        // Move nodes inside the country/dc box along with it (only if connected)
+        if (g.lockNodes !== false) {
+          state.nodes.forEach(n => {
+            if (n.groupId === g.id) {
+              n.x = n.x + dx;
+              n.y = n.y + dy;
+            }
+          });
+        }
       }
 
       refreshAllMemberships();
