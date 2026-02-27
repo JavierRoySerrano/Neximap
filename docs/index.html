@@ -24047,6 +24047,7 @@ function loadProjectObject(obj) {
     cableVisorState._clsPreFilterSource = null;
 
     renderCableVisorList();
+    visorAutoRefreshSelection();
   }
 
   // Populate dropdown items based on mode
@@ -25197,8 +25198,8 @@ function loadProjectObject(obj) {
     });
     if (selectAllBtn) selectAllBtn.addEventListener('click', selectAllVisorCables);
     if (clearAllBtn) clearAllBtn.addEventListener('click', clearAllVisorCables);
-    if (searchInput) searchInput.addEventListener('input', () => renderCableVisorList());
-    if (regionFilter) regionFilter.addEventListener('change', () => renderCableVisorList());
+    if (searchInput) searchInput.addEventListener('input', () => { renderCableVisorList(); visorAutoRefreshSelection(); });
+    if (regionFilter) regionFilter.addEventListener('change', () => { renderCableVisorList(); visorAutoRefreshSelection(); });
 
     // Map style selector handler
     const visorMapStyleSelect = document.getElementById('cableVisorMapStyle');
