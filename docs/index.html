@@ -31562,6 +31562,10 @@ function loadProjectObject(obj) {
       shapeLibraryPanel.classList.toggle('visible');
       btnToggleLibrary.classList.toggle('active', !isVisible);
       localStorage.setItem('netmap-library-visible', !isVisible);
+      // If docked, sync canvas offset with new visibility state
+      if (shapeLibraryPanel.classList.contains('docked')) {
+        wrapElement?.classList.toggle('library-docked', !isVisible);
+      }
     });
 
     // Restore visibility state (default: hidden)
@@ -31577,6 +31581,10 @@ function loadProjectObject(obj) {
       shapeLibraryPanel.classList.remove('visible');
       if (btnToggleLibrary) btnToggleLibrary.classList.remove('active');
       localStorage.setItem('netmap-library-visible', 'false');
+      // If docked, reclaim the canvas space
+      if (shapeLibraryPanel.classList.contains('docked')) {
+        wrapElement?.classList.remove('library-docked');
+      }
     });
   }
 
@@ -31798,7 +31806,10 @@ function loadProjectObject(obj) {
   const savedDockedState = localStorage.getItem('netmap-library-docked') === 'true';
   if (savedDockedState && shapeLibraryPanel) {
     shapeLibraryPanel.classList.add('docked');
-    wrapElement?.classList.add('library-docked');
+    // Only offset canvas when library is also visible
+    if (localStorage.getItem('netmap-library-visible') === 'true') {
+      wrapElement?.classList.add('library-docked');
+    }
     if (btnLibraryDock) btnLibraryDock.classList.add('active');
     // Apply position after a small delay to ensure header is rendered
     setTimeout(applyDockedPosition, 50);
@@ -31809,7 +31820,8 @@ function loadProjectObject(obj) {
       e.stopPropagation();
 
       const isDocked = shapeLibraryPanel.classList.toggle('docked');
-      wrapElement?.classList.toggle('library-docked', isDocked);
+      const isLibraryVisible = shapeLibraryPanel.classList.contains('visible');
+      wrapElement?.classList.toggle('library-docked', isDocked && isLibraryVisible);
       btnLibraryDock.classList.toggle('active', isDocked);
 
       // Save docked state
