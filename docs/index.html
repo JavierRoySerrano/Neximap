@@ -51138,7 +51138,7 @@ function handlePathKmlImport(e) {
           }))
         };
         if (event.source) {
-          event.source.postMessage({ type: 'neximap-objects-response', objects }, MSG_ORIGIN);
+          event.source.postMessage({ type: 'neximap-objects', links: objects.links, nodes: objects.nodes, containers: objects.containers }, MSG_ORIGIN);
         }
       }
 
