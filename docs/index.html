@@ -55609,7 +55609,9 @@ function handlePathKmlImport(e) {
    */
   function nexiHandleWorkerResponse(data) {
     if (data.type === 'needs_tool') {
-      var tool_call = data.tool_call;
+      var tool_calls = data.tool_calls || (data.tool_call ? [data.tool_call] : []);
+      var tool_call = tool_calls[0];
+      if (!tool_call) return Promise.resolve();
       var partial_messages = data.partial_messages;
       var toolResultContent;
 
@@ -55638,7 +55640,7 @@ function handlePathKmlImport(e) {
           message: null,
           conversation_history: partial_messages,
           diagram_state: getCurrentDiagramState(),
-          tool_result: { tool_use_id: tool_call.id, content: toolResultContent }
+          tool_result: [{ tool_use_id: tool_call.id, content: toolResultContent }]
         })
       }).then(function(r2) {
         if (!r2.ok) throw new Error('Worker returned ' + r2.status);
