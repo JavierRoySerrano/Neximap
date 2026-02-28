@@ -55370,6 +55370,191 @@ function handlePathKmlImport(e) {
     aiSendMessage();
   }
 
+  function getCurrentDiagramState() {
+    return {
+      nodes: (state.nodes || []).map(function(n) {
+        return {
+          id: String(n.id),
+          label: n.name || ('Node' + n.id),
+          x: Math.round(n.x || 0),
+          y: Math.round(n.y || 0),
+          type: n.nodeType || 'city',
+          tags: n.tags || [],
+          datacenter: n.datacenter || null,
+          address: n.address || null
+        };
+      }),
+      links: (state.edges || []).map(function(e) {
+        return {
+          id: String(e.id),
+          source: String(e.a),
+          target: String(e.b),
+          label: e.tag || e.code || '',
+          latency_ms: e.latencyMs || 0,
+          bandwidth_gbps: 0,
+          price_usd: (e.leaseMRC && e.leaseMRC['10G']) ? e.leaseMRC['10G'] : 0,
+          tags: e.filterTags || [],
+          technology: 'fiber'
+        };
+      }),
+      selected_node_id: (state.selected && state.selected.type === 'node') ? String(state.selected.id) : null,
+      selected_link_id: (state.selected && state.selected.type === 'edge') ? String(state.selected.id) : null
+    };
+  }
+
+  /**
+   * dispatchCanvasTool — executes Phase 2 canvas-action tools locally.
+   * Called by nexiHandleWorkerResponse when the Worker returns needs_tool.
+   */
+  function dispatchCanvasTool(toolName, params) {
+    try {
+      switch (toolName) {
+
+        case 'create_node': {
+          var cx = typeof params.x === 'number' ? params.x : (150 + Math.random() * 500);
+          var cy = typeof params.y === 'number' ? params.y : (150 + Math.random() * 350);
+          var nid = state.nextNode++;
+          var node = makeNode(nid, Math.round(cx), Math.round(cy));
+          if (params.label) node.name = params.label;
+          if (params.type) node.nodeType = params.type;
+          if (Array.isArray(params.tags)) node.tags = params.tags;
+          if (params.datacenter) node.datacenter = params.datacenter;
+          if (params.address) node.address = params.address;
+          state.nodes.push(node);
+          if (typeof updateNodeGroupMembership === 'function') updateNodeGroupMembership(node);
+          commit(); render();
+          if (typeof showToast === 'function') showToast('Created node: ' + node.name);
+          return { success: true, nodeId: String(nid), label: node.name };
+        }
+
+        case 'create_link': {
+          var srcN = state.nodes.find(function(n) { return String(n.id) === String(params.sourceNodeId); });
+          var dstN = state.nodes.find(function(n) { return String(n.id) === String(params.targetNodeId); });
+          if (!srcN || !dstN) return { success: false, error: 'Source or target node not found' };
+          var eid = state.nextEdge++;
+          var edge = makeEdge(eid, srcN.id, dstN.id);
+          if (params.label) edge.tag = params.label;
+          if (typeof params.latency_ms === 'number') edge.latencyMs = params.latency_ms;
+          if (Array.isArray(params.tags)) edge.filterTags = params.tags;
+          state.edges.push(edge);
+          commit(); render();
+          if (typeof showToast === 'function') showToast('Created link: ' + (params.label || ('L-' + eid)));
+          return { success: true, linkId: String(eid) };
+        }
+
+        case 'edit_node': {
+          var node = state.nodes.find(function(n) { return String(n.id) === String(params.nodeId); });
+          if (!node) return { success: false, error: 'Node not found: ' + params.nodeId };
+          if (params.label !== undefined) node.name = params.label;
+          if (params.type !== undefined) node.nodeType = params.type;
+          if (typeof params.x === 'number') node.x = params.x;
+          if (typeof params.y === 'number') node.y = params.y;
+          if (Array.isArray(params.tags)) node.tags = params.tags;
+          if (params.datacenter !== undefined) node.datacenter = params.datacenter;
+          if (params.address !== undefined) node.address = params.address;
+          commit(); render();
+          return { success: true, nodeId: String(node.id) };
+        }
+
+        case 'edit_link': {
+          var edge = state.edges.find(function(e) { return String(e.id) === String(params.linkId); });
+          if (!edge) return { success: false, error: 'Link not found: ' + params.linkId };
+          if (params.label !== undefined) edge.tag = params.label;
+          if (typeof params.latency_ms === 'number') edge.latencyMs = params.latency_ms;
+          if (Array.isArray(params.tags)) edge.filterTags = params.tags;
+          commit(); render();
+          return { success: true, linkId: String(edge.id) };
+        }
+
+        case 'delete_node': {
+          var idx = state.nodes.findIndex(function(n) { return String(n.id) === String(params.nodeId); });
+          if (idx < 0) return { success: false, error: 'Node not found: ' + params.nodeId };
+          var nid2 = state.nodes[idx].id;
+          state.nodes.splice(idx, 1);
+          state.edges = state.edges.filter(function(e) { return e.a !== nid2 && e.b !== nid2; });
+          if (typeof refreshAllMemberships === 'function') refreshAllMemberships();
+          commit(); render();
+          return { success: true };
+        }
+
+        case 'delete_link': {
+          var idx = state.edges.findIndex(function(e) { return String(e.id) === String(params.linkId); });
+          if (idx < 0) return { success: false, error: 'Link not found: ' + params.linkId };
+          state.edges.splice(idx, 1);
+          commit(); render();
+          return { success: true };
+        }
+
+        case 'create_full_mesh': {
+          var meshNodeIds = params.nodeIds || [];
+          var created = 0;
+          for (var mi = 0; mi < meshNodeIds.length; mi++) {
+            for (var mj = mi + 1; mj < meshNodeIds.length; mj++) {
+              var meshSrc = state.nodes.find(function(n) { return String(n.id) === String(meshNodeIds[mi]); });
+              var meshDst = state.nodes.find(function(n) { return String(n.id) === String(meshNodeIds[mj]); });
+              if (!meshSrc || !meshDst) continue;
+              var meshEid = state.nextEdge++;
+              var meshEdge = makeEdge(meshEid, meshSrc.id, meshDst.id);
+              if (typeof params.default_latency_ms === 'number') meshEdge.latencyMs = params.default_latency_ms;
+              state.edges.push(meshEdge);
+              created++;
+            }
+          }
+          commit(); render();
+          if (typeof showToast === 'function') showToast('Created ' + created + ' mesh links');
+          return { success: true, linksCreated: created };
+        }
+
+        case 'assign_datacenter': {
+          var dcNode = state.nodes.find(function(n) { return String(n.id) === String(params.nodeId); });
+          if (!dcNode) return { success: false, error: 'Node not found: ' + params.nodeId };
+          dcNode.datacenter = params.datacenter_name;
+          commit(); render();
+          return { success: true };
+        }
+
+        case 'show_heatmap': {
+          var heatMode = params.mode;
+          if (heatMode === 'bandwidth') heatMode = 'capacity';
+          else if (heatMode === 'cost') heatMode = 'price';
+          else if (heatMode === 'latency') heatMode = 'capacity';
+          if (typeof applyHeatMapMode === 'function') applyHeatMapMode(heatMode);
+          return { success: true, mode: heatMode };
+        }
+
+        case 'highlight_path': {
+          var nodeSeq = params.node_sequence || [];
+          if (typeof clearRouteHighlights === 'function') clearRouteHighlights();
+          var svgEl = document.querySelector('svg');
+          if (svgEl) {
+            nodeSeq.forEach(function(nidStr) {
+              var el = svgEl.querySelector('g.node[data-node-id="' + nidStr + '"]');
+              if (el) el.classList.add('route-path-node');
+            });
+            for (var pi = 0; pi < nodeSeq.length - 1; pi++) {
+              var srcId = nodeSeq[pi], dstId = nodeSeq[pi + 1];
+              var foundEdge = state.edges.find(function(e) {
+                return (String(e.a) === String(srcId) && String(e.b) === String(dstId)) ||
+                       (String(e.b) === String(srcId) && String(e.a) === String(dstId));
+              });
+              if (foundEdge) {
+                var edgeEl = svgEl.querySelector('g.edge[data-edge-id="' + foundEdge.id + '"]');
+                if (edgeEl) edgeEl.classList.add(params.is_protection ? 'route-path-protection' : 'route-path-1');
+              }
+            }
+          }
+          return { success: true };
+        }
+
+        default:
+          return { success: false, error: 'Unknown tool: ' + toolName };
+      }
+    } catch (e) {
+      console.error('[dispatchCanvasTool] Error:', e);
+      return { success: false, error: e.message };
+    }
+  }
+
   function aiSendMessage() {
     var input = document.getElementById('aiAgentInput');
     if (!input) return;
@@ -55392,12 +55577,16 @@ function handlePathKmlImport(e) {
     nexiShowTyping();
     nexiState.isLoading = true;
 
+    var diagramState = getCurrentDiagramState();
+
     fetch(NEXI_WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         message: text,
-        conversation_history: nexiState.history.slice(0, -1)
+        conversation_history: nexiState.history.slice(0, -1),
+        diagram_state: diagramState,
+        tool_result: null
       })
     })
     .then(function(r) {
@@ -55405,43 +55594,72 @@ function handlePathKmlImport(e) {
       return r.json();
     })
     .then(function(data) {
-      // tool_call dispatcher: if worker requests a pathfinder call,
-      // execute it locally and re-send the result back to the worker.
-      if (data.tool_call && data.tool_call.type === 'run_pathfinder') {
-        var pfResult = runPathfinderHeadless(data.tool_call.params || {});
-        nexiState.history.push({
-          role: 'tool',
-          tool_call_id: data.tool_call.id || 'pf',
-          content: JSON.stringify(pfResult)
-        });
-        return fetch(NEXI_WORKER_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: '', conversation_history: nexiState.history })
-        }).then(function(r2) {
-          if (!r2.ok) throw new Error('Worker returned ' + r2.status);
-          return r2.json();
-        });
-      }
-      return data;
-    })
-    .then(function(data) {
-      nexiHideTyping();
-      nexiState.isLoading = false;
-      var html = '';
-      if (data.text) html += nexiRenderMd(data.text);
-      if (data.actions && data.actions.length > 0) {
-        data.actions.forEach(function(a) { html += nexiBuildActionCard(a); });
-      }
-      if (html) nexiAddMsg('assistant', html, true);
-      else nexiAddMsg('assistant', '(No response)');
-      nexiState.history.push({ role: 'assistant', content: data.text || '' });
+      return nexiHandleWorkerResponse(data);
     })
     .catch(function(err) {
       nexiHideTyping();
       nexiState.isLoading = false;
       nexiAddMsg('system', 'Connection error: ' + err.message + '. Please check your network and try again.');
     });
+  }
+
+  /**
+   * Handle a worker response — may be a final answer or a client-side tool
+   * request that requires a round-trip through the frontend before narration.
+   */
+  function nexiHandleWorkerResponse(data) {
+    if (data.type === 'needs_tool') {
+      var tool_call = data.tool_call;
+      var partial_messages = data.partial_messages;
+      var toolResultContent;
+
+      // Execute tool locally on the canvas
+      if (tool_call.name === 'run_pathfinder') {
+        toolResultContent = typeof runPathfinderHeadless === 'function'
+          ? runPathfinderHeadless(tool_call.params || {})
+          : { success: false, error: 'runPathfinderHeadless not available' };
+      } else if ([
+        'create_node', 'create_link', 'edit_node', 'edit_link',
+        'delete_node', 'delete_link', 'create_full_mesh',
+        'assign_datacenter', 'show_heatmap', 'highlight_path'
+      ].indexOf(tool_call.name) >= 0) {
+        toolResultContent = dispatchCanvasTool(tool_call.name, tool_call.params || {});
+      } else {
+        // Legacy UI tools — dispatch via existing nexiDispatchAction
+        if (typeof nexiDispatchAction === 'function') nexiDispatchAction(tool_call.name, tool_call.params || {});
+        toolResultContent = { status: 'ok', tool: tool_call.name };
+      }
+
+      // Post the tool result back to the Worker for narration
+      return fetch(NEXI_WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: null,
+          conversation_history: partial_messages,
+          diagram_state: getCurrentDiagramState(),
+          tool_result: { tool_use_id: tool_call.id, content: toolResultContent }
+        })
+      }).then(function(r2) {
+        if (!r2.ok) throw new Error('Worker returned ' + r2.status);
+        return r2.json();
+      }).then(function(data2) {
+        return nexiHandleWorkerResponse(data2);
+      });
+    }
+
+    // Final response (data.type === 'final' or legacy format)
+    nexiHideTyping();
+    nexiState.isLoading = false;
+    var html = '';
+    var textContent = data.text || '';
+    if (textContent) html += nexiRenderMd(textContent);
+    if (data.actions && data.actions.length > 0) {
+      data.actions.forEach(function(a) { html += nexiBuildActionCard(a); });
+    }
+    if (html) nexiAddMsg('assistant', html, true);
+    else nexiAddMsg('assistant', '(No response)');
+    nexiState.history.push({ role: 'assistant', content: textContent });
   }
 
   function nexiClearChat() {
