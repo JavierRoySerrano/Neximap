@@ -55610,29 +55610,31 @@ function handlePathKmlImport(e) {
   function nexiHandleWorkerResponse(data) {
     if (data.type === 'needs_tool') {
       var tool_calls = data.tool_calls || (data.tool_call ? [data.tool_call] : []);
-      var tool_call = tool_calls[0];
-      if (!tool_call) return Promise.resolve();
+      if (!tool_calls.length) return Promise.resolve();
       var partial_messages = data.partial_messages;
-      var toolResultContent;
 
-      // Execute tool locally on the canvas
-      if (tool_call.name === 'run_pathfinder') {
-        toolResultContent = typeof runPathfinderHeadless === 'function'
-          ? runPathfinderHeadless(tool_call.params || {})
-          : { success: false, error: 'runPathfinderHeadless not available' };
-      } else if ([
-        'create_node', 'create_link', 'edit_node', 'edit_link',
-        'delete_node', 'delete_link', 'create_full_mesh',
-        'assign_datacenter', 'show_heatmap', 'highlight_path'
-      ].indexOf(tool_call.name) >= 0) {
-        toolResultContent = dispatchCanvasTool(tool_call.name, tool_call.params || {});
-      } else {
-        // Legacy UI tools — dispatch via existing nexiDispatchAction
-        if (typeof nexiDispatchAction === 'function') nexiDispatchAction(tool_call.name, tool_call.params || {});
-        toolResultContent = { status: 'ok', tool: tool_call.name };
-      }
+      // Execute ALL tool calls and collect results
+      var toolResults = tool_calls.map(function(tc) {
+        var result;
+        if (tc.name === 'run_pathfinder') {
+          result = typeof runPathfinderHeadless === 'function'
+            ? runPathfinderHeadless(tc.params || {})
+            : { success: false, error: 'runPathfinderHeadless not available' };
+        } else if ([
+          'create_node', 'create_link', 'edit_node', 'edit_link',
+          'delete_node', 'delete_link', 'create_full_mesh',
+          'assign_datacenter', 'show_heatmap', 'highlight_path'
+        ].indexOf(tc.name) >= 0) {
+          result = dispatchCanvasTool(tc.name, tc.params || {});
+        } else {
+          // Legacy UI tools — dispatch via existing nexiDispatchAction
+          if (typeof nexiDispatchAction === 'function') nexiDispatchAction(tc.name, tc.params || {});
+          result = { status: 'ok', tool: tc.name };
+        }
+        return { tool_use_id: tc.id, content: result };
+      });
 
-      // Post the tool result back to the Worker for narration
+      // Post ALL tool results back to the Worker in one round-trip
       return fetch(NEXI_WORKER_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -55640,7 +55642,7 @@ function handlePathKmlImport(e) {
           message: null,
           conversation_history: partial_messages,
           diagram_state: getCurrentDiagramState(),
-          tool_result: [{ tool_use_id: tool_call.id, content: toolResultContent }]
+          tool_result: toolResults
         })
       }).then(function(r2) {
         if (!r2.ok) throw new Error('Worker returned ' + r2.status);
