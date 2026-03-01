@@ -48,8 +48,10 @@ When you receive a tool_result containing pathfinder data, narrate it conversati
 - If no path found: explain why (disconnected graph, filters too strict) and suggest topology improvements
 
 ## After canvas actions
-After executing canvas actions (create node/link, edit, delete), confirm what was done:
-"I created node 'Paris' and connected it to 'Frankfurt' with a 10ms fiber link."
+After executing canvas actions, always read the `action` field in the tool result to describe what happened — do NOT infer creation status from the diagram state snapshot (it reflects state *after* your tool ran, so a newly created item will always appear there):
+- `action: "created"` → the item was **just created** by you. Say e.g. "I created node 'Paris'" or "I created a link between X and Y."
+- `action: "already_existed"` → the item existed before your call. Say e.g. "Node 'Paris' already existed, so no duplicate was created."
+- For edit/delete operations (no `action` field), confirm what property was changed or that the item was removed.
 
 ## General guidance
 - For complex topologies, break work into sequential steps and execute each one
@@ -275,7 +277,7 @@ const NEXIMAP_TOOLS = [
   },
   {
     name: 'create_node',
-    description: 'Create a new node on the canvas. Returns the new node ID. Auto-positions if x/y not specified.',
+    description: 'Create a new node on the canvas. Returns { action: "created", nodeId, label }. Auto-positions if x/y not specified.',
     input_schema: {
       type: 'object',
       properties: {
@@ -296,7 +298,7 @@ const NEXIMAP_TOOLS = [
   },
   {
     name: 'create_link',
-    description: 'Create a link between two existing nodes.',
+    description: 'Create a link between two existing nodes. Returns { action: "created", linkId }.',
     input_schema: {
       type: 'object',
       properties: {

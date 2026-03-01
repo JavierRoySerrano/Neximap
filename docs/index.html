@@ -55434,7 +55434,7 @@ function handlePathKmlImport(e) {
           if (typeof updateNodeGroupMembership === 'function') updateNodeGroupMembership(node);
           commit(); render();
           if (typeof showToast === 'function') showToast('Created node: ' + node.name);
-          return { success: true, nodeId: String(nid), label: node.name };
+          return { success: true, action: 'created', nodeId: String(nid), label: node.name };
         }
 
         case 'create_link': {
@@ -55449,7 +55449,7 @@ function handlePathKmlImport(e) {
           state.edges.push(edge);
           commit(); render();
           if (typeof showToast === 'function') showToast('Created link: ' + (params.label || ('L-' + eid)));
-          return { success: true, linkId: String(eid) };
+          return { success: true, action: 'created', linkId: String(eid) };
         }
 
         case 'edit_node': {
