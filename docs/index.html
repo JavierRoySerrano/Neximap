@@ -55084,7 +55084,7 @@ function handlePathKmlImport(e) {
   var NEXI_WORKER_URL = 'https://neximap-ai-agent.fcoroyse-spam.workers.dev/';
   var nexiState = { history: [], hasMessages: false, isLoading: false };
   var NEXI_TOOL_LABELS = {
-    show_route_price:'Route Pricing', create_network_diagram:'Network Diagram',
+    switch_view:'Switch View', show_route_price:'Route Pricing', create_network_diagram:'Network Diagram',
     open_cable_visor:'Cable Visor', open_pathfinder:'Pathfinder',
     open_kml_studio:'KML Studio', open_datacenter_visor:'Datacenter Visor',
     filter_by_tag:'Tag Filter', filter_by_cable_system:'Cable Filter',
@@ -55366,6 +55366,17 @@ function handlePathKmlImport(e) {
         case 'create_network_diagram':
           // Open data table as the closest match for viewing/creating network data
           if (typeof showDataTable === 'function') showDataTable();
+          break;
+
+        case 'switch_view':
+          if (params.view === 'geo') {
+            if (typeof toggleGeoView === 'function') toggleGeoView(true);
+          } else if (params.view === 'map') {
+            if (typeof toggleMapLibreView === 'function') toggleMapLibreView(true);
+          } else {
+            if (typeof toggleGeoView === 'function') toggleGeoView(false);
+            if (typeof toggleMapLibreView === 'function') toggleMapLibreView(false);
+          }
           break;
 
         default:

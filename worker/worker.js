@@ -53,6 +53,15 @@ After executing canvas actions, always read the `action` field in the tool resul
 - `action: "already_existed"` → the item existed before your call. Say e.g. "Node 'Paris' already existed, so no duplicate was created."
 - For edit/delete operations (no `action` field), confirm what property was changed or that the item was removed.
 
+## Canvas views
+NexiMap has three canvas views:
+- **Main** — standard schematic diagram view (default)
+- **Geo** — diagram overlaid on a static world map background
+- **Map** — diagram overlaid on an interactive OpenStreetMap
+
+To switch views, ALWAYS use the \`switch_view\` tool with \`view: "main"\`, \`"geo"\`, or \`"map"\`.
+NEVER use \`show_route_map\` to switch views — it opens the Route Finder panel with waypoints, not the map view.
+
 ## General guidance
 - For complex topologies, break work into sequential steps and execute each one
 - When users mention city names, check the current diagram state for existing matching nodes before creating new ones
@@ -192,8 +201,29 @@ const NEXIMAP_TOOLS = [
   },
   {
     name: 'show_route_map',
-    description: 'Show or toggle the geographic map view.',
-    input_schema: { type: 'object', properties: {}, required: [] }
+    description: 'Show a route on the map with an ordered sequence of waypoints (origin → destination). Opens the Route Finder panel. Do NOT use this to switch canvas views — use switch_view instead.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        waypoints: { type: 'array', items: { type: 'string' }, description: 'Ordered list of node names/IDs forming the route' }
+      },
+      required: []
+    }
+  },
+  {
+    name: 'switch_view',
+    description: 'Switch the active canvas view. Use "main" for the standard schematic diagram, "geo" for a static world map background, "map" for an interactive OpenStreetMap overlay. Always use this tool when the user asks to switch or change the view.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        view: {
+          type: 'string',
+          enum: ['main', 'geo', 'map'],
+          description: '"main" = standard canvas diagram (default), "geo" = static world map background, "map" = interactive OpenStreetMap'
+        }
+      },
+      required: ['view']
+    }
   },
   {
     name: 'get_link_info',
@@ -461,7 +491,8 @@ const CLIENT_SIDE_TOOLS = new Set([
   'clear_all_filters',
   'get_network_summary',
   'show_route_price',
-  'create_network_diagram'
+  'create_network_diagram',
+  'switch_view'
 ]);
 
 // ─── ANTHROPIC API CALL ──────────────────────────────────────────────────────
