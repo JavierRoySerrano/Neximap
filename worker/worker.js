@@ -34,12 +34,14 @@ You are an ACTIVE agent — always prefer calling a tool over just advising. Whe
 - Show heatmap overlays (capacity, price)
 - Highlight paths on the canvas
 - Get diagram statistics server-side
+- Geolocate any node by city name, address, or explicit lat/lon coordinates (use geolocate_node)
 
 ## Tool usage guidelines
 - Use node IDs (not labels) in all tool calls
 - Use the diagram state to map user references (e.g. "Madrid", "the Frankfurt node") to node IDs before calling tools
 - When creating nodes without specified positions, omit x/y — the frontend auto-positions them
 - When asked for a route between locations, identify the matching node IDs first, then call run_pathfinder
+- For geolocation: if the user gives a city name, pass it as city_name; if they give coordinates directly, pass lat/lon; after geolocation remind the user to switch to Geo or Map view to see the node plotted geographically
 
 ## Narrating pathfinder results
 When you receive a tool_result containing pathfinder data, narrate it conversationally:
@@ -456,6 +458,20 @@ const NEXIMAP_TOOLS = [
     name: 'get_diagram_stats',
     description: 'Return diagram statistics (node count, link count, total bandwidth, average latency, technology breakdown). Computed server-side from diagram_state — no frontend round-trip needed.',
     input_schema: { type: 'object', properties: {}, required: [] }
+  },
+  {
+    name: 'geolocate_node',
+    description: 'Set GPS coordinates (gpsLat/gpsLon) on a node and update its canvas position. Resolves coordinates via: (1) explicit lat/lon if provided, (2) internal city database lookup, (3) Nominatim geocoding API fallback. Use whenever the user asks to geolocate a node, set GPS coordinates, or place a node on the map by city/country name.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        node_id: { type: 'string', description: 'Node name, code, or numeric ID to geolocate' },
+        city_name: { type: 'string', description: 'City or country name to look up (e.g. "London", "Frankfurt, Germany")' },
+        lat: { type: 'number', description: 'Explicit latitude in decimal degrees (if user provides coordinates directly)' },
+        lon: { type: 'number', description: 'Explicit longitude in decimal degrees (if user provides coordinates directly)' }
+      },
+      required: ['node_id']
+    }
   }
 ];
 
@@ -477,6 +493,7 @@ const CLIENT_SIDE_TOOLS = new Set([
   'assign_datacenter',
   'show_heatmap',
   'highlight_path',
+  'geolocate_node',
   // Legacy UI tools
   'open_cable_visor',
   'open_datacenter_visor',

@@ -55567,6 +55567,45 @@ function handlePathKmlImport(e) {
           return { success: true };
         }
 
+        case 'geolocate_node': {
+          var geoNode = state.nodes.find(function(n) {
+            return String(n.id) === String(params.node_id) ||
+                   (n.name && n.name.toLowerCase() === String(params.node_id).toLowerCase()) ||
+                   (n.code && n.code.toLowerCase() === String(params.node_id).toLowerCase());
+          });
+          if (!geoNode) return { status: 'error', message: 'Node not found: ' + params.node_id };
+          var resolvedLat = (typeof params.lat === 'number') ? params.lat : null;
+          var resolvedLon = (typeof params.lon === 'number') ? params.lon : null;
+          if (resolvedLat === null && params.city_name) {
+            var cityMatch = lookupCityGPS(params.city_name);
+            if (cityMatch) { resolvedLat = cityMatch.lat; resolvedLon = cityMatch.lon; }
+          }
+          if (resolvedLat === null && (params.city_name || geoNode.address)) {
+            var geoQuery = params.city_name || geoNode.address;
+            return fetch(GEOCODING_API + '?' + new URLSearchParams({ q: geoQuery }).toString())
+              .then(function(r) { return r.json(); })
+              .then(function(results) {
+                var lat2 = null, lon2 = null;
+                if (results && results.length > 0) { lat2 = parseFloat(results[0].lat); lon2 = parseFloat(results[0].lon); }
+                if (lat2 === null || isNaN(lat2)) return { status: 'error', message: 'Could not resolve coordinates for: ' + geoQuery };
+                geoNode.gpsLat = lat2; geoNode.gpsLon = lon2;
+                if (typeof gpsToCanvas === 'function') { var pos = gpsToCanvas(lat2, lon2); if (pos) { geoNode.x = Math.round(pos.x); geoNode.y = Math.round(pos.y); } }
+                if (typeof updateGpsFields === 'function') updateGpsFields(geoNode);
+                commit(); render();
+                if (typeof showToast === 'function') showToast('Geolocated: ' + geoNode.name);
+                return { status: 'ok', node_id: String(geoNode.id), gpsLat: lat2, gpsLon: lon2 };
+              })
+              .catch(function() { return { status: 'error', message: 'Geocoding request failed' }; });
+          }
+          if (resolvedLat === null) return { status: 'error', message: 'Could not resolve coordinates' };
+          geoNode.gpsLat = resolvedLat; geoNode.gpsLon = resolvedLon;
+          if (typeof gpsToCanvas === 'function') { var pos2 = gpsToCanvas(resolvedLat, resolvedLon); if (pos2) { geoNode.x = Math.round(pos2.x); geoNode.y = Math.round(pos2.y); } }
+          if (typeof updateGpsFields === 'function') updateGpsFields(geoNode);
+          commit(); render();
+          if (typeof showToast === 'function') showToast('Geolocated: ' + geoNode.name);
+          return { status: 'ok', node_id: String(geoNode.id), gpsLat: resolvedLat, gpsLon: resolvedLon };
+        }
+
         default:
           return { success: false, error: 'Unknown tool: ' + toolName };
       }
@@ -55634,8 +55673,8 @@ function handlePathKmlImport(e) {
       if (!tool_calls.length) return Promise.resolve();
       var partial_messages = data.partial_messages;
 
-      // Execute ALL tool calls and collect results
-      var toolResults = tool_calls.map(function(tc) {
+      // Execute ALL tool calls and collect results (may be async for geolocate_node)
+      var toolPromises = tool_calls.map(function(tc) {
         var result;
         if (tc.name === 'run_pathfinder') {
           result = typeof runPathfinderHeadless === 'function'
@@ -55644,7 +55683,7 @@ function handlePathKmlImport(e) {
         } else if ([
           'create_node', 'create_link', 'edit_node', 'edit_link',
           'delete_node', 'delete_link', 'create_full_mesh',
-          'assign_datacenter', 'show_heatmap', 'highlight_path'
+          'assign_datacenter', 'show_heatmap', 'highlight_path', 'geolocate_node'
         ].indexOf(tc.name) >= 0) {
           result = dispatchCanvasTool(tc.name, tc.params || {});
         } else {
@@ -55652,19 +55691,21 @@ function handlePathKmlImport(e) {
           if (typeof nexiDispatchAction === 'function') nexiDispatchAction(tc.name, tc.params || {});
           result = { status: 'ok', tool: tc.name };
         }
-        return { tool_use_id: tc.id, content: result };
+        return Promise.resolve(result).then(function(r) { return { tool_use_id: tc.id, content: r }; });
       });
 
       // Post ALL tool results back to the Worker in one round-trip
-      return fetch(NEXI_WORKER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: null,
-          conversation_history: partial_messages,
-          diagram_state: getCurrentDiagramState(),
-          tool_result: toolResults
-        })
+      return Promise.all(toolPromises).then(function(toolResults) {
+        return fetch(NEXI_WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: null,
+            conversation_history: partial_messages,
+            diagram_state: getCurrentDiagramState(),
+            tool_result: toolResults
+          })
+        });
       }).then(function(r2) {
         if (!r2.ok) throw new Error('Worker returned ' + r2.status);
         return r2.json();
