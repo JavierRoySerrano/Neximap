@@ -3019,6 +3019,7 @@
       border-radius: 10px;
     }
     /* Unified Filter Button */
+    #btnUnifiedFilter { position: relative; }
     #btnUnifiedFilter.filtering {
       background: #e8f4fc;
       color: #0096D6;
@@ -3026,19 +3027,21 @@
     }
     #btnUnifiedFilter .filter-badge {
       display: none;
-      background: #0096D6;
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #e53e3e;
       color: #fff;
       font-size: 9px;
       font-weight: 700;
-      min-width: 16px;
-      height: 16px;
-      line-height: 16px;
+      min-width: 14px;
+      height: 14px;
+      line-height: 14px;
       text-align: center;
-      border-radius: 8px;
-      padding: 0 4px;
-      margin-left: 4px;
+      border-radius: 7px;
+      padding: 0 3px;
     }
-    #btnUnifiedFilter.filtering .filter-badge { display: inline-block; }
+    #btnUnifiedFilter.filtering .filter-badge { display: block; }
 
     /* Unified Filter Panel */
     #unifiedFilterPanel {
@@ -6357,7 +6360,7 @@
 
     <div class="tool-sep"></div>
 
-    <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding:0 4px; white-space:nowrap;">Tools</span>
+    <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding:0 4px 2px; white-space:nowrap; align-self:flex-end;">Tools</span>
     <!-- Inspector Toggle (for nodes, links, groups) -->
     <button class="tool-btn" id="btnToggleInspector" type="button" title="Toggle Inspector (I)">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -6381,7 +6384,7 @@
 
     <div class="tool-sep"></div>
 
-    <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding:0 4px; white-space:nowrap;">Visors</span>
+    <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding:0 4px 2px; white-space:nowrap; align-self:flex-end;">Visors</span>
     <!-- Cable System List Toggle -->
     <button class="tool-btn" id="btnToggleCableNavigator" type="button" title="Toggle Cable System List">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -6476,7 +6479,7 @@
     </button>
 
     <div class="tool-sep"></div>
-    <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding:0 4px; white-space:nowrap;">Views</span>
+    <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding:0 4px 2px; white-space:nowrap; align-self:flex-end;">Views</span>
     <!-- Main Canvas View Button -->
     <button class="tool-btn active" id="btnMainView" type="button" title="Main Canvas View - Standard network diagram view" style="color: #10b981;">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
