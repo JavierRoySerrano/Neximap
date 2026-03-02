@@ -26404,8 +26404,6 @@ function loadProjectObject(obj) {
         if (!window._dcDatabase || !window._dcDatabase.loaded) {
           window._dcDatabase = dcVisorState.dcDatabase;
         }
-        // Merge cable stations from separate file
-        await mergeCableStationsDatabase();
       }
 
       populateDCVisorRegionFilter();
