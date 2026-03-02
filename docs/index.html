@@ -6408,6 +6408,29 @@
       <span style="font-size:11px; margin-left:4px;">DC List</span>
     </button>
 
+    <!-- Cable System Visor Quick-Open Button -->
+    <button class="tool-btn" id="btnOpenCSVisor" type="button" title="Open Cable System Visor - Full screen with Public Cable System DB and all corridors" onclick="openCSVisorWithDefaults()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l2-2 4 4 4-4 4 4 4-4"/>
+        <path d="M3 15l2-2 4 4 4-4 4 4 4-4"/>
+        <rect x="2" y="3" width="20" height="18" rx="2"/>
+      </svg>
+      <span style="font-size:11px; margin-left:4px;">CS Visor</span>
+    </button>
+
+    <!-- Datacenter Visor Quick-Open Button -->
+    <button class="tool-btn" id="btnOpenDCVisor" type="button" title="Open Datacenter Visor - Full screen datacenter map" onclick="openDCVisorWithDefaults()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="2" width="20" height="8" rx="2"/>
+        <rect x="2" y="14" width="20" height="8" rx="2"/>
+        <line x1="6" y1="6" x2="6.01" y2="6"/>
+        <line x1="10" y1="6" x2="10.01" y2="6"/>
+        <line x1="6" y1="18" x2="6.01" y2="18"/>
+        <line x1="10" y1="18" x2="10.01" y2="18"/>
+      </svg>
+      <span style="font-size:11px; margin-left:4px;">DC Visor</span>
+    </button>
+
     <div class="tool-sep"></div>
 
     <!-- Multilink Group Manager Toggle -->
@@ -26155,6 +26178,47 @@ function loadProjectObject(obj) {
         dcVisorState.map.resize();
       }
     });
+  }
+
+  function openCSVisorWithDefaults() {
+    // Set source to Public Cable System DB
+    const srcApi = document.getElementById('visorSrcAPI');
+    if (srcApi) {
+      srcApi.checked = true;
+      srcApi.dispatchEvent(new Event('change'));
+    }
+    // Set corridor to All
+    const regionFilter = document.getElementById('cableVisorRegionFilter');
+    if (regionFilter) regionFilter.value = '';
+    // Show the panel
+    showCableVisor();
+    // Set map to larger height and enter full-screen mode
+    const panel = document.getElementById('cableVisorPanel');
+    setTimeout(() => {
+      // Set map height for more map area
+      const mapEl = document.getElementById('cableVisorMap');
+      if (mapEl) {
+        mapEl.style.flex = 'none';
+        mapEl.style.height = '420px';
+        if (cableVisorState.map) cableVisorState.map.resize();
+      }
+      // Maximize if not already maximized
+      if (panel && !panel.classList.contains('maximized') && !panel.classList.contains('presentation-mode')) {
+        toggleCableVisorMaximize();
+      }
+    }, 150);
+  }
+
+  function openDCVisorWithDefaults() {
+    // Show the panel
+    showDCVisor();
+    // Enter full-screen mode
+    const panel = document.getElementById('dcVisorPanel');
+    setTimeout(() => {
+      if (panel && !panel.classList.contains('maximized') && !panel.classList.contains('presentation-mode')) {
+        toggleDCVisorMaximize();
+      }
+    }, 150);
   }
 
   function hideDCVisor() {
