@@ -6010,7 +6010,7 @@
   </div>
 
   <!-- Icon Toolbar -->
-  <div style="display:flex; align-items:center; gap:2px; padding:4px 12px; background:#fafafa;">
+  <div style="display:flex; align-items:center; gap:2px; padding:4px 12px; background:#fafafa; overflow-x:auto;">
     <!-- Zoom Controls -->
     <div style="position:relative;">
       <button class="tool-btn" id="btnZoomLevel" type="button" style="min-width:60px; font-size:12px; gap:4px;" title="Click for zoom options">
@@ -6352,6 +6352,7 @@
 
     <div class="tool-sep"></div>
 
+    <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding:0 4px; white-space:nowrap;">Tools</span>
     <!-- Inspector Toggle (for nodes, links, groups) -->
     <button class="tool-btn" id="btnToggleInspector" type="button" title="Toggle Inspector (I)">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -6375,6 +6376,7 @@
 
     <div class="tool-sep"></div>
 
+    <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding:0 4px; white-space:nowrap;">Visors</span>
     <!-- Cable System List Toggle -->
     <button class="tool-btn" id="btnToggleCableNavigator" type="button" title="Toggle Cable System List">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -6408,6 +6410,29 @@
       <span style="font-size:11px; margin-left:4px;">DC List</span>
     </button>
 
+    <!-- Cable System Visor Quick-Open Button -->
+    <button class="tool-btn" id="btnOpenCSVisor" type="button" title="Open Cable System Visor - Full screen with Public Cable System DB and all corridors" onclick="openCSVisorWithDefaults()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l2-2 4 4 4-4 4 4 4-4"/>
+        <path d="M3 15l2-2 4 4 4-4 4 4 4-4"/>
+        <rect x="2" y="3" width="20" height="18" rx="2"/>
+      </svg>
+      <span style="font-size:11px; margin-left:4px;">CS Visor</span>
+    </button>
+
+    <!-- Datacenter Visor Quick-Open Button -->
+    <button class="tool-btn" id="btnOpenDCVisor" type="button" title="Open Datacenter Visor - Full screen datacenter map" onclick="openDCVisorWithDefaults()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="2" width="20" height="8" rx="2"/>
+        <rect x="2" y="14" width="20" height="8" rx="2"/>
+        <line x1="6" y1="6" x2="6.01" y2="6"/>
+        <line x1="10" y1="6" x2="10.01" y2="6"/>
+        <line x1="6" y1="18" x2="6.01" y2="18"/>
+        <line x1="10" y1="18" x2="10.01" y2="18"/>
+      </svg>
+      <span style="font-size:11px; margin-left:4px;">DC Visor</span>
+    </button>
+
     <div class="tool-sep"></div>
 
     <!-- Multilink Group Manager Toggle -->
@@ -6438,11 +6463,24 @@
     </button>
     <!-- AI Agent Button -->
     <div class="tool-sep"></div>
-    <button class="tool-btn" id="btnAiAgent" type="button" title="AI Agent - Chat with AI about your network" onclick="toggleAiAgent()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="9" cy="10" r="1" fill="currentColor"/><circle cx="12" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="10" r="1" fill="currentColor"/></svg>
-      <span style="font-size:11px;margin-left:4px">AI Agent</span>
+    <button class="tool-btn" id="btnAiAgent" type="button" title="AI Agent - Chat with AI about your network (neural assistant)" onclick="toggleAiAgent()" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border-color:#5a67d8; border-radius:6px;" onmouseover="this.style.boxShadow='0 0 10px rgba(102,126,234,0.5)';this.style.background='linear-gradient(135deg,#5a67d8 0%,#6b46c1 100%)'" onmouseout="this.style.boxShadow='';this.style.background='linear-gradient(135deg,#667eea 0%,#764ba2 100%)'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3" fill="white" opacity="0.9"/>
+        <circle cx="4" cy="8" r="1.5" fill="white" opacity="0.7"/>
+        <circle cx="20" cy="8" r="1.5" fill="white" opacity="0.7"/>
+        <circle cx="4" cy="16" r="1.5" fill="white" opacity="0.7"/>
+        <circle cx="20" cy="16" r="1.5" fill="white" opacity="0.7"/>
+        <line x1="6" y1="9" x2="10" y2="11" stroke="white" opacity="0.6"/>
+        <line x1="18" y1="9" x2="14" y2="11" stroke="white" opacity="0.6"/>
+        <line x1="6" y1="15" x2="10" y2="13" stroke="white" opacity="0.6"/>
+        <line x1="18" y1="15" x2="14" y2="13" stroke="white" opacity="0.6"/>
+        <path d="M12 2 L13 5 L16 6 L13 7 L12 10 L11 7 L8 6 L11 5 Z" fill="white" opacity="0.9" stroke="none"/>
+      </svg>
+      <span style="font-size:11px;margin-left:4px;color:white;font-weight:500;">AI Agent</span>
     </button>
 
+    <div class="tool-sep"></div>
+    <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding:0 4px; white-space:nowrap;">Views</span>
     <!-- Main Canvas View Button -->
     <button class="tool-btn active" id="btnMainView" type="button" title="Main Canvas View - Standard network diagram view" style="color: #10b981;">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -14051,6 +14089,8 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     fontTypeNoSelection.style.display = 'none';
     fontTypeFields.style.display = 'block';
     fontTypeFields.innerHTML = '';
+    // Clean up portaled dropdowns from previous render
+    document.querySelectorAll('.font-size-dropdown-portal').forEach(el => el.remove());
 
     const type = state.selected.type === 'edge' ? 'edge' : (state.selected.type === 'node' ? 'node' : 'group');
     const fields = textFieldDefs[type] || [];
@@ -14097,7 +14137,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       btnDec.type = 'button';
       btnDec.textContent = '\u2212';
       btnDec.title = 'Decrease font size';
-      btnDec.style.cssText = 'width:22px; height:24px; border:1px solid #ccc; border-radius:3px 0 0 3px; background:#f8f9fa; cursor:pointer; font-size:13px; font-weight:600; color:#333; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;';
+      btnDec.style.cssText = 'width:22px; height:28px; border:1px solid #ccc; border-radius:3px 0 0 3px; background:#f8f9fa; cursor:pointer; font-size:13px; font-weight:600; color:#333; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;';
       btnDec.addEventListener('click', (ev) => {
         ev.stopPropagation();
         const cur = obj[field.sizeKey] || 12;
@@ -14113,11 +14153,15 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       sizeInput.type = 'text';
       sizeInput.value = currentSize;
       sizeInput.title = 'Type a custom size or click to select';
-      sizeInput.style.cssText = 'width:38px; height:24px; border:1px solid #ccc; border-left:none; border-right:none; text-align:center; font-size:11px; padding:0 2px; box-sizing:border-box; outline:none; background:white;';
+      sizeInput.style.cssText = 'width:38px; height:28px; border:1px solid #ccc; border-left:none; border-right:none; text-align:center; font-size:12px; padding:0 2px; box-sizing:border-box; outline:none; background:white;';
 
       // Select all on focus for easy replacement
       sizeInput.addEventListener('focus', () => {
         sizeInput.select();
+        const rect = sizeInput.getBoundingClientRect();
+        sizeDropdown.style.left = rect.left + 'px';
+        sizeDropdown.style.top = rect.bottom + 2 + 'px';
+        sizeDropdown.style.width = (rect.width + 44) + 'px';
         sizeDropdown.style.display = 'block';
       });
       sizeInput.addEventListener('keydown', (ev) => {
@@ -14149,11 +14193,11 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
 
       // Preset size dropdown
       const sizeDropdown = document.createElement('div');
-      sizeDropdown.style.cssText = 'display:none; position:absolute; top:100%; left:0; right:0; max-height:160px; overflow-y:auto; background:white; border:1px solid #ccc; border-radius:0 0 4px 4px; box-shadow:0 4px 12px rgba(0,0,0,0.12); z-index:1000;';
+      sizeDropdown.style.cssText = 'display:none; position:fixed; max-height:200px; overflow-y:auto; background:white; border:1px solid #ccc; border-radius:4px; box-shadow:0 4px 12px rgba(0,0,0,0.12); z-index:2000; min-width:60px;';
       fontSizes.forEach(s => {
         const item = document.createElement('div');
         item.textContent = s + 'px';
-        item.style.cssText = `padding:3px 8px; font-size:11px; cursor:pointer; ${s === currentSize ? 'background:#e3f2fd; font-weight:600;' : ''}`;
+        item.style.cssText = `padding:5px 8px; font-size:12px; cursor:pointer; ${s === currentSize ? 'background:#e3f2fd; font-weight:600;' : ''}`;
         item.addEventListener('mouseenter', () => { item.style.background = '#e3f2fd'; });
         item.addEventListener('mouseleave', () => { item.style.background = s === (obj[field.sizeKey] || 12) ? '#e3f2fd' : 'white'; });
         item.addEventListener('mousedown', (ev) => {
@@ -14169,7 +14213,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       btnInc.type = 'button';
       btnInc.textContent = '+';
       btnInc.title = 'Increase font size';
-      btnInc.style.cssText = 'width:22px; height:24px; border:1px solid #ccc; border-radius:0 3px 3px 0; background:#f8f9fa; cursor:pointer; font-size:13px; font-weight:600; color:#333; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;';
+      btnInc.style.cssText = 'width:22px; height:28px; border:1px solid #ccc; border-radius:0 3px 3px 0; background:#f8f9fa; cursor:pointer; font-size:13px; font-weight:600; color:#333; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;';
       btnInc.addEventListener('click', (ev) => {
         ev.stopPropagation();
         const cur = obj[field.sizeKey] || 12;
@@ -14183,7 +14227,8 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       sizeWrap.appendChild(btnDec);
       sizeWrap.appendChild(sizeInput);
       sizeWrap.appendChild(btnInc);
-      sizeWrap.appendChild(sizeDropdown);
+      sizeDropdown.classList.add('font-size-dropdown-portal');
+      document.body.appendChild(sizeDropdown);
 
       row.appendChild(label);
       row.appendChild(fontSelect);
@@ -24567,6 +24612,7 @@ function loadProjectObject(obj) {
         renderOwnerTags();
         updateVisorFilterBadges();
         renderCableVisorList();
+        visorAutoRefreshSelection();
       });
     });
   }
@@ -26147,6 +26193,47 @@ function loadProjectObject(obj) {
         dcVisorState.map.resize();
       }
     });
+  }
+
+  function openCSVisorWithDefaults() {
+    // Set source to Public Cable System DB
+    const srcApi = document.getElementById('visorSrcAPI');
+    if (srcApi) {
+      srcApi.checked = true;
+      srcApi.dispatchEvent(new Event('change'));
+    }
+    // Set corridor to All
+    const regionFilter = document.getElementById('cableVisorRegionFilter');
+    if (regionFilter) regionFilter.value = '';
+    // Show the panel
+    showCableVisor();
+    // Set map to larger height and enter full-screen mode
+    const panel = document.getElementById('cableVisorPanel');
+    setTimeout(() => {
+      // Set map height for more map area
+      const mapEl = document.getElementById('cableVisorMap');
+      if (mapEl) {
+        mapEl.style.flex = 'none';
+        mapEl.style.height = '420px';
+        if (cableVisorState.map) cableVisorState.map.resize();
+      }
+      // Maximize if not already maximized
+      if (panel && !panel.classList.contains('maximized') && !panel.classList.contains('presentation-mode')) {
+        toggleCableVisorMaximize();
+      }
+    }, 150);
+  }
+
+  function openDCVisorWithDefaults() {
+    // Show the panel
+    showDCVisor();
+    // Enter full-screen mode
+    const panel = document.getElementById('dcVisorPanel');
+    setTimeout(() => {
+      if (panel && !panel.classList.contains('maximized') && !panel.classList.contains('presentation-mode')) {
+        toggleDCVisorMaximize();
+      }
+    }, 150);
   }
 
   function hideDCVisor() {
