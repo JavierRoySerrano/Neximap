@@ -374,6 +374,23 @@
     .tool-btn > svg { width: 22px; height: 22px; }
 
     .tool-sep { width: 1px; height: 24px; background: #d0d0d0; margin: 0 6px; }
+    /* Shape dropdown */
+    .shape-dropdown-wrap { position: relative; display: inline-flex; }
+    .shape-dropdown-panel {
+      display: none; position: absolute; top: calc(100% + 4px); left: 0;
+      background: #fff; border: 1px solid #d0d0d0; border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 4px; z-index: 10000; min-width: 128px;
+    }
+    .shape-dropdown-panel.open { display: block; }
+    .shape-dropdown-item {
+      display: flex; align-items: center; gap: 8px; width: 100%;
+      padding: 5px 8px; border: none; background: none; cursor: pointer;
+      border-radius: 4px; font-size: 12px; color: #333; box-sizing: border-box;
+    }
+    .shape-dropdown-item:hover { background: #e8e8e8; }
+    .shape-dropdown-item.active { background: #d0e8f5; color: #0066a0; }
+    .shape-dropdown-item svg { flex-shrink: 0; background: none !important; stroke: currentColor; }
+    .shape-dropdown-item.active svg { stroke: #0066a0; }
 
     /* Toggle items in menu */
     .toggle-item { display: flex; align-items: center; gap: 8px; }
@@ -2212,7 +2229,9 @@
     #inspector input[type="checkbox"] { width:auto; accent-color:#0096D6; }
     .muted kbd { background:#f0f0f0; padding:2px 5px; border-radius:3px; font-size:10px; border:1px solid #d0d0d0; }
 
-    svg { display:block; user-select:none; background:#fff; }
+    svg { display:block; user-select:none; }
+    #svgContainer svg { background:#fff; }
+    .tool-btn svg { background: none; }
     #svgContainer { display: block; min-width: max-content; min-height: max-content; }
     .grid { stroke:#e8e8e8; stroke-width:1; }
 
@@ -6118,38 +6137,48 @@
     <!-- DC Container (Datacenter) -->
     <button class="tool-btn" id="btnAddDCContainer" type="button" title="Add Datacenter Container">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="4" y="2" width="16" height="20" rx="1"/>
-        <line x1="4" y1="7" x2="20" y2="7"/>
-        <line x1="4" y1="12" x2="20" y2="12"/>
-        <line x1="4" y1="17" x2="20" y2="17"/>
-        <circle cx="17" cy="4.5" r="1" fill="currentColor"/>
-        <circle cx="17" cy="9.5" r="1" fill="currentColor"/>
-        <circle cx="17" cy="14.5" r="1" fill="currentColor"/>
-        <circle cx="17" cy="19.5" r="1" fill="currentColor"/>
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <line x1="12" y1="8" x2="12" y2="16"/>
+        <line x1="8" y1="12" x2="16" y2="12"/>
       </svg>
     </button>
 
     <div class="tool-sep"></div>
 
-    <!-- Shape Tools -->
-    <button class="tool-btn shape-tool active" data-shape="circle" type="button" title="Circle">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
-    </button>
-    <button class="tool-btn shape-tool" data-shape="square" type="button" title="Square">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16"/></svg>
-    </button>
-    <button class="tool-btn shape-tool" data-shape="triangle" type="button" title="Triangle">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,3 22,21 2,21"/></svg>
-    </button>
-    <button class="tool-btn shape-tool" data-shape="rectangle" type="button" title="Rectangle">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12"/></svg>
-    </button>
-    <button class="tool-btn shape-tool" data-shape="ellipse" type="button" title="Ellipse">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg>
-    </button>
-    <button class="tool-btn shape-tool" data-shape="hexagon" type="button" title="Hexagon">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/></svg>
-    </button>
+    <!-- Shape Tool Dropdown (replaces 6 individual shape buttons) -->
+    <div class="shape-dropdown-wrap">
+      <button class="tool-btn shape-dropdown-btn" id="btnShapeDropdown" type="button" title="Node Shape: Circle">
+        <svg id="shapeDropdownIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+        <span style="font-size:11px; margin-left:2px;">Shape</span>
+      </button>
+      <div class="shape-dropdown-panel" id="shapeDropdownPanel">
+        <button class="shape-dropdown-item active" data-shape="circle" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg><span>Circle</span>
+        </button>
+        <button class="shape-dropdown-item" data-shape="square" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16"/></svg><span>Square</span>
+        </button>
+        <button class="shape-dropdown-item" data-shape="triangle" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,3 22,21 2,21"/></svg><span>Triangle</span>
+        </button>
+        <button class="shape-dropdown-item" data-shape="rectangle" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12"/></svg><span>Rectangle</span>
+        </button>
+        <button class="shape-dropdown-item" data-shape="ellipse" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg><span>Ellipse</span>
+        </button>
+        <button class="shape-dropdown-item" data-shape="hexagon" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/></svg><span>Hexagon</span>
+        </button>
+      </div>
+    </div>
+    <!-- Hidden shape tool buttons kept for JS event-handler compatibility -->
+    <button class="tool-btn shape-tool active" data-shape="circle" type="button" title="Circle" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></button>
+    <button class="tool-btn shape-tool" data-shape="square" type="button" title="Square" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16"/></svg></button>
+    <button class="tool-btn shape-tool" data-shape="triangle" type="button" title="Triangle" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,3 22,21 2,21"/></svg></button>
+    <button class="tool-btn shape-tool" data-shape="rectangle" type="button" title="Rectangle" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12"/></svg></button>
+    <button class="tool-btn shape-tool" data-shape="ellipse" type="button" title="Ellipse" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg></button>
+    <button class="tool-btn shape-tool" data-shape="hexagon" type="button" title="Hexagon" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/></svg></button>
 
     <div class="tool-sep"></div>
 
@@ -6408,12 +6437,10 @@
     <!-- Datacenter List Toggle -->
     <button class="tool-btn" id="btnToggleDCNavigator" type="button" title="Toggle Datacenter List">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="4" y="2" width="16" height="20" rx="1"/>
-        <line x1="4" y1="7" x2="20" y2="7"/>
-        <line x1="4" y1="12" x2="20" y2="12"/>
-        <line x1="4" y1="17" x2="20" y2="17"/>
-        <circle cx="17" cy="4.5" r="1" fill="currentColor"/>
-        <circle cx="17" cy="9.5" r="1" fill="currentColor"/>
+        <line x1="9" y1="6" x2="20" y2="6"/>
+        <line x1="9" y1="12" x2="20" y2="12"/>
+        <line x1="9" y1="18" x2="20" y2="18"/>
+        <polyline points="4,9 7,12 4,15"/>
       </svg>
       <span style="font-size:11px; margin-left:4px;">DC List</span>
     </button>
@@ -52045,6 +52072,8 @@ function handlePathKmlImport(e) {
   window.refreshAllMemberships = refreshAllMemberships;
   window.applyHeatMapMode = applyHeatMapMode;
   window.clearRouteHighlights = clearRouteHighlights;
+  window.openCSVisorWithDefaults = openCSVisorWithDefaults;
+  window.openDCVisorWithDefaults = openDCVisorWithDefaults;
 
   showToast('Welcome to NexiMap Studio — double-click to create a node.');
 })();
@@ -55857,6 +55886,51 @@ function handlePathKmlImport(e) {
   window.startDragPanel = startDragPanel;
   // ── End AI Agent Panel ──────────────────────────────────────────────────────
   console.log('[NexiMap] Main script fully loaded');
+})();
+</script>
+<script>
+// Shape dropdown UI
+(function() {
+  var dropBtn = document.getElementById('btnShapeDropdown');
+  var dropPanel = document.getElementById('shapeDropdownPanel');
+  var dropIcon = document.getElementById('shapeDropdownIcon');
+  var shapeInnerSVG = {
+    circle:    '<circle cx="12" cy="12" r="9"/>',
+    square:    '<rect x="4" y="4" width="16" height="16"/>',
+    triangle:  '<polygon points="12,3 22,21 2,21"/>',
+    rectangle: '<rect x="2" y="6" width="20" height="12"/>',
+    ellipse:   '<ellipse cx="12" cy="12" rx="10" ry="6"/>',
+    hexagon:   '<polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/>'
+  };
+  function closeDropdown() {
+    dropPanel.classList.remove('open');
+    dropBtn.classList.remove('active');
+  }
+  function setDropShape(shape) {
+    if (shapeInnerSVG[shape]) dropIcon.innerHTML = shapeInnerSVG[shape];
+    dropBtn.title = 'Node Shape: ' + shape.charAt(0).toUpperCase() + shape.slice(1);
+    dropPanel.querySelectorAll('.shape-dropdown-item').forEach(function(item) {
+      item.classList.toggle('active', item.dataset.shape === shape);
+    });
+  }
+  if (!dropBtn || !dropPanel) return;
+  dropBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var isOpen = dropPanel.classList.contains('open');
+    dropPanel.classList.toggle('open', !isOpen);
+    dropBtn.classList.toggle('active', !isOpen);
+  });
+  dropPanel.querySelectorAll('.shape-dropdown-item').forEach(function(item) {
+    item.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var shape = item.dataset.shape;
+      var hiddenBtn = document.querySelector('.shape-tool[data-shape="' + shape + '"]');
+      if (hiddenBtn) hiddenBtn.click();
+      setDropShape(shape);
+      closeDropdown();
+    });
+  });
+  document.addEventListener('click', function() { closeDropdown(); });
 })();
 </script>
 </body>
