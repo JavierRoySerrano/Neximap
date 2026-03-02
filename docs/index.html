@@ -343,11 +343,15 @@
       background: transparent;
       border: 1px solid transparent;
       color: #555;
-      padding: 6px 10px;
+      padding: 4px 6px;
       cursor: pointer;
       font-size: 16px;
       border-radius: 4px;
-      min-width: 32px;
+      min-width: 28px;
+      height: 33px;
+      min-height: 33px;
+      max-height: 33px;
+      box-sizing: border-box;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -369,6 +373,10 @@
     }
 
     .tool-sep { width: 1px; height: 24px; background: #d0d0d0; margin: 0 6px; }
+    /* Larger SVG icons in first toolbar row for better visual fill */
+    #iconToolbar .tool-btn svg { width: 22px; height: 22px; }
+    /* Keep fill/stroke color indicator buttons at their designed non-square sizes */
+    #btnFillColor svg, #btnStrokeColor svg { width: 18px !important; height: 14px !important; }
 
     /* Toggle items in menu */
     .toggle-item { display: flex; align-items: center; gap: 8px; }
@@ -6010,7 +6018,7 @@
   </div>
 
   <!-- Icon Toolbar -->
-  <div style="display:flex; align-items:center; gap:2px; padding:4px 12px; background:#fafafa; overflow-x:auto;">
+  <div id="iconToolbar" style="display:flex; align-items:center; gap:2px; padding:4px 12px; background:#fafafa; overflow:visible;">
     <!-- Zoom Controls -->
     <div style="position:relative;">
       <button class="tool-btn" id="btnZoomLevel" type="button" style="min-width:60px; font-size:12px; gap:4px;" title="Click for zoom options">
