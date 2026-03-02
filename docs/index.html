@@ -343,11 +343,15 @@
       background: transparent;
       border: 1px solid transparent;
       color: #555;
-      padding: 6px 10px;
+      padding: 4px 6px;
       cursor: pointer;
       font-size: 16px;
       border-radius: 4px;
-      min-width: 32px;
+      min-width: 28px;
+      height: 33px;
+      min-height: 33px;
+      max-height: 33px;
+      box-sizing: border-box;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -367,6 +371,7 @@
     .tool-btn.shape-tool.active svg {
       stroke: #0066a0;
     }
+    .tool-btn > svg { width: 22px; height: 22px; }
 
     .tool-sep { width: 1px; height: 24px; background: #d0d0d0; margin: 0 6px; }
 
@@ -3014,6 +3019,7 @@
       border-radius: 10px;
     }
     /* Unified Filter Button */
+    #btnUnifiedFilter { position: relative; }
     #btnUnifiedFilter.filtering {
       background: #e8f4fc;
       color: #0096D6;
@@ -3021,19 +3027,21 @@
     }
     #btnUnifiedFilter .filter-badge {
       display: none;
-      background: #0096D6;
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #e53e3e;
       color: #fff;
       font-size: 9px;
       font-weight: 700;
-      min-width: 16px;
-      height: 16px;
-      line-height: 16px;
+      min-width: 14px;
+      height: 14px;
+      line-height: 14px;
       text-align: center;
-      border-radius: 8px;
-      padding: 0 4px;
-      margin-left: 4px;
+      border-radius: 7px;
+      padding: 0 3px;
     }
-    #btnUnifiedFilter.filtering .filter-badge { display: inline-block; }
+    #btnUnifiedFilter.filtering .filter-badge { display: block; }
 
     /* Unified Filter Panel */
     #unifiedFilterPanel {
@@ -6010,7 +6018,7 @@
   </div>
 
   <!-- Icon Toolbar -->
-  <div style="display:flex; align-items:center; gap:2px; padding:4px 12px; background:#fafafa; overflow-x:auto;">
+  <div style="display:flex; align-items:center; gap:2px; padding:4px 12px; background:#fafafa; overflow:visible;">
     <!-- Zoom Controls -->
     <div style="position:relative;">
       <button class="tool-btn" id="btnZoomLevel" type="button" style="min-width:60px; font-size:12px; gap:4px;" title="Click for zoom options">
@@ -6352,7 +6360,7 @@
 
     <div class="tool-sep"></div>
 
-    <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding:0 4px; white-space:nowrap;">Tools</span>
+    <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding:0 4px 2px; white-space:nowrap; align-self:flex-end;">Tools</span>
     <!-- Inspector Toggle (for nodes, links, groups) -->
     <button class="tool-btn" id="btnToggleInspector" type="button" title="Toggle Inspector (I)">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -6376,7 +6384,7 @@
 
     <div class="tool-sep"></div>
 
-    <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding:0 4px; white-space:nowrap;">Visors</span>
+    <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding:0 4px 2px; white-space:nowrap; align-self:flex-end;">Visors</span>
     <!-- Cable System List Toggle -->
     <button class="tool-btn" id="btnToggleCableNavigator" type="button" title="Toggle Cable System List">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -6450,8 +6458,6 @@
       <span style="font-size:11px; margin-left:4px;">ML Groups</span>
     </button>
 
-    <div style="flex:1;"></div>
-
     <!-- Label Manager Button -->
     <button class="tool-btn" id="btnLabelManager" type="button" title="Label Manager - Manage tags across nodes, links, and containers">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -6464,23 +6470,16 @@
     <!-- AI Agent Button -->
     <div class="tool-sep"></div>
     <button class="tool-btn" id="btnAiAgent" type="button" title="AI Agent - Chat with AI about your network (neural assistant)" onclick="toggleAiAgent()" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border-color:#5a67d8; border-radius:6px;" onmouseover="this.style.boxShadow='0 0 10px rgba(102,126,234,0.5)';this.style.background='linear-gradient(135deg,#5a67d8 0%,#6b46c1 100%)'" onmouseout="this.style.boxShadow='';this.style.background='linear-gradient(135deg,#667eea 0%,#764ba2 100%)'">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="3" fill="white" opacity="0.9"/>
-        <circle cx="4" cy="8" r="1.5" fill="white" opacity="0.7"/>
-        <circle cx="20" cy="8" r="1.5" fill="white" opacity="0.7"/>
-        <circle cx="4" cy="16" r="1.5" fill="white" opacity="0.7"/>
-        <circle cx="20" cy="16" r="1.5" fill="white" opacity="0.7"/>
-        <line x1="6" y1="9" x2="10" y2="11" stroke="white" opacity="0.6"/>
-        <line x1="18" y1="9" x2="14" y2="11" stroke="white" opacity="0.6"/>
-        <line x1="6" y1="15" x2="10" y2="13" stroke="white" opacity="0.6"/>
-        <line x1="18" y1="15" x2="14" y2="13" stroke="white" opacity="0.6"/>
-        <path d="M12 2 L13 5 L16 6 L13 7 L12 10 L11 7 L8 6 L11 5 Z" fill="white" opacity="0.9" stroke="none"/>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white" stroke="none">
+        <path d="M12 2 L13.6 9 L20 10.5 L13.6 12 L12 19 L10.4 12 L4 10.5 L10.4 9 Z"/>
+        <path d="M20 2 L20.8 4.2 L23 5 L20.8 5.8 L20 8 L19.2 5.8 L17 5 L19.2 4.2 Z"/>
+        <path d="M4 17 L4.6 18.7 L6.5 19.3 L4.6 19.9 L4 21.5 L3.4 19.9 L1.5 19.3 L3.4 18.7 Z"/>
       </svg>
       <span style="font-size:11px;margin-left:4px;color:white;font-weight:500;">AI Agent</span>
     </button>
 
     <div class="tool-sep"></div>
-    <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding:0 4px; white-space:nowrap;">Views</span>
+    <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding:0 4px 2px; white-space:nowrap; align-self:flex-end;">Views</span>
     <!-- Main Canvas View Button -->
     <button class="tool-btn active" id="btnMainView" type="button" title="Main Canvas View - Standard network diagram view" style="color: #10b981;">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
