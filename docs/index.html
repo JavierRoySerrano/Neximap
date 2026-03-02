@@ -6037,342 +6037,379 @@
   </div>
 
   <!-- Icon Toolbar -->
-  <div style="display:flex; align-items:center; gap:2px; padding:4px 12px; background:#fafafa; overflow:visible;">
-    <!-- Zoom Controls -->
-    <div style="position:relative;">
-      <button class="tool-btn" id="btnZoomLevel" type="button" style="min-width:60px; font-size:12px; gap:4px;" title="Click for zoom options">
-        <span id="zoomLevel">100%</span> <span style="font-size:10px;">▾</span>
-      </button>
-      <div class="menu" id="zoomMenu" hidden style="min-width:180px;">
-        <div class="item" id="zoomFitView">Fit to View <span style="opacity:0.5;float:right">Enter</span></div>
-        <div class="sep"></div>
-        <div class="item zoom-preset" data-zoom="0.25">25%</div>
-        <div class="item zoom-preset" data-zoom="0.50">50%</div>
-        <div class="item zoom-preset" data-zoom="0.75">75%</div>
-        <div class="item zoom-preset" data-zoom="1.00">100%</div>
-        <div class="item zoom-preset" data-zoom="1.25">125%</div>
-        <div class="item zoom-preset" data-zoom="1.50">150%</div>
-        <div class="item zoom-preset" data-zoom="2.00">200%</div>
-        <div class="item zoom-preset" data-zoom="3.00">300%</div>
-        <div class="item zoom-preset" data-zoom="4.00">400%</div>
-        <div class="sep"></div>
-        <div class="item" id="zoomReset">Reset to 100% <span style="opacity:0.5;float:right">Ctrl+0</span></div>
-      </div>
-    </div>
-    <!-- Zoom In -->
-    <button class="tool-btn" id="btnZoomIn" type="button" title="Zoom In">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
-      </svg>
-    </button>
-    <!-- Zoom Out -->
-    <button class="tool-btn" id="btnZoomOut" type="button" title="Zoom Out">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/>
-      </svg>
-    </button>
-    <!-- Fit to View -->
-    <button class="tool-btn" id="btnZoomFit" type="button" title="Fit to View">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
-      </svg>
-    </button>
-    <!-- Grid Toggle -->
-    <div style="position:relative;">
-      <button class="tool-btn" id="btnGridToggle" type="button" title="Toggle Grid">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-          <line x1="6" y1="3" x2="6" y2="21"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="18" y1="3" x2="18" y2="21"/>
-        </svg>
-      </button>
-      <div class="menu" id="gridMenu" hidden style="min-width:150px;">
-        <label class="item toggle-item"><input type="checkbox" id="gridEnabled" checked /> Show Grid</label>
-        <div class="sep"></div>
-        <div class="item grid-size" data-size="10">Fine (10px)</div>
-        <div class="item grid-size" data-size="20">Small (20px)</div>
-        <div class="item grid-size active" data-size="40">Medium (40px)</div>
-        <div class="item grid-size" data-size="60">Large (60px)</div>
-        <div class="item grid-size" data-size="100">Extra Large (100px)</div>
-      </div>
-    </div>
-
-    <div class="tool-sep"></div>
-
-    <!-- Undo -->
-    <button class="tool-btn" id="btnUndo" type="button" title="Undo (Ctrl+Z)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 7v6h6"/><path d="M3 13c0-4.97 4.03-9 9-9s9 4.03 9 9-4.03 9-9 9c-2.12 0-4.07-.74-5.61-1.97"/>
-      </svg>
-    </button>
-    <!-- Redo -->
-    <button class="tool-btn" id="btnRedo" type="button" title="Redo (Ctrl+Shift+Z)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 7v6h-6"/><path d="M21 13c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.12 0 4.07-.74 5.61-1.97"/>
-      </svg>
-    </button>
-
-    <div class="tool-sep"></div>
-
-    <!-- Delete -->
-    <button class="tool-btn" id="btnDelete" type="button" title="Delete Selected">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
-      </svg>
-    </button>
-
-    <div class="tool-sep"></div>
-
-    <!-- Container Box -->
-    <button class="tool-btn" id="btnAddGroup" type="button" title="Add Container Box">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="18" height="18" rx="2"/>
-      </svg>
-    </button>
-    <!-- Group Box -->
-    <button class="tool-btn" id="btnAddRegion" type="button" title="Add Group Box (Container of Containers)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>
-      </svg>
-    </button>
-    <!-- DC Container (Datacenter) -->
-    <button class="tool-btn" id="btnAddDCContainer" type="button" title="Add Datacenter Container">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="18" height="18" rx="2"/>
-        <line x1="12" y1="8" x2="12" y2="16"/>
-        <line x1="8" y1="12" x2="16" y2="12"/>
-      </svg>
-    </button>
-
-    <div class="tool-sep"></div>
-
-    <!-- Shape Tool Dropdown (replaces 6 individual shape buttons) -->
-    <div class="shape-dropdown-wrap">
-      <button class="tool-btn shape-dropdown-btn" id="btnShapeDropdown" type="button" title="Node Shape: Circle">
-        <svg id="shapeDropdownIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
-        <span style="font-size:11px; margin-left:2px;">Shape</span>
-      </button>
-      <div class="shape-dropdown-panel" id="shapeDropdownPanel">
-        <button class="shape-dropdown-item active" data-shape="circle" type="button">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg><span>Circle</span>
-        </button>
-        <button class="shape-dropdown-item" data-shape="square" type="button">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16"/></svg><span>Square</span>
-        </button>
-        <button class="shape-dropdown-item" data-shape="triangle" type="button">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,3 22,21 2,21"/></svg><span>Triangle</span>
-        </button>
-        <button class="shape-dropdown-item" data-shape="rectangle" type="button">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12"/></svg><span>Rectangle</span>
-        </button>
-        <button class="shape-dropdown-item" data-shape="ellipse" type="button">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg><span>Ellipse</span>
-        </button>
-        <button class="shape-dropdown-item" data-shape="hexagon" type="button">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/></svg><span>Hexagon</span>
-        </button>
-      </div>
-    </div>
-    <!-- Hidden shape tool buttons kept for JS event-handler compatibility -->
-    <button class="tool-btn shape-tool active" data-shape="circle" type="button" title="Circle" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></button>
-    <button class="tool-btn shape-tool" data-shape="square" type="button" title="Square" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16"/></svg></button>
-    <button class="tool-btn shape-tool" data-shape="triangle" type="button" title="Triangle" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,3 22,21 2,21"/></svg></button>
-    <button class="tool-btn shape-tool" data-shape="rectangle" type="button" title="Rectangle" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12"/></svg></button>
-    <button class="tool-btn shape-tool" data-shape="ellipse" type="button" title="Ellipse" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg></button>
-    <button class="tool-btn shape-tool" data-shape="hexagon" type="button" title="Hexagon" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/></svg></button>
-
-    <div class="tool-sep"></div>
-
-    <!-- Link Tool -->
-    <button class="tool-btn" id="btnCreateLink" type="button" title="Create Link (click two nodes)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-      </svg>
-    </button>
-
-    <div class="tool-sep"></div>
-
-    <!-- Fill Color -->
-    <div style="position:relative;">
-      <button class="tool-btn" id="btnFillColor" type="button" title="Fill Color">
-        <span style="display:flex; flex-direction:column; align-items:center; line-height:1;">
-          <svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 9l-6-6-7.4 7.4a2 2 0 0 0 0 2.8l4.2 4.2a2 2 0 0 0 2.8 0L17 9z"/>
-            <path d="M4 2l4 4"/>
-            <path d="M20 12c0 1.5-1.2 2.5-2.5 2.5S15 14 15 14s1.2-2.5 2.5-2.5S20 10.5 20 12z" fill="currentColor"/>
+  <div style="display:flex; align-items:stretch; gap:4px; padding:2px 12px; background:#fafafa; overflow:visible;">
+    <div style="display:flex; flex-direction:column; align-items:center; gap:0;">
+      <div style="display:flex; align-items:center; gap:2px;">
+        <!-- Zoom Controls -->
+        <div style="position:relative;">
+          <button class="tool-btn" id="btnZoomLevel" type="button" style="min-width:60px; font-size:12px; gap:4px;" title="Click for zoom options">
+            <span id="zoomLevel">100%</span> <span style="font-size:10px;">▾</span>
+          </button>
+          <div class="menu" id="zoomMenu" hidden style="min-width:180px;">
+            <div class="item" id="zoomFitView">Fit to View <span style="opacity:0.5;float:right">Enter</span></div>
+            <div class="sep"></div>
+            <div class="item zoom-preset" data-zoom="0.25">25%</div>
+            <div class="item zoom-preset" data-zoom="0.50">50%</div>
+            <div class="item zoom-preset" data-zoom="0.75">75%</div>
+            <div class="item zoom-preset" data-zoom="1.00">100%</div>
+            <div class="item zoom-preset" data-zoom="1.25">125%</div>
+            <div class="item zoom-preset" data-zoom="1.50">150%</div>
+            <div class="item zoom-preset" data-zoom="2.00">200%</div>
+            <div class="item zoom-preset" data-zoom="3.00">300%</div>
+            <div class="item zoom-preset" data-zoom="4.00">400%</div>
+            <div class="sep"></div>
+            <div class="item" id="zoomReset">Reset to 100% <span style="opacity:0.5;float:right">Ctrl+0</span></div>
+          </div>
+        </div>
+        <!-- Zoom In -->
+        <button class="tool-btn" id="btnZoomIn" type="button" title="Zoom In">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
           </svg>
-          <span id="fillColorIndicator" style="width:18px; height:4px; background:#dae8fc; border:1px solid #999; margin-top:2px; border-radius:1px;"></span>
-        </span>
-      </button>
-      <div class="menu color-menu" id="fillColorMenu" hidden style="min-width:180px; padding:8px;">
-        <div style="font-size:11px; color:#666; margin-bottom:6px;">Fill Color</div>
-        <div class="color-grid" id="fillColorGrid"></div>
-        <div style="margin-top:8px; display:flex; gap:4px; align-items:center;">
-          <input type="color" id="fillColorCustom" style="width:28px; height:28px; border:none; padding:0; cursor:pointer;" />
-          <span style="font-size:11px; color:#666;">Custom</span>
-        </div>
-      </div>
-    </div>
-
-    <div style="position:relative;">
-      <button class="tool-btn" id="btnStrokeColor" type="button" title="Stroke/Line Color">
-        <span style="display:flex; flex-direction:column; align-items:center; line-height:1;">
-          <svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M15 2a2.5 2.5 0 1 1 3.5 3.5L6 18l-4 1 1-4L15 2z"/>
+        </button>
+        <!-- Zoom Out -->
+        <button class="tool-btn" id="btnZoomOut" type="button" title="Zoom Out">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/>
           </svg>
-          <span id="strokeColorIndicator" style="width:18px; height:4px; background:#6c8ebf; border:1px solid #999; margin-top:2px; border-radius:1px;"></span>
-        </span>
-      </button>
-      <div class="menu color-menu" id="strokeColorMenu" hidden style="min-width:180px; padding:8px;">
-        <div style="font-size:11px; color:#666; margin-bottom:6px;">Stroke/Line Color</div>
-        <div class="color-grid" id="strokeColorGrid"></div>
-        <div style="margin-top:8px; display:flex; gap:4px; align-items:center;">
-          <input type="color" id="strokeColorCustom" style="width:28px; height:28px; border:none; padding:0; cursor:pointer;" />
-          <span style="font-size:11px; color:#666;">Custom</span>
+        </button>
+        <!-- Fit to View -->
+        <button class="tool-btn" id="btnZoomFit" type="button" title="Fit to View">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+          </svg>
+        </button>
+        <!-- Grid Toggle -->
+        <div style="position:relative;">
+          <button class="tool-btn" id="btnGridToggle" type="button" title="Toggle Grid">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+              <line x1="6" y1="3" x2="6" y2="21"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="18" y1="3" x2="18" y2="21"/>
+            </svg>
+          </button>
+          <div class="menu" id="gridMenu" hidden style="min-width:150px;">
+            <label class="item toggle-item"><input type="checkbox" id="gridEnabled" checked /> Show Grid</label>
+            <div class="sep"></div>
+            <div class="item grid-size" data-size="10">Fine (10px)</div>
+            <div class="item grid-size" data-size="20">Small (20px)</div>
+            <div class="item grid-size active" data-size="40">Medium (40px)</div>
+            <div class="item grid-size" data-size="60">Large (60px)</div>
+            <div class="item grid-size" data-size="100">Extra Large (100px)</div>
+          </div>
         </div>
       </div>
+      <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; text-align:center; width:100%; padding-top:1px; white-space:nowrap;">ZOOM</span>
     </div>
 
-    <!-- Line Format (Width + Style) -->
-    <div style="position:relative;">
-      <button class="tool-btn" id="btnLineWidth" type="button" title="Line Format (Width & Style)">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-          <rect x="2" y="4" width="20" height="2" rx="1"/>
-          <rect x="2" y="11" width="20" height="3" rx="1.5"/>
-          <rect x="2" y="18" width="20" height="4" rx="2"/>
-        </svg>
-      </button>
-      <div class="menu" id="lineWidthMenu" hidden style="min-width:160px;">
-        <div style="padding:6px 12px; font-size:11px; color:#666; border-bottom:1px solid #e0e0e0;">Line Width</div>
-        <div class="item line-width-item" data-width="1">
-          <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="1"/></svg> 1px
-        </div>
-        <div class="item line-width-item" data-width="2">
-          <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="2"/></svg> 2px
-        </div>
-        <div class="item line-width-item" data-width="3">
-          <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="3"/></svg> 3px
-        </div>
-        <div class="item line-width-item" data-width="4">
-          <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="4"/></svg> 4px
-        </div>
-        <div class="item line-width-item" data-width="5">
-          <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="5"/></svg> 5px
-        </div>
-        <div class="item line-width-item" data-width="6">
-          <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="6"/></svg> 6px
-        </div>
-        <div class="sep"></div>
-        <div style="padding:6px 12px; font-size:11px; color:#666; border-bottom:1px solid #e0e0e0;">Line Style</div>
-        <div class="item line-style-item" data-linestyle="solid">
-          <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="2"/></svg> Solid
-        </div>
-        <div class="item line-style-item" data-linestyle="dashed">
-          <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="2" stroke-dasharray="8,4"/></svg> Dashed
-        </div>
-        <div class="item line-style-item" data-linestyle="dotted">
-          <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="2" stroke-dasharray="2,3"/></svg> Dotted
-        </div>
+    <div class="tool-sep" style="align-self:stretch;"></div>
+
+    <div style="display:flex; flex-direction:column; align-items:center; gap:0;">
+      <div style="display:flex; align-items:center; gap:2px;">
+        <!-- Undo -->
+        <button class="tool-btn" id="btnUndo" type="button" title="Undo (Ctrl+Z)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7v6h6"/><path d="M3 13c0-4.97 4.03-9 9-9s9 4.03 9 9-4.03 9-9 9c-2.12 0-4.07-.74-5.61-1.97"/>
+          </svg>
+        </button>
+        <!-- Redo -->
+        <button class="tool-btn" id="btnRedo" type="button" title="Redo (Ctrl+Shift+Z)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 7v6h-6"/><path d="M21 13c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.12 0 4.07-.74 5.61-1.97"/>
+          </svg>
+        </button>
+        <!-- Delete -->
+        <button class="tool-btn" id="btnDelete" type="button" title="Delete Selected">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
+          </svg>
+        </button>
       </div>
+      <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; text-align:center; width:100%; padding-top:1px; white-space:nowrap;">EDIT</span>
     </div>
 
-    <!-- Link Style -->
-    <div style="position:relative;">
-      <button class="tool-btn" id="btnLinkStyle" type="button" title="Link Style">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <path d="M5 19 Q 5 5, 19 5"/>
-        </svg>
-      </button>
-      <div class="menu" id="linkStyleMenu" hidden style="min-width:160px;">
-        <div style="padding:6px 12px; font-size:11px; color:#666; border-bottom:1px solid #e0e0e0;">Link Style</div>
-        <div class="item link-style-item" data-style="straight">― Straight</div>
-        <div class="item link-style-item" data-style="orthogonal">┌ Orthogonal (90°)</div>
-        <div class="item link-style-item" data-style="curve">∿ Curved</div>
-        <div class="sep"></div>
-        <div style="padding:6px 12px; font-size:11px; color:#666;">Orthogonal Direction</div>
-        <div class="item link-route-item" data-route="hv">→↓ Horizontal first</div>
-        <div class="item link-route-item" data-route="vh">↓→ Vertical first</div>
+    <div class="tool-sep" style="align-self:stretch;"></div>
+
+    <div style="display:flex; flex-direction:column; align-items:center; gap:0;">
+      <div style="display:flex; align-items:center; gap:2px;">
+        <!-- Container Box -->
+        <button class="tool-btn" id="btnAddGroup" type="button" title="Add Container Box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+          </svg>
+        </button>
+        <!-- Group Box -->
+        <button class="tool-btn" id="btnAddRegion" type="button" title="Add Group Box (Container of Containers)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>
+          </svg>
+        </button>
+        <!-- DC Container (Datacenter) -->
+        <button class="tool-btn" id="btnAddDCContainer" type="button" title="Add Datacenter Container">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <line x1="12" y1="8" x2="12" y2="16"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+          </svg>
+        </button>
       </div>
+      <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; text-align:center; width:100%; padding-top:1px; white-space:nowrap;">CONTAINERS</span>
     </div>
 
-    <div class="tool-sep"></div>
+    <div class="tool-sep" style="align-self:stretch;"></div>
 
-    <!-- Font Colour -->
-    <div style="position:relative;">
-      <button class="tool-btn" id="btnFontColor" type="button" title="Font Colour">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <text x="6" y="16" font-size="14" font-weight="bold" fill="currentColor" stroke="none">A</text>
-          <rect x="3" y="19" width="18" height="3" fill="#e53935" stroke="none"/>
-        </svg>
-      </button>
-      <div class="menu" id="fontColorMenu" hidden style="min-width:260px; max-height:400px; overflow-y:auto; left:auto; right:0;">
-        <div style="padding:8px 12px; font-weight:600; border-bottom:1px solid #e0e0e0;">Font Colour & Visibility</div>
-        <div id="fontColorNoSelection" class="muted" style="padding:12px;">Select a node, link, or container to format text.</div>
-        <div id="fontColorFields" style="display:none;"></div>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:0;">
+      <div style="display:flex; align-items:center; gap:2px;">
+        <!-- Shape Tool Dropdown (replaces 6 individual shape buttons) -->
+        <div class="shape-dropdown-wrap">
+          <button class="tool-btn shape-dropdown-btn" id="btnShapeDropdown" type="button" title="Node Shape: Circle">
+            <svg id="shapeDropdownIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+            <span style="font-size:11px; margin-left:2px;">Shape</span>
+          </button>
+          <div class="shape-dropdown-panel" id="shapeDropdownPanel">
+            <button class="shape-dropdown-item active" data-shape="circle" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg><span>Circle</span>
+            </button>
+            <button class="shape-dropdown-item" data-shape="square" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16"/></svg><span>Square</span>
+            </button>
+            <button class="shape-dropdown-item" data-shape="triangle" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,3 22,21 2,21"/></svg><span>Triangle</span>
+            </button>
+            <button class="shape-dropdown-item" data-shape="rectangle" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12"/></svg><span>Rectangle</span>
+            </button>
+            <button class="shape-dropdown-item" data-shape="ellipse" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg><span>Ellipse</span>
+            </button>
+            <button class="shape-dropdown-item" data-shape="hexagon" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/></svg><span>Hexagon</span>
+            </button>
+          </div>
+        </div>
+        <!-- Hidden shape tool buttons kept for JS event-handler compatibility -->
+        <button class="tool-btn shape-tool active" data-shape="circle" type="button" title="Circle" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></button>
+        <button class="tool-btn shape-tool" data-shape="square" type="button" title="Square" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16"/></svg></button>
+        <button class="tool-btn shape-tool" data-shape="triangle" type="button" title="Triangle" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,3 22,21 2,21"/></svg></button>
+        <button class="tool-btn shape-tool" data-shape="rectangle" type="button" title="Rectangle" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12"/></svg></button>
+        <button class="tool-btn shape-tool" data-shape="ellipse" type="button" title="Ellipse" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg></button>
+        <button class="tool-btn shape-tool" data-shape="hexagon" type="button" title="Hexagon" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/></svg></button>
       </div>
+      <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; text-align:center; width:100%; padding-top:1px; white-space:nowrap;">SHAPE</span>
     </div>
 
-    <!-- Font Type -->
-    <div style="position:relative;">
-      <button class="tool-btn" id="btnFontType" type="button" title="Font Type & Size">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <text x="3" y="16" font-size="16" font-weight="bold" fill="currentColor" stroke="none">T</text>
-          <text x="13" y="16" font-size="10" fill="currentColor" stroke="none">T</text>
-        </svg>
-      </button>
-      <div class="menu" id="fontTypeMenu" hidden style="min-width:280px; max-height:400px; overflow-y:auto; left:auto; right:0;">
-        <div style="padding:8px 12px; font-weight:600; border-bottom:1px solid #e0e0e0;">Font Type & Size</div>
-        <div id="fontTypeNoSelection" class="muted" style="padding:12px;">Select a node, link, or container to format text.</div>
-        <div id="fontTypeFields" style="display:none;"></div>
+    <div class="tool-sep" style="align-self:stretch;"></div>
+
+    <div style="display:flex; flex-direction:column; align-items:center; gap:0;">
+      <div style="display:flex; align-items:center; gap:2px;">
+        <!-- Link Tool -->
+        <button class="tool-btn" id="btnCreateLink" type="button" title="Create Link (click two nodes)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+        </button>
       </div>
+      <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; text-align:center; width:100%; padding-top:1px; white-space:nowrap;">LINKS</span>
     </div>
 
-    <div class="tool-sep"></div>
+    <div class="tool-sep" style="align-self:stretch;"></div>
 
-    <!-- Brush (Format Painter) - Tilted brush like reference -->
-    <button class="tool-btn" id="btnBrush" type="button" title="Format Painter - Copy and apply formatting">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Handle -->
-        <path d="M5 19 Q 7 17, 9 15"/>
-        <circle cx="4" cy="20" r="1.5" fill="currentColor"/>
-        <!-- Ferrule -->
-        <rect x="8" y="8" width="8" height="4" rx="1" transform="rotate(-45 12 10)"/>
-        <!-- Bristles -->
-        <path d="M13 7 L19 1 L23 5 L17 11 Z"/>
-        <path d="M15 5 L17 7" stroke-width="1.5"/>
-        <path d="M17 3 L19 5" stroke-width="1.5"/>
-        <path d="M19 5 L21 7" stroke-width="1.5"/>
-      </svg>
-    </button>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:0;">
+      <div style="display:flex; align-items:center; gap:2px;">
+        <!-- Fill Color -->
+        <div style="position:relative;">
+          <button class="tool-btn" id="btnFillColor" type="button" title="Fill Color">
+            <span style="display:flex; flex-direction:column; align-items:center; line-height:1;">
+              <svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 9l-6-6-7.4 7.4a2 2 0 0 0 0 2.8l4.2 4.2a2 2 0 0 0 2.8 0L17 9z"/>
+                <path d="M4 2l4 4"/>
+                <path d="M20 12c0 1.5-1.2 2.5-2.5 2.5S15 14 15 14s1.2-2.5 2.5-2.5S20 10.5 20 12z" fill="currentColor"/>
+              </svg>
+              <span id="fillColorIndicator" style="width:18px; height:4px; background:#dae8fc; border:1px solid #999; margin-top:2px; border-radius:1px;"></span>
+            </span>
+          </button>
+          <div class="menu color-menu" id="fillColorMenu" hidden style="min-width:180px; padding:8px;">
+            <div style="font-size:11px; color:#666; margin-bottom:6px;">Fill Color</div>
+            <div class="color-grid" id="fillColorGrid"></div>
+            <div style="margin-top:8px; display:flex; gap:4px; align-items:center;">
+              <input type="color" id="fillColorCustom" style="width:28px; height:28px; border:none; padding:0; cursor:pointer;" />
+              <span style="font-size:11px; color:#666;">Custom</span>
+            </div>
+          </div>
+        </div>
 
-    <!-- Apply Style Button -->
-    <div style="position:relative;">
-      <button class="tool-btn" id="btnApplyStyle" type="button" title="Apply Saved Style to Selection">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <!-- Magic wand -->
-          <path d="M15 4l-9 9 3 3 9-9-3-3z"/>
-          <path d="M14.5 4.5l3 3"/>
-          <!-- Sparkles -->
-          <path d="M3 11l1-1-1-1-1 1 1 1z" fill="currentColor" stroke="none"/>
-          <path d="M7 7l1-1-1-1-1 1 1 1z" fill="currentColor" stroke="none"/>
-          <path d="M11 3l1-1-1-1-1 1 1 1z" fill="currentColor" stroke="none"/>
-          <path d="M19 11v2M18 12h2" stroke-width="1.5"/>
-          <path d="M5 19v2M4 20h2" stroke-width="1.5"/>
-        </svg>
-      </button>
-      <div class="menu" id="applyStyleMenu" hidden style="min-width:240px; max-width:320px; max-height:400px; overflow-y:auto;">
-        <div style="padding:8px 12px; font-size:12px; font-weight:600; color:#333; border-bottom:1px solid #e0e0e0; background:#f8f8f8;">
-          Apply Style to Selection
+        <div style="position:relative;">
+          <button class="tool-btn" id="btnStrokeColor" type="button" title="Stroke/Line Color">
+            <span style="display:flex; flex-direction:column; align-items:center; line-height:1;">
+              <svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 2a2.5 2.5 0 1 1 3.5 3.5L6 18l-4 1 1-4L15 2z"/>
+              </svg>
+              <span id="strokeColorIndicator" style="width:18px; height:4px; background:#6c8ebf; border:1px solid #999; margin-top:2px; border-radius:1px;"></span>
+            </span>
+          </button>
+          <div class="menu color-menu" id="strokeColorMenu" hidden style="min-width:180px; padding:8px;">
+            <div style="font-size:11px; color:#666; margin-bottom:6px;">Stroke/Line Color</div>
+            <div class="color-grid" id="strokeColorGrid"></div>
+            <div style="margin-top:8px; display:flex; gap:4px; align-items:center;">
+              <input type="color" id="strokeColorCustom" style="width:28px; height:28px; border:none; padding:0; cursor:pointer;" />
+              <span style="font-size:11px; color:#666;">Custom</span>
+            </div>
+          </div>
         </div>
-        <div id="applyStyleContent">
-          <!-- Content will be populated dynamically -->
+
+        <!-- Line Format (Width + Style) -->
+        <div style="position:relative;">
+          <button class="tool-btn" id="btnLineWidth" type="button" title="Line Format (Width &amp; Style)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <rect x="2" y="4" width="20" height="2" rx="1"/>
+              <rect x="2" y="11" width="20" height="3" rx="1.5"/>
+              <rect x="2" y="18" width="20" height="4" rx="2"/>
+            </svg>
+          </button>
+          <div class="menu" id="lineWidthMenu" hidden style="min-width:160px;">
+            <div style="padding:6px 12px; font-size:11px; color:#666; border-bottom:1px solid #e0e0e0;">Line Width</div>
+            <div class="item line-width-item" data-width="1">
+              <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="1"/></svg> 1px
+            </div>
+            <div class="item line-width-item" data-width="2">
+              <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="2"/></svg> 2px
+            </div>
+            <div class="item line-width-item" data-width="3">
+              <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="3"/></svg> 3px
+            </div>
+            <div class="item line-width-item" data-width="4">
+              <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="4"/></svg> 4px
+            </div>
+            <div class="item line-width-item" data-width="5">
+              <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="5"/></svg> 5px
+            </div>
+            <div class="item line-width-item" data-width="6">
+              <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="6"/></svg> 6px
+            </div>
+            <div class="sep"></div>
+            <div style="padding:6px 12px; font-size:11px; color:#666; border-bottom:1px solid #e0e0e0;">Line Style</div>
+            <div class="item line-style-item" data-linestyle="solid">
+              <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="2"/></svg> Solid
+            </div>
+            <div class="item line-style-item" data-linestyle="dashed">
+              <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="2" stroke-dasharray="8,4"/></svg> Dashed
+            </div>
+            <div class="item line-style-item" data-linestyle="dotted">
+              <svg width="60" height="12" style="vertical-align:middle;"><line x1="5" y1="6" x2="55" y2="6" stroke="currentColor" stroke-width="2" stroke-dasharray="2,3"/></svg> Dotted
+            </div>
+          </div>
         </div>
-        <div id="applyStyleEmpty" style="padding:16px 12px; text-align:center; color:#888; font-size:12px;">
-          Select items to apply styles
-        </div>
-        <div style="padding:8px 12px; border-top:1px solid #e0e0e0; background:#f8f8f8;">
-          <button class="mini-btn" id="btnManageStyles" style="width:100%; font-size:11px;">Manage Styles...</button>
+
+        <!-- Link Style -->
+        <div style="position:relative;">
+          <button class="tool-btn" id="btnLinkStyle" type="button" title="Link Style">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M5 19 Q 5 5, 19 5"/>
+            </svg>
+          </button>
+          <div class="menu" id="linkStyleMenu" hidden style="min-width:160px;">
+            <div style="padding:6px 12px; font-size:11px; color:#666; border-bottom:1px solid #e0e0e0;">Link Style</div>
+            <div class="item link-style-item" data-style="straight">― Straight</div>
+            <div class="item link-style-item" data-style="orthogonal">┌ Orthogonal (90°)</div>
+            <div class="item link-style-item" data-style="curve">∿ Curved</div>
+            <div class="sep"></div>
+            <div style="padding:6px 12px; font-size:11px; color:#666;">Orthogonal Direction</div>
+            <div class="item link-route-item" data-route="hv">→↓ Horizontal first</div>
+            <div class="item link-route-item" data-route="vh">↓→ Vertical first</div>
+          </div>
         </div>
       </div>
+      <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; text-align:center; width:100%; padding-top:1px; white-space:nowrap;">SHAPE FORMAT</span>
+    </div>
+
+    <div class="tool-sep" style="align-self:stretch;"></div>
+
+    <div style="display:flex; flex-direction:column; align-items:center; gap:0;">
+      <div style="display:flex; align-items:center; gap:2px;">
+        <!-- Font Colour -->
+        <div style="position:relative;">
+          <button class="tool-btn" id="btnFontColor" type="button" title="Font Colour">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <text x="6" y="16" font-size="14" font-weight="bold" fill="currentColor" stroke="none">A</text>
+              <rect x="3" y="19" width="18" height="3" fill="#e53935" stroke="none"/>
+            </svg>
+          </button>
+          <div class="menu" id="fontColorMenu" hidden style="min-width:260px; max-height:400px; overflow-y:auto; left:auto; right:0;">
+            <div style="padding:8px 12px; font-weight:600; border-bottom:1px solid #e0e0e0;">Font Colour &amp; Visibility</div>
+            <div id="fontColorNoSelection" class="muted" style="padding:12px;">Select a node, link, or container to format text.</div>
+            <div id="fontColorFields" style="display:none;"></div>
+          </div>
+        </div>
+
+        <!-- Font Type -->
+        <div style="position:relative;">
+          <button class="tool-btn" id="btnFontType" type="button" title="Font Type &amp; Size">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <text x="3" y="16" font-size="16" font-weight="bold" fill="currentColor" stroke="none">T</text>
+              <text x="13" y="16" font-size="10" fill="currentColor" stroke="none">T</text>
+            </svg>
+          </button>
+          <div class="menu" id="fontTypeMenu" hidden style="min-width:280px; max-height:400px; overflow-y:auto; left:auto; right:0;">
+            <div style="padding:8px 12px; font-weight:600; border-bottom:1px solid #e0e0e0;">Font Type &amp; Size</div>
+            <div id="fontTypeNoSelection" class="muted" style="padding:12px;">Select a node, link, or container to format text.</div>
+            <div id="fontTypeFields" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+      <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; text-align:center; width:100%; padding-top:1px; white-space:nowrap;">TEXT FORMAT</span>
+    </div>
+
+    <div class="tool-sep" style="align-self:stretch;"></div>
+
+    <div style="display:flex; flex-direction:column; align-items:center; gap:0;">
+      <div style="display:flex; align-items:center; gap:2px;">
+        <!-- Brush (Format Painter) - Tilted brush like reference -->
+        <button class="tool-btn" id="btnBrush" type="button" title="Format Painter - Copy and apply formatting">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Handle -->
+            <path d="M5 19 Q 7 17, 9 15"/>
+            <circle cx="4" cy="20" r="1.5" fill="currentColor"/>
+            <!-- Ferrule -->
+            <rect x="8" y="8" width="8" height="4" rx="1" transform="rotate(-45 12 10)"/>
+            <!-- Bristles -->
+            <path d="M13 7 L19 1 L23 5 L17 11 Z"/>
+            <path d="M15 5 L17 7" stroke-width="1.5"/>
+            <path d="M17 3 L19 5" stroke-width="1.5"/>
+            <path d="M19 5 L21 7" stroke-width="1.5"/>
+          </svg>
+        </button>
+
+        <!-- Apply Style Button -->
+        <div style="position:relative;">
+          <button class="tool-btn" id="btnApplyStyle" type="button" title="Apply Saved Style to Selection">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <!-- Magic wand -->
+              <path d="M15 4l-9 9 3 3 9-9-3-3z"/>
+              <path d="M14.5 4.5l3 3"/>
+              <!-- Sparkles -->
+              <path d="M3 11l1-1-1-1-1 1 1 1z" fill="currentColor" stroke="none"/>
+              <path d="M7 7l1-1-1-1-1 1 1 1z" fill="currentColor" stroke="none"/>
+              <path d="M11 3l1-1-1-1-1 1 1 1z" fill="currentColor" stroke="none"/>
+              <path d="M19 11v2M18 12h2" stroke-width="1.5"/>
+              <path d="M5 19v2M4 20h2" stroke-width="1.5"/>
+            </svg>
+          </button>
+          <div class="menu" id="applyStyleMenu" hidden style="min-width:240px; max-width:320px; max-height:400px; overflow-y:auto;">
+            <div style="padding:8px 12px; font-size:12px; font-weight:600; color:#333; border-bottom:1px solid #e0e0e0; background:#f8f8f8;">
+              Apply Style to Selection
+            </div>
+            <div id="applyStyleContent">
+              <!-- Content will be populated dynamically -->
+            </div>
+            <div id="applyStyleEmpty" style="padding:16px 12px; text-align:center; color:#888; font-size:12px;">
+              Select items to apply styles
+            </div>
+            <div style="padding:8px 12px; border-top:1px solid #e0e0e0; background:#f8f8f8;">
+              <button class="mini-btn" id="btnManageStyles" style="width:100%; font-size:11px;">Manage Styles...</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <span style="font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; text-align:center; width:100%; padding-top:1px; white-space:nowrap;">STYLES</span>
     </div>
   </div>
 
