@@ -14051,6 +14051,8 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     fontTypeNoSelection.style.display = 'none';
     fontTypeFields.style.display = 'block';
     fontTypeFields.innerHTML = '';
+    // Clean up portaled dropdowns from previous render
+    document.querySelectorAll('.font-size-dropdown-portal').forEach(el => el.remove());
 
     const type = state.selected.type === 'edge' ? 'edge' : (state.selected.type === 'node' ? 'node' : 'group');
     const fields = textFieldDefs[type] || [];
@@ -14097,7 +14099,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       btnDec.type = 'button';
       btnDec.textContent = '\u2212';
       btnDec.title = 'Decrease font size';
-      btnDec.style.cssText = 'width:22px; height:24px; border:1px solid #ccc; border-radius:3px 0 0 3px; background:#f8f9fa; cursor:pointer; font-size:13px; font-weight:600; color:#333; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;';
+      btnDec.style.cssText = 'width:22px; height:28px; border:1px solid #ccc; border-radius:3px 0 0 3px; background:#f8f9fa; cursor:pointer; font-size:13px; font-weight:600; color:#333; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;';
       btnDec.addEventListener('click', (ev) => {
         ev.stopPropagation();
         const cur = obj[field.sizeKey] || 12;
@@ -14113,11 +14115,15 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       sizeInput.type = 'text';
       sizeInput.value = currentSize;
       sizeInput.title = 'Type a custom size or click to select';
-      sizeInput.style.cssText = 'width:38px; height:24px; border:1px solid #ccc; border-left:none; border-right:none; text-align:center; font-size:11px; padding:0 2px; box-sizing:border-box; outline:none; background:white;';
+      sizeInput.style.cssText = 'width:38px; height:28px; border:1px solid #ccc; border-left:none; border-right:none; text-align:center; font-size:12px; padding:0 2px; box-sizing:border-box; outline:none; background:white;';
 
       // Select all on focus for easy replacement
       sizeInput.addEventListener('focus', () => {
         sizeInput.select();
+        const rect = sizeInput.getBoundingClientRect();
+        sizeDropdown.style.left = rect.left + 'px';
+        sizeDropdown.style.top = rect.bottom + 2 + 'px';
+        sizeDropdown.style.width = (rect.width + 44) + 'px';
         sizeDropdown.style.display = 'block';
       });
       sizeInput.addEventListener('keydown', (ev) => {
@@ -14149,11 +14155,11 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
 
       // Preset size dropdown
       const sizeDropdown = document.createElement('div');
-      sizeDropdown.style.cssText = 'display:none; position:absolute; top:100%; left:0; right:0; max-height:160px; overflow-y:auto; background:white; border:1px solid #ccc; border-radius:0 0 4px 4px; box-shadow:0 4px 12px rgba(0,0,0,0.12); z-index:1000;';
+      sizeDropdown.style.cssText = 'display:none; position:fixed; max-height:200px; overflow-y:auto; background:white; border:1px solid #ccc; border-radius:4px; box-shadow:0 4px 12px rgba(0,0,0,0.12); z-index:2000; min-width:60px;';
       fontSizes.forEach(s => {
         const item = document.createElement('div');
         item.textContent = s + 'px';
-        item.style.cssText = `padding:3px 8px; font-size:11px; cursor:pointer; ${s === currentSize ? 'background:#e3f2fd; font-weight:600;' : ''}`;
+        item.style.cssText = `padding:5px 8px; font-size:12px; cursor:pointer; ${s === currentSize ? 'background:#e3f2fd; font-weight:600;' : ''}`;
         item.addEventListener('mouseenter', () => { item.style.background = '#e3f2fd'; });
         item.addEventListener('mouseleave', () => { item.style.background = s === (obj[field.sizeKey] || 12) ? '#e3f2fd' : 'white'; });
         item.addEventListener('mousedown', (ev) => {
@@ -14169,7 +14175,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       btnInc.type = 'button';
       btnInc.textContent = '+';
       btnInc.title = 'Increase font size';
-      btnInc.style.cssText = 'width:22px; height:24px; border:1px solid #ccc; border-radius:0 3px 3px 0; background:#f8f9fa; cursor:pointer; font-size:13px; font-weight:600; color:#333; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;';
+      btnInc.style.cssText = 'width:22px; height:28px; border:1px solid #ccc; border-radius:0 3px 3px 0; background:#f8f9fa; cursor:pointer; font-size:13px; font-weight:600; color:#333; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;';
       btnInc.addEventListener('click', (ev) => {
         ev.stopPropagation();
         const cur = obj[field.sizeKey] || 12;
@@ -14183,7 +14189,8 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       sizeWrap.appendChild(btnDec);
       sizeWrap.appendChild(sizeInput);
       sizeWrap.appendChild(btnInc);
-      sizeWrap.appendChild(sizeDropdown);
+      sizeDropdown.classList.add('font-size-dropdown-portal');
+      document.body.appendChild(sizeDropdown);
 
       row.appendChild(label);
       row.appendChild(fontSelect);
