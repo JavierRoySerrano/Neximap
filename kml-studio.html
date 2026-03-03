@@ -7920,7 +7920,7 @@ function createNxpItem(objectType, objectId, objectName, icon, infoText) {
     el.addEventListener('dragover', (e) => {
         if (!e.dataTransfer.types.includes('text/plain')) return;
         e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy';
+        e.dataTransfer.dropEffect = 'move';
         el.classList.add('drag-over');
     });
     el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
