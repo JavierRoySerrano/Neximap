@@ -6,7 +6,7 @@
   !!   THIS IS THE PRODUCTION FILE (served via Cloudflare)           !!
   !!                                                                 !!
   !!   Data files are at the repository root under /data/.           !!
-  !!   This file references them via "../data/..." paths.            !!
+  !!   This file references them via "data/..." paths.              !!
   !!                                                                 !!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 -->
@@ -23161,7 +23161,7 @@ function loadProjectObject(obj) {
   const TG_GEODATA_API = 'https://submarine-cable-api.fcoroyse-spam.workers.dev';
   const CABLE_META_API = 'https://tg-cablesystem-rfs-metadata.fcoroyse-spam.workers.dev';
   // Local pre-fetched TeleGeography data (geometry + metadata combined)
-  const TG_LOCAL_DATA = '../data/telegeography_cables.json';
+  const TG_LOCAL_DATA = 'data/telegeography_cables.json';
 
   // Load TeleGeography data from local pre-fetched file (default, fast)
   async function loadFromLocalTeleGeographyData() {
@@ -23265,7 +23265,7 @@ function loadProjectObject(obj) {
       let sdbLookup = {};
       let sdbNameLookup = {};
       try {
-        const sdbResp = await fetch('../data/submarine_cables_db.json');
+        const sdbResp = await fetch('data/submarine_cables_db.json');
         if (sdbResp.ok) {
           const sdbData = await sdbResp.json();
           if (sdbData && sdbData.cables) {
@@ -23284,7 +23284,7 @@ function loadProjectObject(obj) {
       // Step 3c: Load ownership corrections (manual overrides for known TG data errors)
       let ownershipCorrections = {};
       try {
-        const ocResp = await fetch('../data/ownership_corrections.json');
+        const ocResp = await fetch('data/ownership_corrections.json');
         if (ocResp.ok) {
           const ocData = await ocResp.json();
           if (ocData && ocData.corrections) {
@@ -24008,7 +24008,7 @@ function loadProjectObject(obj) {
       return true;
     }
     try {
-      const resp = await fetch('../data/cable_stations_db.json');
+      const resp = await fetch('data/cable_stations_db.json');
       if (!resp.ok) return false;
       const csData = await resp.json();
       const csFacilities = csData.facilities || [];
@@ -26375,8 +26375,8 @@ function loadProjectObject(obj) {
         dcVisorState.dcDatabase = window._dcDatabase;
       } else {
         const [dcResp, csResp] = await Promise.all([
-          fetch('../data/peeringdb_facilities.json'),
-          fetch('../data/cable_stations_db.json').catch(() => null)
+          fetch('data/peeringdb_facilities.json'),
+          fetch('data/cable_stations_db.json').catch(() => null)
         ]);
         if (!dcResp.ok) throw new Error(`HTTP ${dcResp.status}`);
         const dcData = await dcResp.json();
@@ -44536,7 +44536,7 @@ function handlePathKmlImport(e) {
   // ============== EXTERNAL SUBMARINE CABLE DATABASE ==============
 
   // URL to the external submarine cable database
-  const SUBMARINE_CABLE_DB_URL = '../data/submarine_cables_db.json';
+  const SUBMARINE_CABLE_DB_URL = 'data/submarine_cables_db.json';
 
   // Cache for loaded cable data
   let submarineCableCache = null;
@@ -54865,7 +54865,7 @@ function handlePathKmlImport(e) {
   // Load PeeringDB facilities database + cable stations from separate file
   async function loadDCDatabase() {
     try {
-      const resp = await fetch('../data/peeringdb_facilities.json');
+      const resp = await fetch('data/peeringdb_facilities.json');
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const data = await resp.json();
       window._dcDatabase = { facilities: data.facilities || [], meta: data.meta || {}, loaded: true };
@@ -54885,9 +54885,9 @@ function handlePathKmlImport(e) {
   async function mergeCableStationsDatabase() {
     try {
       // Try cable_stations_db.json first (comprehensive), fall back to cable_stations.json
-      let resp = await fetch('../data/cable_stations_db.json');
+      let resp = await fetch('data/cable_stations_db.json');
       if (!resp.ok) {
-        resp = await fetch('../data/cable_stations.json');
+        resp = await fetch('data/cable_stations.json');
       }
       if (!resp.ok) {
         console.warn(`[DC] No cable stations file found (HTTP ${resp.status}), skipping.`);
