@@ -42229,7 +42229,7 @@ function handlePathKmlImport(e) {
       // Drop zone for dragging canvas items, cable systems, or datacenters onto the button
       kmlBtn.addEventListener('dragover', (e) => {
         e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy';
+        e.dataTransfer.dropEffect = 'link';
         kmlBtn.classList.add('kml-drop-active');
       });
       kmlBtn.addEventListener('dragleave', () => kmlBtn.classList.remove('kml-drop-active'));
