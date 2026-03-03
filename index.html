@@ -55882,6 +55882,7 @@ function handlePathKmlImport(e) {
   var dropBtn = document.getElementById('btnShapeDropdown');
   var dropPanel = document.getElementById('shapeDropdownPanel');
   var dropIcon = document.getElementById('shapeDropdownIcon');
+  var dropWrap = dropBtn ? dropBtn.closest('.shape-dropdown-wrap') : null;
   var shapeInnerSVG = {
     circle:    '<circle cx="12" cy="12" r="9"/>',
     square:    '<rect x="4" y="4" width="16" height="16"/>',
@@ -55892,7 +55893,6 @@ function handlePathKmlImport(e) {
   };
   function closeDropdown() {
     dropPanel.classList.remove('open');
-    dropBtn.classList.remove('active');
   }
   function setDropShape(shape) {
     if (shapeInnerSVG[shape]) dropIcon.innerHTML = shapeInnerSVG[shape];
@@ -55904,9 +55904,7 @@ function handlePathKmlImport(e) {
   if (!dropBtn || !dropPanel) return;
   dropBtn.addEventListener('click', function(e) {
     e.stopPropagation();
-    var isOpen = dropPanel.classList.contains('open');
-    dropPanel.classList.toggle('open', !isOpen);
-    dropBtn.classList.toggle('active', !isOpen);
+    dropPanel.classList.toggle('open');
   });
   dropPanel.querySelectorAll('.shape-dropdown-item').forEach(function(item) {
     item.addEventListener('click', function(e) {
@@ -55918,7 +55916,9 @@ function handlePathKmlImport(e) {
       closeDropdown();
     });
   });
-  document.addEventListener('click', function() { closeDropdown(); });
+  document.addEventListener('mousedown', function(e) {
+    if (dropWrap && !dropWrap.contains(e.target)) closeDropdown();
+  });
 })();
 </script>
 </body>
