@@ -26787,6 +26787,12 @@ function loadProjectObject(obj) {
                error: 'originNodeId and destNodeId are required' };
     }
 
+    // Normalise to integer so string IDs from the AI worker are handled correctly
+    params = Object.assign({}, params, {
+      originNodeId: parseInt(params.originNodeId, 10),
+      destNodeId:   parseInt(params.destNodeId,   10)
+    });
+
     function toSet(arr) {
       return arr instanceof Set ? arr : new Set(Array.isArray(arr) ? arr : []);
     }
@@ -27061,7 +27067,7 @@ function loadProjectObject(obj) {
         var mustUseArr = (prot.mustUseNodes || []).filter(function(id) {
           return id !== params.originNodeId && id !== params.destNodeId;
         });
-        var waypoints = [params.originNodeId].concat(mustUseArr).concat([params.destNodeId]);
+        var waypoints = [+params.originNodeId].concat(mustUseArr.map(Number)).concat([+params.destNodeId]);
         var protResult = null;
 
         if (waypoints.length === 2) {

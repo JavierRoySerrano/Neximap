@@ -264,14 +264,14 @@ const NEXIMAP_TOOLS = [
   // ── Phase 2: headless + canvas-action tools ──
   {
     name: 'run_pathfinder',
-    description: 'Headless pathfinder: compute K-shortest primary paths + optionally a fully-diverse protection path. Returns detailed route data for narration. Use whenever the user asks for routes, connectivity, paths, or latency analysis between two points.',
+    description: 'Headless pathfinder: compute K-shortest primary paths + optionally a fully-diverse protection path. Returns detailed route data for narration. Use whenever the user asks for routes, connectivity, paths, or latency analysis between two points. Set calculateProtection: true whenever the user asks for a protection or backup path.',
     input_schema: {
       type: 'object',
       properties: {
         originNodeId: { type: 'string', description: 'Source node ID (from diagram state)' },
         destNodeId: { type: 'string', description: 'Destination node ID (from diagram state)' },
         k: { type: 'number', description: 'Number of shortest paths to return (default 3)' },
-        calculateProtection: { type: 'boolean', description: 'Compute a link-diverse protection path (default false)' },
+        calculateProtection: { type: 'boolean', description: 'Set to true to compute a link-diverse protection path in addition to primary routes. Always set this when the user asks for a protection, backup, or diverse path.' },
         primaryFilters: {
           type: 'object',
           description: 'Optional filters for the primary path computation',
