@@ -6,7 +6,7 @@
   // UUID generation for unique identifiers
   function generateUUID() {
     // Use crypto.randomUUID if available (modern browsers), fallback to manual generation
-    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    if (typeof crypto !== 'undefined' && crypto.randhomUUID) {
       return crypto.randomUUID();
     }
     // Fallback UUID v4 generation
@@ -42341,7 +42341,7 @@ function handlePathKmlImport(e) {
   showToast('Welcome to NexiMap Studio — double-click to create a node.');
   requestAnimationFrame(function(){var btn=document.getElementById('btnZoomFit');if(btn)btn.click();});
 })();
-\n\n
+
 (function() {
   const printPreviewModal = document.getElementById('printPreviewModal');
   const printPreviewPage = document.getElementById('printPreviewPage');
@@ -42491,7 +42491,7 @@ function handlePathKmlImport(e) {
     }
   });
 })();
-\n\n
+
 // Help Center JavaScript
 (function() {
   const helpCenterModal = document.getElementById('helpCenterModal');
@@ -44227,7 +44227,7 @@ function handlePathKmlImport(e) {
   // ── End AI Agent Panel ──────────────────────────────────────────────────────
   console.log('[NexiMap] Main script fully loaded');
 })();
-\n\n
+
 // Shape dropdown UI
 (function() {
   var dropBtn = document.getElementById('btnShapeDropdown');
