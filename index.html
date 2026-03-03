@@ -6038,7 +6038,12 @@
   </div>
 
   <!-- Icon Toolbar -->
-  <div style="display:flex; align-items:center; gap:1px; padding:4px 12px; background:#fafafa; overflow:visible; flex-wrap:nowrap;">
+  <div style="display:flex; align-items:flex-end; gap:1px; padding:4px 12px; background:#fafafa; overflow:visible; flex-wrap:nowrap;">
+
+    <!-- ZOOM group -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+      <span style="text-align:center; width:100%; font-size:9px; color:#94a3b8; letter-spacing:0.3px; text-transform:uppercase;">ZOOM</span>
+      <div style="display:flex; align-items:center; gap:2px;">
     <!-- Zoom Controls -->
     <div style="position:relative;">
       <button class="tool-btn" id="btnZoomLevel" type="button" style="min-width:60px; font-size:12px; gap:4px;" title="Click for zoom options">
@@ -6096,9 +6101,15 @@
         <div class="item grid-size" data-size="100">Extra Large (100px)</div>
       </div>
     </div>
+      </div>
+    </div>
 
     <div class="tool-sep"></div>
 
+    <!-- HISTORY group -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+      <span style="text-align:center; width:100%; font-size:9px; color:#94a3b8; letter-spacing:0.3px; text-transform:uppercase;">HISTORY</span>
+      <div style="display:flex; align-items:center; gap:2px;">
     <!-- Undo -->
     <button class="tool-btn" id="btnUndo" type="button" title="Undo (Ctrl+Z)">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -6111,18 +6122,30 @@
         <path d="M21 7v6h-6"/><path d="M21 13c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.12 0 4.07-.74 5.61-1.97"/>
       </svg>
     </button>
+      </div>
+    </div>
 
     <div class="tool-sep"></div>
 
+    <!-- DELETE group -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+      <span style="text-align:center; width:100%; font-size:9px; color:#94a3b8; letter-spacing:0.3px; text-transform:uppercase;">DELETE</span>
+      <div style="display:flex; align-items:center; gap:2px;">
     <!-- Delete -->
     <button class="tool-btn" id="btnDelete" type="button" title="Delete Selected">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
       </svg>
     </button>
+      </div>
+    </div>
 
     <div class="tool-sep"></div>
 
+    <!-- CONTAINERS group -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+      <span style="text-align:center; width:100%; font-size:9px; color:#94a3b8; letter-spacing:0.3px; text-transform:uppercase;">CONTAINERS</span>
+      <div style="display:flex; align-items:center; gap:2px;">
     <!-- Container Box -->
     <button class="tool-btn" id="btnAddGroup" type="button" title="Add Container Box">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -6148,9 +6171,15 @@
         <circle cx="17" cy="19.5" r="1" fill="currentColor"></circle>
       </svg>
     </button>
+      </div>
+    </div>
 
     <div class="tool-sep"></div>
 
+    <!-- NODES group -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+      <span style="text-align:center; width:100%; font-size:9px; color:#94a3b8; letter-spacing:0.3px; text-transform:uppercase;">NODES</span>
+      <div style="display:flex; align-items:center; gap:2px;">
     <!-- Shape Tool Dropdown (replaces 6 individual shape buttons) -->
     <div class="shape-dropdown-wrap">
       <button class="tool-btn shape-dropdown-btn" id="btnShapeDropdown" type="button" title="Node Shape: Circle">
@@ -6184,18 +6213,30 @@
     <button class="tool-btn shape-tool" data-shape="rectangle" type="button" title="Rectangle" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12"/></svg></button>
     <button class="tool-btn shape-tool" data-shape="ellipse" type="button" title="Ellipse" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg></button>
     <button class="tool-btn shape-tool" data-shape="hexagon" type="button" title="Hexagon" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/></svg></button>
+      </div>
+    </div>
 
     <div class="tool-sep"></div>
 
+    <!-- LINKS group -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+      <span style="text-align:center; width:100%; font-size:9px; color:#94a3b8; letter-spacing:0.3px; text-transform:uppercase;">LINKS</span>
+      <div style="display:flex; align-items:center; gap:2px;">
     <!-- Link Tool -->
     <button class="tool-btn" id="btnCreateLink" type="button" title="Create Link (click two nodes)">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
       </svg>
     </button>
+      </div>
+    </div>
 
     <div class="tool-sep"></div>
 
+    <!-- FORMAT group -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+      <span style="text-align:center; width:100%; font-size:9px; color:#94a3b8; letter-spacing:0.3px; text-transform:uppercase;">FORMAT</span>
+      <div style="display:flex; align-items:center; gap:2px;">
     <!-- Fill Color -->
     <div style="position:relative;">
       <button class="tool-btn" id="btnFillColor" type="button" title="Fill Color">
@@ -6299,8 +6340,6 @@
       </div>
     </div>
 
-    <div class="tool-sep"></div>
-
     <!-- Font Colour -->
     <div style="position:relative;">
       <button class="tool-btn" id="btnFontColor" type="button" title="Font Colour">
@@ -6330,8 +6369,6 @@
         <div id="fontTypeFields" style="display:none;"></div>
       </div>
     </div>
-
-    <div class="tool-sep"></div>
 
     <!-- Brush (Format Painter) -->
     <button class="tool-btn" id="btnBrush" type="button" title="Format Painter - Copy and apply formatting">
@@ -6371,6 +6408,8 @@
         <div style="padding:8px 12px; border-top:1px solid #e0e0e0; background:#f8f8f8;">
           <button class="mini-btn" id="btnManageStyles" style="width:100%; font-size:11px;">Manage Styles...</button>
         </div>
+      </div>
+    </div>
       </div>
     </div>
   </div>
