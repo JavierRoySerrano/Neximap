@@ -5640,6 +5640,13 @@
     <button class="menu-item" id="btnDataMenu" type="button">Data</button>
     <button class="menu-item" id="btnSettingsMenu" type="button">Settings</button>
     <button class="menu-item" id="btnHelp" type="button">Help</button>
+    <div style="margin-left:auto; display:flex; align-items:center; padding-right:8px;">
+      <button id="btnAiAgent" onclick="toggleAiAgent()" title="Open AI Agent"
+        style="display:flex; align-items:center; gap:6px; padding:4px 12px; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; letter-spacing:0.3px; white-space:nowrap;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        AI Agent
+      </button>
+    </div>
     <div class="menu" id="fileMenu" hidden>
       <div class="item" id="miNew">New <span style="opacity:0.5;float:right">Ctrl+N</span></div>
       <div class="item" id="miOpen">Open… <span style="opacity:0.5;float:right">Ctrl+O</span></div>
@@ -6560,16 +6567,6 @@
         </button>
       </div>
     </div>
-
-    <!-- AI Agent Button (right-aligned) -->
-    <button class="tool-btn" id="btnAiAgent" type="button" title="AI Agent - Chat with AI about your network (neural assistant)" onclick="toggleAiAgent()" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border-color:#5a67d8; border-radius:6px; margin-left:auto;" onmouseover="this.style.boxShadow='0 0 10px rgba(102,126,234,0.5)';this.style.background='linear-gradient(135deg,#5a67d8 0%,#6b46c1 100%)'" onmouseout="this.style.boxShadow='';this.style.background='linear-gradient(135deg,#667eea 0%,#764ba2 100%)'">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="white" stroke="none">
-        <path d="M12 2 L13.6 9 L20 10.5 L13.6 12 L12 19 L10.4 12 L4 10.5 L10.4 9 Z"/>
-        <path d="M20 2 L20.8 4.2 L23 5 L20.8 5.8 L20 8 L19.2 5.8 L17 5 L19.2 4.2 Z"/>
-        <path d="M4 17 L4.6 18.7 L6.5 19.3 L4.6 19.9 L4 21.5 L3.4 19.9 L1.5 19.3 L3.4 18.7 Z"/>
-      </svg>
-      <span style="font-size:11px;margin-left:4px;color:white;font-weight:500;">AI Agent</span>
-    </button>
   </div>
 </header>
 
@@ -52064,6 +52061,10 @@ function handlePathKmlImport(e) {
   window.openDCVisorWithDefaults = openDCVisorWithDefaults;
 
   showToast('Welcome to NexiMap Studio — double-click to create a node.');
+  requestAnimationFrame(function() {
+    var zoomFitBtn = document.getElementById('btnZoomFit');
+    if (zoomFitBtn) zoomFitBtn.click();
+  });
 })();
 </script>
 
