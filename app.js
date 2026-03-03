@@ -6,7 +6,7 @@
   // UUID generation for unique identifiers
   function generateUUID() {
     // Use crypto.randomUUID if available (modern browsers), fallback to manual generation
-    if (typeof crypto !== 'undefined' && crypto.randhomUUID) {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
       return crypto.randomUUID();
     }
     // Fallback UUID v4 generation
