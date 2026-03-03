@@ -3,22 +3,10 @@
 <!--
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!                                                                 !!
-  !!   THIS IS THE DEVELOPMENT WORKING COPY                          !!
+  !!   THIS IS THE PRODUCTION FILE (served via Cloudflare)           !!
   !!                                                                 !!
-  !!   The live / production site is served from /index.html          !!
-  !!   (repository root).  This docs/index.html is the development   !!
-  !!   copy where changes are made, then merged into root/index.html !!
-  !!   via Pull Request.                                             !!
-  !!                                                                 !!
-  !!   KNOWN "Failed to fetch" ERRORS DURING DEVELOPMENT:            !!
-  !!   This file references data files at relative path "data/..."   !!
-  !!   (e.g. data/telegeography_cables.json,                         !!
-  !!   data/cable_stations_db.json, data/peeringdb_facilities.json). !!
-  !!   Those files live at the REPOSITORY ROOT under /data/ and are  !!
-  !!   NOT present in /docs/data/.                                   !!
-  !!   When running this file directly, any feature that loads local  !!
-  !!   data will show "Failed to load: Failed to fetch".             !!
-  !!   This is expected and does NOT affect production.               !!
+  !!   Data files are at the repository root under /data/.           !!
+  !!   This file references them via "../data/..." paths.            !!
   !!                                                                 !!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 -->
@@ -355,11 +343,15 @@
       background: transparent;
       border: 1px solid transparent;
       color: #555;
-      padding: 6px 10px;
+      padding: 4px 6px;
       cursor: pointer;
       font-size: 16px;
       border-radius: 4px;
-      min-width: 32px;
+      min-width: 28px;
+      height: 33px;
+      min-height: 33px;
+      max-height: 33px;
+      box-sizing: border-box;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -379,8 +371,26 @@
     .tool-btn.shape-tool.active svg {
       stroke: #0066a0;
     }
+    .tool-btn > svg { width: 22px; height: 22px; }
 
     .tool-sep { width: 1px; height: 24px; background: #d0d0d0; margin: 0 6px; }
+    /* Shape dropdown */
+    .shape-dropdown-wrap { position: relative; display: inline-flex; }
+    .shape-dropdown-panel {
+      display: none; position: absolute; top: calc(100% + 4px); left: 0;
+      background: #fff; border: 1px solid #d0d0d0; border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 4px; z-index: 10000; min-width: 128px;
+    }
+    .shape-dropdown-panel.open { display: block; }
+    .shape-dropdown-item {
+      display: flex; align-items: center; gap: 8px; width: 100%;
+      padding: 5px 8px; border: none; background: none; cursor: pointer;
+      border-radius: 4px; font-size: 12px; color: #333; box-sizing: border-box;
+    }
+    .shape-dropdown-item:hover { background: #e8e8e8; }
+    .shape-dropdown-item.active { background: #d0e8f5; color: #0066a0; }
+    .shape-dropdown-item svg { flex-shrink: 0; background: none !important; stroke: currentColor; }
+    .shape-dropdown-item.active svg { stroke: #0066a0; }
 
     /* Toggle items in menu */
     .toggle-item { display: flex; align-items: center; gap: 8px; }
@@ -1713,6 +1723,90 @@
       flex-shrink: 0;
     }
 
+
+    /* DC Visor Detail Panel */
+    #dcVisorDetailPanel { border-top: 2px solid #9333ea; background: #faf5ff; padding: 0; max-height: 260px; overflow-y: auto; display: none; flex-direction: column; flex-shrink: 0; }
+    #dcVisorDetailPanel.visible { display: flex; }
+    #dcVisorDetailHeader { display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; background: #9333ea; color: #fff; font-size: 12px; font-weight: 600; }
+    #dcVisorDetailClose { background: none; border: none; color: #fff; cursor: pointer; font-size: 14px; padding: 0 2px; line-height: 1; }
+    #dcVisorDetailBody { padding: 10px 12px; font-size: 12px; line-height: 1.6; }
+    .dc-detail-row { display: flex; gap: 8px; margin-bottom: 3px; flex-wrap: wrap; }
+    .dc-detail-label { color: #6b21a8; font-weight: 600; min-width: 86px; flex-shrink: 0; }
+    .dc-detail-value { color: #1a1a2e; word-break: break-word; }
+    .dc-detail-value a { color: #9333ea; text-decoration: none; }
+    .dc-detail-net-tag { display: inline-block; background: #ede9fe; color: #6b21a8; border: 1px solid #c4b5fd; border-radius: 3px; padding: 1px 5px; margin: 2px; font-size: 11px; }
+    /* ── Nexi AI Agent Panel ─────────────────────────────────── */
+    #aiAgentPanel { position: absolute; right: 24px; top: 40px; width: 400px; height: 580px; background: rgba(12,16,28,0.97); border: 1px solid rgba(0,229,255,0.18); border-radius: 16px; box-shadow: 0 12px 48px rgba(0,0,0,0.5), 0 0 1px rgba(0,229,255,0.3), inset 0 1px 0 rgba(255,255,255,0.04); z-index: 160; display: none; flex-direction: column; overflow: hidden; resize: both; min-width: 320px; min-height: 340px; backdrop-filter: blur(20px); }
+    #aiAgentPanel.show { display: flex; }
+    #aiAgentHeader { display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: linear-gradient(180deg, rgba(0,229,255,0.08) 0%, transparent 100%); border-bottom: 1px solid rgba(0,229,255,0.1); cursor: move; user-select: none; }
+    .nexi-hdr-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #00B4D8, #0077B6); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 10px rgba(0,180,216,0.3); }
+    .nexi-hdr-avatar svg { width: 18px; height: 18px; fill: #fff; }
+    .nexi-hdr-info { flex: 1; }
+    .nexi-hdr-title { font-size: 14px; font-weight: 600; color: #fff; letter-spacing: 0.3px; margin: 0; }
+    .nexi-hdr-sub { font-size: 10px; color: rgba(0,229,255,0.7); letter-spacing: 0.3px; margin-top: 1px; }
+    .nexi-hdr-status { width: 7px; height: 7px; border-radius: 50%; background: #00E676; box-shadow: 0 0 6px rgba(0,230,118,0.5); }
+    #aiAgentHeaderBtns { display: flex; gap: 4px; }
+    #aiAgentHeaderBtns button { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); border-radius: 6px; cursor: pointer; padding: 3px 8px; font-size: 11px; transition: all 0.2s; }
+    #aiAgentHeaderBtns button:hover { color: #fff; background: rgba(255,255,255,0.1); }
+    .ai-msg { max-width: 88%; padding: 10px 13px; border-radius: 14px; font-size: 12.5px; line-height: 1.55; animation: nexiMsgIn 0.3s ease-out; }
+    .ai-msg.user { align-self: flex-end; background: linear-gradient(135deg, #4F46E5, #4338CA); color: #fff; border-bottom-right-radius: 4px; }
+    .ai-msg.assistant { align-self: flex-start; background: rgba(255,255,255,0.06); color: #e0e6ed; border: 1px solid rgba(255,255,255,0.06); border-bottom-left-radius: 4px; }
+    .ai-msg.system { align-self: center; background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.15); color: rgba(0,229,255,0.8); font-size: 11px; font-style: normal; max-width: 95%; border-radius: 10px; }
+    .ai-msg strong { color: #fff; }
+    .ai-msg em { color: rgba(0,229,255,0.85); }
+    .ai-msg code { padding: 1px 5px; border-radius: 4px; background: rgba(0,229,255,0.1); color: #00E5FF; font-family: monospace; font-size: 11.5px; }
+    .ai-msg h2, .ai-msg h3 { font-size: 12.5px; font-weight: 600; color: #fff; margin: 6px 0 3px; }
+    .ai-msg ul { padding-left: 16px; margin: 3px 0; }
+    .ai-msg li { margin: 1px 0; }
+    @keyframes nexiMsgIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+    #aiAgentMessages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: transparent; }
+    #aiAgentMessages::-webkit-scrollbar { width: 4px; }
+    #aiAgentMessages::-webkit-scrollbar-track { background: transparent; }
+    #aiAgentMessages::-webkit-scrollbar-thumb { background: rgba(0,229,255,0.15); border-radius: 10px; }
+    #aiAgentInputRow { display: flex; gap: 8px; padding: 10px 14px 14px; border-top: 1px solid rgba(255,255,255,0.06); background: rgba(8,12,24,0.5); }
+    #aiAgentInput { flex: 1; padding: 9px 12px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.05); color: #fff; border-radius: 12px; font-size: 12.5px; resize: none; height: 40px; font-family: inherit; transition: border-color 0.2s; }
+    #aiAgentInput::placeholder { color: rgba(255,255,255,0.25); }
+    #aiAgentInput:focus { outline: none; border-color: rgba(0,229,255,0.35); box-shadow: 0 0 0 3px rgba(0,229,255,0.06); }
+    #btnAiSend { width: 38px; height: 38px; background: linear-gradient(135deg, #00B4D8, #0077B6); color: #fff; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+    #btnAiSend:hover { background: linear-gradient(135deg, #00C4E8, #0087C6); box-shadow: 0 2px 12px rgba(0,180,216,0.4); }
+    #btnAiSend:disabled { opacity: 0.3; cursor: default; }
+    .nexi-powered { text-align: center; font-size: 9.5px; color: rgba(255,255,255,0.18); padding: 4px 0 8px; letter-spacing: 0.3px; }
+    /* Nexi tool action cards */
+    .nexi-action-card { margin-top: 6px; padding: 8px 10px; border-radius: 10px; background: rgba(0,229,255,0.06); border: 1px solid rgba(0,229,255,0.12); }
+    .nexi-action-hdr { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; font-weight: 600; color: #00E5FF; font-size: 11px; letter-spacing: 0.3px; text-transform: uppercase; }
+    .nexi-action-params { display: flex; flex-wrap: wrap; gap: 3px 6px; }
+    .nexi-action-param { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 5px; background: rgba(0,229,255,0.08); font-size: 10.5px; color: rgba(255,255,255,0.7); }
+    .nexi-action-param-k { color: rgba(0,229,255,0.6); font-weight: 500; }
+    .nexi-action-param-v { color: #fff; }
+    .nexi-action-exec { margin-top: 6px; padding: 5px 12px; border: 1px solid rgba(0,229,255,0.3); border-radius: 7px; background: rgba(0,229,255,0.08); color: #00E5FF; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .nexi-action-exec:hover { background: rgba(0,229,255,0.15); border-color: rgba(0,229,255,0.5); }
+    .nexi-action-exec.executed { color: #00E676; border-color: rgba(0,230,118,0.3); background: rgba(0,230,118,0.08); cursor: default; }
+    /* Nexi typing indicator */
+    .nexi-typing { display: flex; align-items: center; gap: 8px; animation: nexiMsgIn 0.3s ease-out; }
+    .nexi-typing-bubble { display: flex; gap: 4px; padding: 10px 14px; border-radius: 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.06); border-bottom-left-radius: 4px; }
+    .nexi-typing-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(0,229,255,0.5); animation: nexiTypingBounce 1.4s ease-in-out infinite; }
+    .nexi-typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .nexi-typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes nexiTypingBounce { 0%,60%,100% { transform:translateY(0); opacity:0.4; } 30% { transform:translateY(-5px); opacity:1; } }
+    /* Nexi suggestion chips */
+    .nexi-suggestions { display: flex; flex-wrap: wrap; gap: 5px; padding: 8px 14px 2px; }
+    .nexi-chip { padding: 5px 10px; border-radius: 16px; border: 1px solid rgba(0,229,255,0.2); background: rgba(0,229,255,0.05); color: rgba(0,229,255,0.8); font-size: 11px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .nexi-chip:hover { background: rgba(0,229,255,0.12); border-color: rgba(0,229,255,0.4); color: #00E5FF; }
+    /* Nexi welcome */
+    .nexi-welcome { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 20px; text-align: center; }
+    .nexi-welcome-icon { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #00B4D8, #0077B6); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(0,180,216,0.3); }
+    .nexi-welcome-icon svg { width: 28px; height: 28px; fill: #fff; }
+    .nexi-welcome h3 { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+    .nexi-welcome p { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.5; max-width: 280px; margin-bottom: 16px; }
+    .nexi-welcome-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }
+    .nexi-wcard { padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s; text-align: left; }
+    .nexi-wcard:hover { background: rgba(0,229,255,0.06); border-color: rgba(0,229,255,0.2); }
+    .nexi-wcard-title { font-size: 11.5px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+    .nexi-wcard-desc { font-size: 10px; color: rgba(255,255,255,0.38); line-height: 1.35; }
+    /* Nexi AI Panel — Mobile responsive */
+    @media (max-width: 640px) {
+      #aiAgentPanel { position: fixed !important; left: 0 !important; right: 0 !important; bottom: 0 !important; top: auto !important; width: 100% !important; height: 72vh !important; min-width: unset !important; border-radius: 18px 18px 0 0 !important; resize: none !important; }
+    }
     /* Visor toolbar action menus */
     .visor-action-menu {
       position: absolute;
@@ -2135,7 +2229,9 @@
     #inspector input[type="checkbox"] { width:auto; accent-color:#0096D6; }
     .muted kbd { background:#f0f0f0; padding:2px 5px; border-radius:3px; font-size:10px; border:1px solid #d0d0d0; }
 
-    svg { display:block; user-select:none; background:#fff; }
+    svg { display:block; user-select:none; }
+    #svgContainer svg { background:#fff; }
+    .tool-btn svg { background: none; }
     #svgContainer { display: block; min-width: max-content; min-height: max-content; }
     .grid { stroke:#e8e8e8; stroke-width:1; }
 
@@ -2942,6 +3038,7 @@
       border-radius: 10px;
     }
     /* Unified Filter Button */
+    #btnUnifiedFilter { position: relative; }
     #btnUnifiedFilter.filtering {
       background: #e8f4fc;
       color: #0096D6;
@@ -2949,19 +3046,21 @@
     }
     #btnUnifiedFilter .filter-badge {
       display: none;
-      background: #0096D6;
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #e53e3e;
       color: #fff;
       font-size: 9px;
       font-weight: 700;
-      min-width: 16px;
-      height: 16px;
-      line-height: 16px;
+      min-width: 14px;
+      height: 14px;
+      line-height: 14px;
       text-align: center;
-      border-radius: 8px;
-      padding: 0 4px;
-      margin-left: 4px;
+      border-radius: 7px;
+      padding: 0 3px;
     }
-    #btnUnifiedFilter.filtering .filter-badge { display: inline-block; }
+    #btnUnifiedFilter.filtering .filter-badge { display: block; }
 
     /* Unified Filter Panel */
     #unifiedFilterPanel {
@@ -5938,7 +6037,7 @@
   </div>
 
   <!-- Icon Toolbar -->
-  <div style="display:flex; align-items:center; gap:2px; padding:4px 12px; background:#fafafa;">
+  <div style="display:flex; align-items:center; gap:1px; padding:4px 12px; background:#fafafa; overflow:hidden; flex-wrap:nowrap;">
     <!-- Zoom Controls -->
     <div style="position:relative;">
       <button class="tool-btn" id="btnZoomLevel" type="button" style="min-width:60px; font-size:12px; gap:4px;" title="Click for zoom options">
@@ -6038,38 +6137,52 @@
     <!-- DC Container (Datacenter) -->
     <button class="tool-btn" id="btnAddDCContainer" type="button" title="Add Datacenter Container">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="4" y="2" width="16" height="20" rx="1"/>
-        <line x1="4" y1="7" x2="20" y2="7"/>
-        <line x1="4" y1="12" x2="20" y2="12"/>
-        <line x1="4" y1="17" x2="20" y2="17"/>
-        <circle cx="17" cy="4.5" r="1" fill="currentColor"/>
-        <circle cx="17" cy="9.5" r="1" fill="currentColor"/>
-        <circle cx="17" cy="14.5" r="1" fill="currentColor"/>
-        <circle cx="17" cy="19.5" r="1" fill="currentColor"/>
+        <rect x="4" y="2" width="16" height="20" rx="1"></rect>
+        <line x1="4" y1="7" x2="20" y2="7"></line>
+        <line x1="4" y1="12" x2="20" y2="12"></line>
+        <line x1="4" y1="17" x2="20" y2="17"></line>
+        <circle cx="17" cy="4.5" r="1" fill="currentColor"></circle>
+        <circle cx="17" cy="9.5" r="1" fill="currentColor"></circle>
+        <circle cx="17" cy="14.5" r="1" fill="currentColor"></circle>
+        <circle cx="17" cy="19.5" r="1" fill="currentColor"></circle>
       </svg>
     </button>
 
     <div class="tool-sep"></div>
 
-    <!-- Shape Tools -->
-    <button class="tool-btn shape-tool active" data-shape="circle" type="button" title="Circle">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
-    </button>
-    <button class="tool-btn shape-tool" data-shape="square" type="button" title="Square">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16"/></svg>
-    </button>
-    <button class="tool-btn shape-tool" data-shape="triangle" type="button" title="Triangle">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,3 22,21 2,21"/></svg>
-    </button>
-    <button class="tool-btn shape-tool" data-shape="rectangle" type="button" title="Rectangle">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12"/></svg>
-    </button>
-    <button class="tool-btn shape-tool" data-shape="ellipse" type="button" title="Ellipse">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg>
-    </button>
-    <button class="tool-btn shape-tool" data-shape="hexagon" type="button" title="Hexagon">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/></svg>
-    </button>
+    <!-- Shape Tool Dropdown (replaces 6 individual shape buttons) -->
+    <div class="shape-dropdown-wrap">
+      <button class="tool-btn shape-dropdown-btn" id="btnShapeDropdown" type="button" title="Node Shape: Circle">
+        <svg id="shapeDropdownIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+      </button>
+      <div class="shape-dropdown-panel" id="shapeDropdownPanel">
+        <button class="shape-dropdown-item active" data-shape="circle" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg><span>Circle</span>
+        </button>
+        <button class="shape-dropdown-item" data-shape="square" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16"/></svg><span>Square</span>
+        </button>
+        <button class="shape-dropdown-item" data-shape="triangle" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,3 22,21 2,21"/></svg><span>Triangle</span>
+        </button>
+        <button class="shape-dropdown-item" data-shape="rectangle" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12"/></svg><span>Rectangle</span>
+        </button>
+        <button class="shape-dropdown-item" data-shape="ellipse" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg><span>Ellipse</span>
+        </button>
+        <button class="shape-dropdown-item" data-shape="hexagon" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/></svg><span>Hexagon</span>
+        </button>
+      </div>
+    </div>
+    <!-- Hidden shape tool buttons kept for JS event-handler compatibility -->
+    <button class="tool-btn shape-tool active" data-shape="circle" type="button" title="Circle" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></button>
+    <button class="tool-btn shape-tool" data-shape="square" type="button" title="Square" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16"/></svg></button>
+    <button class="tool-btn shape-tool" data-shape="triangle" type="button" title="Triangle" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,3 22,21 2,21"/></svg></button>
+    <button class="tool-btn shape-tool" data-shape="rectangle" type="button" title="Rectangle" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12"/></svg></button>
+    <button class="tool-btn shape-tool" data-shape="ellipse" type="button" title="Ellipse" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg></button>
+    <button class="tool-btn shape-tool" data-shape="hexagon" type="button" title="Hexagon" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/></svg></button>
 
     <div class="tool-sep"></div>
 
@@ -6219,19 +6332,13 @@
 
     <div class="tool-sep"></div>
 
-    <!-- Brush (Format Painter) - Tilted brush like reference -->
+    <!-- Brush (Format Painter) -->
     <button class="tool-btn" id="btnBrush" type="button" title="Format Painter - Copy and apply formatting">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Handle -->
-        <path d="M5 19 Q 7 17, 9 15"/>
-        <circle cx="4" cy="20" r="1.5" fill="currentColor"/>
-        <!-- Ferrule -->
-        <rect x="8" y="8" width="8" height="4" rx="1" transform="rotate(-45 12 10)"/>
-        <!-- Bristles -->
-        <path d="M13 7 L19 1 L23 5 L17 11 Z"/>
-        <path d="M15 5 L17 7" stroke-width="1.5"/>
-        <path d="M17 3 L19 5" stroke-width="1.5"/>
-        <path d="M19 5 L21 7" stroke-width="1.5"/>
+        <rect x="2" y="2" width="14" height="8" rx="2"></rect>
+        <path d="M16 6h2a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H2"></path>
+        <line x1="10" y1="11" x2="10" y2="17"></line>
+        <rect x="7" y="17" width="6" height="3" rx="1"></rect>
       </svg>
     </button>
 
@@ -6267,176 +6374,201 @@
     </div>
   </div>
 
-  <!-- Toolbar Line 2: Filters and Panels -->
-  <div style="display:flex; align-items:center; gap:2px; padding:4px 12px; background:#f5f5f5; border-top:1px solid #e8e8e8; flex-wrap:wrap;">
-    <!-- Unified Filters Button -->
-    <button class="tool-btn" id="btnUnifiedFilter" type="button" title="Filter by Tags, Cable System, Node, Container (F)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-      </svg>
-      <span style="font-size:11px; margin-left:4px;">Filters</span>
-      <span class="filter-badge" id="filterBadge">0</span>
-    </button>
+  <!-- Toolbar Line 2: Tools, Visors, Views -->
+  <div style="display:flex; align-items:center; gap:2px; padding:4px 12px; background:#f5f5f5; border-top:1px solid #e8e8e8;">
+    <!-- Tools Group -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+      <span style="text-align:center; width:100%; font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding-bottom:1px;">Tools</span>
+      <div style="display:flex; align-items:center; gap:2px;">
+        <!-- Unified Filters Button -->
+        <button class="tool-btn" id="btnUnifiedFilter" type="button" title="Filter by Tags, Cable System, Node, Container (F)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+          </svg>
+          <span style="font-size:11px; margin-left:4px;">Filters</span>
+          <span class="filter-badge" id="filterBadge">0</span>
+        </button>
+        <!-- Inspector Toggle (for nodes, links, groups) -->
+        <button class="tool-btn" id="btnToggleInspector" type="button" title="Toggle Inspector (I)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="4" y1="7" x2="20" y2="7"/><circle cx="8" cy="7" r="2" fill="currentColor"/>
+            <line x1="4" y1="12" x2="20" y2="12"/><circle cx="14" cy="12" r="2" fill="currentColor"/>
+            <line x1="4" y1="17" x2="20" y2="17"/><circle cx="10" cy="17" r="2" fill="currentColor"/>
+          </svg>
+          <span style="font-size:11px; margin-left:4px;">Inspector</span>
+        </button>
+        <!-- Shape Library Toggle -->
+        <button class="tool-btn" id="btnToggleLibrary" type="button" title="Toggle Shape Library">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            <circle cx="12" cy="10" r="3"/>
+            <path d="M9 16h6"/>
+          </svg>
+          <span style="font-size:11px; margin-left:4px;">Library</span>
+        </button>
+        <!-- Path Finder (Route Finder - moved from Views group) -->
+        <button class="tool-btn" id="btnRouteFinder" type="button" title="Path Finder - Find optimal paths between nodes">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="5" cy="5" r="3" fill="#22c55e" stroke="#22c55e"/>
+            <circle cx="19" cy="19" r="3" fill="#ef4444" stroke="#ef4444"/>
+            <path d="M7 7 L12 12 L17 17" stroke-dasharray="3,2"/>
+            <path d="M5 8 L5 16 L8 19" stroke-width="1.5"/>
+            <path d="M8 5 L16 5 L19 8" stroke-width="1.5"/>
+          </svg>
+          <span style="font-size:11px; margin-left:4px;">Path Finder</span>
+        </button>
+      </div>
+    </div>
 
     <div class="tool-sep"></div>
 
-    <!-- Inspector Toggle (for nodes, links, groups) -->
-    <button class="tool-btn" id="btnToggleInspector" type="button" title="Toggle Inspector (I)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <line x1="4" y1="7" x2="20" y2="7"/><circle cx="8" cy="7" r="2" fill="currentColor"/>
-        <line x1="4" y1="12" x2="20" y2="12"/><circle cx="14" cy="12" r="2" fill="currentColor"/>
-        <line x1="4" y1="17" x2="20" y2="17"/><circle cx="10" cy="17" r="2" fill="currentColor"/>
-      </svg>
-      <span style="font-size:11px; margin-left:4px;">Inspector</span>
-    </button>
-
-    <!-- Shape Library Toggle -->
-    <button class="tool-btn" id="btnToggleLibrary" type="button" title="Toggle Shape Library">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-        <circle cx="12" cy="10" r="3"/>
-        <path d="M9 16h6"/>
-      </svg>
-      <span style="font-size:11px; margin-left:4px;">Library</span>
-    </button>
-
-    <div class="tool-sep"></div>
-
-    <!-- Cable System List Toggle -->
-    <button class="tool-btn" id="btnToggleCableNavigator" type="button" title="Toggle Cable System List">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z"/>
-        <line x1="17" y1="14" x2="17" y2="20"/>
-        <line x1="14" y1="17" x2="20" y2="17"/>
-      </svg>
-      <span style="font-size:11px; margin-left:4px;">CS List</span>
-    </button>
-
-    <!-- Cable System Details Toggle -->
-    <button class="tool-btn" id="btnToggleCableInspector" type="button" title="Toggle Cable System Details">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="18" height="18" rx="2"/>
-        <line x1="3" y1="9" x2="21" y2="9"/>
-        <line x1="9" y1="21" x2="9" y2="9"/>
-      </svg>
-      <span style="font-size:11px; margin-left:4px;">CS Details</span>
-    </button>
-
-    <!-- Datacenter List Toggle -->
-    <button class="tool-btn" id="btnToggleDCNavigator" type="button" title="Toggle Datacenter List">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="4" y="2" width="16" height="20" rx="1"/>
-        <line x1="4" y1="7" x2="20" y2="7"/>
-        <line x1="4" y1="12" x2="20" y2="12"/>
-        <line x1="4" y1="17" x2="20" y2="17"/>
-        <circle cx="17" cy="4.5" r="1" fill="currentColor"/>
-        <circle cx="17" cy="9.5" r="1" fill="currentColor"/>
-      </svg>
-      <span style="font-size:11px; margin-left:4px;">DC List</span>
-    </button>
-
-    <div class="tool-sep"></div>
-
-    <!-- Multilink Group Manager Toggle -->
-    <button class="tool-btn" id="btnToggleMultilinkManager" type="button" title="Toggle Multilink Group Manager">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="5" cy="6" r="2"/>
-        <circle cx="12" cy="6" r="2"/>
-        <circle cx="19" cy="6" r="2"/>
-        <circle cx="5" cy="18" r="2"/>
-        <circle cx="12" cy="18" r="2"/>
-        <circle cx="19" cy="18" r="2"/>
-        <path d="M5 8v8M12 8v8M19 8v8"/>
-        <path d="M5 12h14" stroke-dasharray="2 2"/>
-      </svg>
-      <span style="font-size:11px; margin-left:4px;">ML Groups</span>
-    </button>
-
-    <div style="flex:1;"></div>
-
-    <!-- Label Manager Button -->
-    <button class="tool-btn" id="btnLabelManager" type="button" title="Label Manager - Manage tags across nodes, links, and containers">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-        <path d="M2 17l10 5 10-5"/>
-        <path d="M2 12l10 5 10-5"/>
-      </svg>
-      <span style="font-size:11px; margin-left:4px;">Labels</span>
-    </button>
-
-    <!-- Main Canvas View Button -->
-    <button class="tool-btn active" id="btnMainView" type="button" title="Main Canvas View - Standard network diagram view" style="color: #10b981;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Grid/canvas icon -->
-        <rect x="3" y="3" width="18" height="18" rx="2"/>
-        <circle cx="8" cy="8" r="2" fill="currentColor"/>
-        <circle cx="16" cy="8" r="2" fill="currentColor"/>
-        <circle cx="12" cy="16" r="2" fill="currentColor"/>
-        <line x1="8" y1="10" x2="12" y2="14"/>
-        <line x1="16" y1="10" x2="12" y2="14"/>
-      </svg>
-      <span style="font-size:11px; margin-left:4px;">Main</span>
-    </button>
-
-    <!-- Geographic View Toggle Button -->
-    <button class="tool-btn" id="btnGeoView" type="button" title="Geo Static Background - Show nodes on customizable world map based on GPS coordinates">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <ellipse cx="12" cy="12" rx="10" ry="4"/>
-        <path d="M12 2v20"/>
-        <path d="M2 12h20"/>
-      </svg>
-      <span style="font-size:11px; margin-left:4px;">Geo</span>
-    </button>
-
-    <!-- Geo Dynamic Map (MapLibre) Button -->
-    <button class="tool-btn" id="btnMapLibre" type="button" title="Geo Dynamic Map - Zoomable interactive map with OpenStreetMap tiles">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Folded map icon -->
-        <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6z"/>
-        <path d="M9 3v15"/>
-        <path d="M15 6v15"/>
-        <!-- Location pin -->
-        <circle cx="17" cy="9" r="2" fill="currentColor" stroke="currentColor"/>
-      </svg>
-      <span style="font-size:11px; margin-left:4px;">Map</span>
-    </button>
-
-    <!-- Show Paths Toggle (only visible when in Map view) -->
-    <button class="tool-btn" id="btnShowPaths" type="button" title="KML View - Toggle between cable geometry routes and straight lines" style="display:none; color: #6366f1;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Wavy path icon -->
-        <circle cx="4" cy="12" r="2" fill="currentColor"/>
-        <circle cx="20" cy="12" r="2" fill="currentColor"/>
-        <path d="M6 12 Q 9 6, 12 12 T 18 12"/>
-      </svg>
-      <span style="font-size:10px; margin-left:2px;">KML</span>
-    </button>
-
-    <!-- Route Finder Button -->
-    <button class="tool-btn" id="btnRouteFinder" type="button" title="Route Finder - Find optimal paths between nodes">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Path/route icon -->
-        <circle cx="5" cy="5" r="3" fill="#22c55e" stroke="#22c55e"/>
-        <circle cx="19" cy="19" r="3" fill="#ef4444" stroke="#ef4444"/>
-        <path d="M7 7 L12 12 L17 17" stroke-dasharray="3,2"/>
-        <path d="M5 8 L5 16 L8 19" stroke-width="1.5"/>
-        <path d="M8 5 L16 5 L19 8" stroke-width="1.5"/>
-      </svg>
-      <span style="font-size:11px; margin-left:4px;">Routes</span>
-    </button>
+    <!-- Visors Group -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+      <span style="text-align:center; width:100%; font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding-bottom:1px;">Visors</span>
+      <div style="display:flex; align-items:center; gap:2px;">
+        <!-- Cable System List Toggle -->
+        <button class="tool-btn" id="btnToggleCableNavigator" type="button" title="Toggle Cable System List">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z"/>
+            <line x1="17" y1="14" x2="17" y2="20"/>
+            <line x1="14" y1="17" x2="20" y2="17"/>
+          </svg>
+          <span style="font-size:11px; margin-left:4px;">CS List</span>
+        </button>
+        <!-- Cable System Details Toggle -->
+        <button class="tool-btn" id="btnToggleCableInspector" type="button" title="Toggle Cable System Details">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <line x1="3" y1="9" x2="21" y2="9"/>
+            <line x1="9" y1="21" x2="9" y2="9"/>
+          </svg>
+          <span style="font-size:11px; margin-left:4px;">CS Details</span>
+        </button>
+        <!-- Datacenter List Toggle -->
+        <button class="tool-btn" id="btnToggleDCNavigator" type="button" title="Toggle Datacenter List">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="9" y1="6" x2="20" y2="6"/>
+            <line x1="9" y1="12" x2="20" y2="12"/>
+            <line x1="9" y1="18" x2="20" y2="18"/>
+            <polyline points="4,9 7,12 4,15"/>
+          </svg>
+          <span style="font-size:11px; margin-left:4px;">DC List</span>
+        </button>
+        <!-- Cable System Visor Quick-Open Button -->
+        <button class="tool-btn" id="btnOpenCSVisor" type="button" title="Open Cable System Visor - Full screen with Public Cable System DB and all corridors" onclick="openCSVisorWithDefaults()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l2-2 4 4 4-4 4 4 4-4"/>
+            <path d="M3 15l2-2 4 4 4-4 4 4 4-4"/>
+            <rect x="2" y="3" width="20" height="18" rx="2"/>
+          </svg>
+          <span style="font-size:11px; margin-left:4px;">CS Visor</span>
+        </button>
+        <!-- Datacenter Visor Quick-Open Button -->
+        <button class="tool-btn" id="btnOpenDCVisor" type="button" title="Open Datacenter Visor - Full screen datacenter map" onclick="openDCVisorWithDefaults()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="8" rx="2"/>
+            <rect x="2" y="14" width="20" height="8" rx="2"/>
+            <line x1="6" y1="6" x2="6.01" y2="6"/>
+            <line x1="10" y1="6" x2="10.01" y2="6"/>
+            <line x1="6" y1="18" x2="6.01" y2="18"/>
+            <line x1="10" y1="18" x2="10.01" y2="18"/>
+          </svg>
+          <span style="font-size:11px; margin-left:4px;">DC Visor</span>
+        </button>
+      </div>
+    </div>
 
     <div class="tool-sep"></div>
 
-    <!-- KML Studio Button / Drop Zone -->
-    <button class="tool-btn" id="btnKMLStudio" type="button" title="KML Studio - Open geographic editor (drag entities here to open in KML Studio)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0096D6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M8 12L16 8L24 12L16 16Z" transform="scale(0.75) translate(4,4)" fill="#0096D6" opacity="0.2"/>
-        <path d="M8 16L16 20L24 16" transform="scale(0.75) translate(4,4)"/>
-        <path d="M8 20L16 24L24 20" transform="scale(0.75) translate(4,4)"/>
+    <!-- Views Group -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+      <span style="text-align:center; width:100%; font-size:9px; color:#94a3b8; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; padding-bottom:1px;">Views</span>
+      <div style="display:flex; align-items:center; gap:2px;">
+        <!-- Multilink Group Manager Toggle -->
+        <button class="tool-btn" id="btnToggleMultilinkManager" type="button" title="Toggle Multilink Group Manager">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="5" cy="6" r="2"/>
+            <circle cx="12" cy="6" r="2"/>
+            <circle cx="19" cy="6" r="2"/>
+            <circle cx="5" cy="18" r="2"/>
+            <circle cx="12" cy="18" r="2"/>
+            <circle cx="19" cy="18" r="2"/>
+            <path d="M5 8v8M12 8v8M19 8v8"/>
+            <path d="M5 12h14" stroke-dasharray="2 2"/>
+          </svg>
+          <span style="font-size:11px; margin-left:4px;">ML Groups</span>
+        </button>
+        <!-- Label Manager Button -->
+        <button class="tool-btn" id="btnLabelManager" type="button" title="Label Manager - Manage tags across nodes, links, and containers">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+          <span style="font-size:11px; margin-left:4px;">Labels</span>
+        </button>
+        <!-- Main Canvas View Button -->
+        <button class="tool-btn active" id="btnMainView" type="button" title="Main Canvas View - Standard network diagram view" style="color: #10b981;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8" cy="8" r="2" fill="currentColor"/>
+            <circle cx="16" cy="8" r="2" fill="currentColor"/>
+            <circle cx="12" cy="16" r="2" fill="currentColor"/>
+            <line x1="8" y1="10" x2="12" y2="14"/>
+            <line x1="16" y1="10" x2="12" y2="14"/>
+          </svg>
+          <span style="font-size:11px; margin-left:4px;">Main</span>
+        </button>
+        <!-- Geographic View Toggle Button -->
+        <button class="tool-btn" id="btnGeoView" type="button" title="Geo Static Background - Show nodes on customizable world map based on GPS coordinates">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <ellipse cx="12" cy="12" rx="10" ry="4"/>
+            <path d="M12 2v20"/>
+            <path d="M2 12h20"/>
+          </svg>
+          <span style="font-size:11px; margin-left:4px;">Geo</span>
+        </button>
+        <!-- Geo Dynamic Map (MapLibre) Button -->
+        <button class="tool-btn" id="btnMapLibre" type="button" title="Geo Dynamic Map - Zoomable interactive map with OpenStreetMap tiles">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6z"/>
+            <path d="M9 3v15"/>
+            <path d="M15 6v15"/>
+            <circle cx="17" cy="9" r="2" fill="currentColor" stroke="currentColor"/>
+          </svg>
+          <span style="font-size:11px; margin-left:4px;">Map</span>
+        </button>
+        <!-- Show Paths Toggle (only visible when in Map view) -->
+        <button class="tool-btn" id="btnShowPaths" type="button" title="KML View - Toggle between cable geometry routes and straight lines" style="display:none; color: #6366f1;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="4" cy="12" r="2" fill="currentColor"/>
+            <circle cx="20" cy="12" r="2" fill="currentColor"/>
+            <path d="M6 12 Q 9 6, 12 12 T 18 12"/>
+          </svg>
+          <span style="font-size:10px; margin-left:2px;">KML</span>
+        </button>
+        <!-- KML Studio Button / Drop Zone -->
+        <button class="tool-btn" id="btnKMLStudio" type="button" title="KML Studio - Open geographic editor (drag entities here to open in KML Studio)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0096D6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 12L16 8L24 12L16 16Z" transform="scale(0.75) translate(4,4)" fill="#0096D6" opacity="0.2"/>
+            <path d="M8 16L16 20L24 16" transform="scale(0.75) translate(4,4)"/>
+            <path d="M8 20L16 24L24 20" transform="scale(0.75) translate(4,4)"/>
+          </svg>
+          <span style="font-size:11px; margin-left:4px;">KML Studio</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- AI Agent Button (right-aligned) -->
+    <button class="tool-btn" id="btnAiAgent" type="button" title="AI Agent - Chat with AI about your network (neural assistant)" onclick="toggleAiAgent()" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border-color:#5a67d8; border-radius:6px; margin-left:auto;" onmouseover="this.style.boxShadow='0 0 10px rgba(102,126,234,0.5)';this.style.background='linear-gradient(135deg,#5a67d8 0%,#6b46c1 100%)'" onmouseout="this.style.boxShadow='';this.style.background='linear-gradient(135deg,#667eea 0%,#764ba2 100%)'">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white" stroke="none">
+        <path d="M12 2 L13.6 9 L20 10.5 L13.6 12 L12 19 L10.4 12 L4 10.5 L10.4 9 Z"/>
+        <path d="M20 2 L20.8 4.2 L23 5 L20.8 5.8 L20 8 L19.2 5.8 L17 5 L19.2 4.2 Z"/>
+        <path d="M4 17 L4.6 18.7 L6.5 19.3 L4.6 19.9 L4 21.5 L3.4 19.9 L1.5 19.3 L3.4 18.7 Z"/>
       </svg>
-      <span style="font-size:11px; margin-left:4px;">KML Studio</span>
+      <span style="font-size:11px;margin-left:4px;color:white;font-weight:500;">AI Agent</span>
     </button>
   </div>
 </header>
@@ -6653,7 +6785,7 @@
 <div id="layout">
   <div id="wrap">
     <div id="svgContainer" style="transform-origin: 0 0;">
-      <svg id="svg" viewBox="0 0 1600 900" preserveAspectRatio="none"></svg>
+      <svg id="svg" viewBox="0 0 1123 794" preserveAspectRatio="none"></svg>
     </div>
     <!-- MapLibre GL Interactive Map Container -->
     <div id="maplibreContainer">
@@ -9983,8 +10115,8 @@
     },
 
     // Canvas dimensions (now customizable)
-    canvasWidth: 1600,
-    canvasHeight: 900,
+    canvasWidth: 1123,
+    canvasHeight: 794,
     showCanvasBorder: true,
 
     // Grid settings
@@ -11061,7 +11193,7 @@
     clone.insertBefore(style, clone.firstChild);
 
     const vb = clone.getAttribute('viewBox');
-    let w=1600,h=900;
+    let w=1123,h=794;
     if (vb){
       const p = vb.split(/\s+/).map(Number);
       if (p.length===4 && p.every(n=>isFinite(n))) { w=p[2]; h=p[3]; }
@@ -11091,7 +11223,7 @@
     const clone = getSvgCloneForExport();
     // Use viewBox for sizing if present
     const vb = clone.getAttribute('viewBox');
-    let w = 1600, h = 900;
+    let w = 1123, h = 794;
     if (vb){
       const p = vb.split(/\s+/).map(Number);
       if (p.length===4 && p.every(n=>isFinite(n))) { w = p[2]; h = p[3]; }
@@ -13973,6 +14105,8 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     fontTypeNoSelection.style.display = 'none';
     fontTypeFields.style.display = 'block';
     fontTypeFields.innerHTML = '';
+    // Clean up portaled dropdowns from previous render
+    document.querySelectorAll('.font-size-dropdown-portal').forEach(el => el.remove());
 
     const type = state.selected.type === 'edge' ? 'edge' : (state.selected.type === 'node' ? 'node' : 'group');
     const fields = textFieldDefs[type] || [];
@@ -14019,7 +14153,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       btnDec.type = 'button';
       btnDec.textContent = '\u2212';
       btnDec.title = 'Decrease font size';
-      btnDec.style.cssText = 'width:22px; height:24px; border:1px solid #ccc; border-radius:3px 0 0 3px; background:#f8f9fa; cursor:pointer; font-size:13px; font-weight:600; color:#333; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;';
+      btnDec.style.cssText = 'width:22px; height:28px; border:1px solid #ccc; border-radius:3px 0 0 3px; background:#f8f9fa; cursor:pointer; font-size:13px; font-weight:600; color:#333; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;';
       btnDec.addEventListener('click', (ev) => {
         ev.stopPropagation();
         const cur = obj[field.sizeKey] || 12;
@@ -14035,11 +14169,15 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       sizeInput.type = 'text';
       sizeInput.value = currentSize;
       sizeInput.title = 'Type a custom size or click to select';
-      sizeInput.style.cssText = 'width:38px; height:24px; border:1px solid #ccc; border-left:none; border-right:none; text-align:center; font-size:11px; padding:0 2px; box-sizing:border-box; outline:none; background:white;';
+      sizeInput.style.cssText = 'width:38px; height:28px; border:1px solid #ccc; border-left:none; border-right:none; text-align:center; font-size:12px; padding:0 2px; box-sizing:border-box; outline:none; background:white;';
 
       // Select all on focus for easy replacement
       sizeInput.addEventListener('focus', () => {
         sizeInput.select();
+        const rect = sizeInput.getBoundingClientRect();
+        sizeDropdown.style.left = rect.left + 'px';
+        sizeDropdown.style.top = rect.bottom + 2 + 'px';
+        sizeDropdown.style.width = (rect.width + 44) + 'px';
         sizeDropdown.style.display = 'block';
       });
       sizeInput.addEventListener('keydown', (ev) => {
@@ -14071,11 +14209,11 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
 
       // Preset size dropdown
       const sizeDropdown = document.createElement('div');
-      sizeDropdown.style.cssText = 'display:none; position:absolute; top:100%; left:0; right:0; max-height:160px; overflow-y:auto; background:white; border:1px solid #ccc; border-radius:0 0 4px 4px; box-shadow:0 4px 12px rgba(0,0,0,0.12); z-index:1000;';
+      sizeDropdown.style.cssText = 'display:none; position:fixed; max-height:200px; overflow-y:auto; background:white; border:1px solid #ccc; border-radius:4px; box-shadow:0 4px 12px rgba(0,0,0,0.12); z-index:2000; min-width:60px;';
       fontSizes.forEach(s => {
         const item = document.createElement('div');
         item.textContent = s + 'px';
-        item.style.cssText = `padding:3px 8px; font-size:11px; cursor:pointer; ${s === currentSize ? 'background:#e3f2fd; font-weight:600;' : ''}`;
+        item.style.cssText = `padding:5px 8px; font-size:12px; cursor:pointer; ${s === currentSize ? 'background:#e3f2fd; font-weight:600;' : ''}`;
         item.addEventListener('mouseenter', () => { item.style.background = '#e3f2fd'; });
         item.addEventListener('mouseleave', () => { item.style.background = s === (obj[field.sizeKey] || 12) ? '#e3f2fd' : 'white'; });
         item.addEventListener('mousedown', (ev) => {
@@ -14091,7 +14229,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       btnInc.type = 'button';
       btnInc.textContent = '+';
       btnInc.title = 'Increase font size';
-      btnInc.style.cssText = 'width:22px; height:24px; border:1px solid #ccc; border-radius:0 3px 3px 0; background:#f8f9fa; cursor:pointer; font-size:13px; font-weight:600; color:#333; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;';
+      btnInc.style.cssText = 'width:22px; height:28px; border:1px solid #ccc; border-radius:0 3px 3px 0; background:#f8f9fa; cursor:pointer; font-size:13px; font-weight:600; color:#333; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;';
       btnInc.addEventListener('click', (ev) => {
         ev.stopPropagation();
         const cur = obj[field.sizeKey] || 12;
@@ -14105,7 +14243,8 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       sizeWrap.appendChild(btnDec);
       sizeWrap.appendChild(sizeInput);
       sizeWrap.appendChild(btnInc);
-      sizeWrap.appendChild(sizeDropdown);
+      sizeDropdown.classList.add('font-size-dropdown-portal');
+      document.body.appendChild(sizeDropdown);
 
       row.appendChild(label);
       row.appendChild(fontSelect);
@@ -14200,7 +14339,15 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     for (let i = state.groups.length - 1; i >= 0; i--) {
       const g = state.groups[i];
       if (g.type !== 'country') continue;
+      if (g.lockNodes === false) continue; // Skip disconnected containers
       if (pointInGroup(node.x, node.y, g)) { gid = g.id; break; }
+    }
+    // Preserve existing DC container assignment if node is still inside and container is connected
+    if (gid === null && node.groupId) {
+      const existingGroup = findGroup(node.groupId);
+      if (existingGroup && existingGroup.type === 'dc' && existingGroup.lockNodes !== false && pointInGroup(node.x, node.y, existingGroup)) {
+        gid = existingGroup.id;
+      }
     }
     node.groupId = gid;
   }
@@ -15019,6 +15166,114 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
       grp.appendChild(iconG);
     }
 
+    // Chain link toggle button (connect/disconnect nodes from container)
+    {
+      const isLocked = g.lockNodes !== false; // default true = nodes connected
+      const chainIconG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      // Position: top-right corner, offset left for DC icon if present
+      const chainOffsetX = (g.type === 'dc') ? g.x + g.w - 54 : g.x + g.w - 26;
+      const chainOffsetY = g.y + 4;
+      chainIconG.setAttribute('transform', `translate(${chainOffsetX}, ${chainOffsetY})`);
+      chainIconG.style.cursor = 'pointer';
+      chainIconG.style.opacity = '0.85';
+
+      // Tooltip
+      const chainTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      chainTitle.textContent = isLocked
+        ? 'Nodes connected \u2014 click to disconnect from container'
+        : 'Nodes disconnected \u2014 click to connect to container';
+      chainIconG.appendChild(chainTitle);
+
+      // Background circle button
+      const chainBg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      chainBg.setAttribute('cx', '9');
+      chainBg.setAttribute('cy', '9');
+      chainBg.setAttribute('r', '9');
+      chainBg.setAttribute('fill', isLocked ? '#10b981' : '#ef4444');
+      chainBg.setAttribute('fill-opacity', '0.9');
+      chainBg.setAttribute('stroke', isLocked ? '#059669' : '#dc2626');
+      chainBg.setAttribute('stroke-width', '0.5');
+      chainIconG.appendChild(chainBg);
+
+      if (isLocked) {
+        // Connected: chain link icon (two interlocked arcs)
+        const cp1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        cp1.setAttribute('d', 'M6.5 10.5a2.5 2.5 0 0 0 3.54.27l1.96-1.96A2.5 2.5 0 0 0 8.46 5.27L7.6 6.1');
+        cp1.setAttribute('fill', 'none');
+        cp1.setAttribute('stroke', 'white');
+        cp1.setAttribute('stroke-width', '1.8');
+        cp1.setAttribute('stroke-linecap', 'round');
+        chainIconG.appendChild(cp1);
+        const cp2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        cp2.setAttribute('d', 'M11.5 7.5a2.5 2.5 0 0 0-3.54-.27L6 9.23A2.5 2.5 0 0 0 9.54 12.73L10.4 11.9');
+        cp2.setAttribute('fill', 'none');
+        cp2.setAttribute('stroke', 'white');
+        cp2.setAttribute('stroke-width', '1.8');
+        cp2.setAttribute('stroke-linecap', 'round');
+        chainIconG.appendChild(cp2);
+      } else {
+        // Disconnected: broken chain icon
+        const cp1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        cp1.setAttribute('d', 'M7.5 11a2.5 2.5 0 0 0 3.54.27l1.5-1.5A2.5 2.5 0 0 0 9 5.73');
+        cp1.setAttribute('fill', 'none');
+        cp1.setAttribute('stroke', 'white');
+        cp1.setAttribute('stroke-width', '1.8');
+        cp1.setAttribute('stroke-linecap', 'round');
+        chainIconG.appendChild(cp1);
+        const cp2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        cp2.setAttribute('d', 'M10.5 7a2.5 2.5 0 0 0-3.54-.27l-1.5 1.5A2.5 2.5 0 0 0 9 12.27');
+        cp2.setAttribute('fill', 'none');
+        cp2.setAttribute('stroke', 'white');
+        cp2.setAttribute('stroke-width', '1.8');
+        cp2.setAttribute('stroke-linecap', 'round');
+        chainIconG.appendChild(cp2);
+        // Break gap indicator (diagonal slash)
+        const cslash = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        cslash.setAttribute('x1', '13');
+        cslash.setAttribute('y1', '5');
+        cslash.setAttribute('x2', '5');
+        cslash.setAttribute('y2', '13');
+        cslash.setAttribute('stroke', 'white');
+        cslash.setAttribute('stroke-width', '1.8');
+        cslash.setAttribute('stroke-linecap', 'round');
+        chainIconG.appendChild(cslash);
+      }
+
+      // Prevent drag propagation when clicking chain button
+      chainIconG.addEventListener('mousedown', (ev) => { ev.stopPropagation(); });
+
+      // Toggle connect/disconnect on click
+      chainIconG.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        if (g.lockNodes !== false) {
+          // Disconnect: free child nodes from container
+          g.lockNodes = false;
+          if (g.type === 'country' || g.type === 'dc') {
+            // Clear groupId for all nodes belonging to this container
+            state.nodes.forEach(n => { if (n.groupId === g.id) n.groupId = null; });
+          }
+          // For region type: child country containers keep parentId but won't move with region
+          showToast('\u26D3\uFE0F Nodes disconnected from "' + (g.title || 'Container') + '"');
+        } else {
+          // Connect: re-attach nodes inside bounds
+          g.lockNodes = true;
+          if (g.type === 'country' || g.type === 'dc') {
+            // Re-assign nodes that are physically inside this container
+            state.nodes.forEach(n => { if (pointInGroup(n.x, n.y, g)) n.groupId = g.id; });
+          }
+          // For region type: child country containers already have parentId, drag will resume moving them
+          showToast('\uD83D\uDD17 Nodes connected to "' + (g.title || 'Container') + '"');
+        }
+        commit();
+        render();
+      });
+
+      // Hover effect
+      chainIconG.addEventListener('mouseenter', () => { chainIconG.style.opacity = '1'; });
+      chainIconG.addEventListener('mouseleave', () => { chainIconG.style.opacity = '0.85'; });
+
+      grp.appendChild(chainIconG);
+    }
     grp.appendChild(label);
     // Append all 4 corner handles
     handles.forEach(h => grp.appendChild(h));
@@ -18523,28 +18778,32 @@ if (groupTitleFontInline) {
       const dy = g.y - oldY;
 
       if (g.type === 'region') {
-        // Move all child countries (and their nodes) along with the region
-        state.groups.forEach(c => {
-          if (c.type === 'country' && c.parentId === g.id) {
-            c.x = c.x + dx;
-            c.y = c.y + dy;
-          }
-        });
-        state.nodes.forEach(n => {
-          const country = n.groupId ? findGroup(n.groupId) : null;
-          if (country && country.type === 'country' && country.parentId === g.id) {
-            n.x = n.x + dx;
-            n.y = n.y + dy;
-          }
-        });
+        if (g.lockNodes !== false) {
+          // Move all child countries (and their locked nodes) along with the region
+          state.groups.forEach(c => {
+            if (c.type === 'country' && c.parentId === g.id) {
+              c.x = c.x + dx;
+              c.y = c.y + dy;
+            }
+          });
+          state.nodes.forEach(n => {
+            const country = n.groupId ? findGroup(n.groupId) : null;
+            if (country && country.type === 'country' && country.parentId === g.id && country.lockNodes !== false) {
+              n.x = n.x + dx;
+              n.y = n.y + dy;
+            }
+          });
+        }
       } else {
-        // Move nodes inside the country box along with it
-        state.nodes.forEach(n => {
-          if (n.groupId === g.id) {
-            n.x = n.x + dx;
-            n.y = n.y + dy;
-          }
-        });
+        // Move nodes inside the country/dc box along with it (only if connected)
+        if (g.lockNodes !== false) {
+          state.nodes.forEach(n => {
+            if (n.groupId === g.id) {
+              n.x = n.x + dx;
+              n.y = n.y + dy;
+            }
+          });
+        }
       }
 
       refreshAllMemberships();
@@ -22902,7 +23161,7 @@ function loadProjectObject(obj) {
   const TG_GEODATA_API = 'https://submarine-cable-api.fcoroyse-spam.workers.dev';
   const CABLE_META_API = 'https://tg-cablesystem-rfs-metadata.fcoroyse-spam.workers.dev';
   // Local pre-fetched TeleGeography data (geometry + metadata combined)
-  const TG_LOCAL_DATA = 'data/telegeography_cables.json';
+  const TG_LOCAL_DATA = '../data/telegeography_cables.json';
 
   // Load TeleGeography data from local pre-fetched file (default, fast)
   async function loadFromLocalTeleGeographyData() {
@@ -23006,7 +23265,7 @@ function loadProjectObject(obj) {
       let sdbLookup = {};
       let sdbNameLookup = {};
       try {
-        const sdbResp = await fetch('data/submarine_cables_db.json');
+        const sdbResp = await fetch('../data/submarine_cables_db.json');
         if (sdbResp.ok) {
           const sdbData = await sdbResp.json();
           if (sdbData && sdbData.cables) {
@@ -23025,7 +23284,7 @@ function loadProjectObject(obj) {
       // Step 3c: Load ownership corrections (manual overrides for known TG data errors)
       let ownershipCorrections = {};
       try {
-        const ocResp = await fetch('data/ownership_corrections.json');
+        const ocResp = await fetch('../data/ownership_corrections.json');
         if (ocResp.ok) {
           const ocData = await ocResp.json();
           if (ocData && ocData.corrections) {
@@ -23280,7 +23539,7 @@ function loadProjectObject(obj) {
           name: props.name,
           shortName: props.name.length > 20 ? props.name.substring(0, 18) + '...' : props.name,
           color: props.color || '#939597',
-          region: inferRegionFromLandingPoints(landingPoints, feature.geometry),
+          region: (sdbMatch && sdbMatch.region) ? sdbMatch.region : inferRegionFromLandingPoints(landingPoints, feature.geometry),
           status: status,
           rfs: meta.rfs || (rfsYear ? String(rfsYear) : ''),
           rfsYear: rfsYear,
@@ -23564,6 +23823,11 @@ function loadProjectObject(obj) {
       const hasMiddleEast = has('Middle East');
       const hasAfrica = has('Africa');
       const hasSouthAsia = has('South Asia');
+      const hasCentralAsia = has('Central Asia');
+      const hasIndianOceanTerritory = has('Indian Ocean');
+
+      // Fold Central Asia into Asia for corridor purposes
+      const hasAnyAsia = hasAsia || hasCentralAsia;
 
       // Single-region cables = intra-regional
       if (regions.length === 1) {
@@ -23573,33 +23837,41 @@ function loadProjectObject(obj) {
         if (hasMiddleEast) return 'Intra-Middle East';
         if (hasAfrica) return 'Africa Coastal';
         if (hasSouthAsia) return 'Indian Ocean';
+        if (hasCentralAsia) return 'Intra-Asia';
+        if (hasIndianOceanTerritory) return 'Indian Ocean';
         return 'Unknown';
       }
 
       // Multi-region: determine corridor by ocean basin crossed
       // Transpacific: Americas to Asia/Oceania across the Pacific
-      if (hasAmericas && (hasAsia || hasOceania)) return 'Transpacific';
+      if (hasAmericas && (hasAnyAsia || hasOceania)) return 'Transpacific';
 
       // Transatlantic: Europe to Americas across the Atlantic
       if (hasEurope && hasAmericas) return 'Transatlantic';
 
-      // Indian Ocean: Europe/Middle East to India/Asia, or India-Asia, or Middle East-Africa
-      if (hasEurope && (hasAsia || hasSouthAsia || hasMiddleEast)) return 'Indian Ocean';
-      if (hasMiddleEast && (hasAsia || hasSouthAsia || hasAfrica)) return 'Indian Ocean';
-      if (hasSouthAsia && hasAsia) return 'Indian Ocean';
-      if (hasSouthAsia && hasAfrica) return 'Indian Ocean';
+      // Mediterranean-Middle East: Europe to Asia/South Asia/Middle East via Med/Suez route
+      if (hasEurope && (hasAnyAsia || hasSouthAsia || hasMiddleEast)) return 'Mediterranean-Middle East';
+
+      // Indian Ocean: regional connections within Indian Ocean basin
+      if (hasMiddleEast && (hasAnyAsia || hasSouthAsia || hasAfrica)) return 'Indian Ocean';
+      if (hasSouthAsia && (hasAnyAsia || hasAfrica || hasOceania)) return 'Indian Ocean';
+      if (hasAfrica && (hasAnyAsia || hasSouthAsia)) return 'Indian Ocean';
+      if (hasIndianOceanTerritory) return 'Indian Ocean';
 
       // Africa Coastal: Europe to Africa (Atlantic side, no Asian/ME transit)
       if (hasEurope && hasAfrica && !hasAsia && !hasMiddleEast && !hasSouthAsia) return 'Africa Coastal';
 
-      // Intra-Asia: within Asia + Oceania
-      if ((hasAsia || hasOceania) && !hasEurope && !hasAmericas) return 'Intra-Asia';
+      // Intra-Asia: within Asia + Oceania (no Europe/Americas)
+      if ((hasAnyAsia || hasOceania) && !hasEurope && !hasAmericas) return 'Intra-Asia';
 
       // Intra-Americas: within the Americas
-      if (hasAmericas && !hasEurope && !hasAsia) return 'Intra-Americas';
+      if (hasAmericas && !hasEurope && !hasAnyAsia) return 'Intra-Americas';
 
       // Intra-Europe: Europe + nearby (e.g. North Africa via Mediterranean)
       if (hasEurope && hasAfrica && !hasAsia && !hasMiddleEast) return 'Intra-Europe';
+
+      // Middle East + Oceania fallback
+      if (hasMiddleEast && hasOceania) return 'Indian Ocean';
 
       return 'Unknown';
     }
@@ -23642,12 +23914,18 @@ function loadProjectObject(obj) {
     // Cross-ocean corridors
     if (hasEur && hasAmer) return 'Transatlantic';
     if (hasAmer && hasAsia) return 'Transpacific';
-    if (hasEur && hasAsia) return 'Indian Ocean';
+    if (hasEur && hasAsia) return 'Mediterranean-Middle East';
+
+    // AfricaME corridor detection
+    const hasAfricaME = r1 === 'AfricaME' || r2 === 'AfricaME';
+    if (hasEur && hasAfricaME) return 'Mediterranean-Middle East';
+    if (hasAfricaME && hasAsia) return 'Indian Ocean';
 
     // Single-region fallback
     if (hasEur) return 'Intra-Europe';
     if (hasAsia) return 'Intra-Asia';
     if (hasAmer) return 'Intra-Americas';
+    if (hasAfricaME) return 'Africa Coastal';
     return 'Unknown';
   }
 
@@ -23730,7 +24008,7 @@ function loadProjectObject(obj) {
       return true;
     }
     try {
-      const resp = await fetch('data/cable_stations_db.json');
+      const resp = await fetch('../data/cable_stations_db.json');
       if (!resp.ok) return false;
       const csData = await resp.json();
       const csFacilities = csData.facilities || [];
@@ -23950,6 +24228,7 @@ function loadProjectObject(obj) {
     cableVisorState._clsPreFilterSource = null;
 
     renderCableVisorList();
+    visorAutoRefreshSelection();
   }
 
   // Populate dropdown items based on mode
@@ -24349,6 +24628,7 @@ function loadProjectObject(obj) {
         renderOwnerTags();
         updateVisorFilterBadges();
         renderCableVisorList();
+        visorAutoRefreshSelection();
       });
     });
   }
@@ -25100,8 +25380,8 @@ function loadProjectObject(obj) {
     });
     if (selectAllBtn) selectAllBtn.addEventListener('click', selectAllVisorCables);
     if (clearAllBtn) clearAllBtn.addEventListener('click', clearAllVisorCables);
-    if (searchInput) searchInput.addEventListener('input', () => renderCableVisorList());
-    if (regionFilter) regionFilter.addEventListener('change', () => renderCableVisorList());
+    if (searchInput) searchInput.addEventListener('input', () => { renderCableVisorList(); visorAutoRefreshSelection(); });
+    if (regionFilter) regionFilter.addEventListener('change', () => { renderCableVisorList(); visorAutoRefreshSelection(); });
 
     // Map style selector handler
     const visorMapStyleSelect = document.getElementById('cableVisorMapStyle');
@@ -25931,6 +26211,47 @@ function loadProjectObject(obj) {
     });
   }
 
+  function openCSVisorWithDefaults() {
+    // Set source to Public Cable System DB
+    const srcApi = document.getElementById('visorSrcAPI');
+    if (srcApi) {
+      srcApi.checked = true;
+      srcApi.dispatchEvent(new Event('change'));
+    }
+    // Set corridor to All
+    const regionFilter = document.getElementById('cableVisorRegionFilter');
+    if (regionFilter) regionFilter.value = '';
+    // Show the panel
+    showCableVisor();
+    // Set map to larger height and enter full-screen mode
+    const panel = document.getElementById('cableVisorPanel');
+    setTimeout(() => {
+      // Set map height for more map area
+      const mapEl = document.getElementById('cableVisorMap');
+      if (mapEl) {
+        mapEl.style.flex = 'none';
+        mapEl.style.height = '420px';
+        if (cableVisorState.map) cableVisorState.map.resize();
+      }
+      // Maximize if not already maximized
+      if (panel && !panel.classList.contains('maximized') && !panel.classList.contains('presentation-mode')) {
+        toggleCableVisorMaximize();
+      }
+    }, 150);
+  }
+
+  function openDCVisorWithDefaults() {
+    // Show the panel
+    showDCVisor();
+    // Enter full-screen mode
+    const panel = document.getElementById('dcVisorPanel');
+    setTimeout(() => {
+      if (panel && !panel.classList.contains('maximized') && !panel.classList.contains('presentation-mode')) {
+        toggleDCVisorMaximize();
+      }
+    }, 150);
+  }
+
   function hideDCVisor() {
     const panel = document.getElementById('dcVisorPanel');
     if (panel) panel.classList.remove('show');
@@ -26054,8 +26375,8 @@ function loadProjectObject(obj) {
         dcVisorState.dcDatabase = window._dcDatabase;
       } else {
         const [dcResp, csResp] = await Promise.all([
-          fetch('data/peeringdb_facilities.json'),
-          fetch('data/cable_stations_db.json').catch(() => null)
+          fetch('../data/peeringdb_facilities.json'),
+          fetch('../data/cable_stations_db.json').catch(() => null)
         ]);
         if (!dcResp.ok) throw new Error(`HTTP ${dcResp.status}`);
         const dcData = await dcResp.json();
@@ -26073,18 +26394,76 @@ function loadProjectObject(obj) {
         if (!window._dcDatabase || !window._dcDatabase.loaded) {
           window._dcDatabase = dcVisorState.dcDatabase;
         }
-        // Merge cable stations from separate file
-        await mergeCableStationsDatabase();
       }
 
       populateDCVisorRegionFilter();
-      renderDCVisorList();
+      populateDCVisorCountryFilter();
+      populateDCVisorOwnerFilter();
+      dcVisorAutoRefreshSelection();
       console.log('[DCVisor] Loaded', dcVisorState.dcDatabase.facilities.length, 'facilities (DCs + cable stations)');
 
     } catch (err) {
       console.error('[DCVisor] Failed to load DCs:', err);
       if (listEl) listEl.innerHTML = '<div style="padding:20px; text-align:center; color:#c00;">Error: ' + err.message + '</div>';
     }
+  }
+
+  // Helper: returns filtered array of DC facilities based on all active filter controls
+  function getFilteredDCFacilities() {
+    if (!dcVisorState.dcDatabase || !dcVisorState.dcDatabase.facilities) return [];
+    const search = (document.getElementById('dcVisorSearch')?.value || '').toLowerCase().trim();
+    const regionFilter = document.getElementById('dcVisorRegionFilter')?.value || '';
+    const typeFilter = document.getElementById('dcVisorTypeFilter')?.value || '';
+    const countryFilter = document.getElementById('dcVisorCountryFilter')?.value || '';
+    const cityFilter = (document.getElementById('dcVisorCityFilter')?.value || '').toLowerCase().trim();
+    const ownerFilter = document.getElementById('dcVisorOwnerFilter')?.value || '';
+    const networkFilter = (document.getElementById('dcVisorNetworkFilter')?.value || '').toLowerCase().trim();
+    return dcVisorState.dcDatabase.facilities.filter(fac => {
+      if (typeFilter && (fac.facility_type || 'datacenter') !== typeFilter) return false;
+      if (regionFilter && fac.region_continent !== regionFilter) return false;
+      if (countryFilter && fac.country !== countryFilter) return false;
+      if (cityFilter && !(fac.city || '').toLowerCase().includes(cityFilter)) return false;
+      if (ownerFilter && (fac.org_name || '') !== ownerFilter) return false;
+      if (networkFilter) {
+        const nets = (fac.networks || []).map(n => (n.name || String(n)).toLowerCase()).join(' ');
+        if (!nets.includes(networkFilter)) return false;
+      }
+      if (search) {
+        const name = (fac.name || '').toLowerCase();
+        const org = (fac.org_name || '').toLowerCase();
+        const city = (fac.city || '').toLowerCase();
+        const country = (fac.country || '').toLowerCase();
+        const cables = (fac.cable_systems || []).join(' ').toLowerCase();
+        return name.includes(search) || org.includes(search) || city.includes(search) || country.includes(search) || cables.includes(search);
+      }
+      return true;
+    });
+  }
+
+  // Reactive map rendering: auto-select all filtered DCs and show on map
+  function dcVisorAutoRefreshSelection() {
+    clearTimeout(dcVisorState._autoRefreshTimer);
+    dcVisorState._autoRefreshTimer = setTimeout(() => {
+      if (!dcVisorState.dcDatabase) return;
+      // Clear all existing markers
+      Object.keys(dcVisorState.dcMarkers).forEach(dcId => {
+        if (dcVisorState.dcMarkers[dcId]) dcVisorState.dcMarkers[dcId].remove();
+      });
+      dcVisorState.dcMarkers = {};
+      dcVisorState.selectedDCs.clear();
+      const filtered = getFilteredDCFacilities();
+      const maxShow = 300;
+      let count = 0;
+      filtered.forEach(fac => {
+        if (count >= maxShow) return;
+        if (!fac.latitude || !fac.longitude) return;
+        dcVisorState.selectedDCs.add(String(fac.id));
+        addDCToVisorMap(String(fac.id));
+        count++;
+      });
+      if (dcVisorState.showNames) updateFixedDCLabels();
+      renderDCVisorList();
+    }, 80);
   }
 
   function populateDCVisorRegionFilter() {
@@ -26097,8 +26476,34 @@ function loadProjectObject(obj) {
     });
 
     const sorted = Array.from(regions).sort();
-    select.innerHTML = '<option value="">All Corridors</option>' +
+    select.innerHTML = '<option value="">All Regions</option>' +
       sorted.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
+  }
+
+  function populateDCVisorCountryFilter() {
+    const select = document.getElementById('dcVisorCountryFilter');
+    if (!select || !dcVisorState.dcDatabase) return;
+    const countries = new Set();
+    dcVisorState.dcDatabase.facilities.forEach(fac => {
+      if (fac.country) countries.add(fac.country);
+    });
+    const sorted = Array.from(countries).sort((a, b) =>
+      (getCountryName(a) || a).localeCompare(getCountryName(b) || b)
+    );
+    select.innerHTML = '<option value="">All Countries</option>' +
+      sorted.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(getCountryName(c) || c)}</option>`).join('');
+  }
+
+  function populateDCVisorOwnerFilter() {
+    const select = document.getElementById('dcVisorOwnerFilter');
+    if (!select || !dcVisorState.dcDatabase) return;
+    const owners = new Set();
+    dcVisorState.dcDatabase.facilities.forEach(fac => {
+      if (fac.org_name) owners.add(fac.org_name);
+    });
+    const sorted = Array.from(owners).sort();
+    select.innerHTML = '<option value="">All Owners</option>' +
+      sorted.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('');
   }
 
   // Get density class for DC (same logic as DC Navigator)
@@ -26123,23 +26528,7 @@ function loadProjectObject(obj) {
       return;
     }
 
-    const search = (document.getElementById('dcVisorSearch')?.value || '').toLowerCase().trim();
-    const regionFilter = document.getElementById('dcVisorRegionFilter')?.value || '';
-    const typeFilter = document.getElementById('dcVisorTypeFilter')?.value || '';
-
-    let facilities = dcVisorState.dcDatabase.facilities.filter(fac => {
-      if (typeFilter && (fac.facility_type || 'datacenter') !== typeFilter) return false;
-      if (regionFilter && fac.region_continent !== regionFilter) return false;
-      if (search) {
-        const name = (fac.name || '').toLowerCase();
-        const org = (fac.org_name || '').toLowerCase();
-        const city = (fac.city || '').toLowerCase();
-        const country = (fac.country || '').toLowerCase();
-        const cables = (fac.cable_systems || []).join(' ').toLowerCase();
-        return name.includes(search) || org.includes(search) || city.includes(search) || country.includes(search) || cables.includes(search);
-      }
-      return true;
-    });
+    let facilities = getFilteredDCFacilities();
 
     // Sort by name
     facilities.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
@@ -26209,11 +26598,42 @@ function loadProjectObject(obj) {
     if (dcVisorState.selectedDCs.has(dcId)) {
       dcVisorState.selectedDCs.delete(dcId);
       removeDCFromVisorMap(dcId);
+      if (dcVisorState.selectedDCs.size === 0) showDCVisorDetail(null);
     } else {
       dcVisorState.selectedDCs.add(dcId);
       addDCToVisorMap(dcId);
+      showDCVisorDetail(dcId);
     }
     renderDCVisorList();
+  }
+  function showDCVisorDetail(dcId) {
+    var panel = document.getElementById('dcVisorDetailPanel');
+    var body = document.getElementById('dcVisorDetailBody');
+    var titleEl = document.getElementById('dcVisorDetailTitle');
+    if (!panel || !body) return;
+    if (!dcId) { panel.classList.remove('visible'); return; }
+    var db = dcVisorState.dcDatabase;
+    var fac = db && db.facilities ? db.facilities.find(function(f){ return String(f.id) === String(dcId); }) : null;
+    if (!fac) { panel.classList.remove('visible'); return; }
+    if (titleEl) titleEl.textContent = '\u{1F3E2} ' + (fac.name || 'Datacenter');
+    var addr = [fac.address1, fac.address2, fac.city, fac.state, fac.zipcode, fac.country].filter(Boolean).join(', ');
+    var networks = (fac.networks || []).slice(0, 12);
+    var cables = (fac.cable_systems || []).slice(0, 8);
+    var moreNets = (fac.networks||[]).length > 12 ? (fac.networks.length - 12) : 0;
+    var moreCables = (fac.cable_systems||[]).length > 8 ? (fac.cable_systems.length - 8) : 0;
+    var rows = [];
+    if (fac.org_name) rows.push('<div class="dc-detail-row"><span class="dc-detail-label">Org:</span><span class="dc-detail-value">' + escapeHtml(fac.org_name) + '</span></div>');
+    if (addr) rows.push('<div class="dc-detail-row"><span class="dc-detail-label">Address:</span><span class="dc-detail-value">' + escapeHtml(addr) + '</span></div>');
+    if (fac.facility_type) rows.push('<div class="dc-detail-row"><span class="dc-detail-label">Type:</span><span class="dc-detail-value">' + escapeHtml(fac.facility_type) + '</span></div>');
+    if (fac.net_count != null) rows.push('<div class="dc-detail-row"><span class="dc-detail-label">Networks:</span><span class="dc-detail-value">' + fac.net_count + '</span></div>');
+    if (fac.ix_count != null) rows.push('<div class="dc-detail-row"><span class="dc-detail-label">IX Points:</span><span class="dc-detail-value">' + fac.ix_count + '</span></div>');
+    if (fac.carrier_count != null) rows.push('<div class="dc-detail-row"><span class="dc-detail-label">Carriers:</span><span class="dc-detail-value">' + fac.carrier_count + '</span></div>');
+    if (fac.website) rows.push('<div class="dc-detail-row"><span class="dc-detail-label">Website:</span><span class="dc-detail-value"><a href="' + escapeHtml(fac.website) + '" target="_blank">' + escapeHtml(fac.website) + '</a></span></div>');
+    if (fac.latitude && fac.longitude) rows.push('<div class="dc-detail-row"><span class="dc-detail-label">GPS:</span><span class="dc-detail-value">' + Number(fac.latitude).toFixed(4) + ', ' + Number(fac.longitude).toFixed(4) + '</span></div>');
+    if (cables.length) rows.push('<div class="dc-detail-row"><span class="dc-detail-label">Cables:</span><span class="dc-detail-value">' + cables.map(escapeHtml).join(', ') + (moreCables ? ' +' + moreCables + ' more' : '') + '</span></div>');
+    if (networks.length) rows.push('<div style="margin-top:6px"><span class="dc-detail-label">ASNs:</span><br>' + networks.map(function(n){ return '<span class="dc-detail-net-tag">' + escapeHtml(n.name || String(n)) + '</span>'; }).join('') + (moreNets ? '<span class="dc-detail-net-tag" style="background:#e5e7eb">+' + moreNets + ' more</span>' : '') + '</div>');
+    body.innerHTML = rows.join('');
+    panel.classList.add('visible');
   }
 
   function addDCToVisorMap(dcId) {
@@ -26264,6 +26684,10 @@ function loadProjectObject(obj) {
       popup.remove();
     });
 
+    el.addEventListener('click', () => {
+      showDCVisorDetail(String(fac.id));
+    });
+
     dcVisorState.dcMarkers[dcId] = marker;
 
     // Update fixed labels if active
@@ -26290,22 +26714,10 @@ function loadProjectObject(obj) {
 
   function selectAllVisorDCs() {
     if (!dcVisorState.dcDatabase) return;
-
-    const search = (document.getElementById('dcVisorSearch')?.value || '').toLowerCase().trim();
-    const regionFilter = document.getElementById('dcVisorRegionFilter')?.value || '';
-
+    const maxSelect = 300;
     let count = 0;
-    const maxSelect = 200; // Limit to prevent performance issues
-
-    dcVisorState.dcDatabase.facilities.forEach(fac => {
+    getFilteredDCFacilities().forEach(fac => {
       if (count >= maxSelect) return;
-      if (regionFilter && fac.region_continent !== regionFilter) return;
-      if (search) {
-        const name = (fac.name || '').toLowerCase();
-        const org = (fac.org_name || '').toLowerCase();
-        const city = (fac.city || '').toLowerCase();
-        if (!name.includes(search) && !org.includes(search) && !city.includes(search)) return;
-      }
       if (!fac.latitude || !fac.longitude) return;
       if (!dcVisorState.selectedDCs.has(String(fac.id))) {
         dcVisorState.selectedDCs.add(String(fac.id));
@@ -26313,11 +26725,9 @@ function loadProjectObject(obj) {
         count++;
       }
     });
-
     if (count >= maxSelect) {
       showToast(`Selected ${maxSelect} datacenters (limit). Narrow your search for more.`, 'info');
     }
-
     renderDCVisorList();
   }
 
@@ -26599,9 +27009,13 @@ function loadProjectObject(obj) {
     document.getElementById('btnOpenDCVisor')?.addEventListener('click', showDCVisor);
     document.getElementById('btnDCVisorSelectAll')?.addEventListener('click', selectAllVisorDCs);
     document.getElementById('btnDCVisorClearAll')?.addEventListener('click', clearAllVisorDCs);
-    document.getElementById('dcVisorSearch')?.addEventListener('input', () => renderDCVisorList());
-    document.getElementById('dcVisorRegionFilter')?.addEventListener('change', () => renderDCVisorList());
-    document.getElementById('dcVisorTypeFilter')?.addEventListener('change', () => renderDCVisorList());
+    document.getElementById('dcVisorSearch')?.addEventListener('input', () => dcVisorAutoRefreshSelection());
+    document.getElementById('dcVisorRegionFilter')?.addEventListener('change', () => dcVisorAutoRefreshSelection());
+    document.getElementById('dcVisorTypeFilter')?.addEventListener('change', () => dcVisorAutoRefreshSelection());
+    document.getElementById('dcVisorCountryFilter')?.addEventListener('change', () => dcVisorAutoRefreshSelection());
+    document.getElementById('dcVisorCityFilter')?.addEventListener('input', () => dcVisorAutoRefreshSelection());
+    document.getElementById('dcVisorOwnerFilter')?.addEventListener('change', () => dcVisorAutoRefreshSelection());
+    document.getElementById('dcVisorNetworkFilter')?.addEventListener('input', () => dcVisorAutoRefreshSelection());
 
     // DC name labels toggle
     document.getElementById('btnDCVisorShowNames')?.addEventListener('click', () => {
@@ -26611,6 +27025,13 @@ function loadProjectObject(obj) {
     });
 
     console.log('[DCVisor] Event handlers initialized');
+    var dcDetailCloseBtn = document.getElementById('dcVisorDetailClose');
+    if (dcDetailCloseBtn) {
+      dcDetailCloseBtn.addEventListener('click', function() {
+        var panel = document.getElementById('dcVisorDetailPanel');
+        if (panel) panel.classList.remove('visible');
+      });
+    }
   }
 
   // Initialize DC Visor on DOM ready
@@ -31362,6 +31783,10 @@ function loadProjectObject(obj) {
       shapeLibraryPanel.classList.toggle('visible');
       btnToggleLibrary.classList.toggle('active', !isVisible);
       localStorage.setItem('netmap-library-visible', !isVisible);
+      // If docked, sync canvas offset with new visibility state
+      if (shapeLibraryPanel.classList.contains('docked')) {
+        wrapElement?.classList.toggle('library-docked', !isVisible);
+      }
     });
 
     // Restore visibility state (default: hidden)
@@ -31377,6 +31802,10 @@ function loadProjectObject(obj) {
       shapeLibraryPanel.classList.remove('visible');
       if (btnToggleLibrary) btnToggleLibrary.classList.remove('active');
       localStorage.setItem('netmap-library-visible', 'false');
+      // If docked, reclaim the canvas space
+      if (shapeLibraryPanel.classList.contains('docked')) {
+        wrapElement?.classList.remove('library-docked');
+      }
     });
   }
 
@@ -31598,7 +32027,10 @@ function loadProjectObject(obj) {
   const savedDockedState = localStorage.getItem('netmap-library-docked') === 'true';
   if (savedDockedState && shapeLibraryPanel) {
     shapeLibraryPanel.classList.add('docked');
-    wrapElement?.classList.add('library-docked');
+    // Only offset canvas when library is also visible
+    if (localStorage.getItem('netmap-library-visible') === 'true') {
+      wrapElement?.classList.add('library-docked');
+    }
     if (btnLibraryDock) btnLibraryDock.classList.add('active');
     // Apply position after a small delay to ensure header is rendered
     setTimeout(applyDockedPosition, 50);
@@ -31609,7 +32041,8 @@ function loadProjectObject(obj) {
       e.stopPropagation();
 
       const isDocked = shapeLibraryPanel.classList.toggle('docked');
-      wrapElement?.classList.toggle('library-docked', isDocked);
+      const isLibraryVisible = shapeLibraryPanel.classList.contains('visible');
+      wrapElement?.classList.toggle('library-docked', isDocked && isLibraryVisible);
       btnLibraryDock.classList.toggle('active', isDocked);
 
       // Save docked state
@@ -36068,6 +36501,356 @@ function loadProjectObject(obj) {
       showToast(`❌ No path found${constraintText}`);
     }
   }
+
+  // ===========================================================
+  // HEADLESS PATHFINDER - callable by AI agent without UI
+  // Decouples the pathfinding engine from DOM/UI state.
+  // ===========================================================
+  function runPathfinderHeadless(params) {
+    if (!params || !params.originNodeId || !params.destNodeId) {
+      return { success: false, primaryRoutes: [], protectionPath: null,
+               error: 'originNodeId and destNodeId are required' };
+    }
+
+    function toSet(arr) {
+      return arr instanceof Set ? arr : new Set(Array.isArray(arr) ? arr : []);
+    }
+    function normalizeTagMode(mode) {
+      if (mode === 'all')  return 'include';
+      if (mode === 'none') return 'exclude';
+      return mode || 'any';
+    }
+    function resolveCapMode(p) {
+      if (+p.capacityMinTotal > 0 || +p.capacityMin1G > 0 || +p.capacityMin10G > 0 ||
+          +p.capacityMin100G > 0  || +p.capacityMin400G > 0 || +p.capacityMinTbps > 0) {
+        return p.capacityMode || 'total';
+      }
+      return 'none';
+    }
+
+    // Snapshot current routeFinderState so we can restore it after the call
+    var saved = {
+      originNodeId:             routeFinderState.originNodeId,
+      destNodeId:               routeFinderState.destNodeId,
+      visibleOnly:              routeFinderState.visibleOnly,
+      skipImplicitTransit:      routeFinderState.skipImplicitTransit,
+      enableContainerTransit:   routeFinderState.enableContainerTransit,
+      enableRegionTransit:      routeFinderState.enableRegionTransit,
+      containerLatency:         routeFinderState.containerLatency,
+      regionLatency:            routeFinderState.regionLatency,
+      nodeTagMode:              routeFinderState.nodeTagMode,
+      nodeTagFilter:            routeFinderState.nodeTagFilter,
+      linkTagMode:              routeFinderState.linkTagMode,
+      linkTagFilter:            routeFinderState.linkTagFilter,
+      capacityMode:             routeFinderState.capacityMode,
+      capacityMinTotal:         routeFinderState.capacityMinTotal,
+      capacityMin1G:            routeFinderState.capacityMin1G,
+      capacityMin10G:           routeFinderState.capacityMin10G,
+      capacityMin100G:          routeFinderState.capacityMin100G,
+      capacityMin400G:          routeFinderState.capacityMin400G,
+      capacityMinTbps:          routeFinderState.capacityMinTbps,
+      capacityIncludeUndefined: routeFinderState.capacityIncludeUndefined,
+      excludedNodes:            routeFinderState.excludedNodes,
+      excludedLinks:            routeFinderState.excludedLinks,
+      mustUseNodes:             routeFinderState.mustUseNodes,
+      mustUseLinks:             routeFinderState.mustUseLinks,
+      diverseFromLinks:         routeFinderState.diverseFromLinks,
+      preferMLGs:               routeFinderState.preferMLGs,
+      mlgTopologyFilter:        routeFinderState.mlgTopologyFilter,
+      mustUseMLGs:              routeFinderState.mustUseMLGs,
+      excludedMLGs:             routeFinderState.excludedMLGs,
+      mlgCapacityMode:          routeFinderState.mlgCapacityMode,
+      mlgCapacityMinTotal:      routeFinderState.mlgCapacityMinTotal,
+      mlgCapacityMin1G:         routeFinderState.mlgCapacityMin1G,
+      mlgCapacityMin10G:        routeFinderState.mlgCapacityMin10G,
+      mlgCapacityMin100G:       routeFinderState.mlgCapacityMin100G,
+      mlgCapacityMin400G:       routeFinderState.mlgCapacityMin400G,
+      mlgCapacityMinTbps:       routeFinderState.mlgCapacityMinTbps,
+      mlgCapacityIncludeUndefined: routeFinderState.mlgCapacityIncludeUndefined,
+      optimizationBalance:      routeFinderState.optimizationBalance,
+      costMetric:               routeFinderState.costMetric,
+      costScale:                routeFinderState.costScale,
+      capacityTier:             routeFinderState.capacityTier,
+      routes:                   routeFinderState.routes,
+      activeRouteIndex:         routeFinderState.activeRouteIndex,
+      primaryPathForProtection: routeFinderState.primaryPathForProtection,
+      protectionClosureNodes:   routeFinderState.protectionClosureNodes,
+      protectionPath:           routeFinderState.protectionPath
+    };
+
+    try {
+      // Apply primary path params to routeFinderState
+      routeFinderState.originNodeId            = params.originNodeId;
+      routeFinderState.destNodeId              = params.destNodeId;
+      routeFinderState.visibleOnly             = !!params.visibleOnly;
+      routeFinderState.skipImplicitTransit     = !!params.skipImplicitTransit;
+      routeFinderState.enableContainerTransit  = params.enableContainerTransit !== false;
+      routeFinderState.enableRegionTransit     = params.enableRegionTransit !== false;
+      routeFinderState.containerLatency        = +params.containerLatency || 1;
+      routeFinderState.regionLatency           = +params.regionLatency || 10;
+      routeFinderState.nodeTagMode             = normalizeTagMode(params.nodeTagMode);
+      routeFinderState.nodeTagFilter           = toSet(params.nodeTagFilter);
+      routeFinderState.linkTagMode             = normalizeTagMode(params.linkTagMode);
+      routeFinderState.linkTagFilter           = toSet(params.linkTagFilter);
+      routeFinderState.capacityMode            = resolveCapMode(params);
+      routeFinderState.capacityMinTotal        = +params.capacityMinTotal || 0;
+      routeFinderState.capacityMin1G           = +params.capacityMin1G || 0;
+      routeFinderState.capacityMin10G          = +params.capacityMin10G || 0;
+      routeFinderState.capacityMin100G         = +params.capacityMin100G || 0;
+      routeFinderState.capacityMin400G         = +params.capacityMin400G || 0;
+      routeFinderState.capacityMinTbps         = +params.capacityMinTbps || 0;
+      routeFinderState.capacityIncludeUndefined = params.capacityIncludeUndefined !== false;
+      routeFinderState.excludedNodes           = toSet(params.excludedNodes);
+      routeFinderState.excludedLinks           = toSet(params.excludedLinks);
+      routeFinderState.mustUseNodes            = toSet(params.mustUseNodes);
+      routeFinderState.mustUseLinks            = toSet(params.mustUseLinks);
+      routeFinderState.diverseFromLinks        = toSet(params.diverseFromLinks);
+      routeFinderState.preferMLGs              = !!params.preferMLGs;
+      routeFinderState.mlgTopologyFilter       = toSet(params.mlgTopologyFilter || ['linear', 'ring', 'ring_linear']);
+      routeFinderState.mustUseMLGs             = toSet(params.mustUseMLGs);
+      routeFinderState.excludedMLGs            = toSet(params.excludedMLGs);
+      routeFinderState.mlgCapacityMode         = params.mlgCapacityMode || 'none';
+      routeFinderState.mlgCapacityMinTotal     = +params.mlgCapacityMinTotal || 0;
+      routeFinderState.mlgCapacityMin1G        = +params.mlgCapacityMin1G || 0;
+      routeFinderState.mlgCapacityMin10G       = +params.mlgCapacityMin10G || 0;
+      routeFinderState.mlgCapacityMin100G      = +params.mlgCapacityMin100G || 0;
+      routeFinderState.mlgCapacityMin400G      = +params.mlgCapacityMin400G || 0;
+      routeFinderState.mlgCapacityMinTbps      = +params.mlgCapacityMinTbps || 0;
+      routeFinderState.mlgCapacityIncludeUndefined = params.mlgCapacityIncludeUndefined !== false;
+      routeFinderState.optimizationBalance     = +params.optimizationBalance || 0;
+      routeFinderState.costMetric              = params.costMetric || 'lease';
+      routeFinderState.costScale               = params.costScale || 'logarithmic';
+      routeFinderState.capacityTier            = params.capacityTier || '10G';
+
+      // Run primary pathfinding using existing engine functions
+      var k = params.k || 3;
+      var routes;
+      if (routeFinderState.preferMLGs) {
+        routes = findKShortestPathsWithMLGPreference(params.originNodeId, params.destNodeId, k);
+      } else {
+        routes = findKShortestPaths(params.originNodeId, params.destNodeId, k);
+      }
+
+      // Helper: build human-readable path summary
+      function summarizePath(nodeIds, segs) {
+        var parts = [];
+        nodeIds.forEach(function(id, i) {
+          var n = typeof findNode === 'function' ? findNode(id) : null;
+          parts.push((n && n.name) ? n.name : id);
+          if (i < segs.length) {
+            var e = (segs[i] && segs[i].edgeId && typeof findEdge === 'function') ? findEdge(segs[i].edgeId) : null;
+            parts.push((e && e.name) ? ' -[' + e.name + ']- ' : ' -> ');
+          }
+        });
+        return parts.join('');
+      }
+
+      // Format primary routes into the return schema
+      var primaryRoutes = (routes || []).map(function(route, idx) {
+        var nodeIds = route.path || [];
+        var segs    = route.segments || [];
+        var linkIds = segs.filter(function(s) { return s.edgeId && !s.implicit; }).map(function(s) { return s.edgeId; });
+        var totalLatency = segs.reduce(function(sum, s) { return sum + (s.latency || 0); }, 0);
+        var usedMLGs = [];
+        segs.forEach(function(s) { if (s.mlgId && usedMLGs.indexOf(s.mlgId) === -1) usedMLGs.push(s.mlgId); });
+        return {
+          index:        idx,
+          nodes:        nodeIds,
+          links:        linkIds,
+          totalLatency: Math.round(totalLatency * 1000) / 1000,
+          totalCost:    route.totalCost || 0,
+          hopCount:     nodeIds.length,
+          mlgsUsed:     usedMLGs,
+          summary:      summarizePath(nodeIds, segs)
+        };
+      });
+
+      // Protection path (headless: no DOM reads, independent filter set)
+      var protectionPath = null;
+      if (params.calculateProtection && primaryRoutes.length > 0) {
+        var prot = Object.assign({
+          visibleOnly: false, skipImplicitTransit: false,
+          nodeTagMode: 'any', nodeTagFilter: [],
+          linkTagMode: 'any', linkTagFilter: [],
+          capacityMode: 'total', capacityMinTotal: 0,
+          capacityMin1G: 0, capacityMin10G: 0, capacityMin100G: 0,
+          capacityMin400G: 0, capacityMinTbps: 0, capacityIncludeUndefined: true,
+          excludedNodes: [], excludedLinks: [], mustUseNodes: [], mustUseLinks: [],
+          diverseFromLinks: []
+        }, params.protection || {});
+
+        var primaryRoute   = routes[0];
+        var primaryLinkIds = new Set(
+          (primaryRoute.segments || []).filter(function(s) { return !!s.edgeId; })
+                                       .map(function(s) { return s.edgeId; })
+        );
+
+        // Physical-diversity exclusions (100% strict for headless calls)
+        var physicalDiversityExcluded = new Set();
+        primaryLinkIds.forEach(function(plId) {
+          var pe = typeof findEdge === 'function' ? findEdge(plId) : null;
+          if (!pe || !pe.routingOverlap) return;
+          var entries = window.normalizeRoutingOverlap ?
+            window.normalizeRoutingOverlap(pe.routingOverlap) : pe.routingOverlap;
+          entries.forEach(function(entry) {
+            var pct    = typeof entry === 'object' ? (entry.diversityPercent || 0) : 0;
+            var linkId = typeof entry === 'object' ? entry.linkId : entry;
+            if (pct < 100) physicalDiversityExcluded.add(linkId);
+          });
+        });
+
+        // Apply protection-specific filter state temporarily
+        routeFinderState.excludedNodes           = toSet(prot.excludedNodes);
+        routeFinderState.excludedLinks           = toSet(prot.excludedLinks);
+        routeFinderState.visibleOnly             = !!prot.visibleOnly;
+        routeFinderState.nodeTagMode             = normalizeTagMode(prot.nodeTagMode);
+        routeFinderState.nodeTagFilter           = toSet(prot.nodeTagFilter);
+        routeFinderState.linkTagMode             = normalizeTagMode(prot.linkTagMode);
+        routeFinderState.linkTagFilter           = toSet(prot.linkTagFilter);
+        routeFinderState.capacityMode            = resolveCapMode(prot);
+        routeFinderState.capacityMinTotal        = +prot.capacityMinTotal || 0;
+        routeFinderState.capacityMin1G           = +prot.capacityMin1G || 0;
+        routeFinderState.capacityMin10G          = +prot.capacityMin10G || 0;
+        routeFinderState.capacityMin100G         = +prot.capacityMin100G || 0;
+        routeFinderState.capacityMin400G         = +prot.capacityMin400G || 0;
+        routeFinderState.capacityMinTbps         = +prot.capacityMinTbps || 0;
+        routeFinderState.capacityIncludeUndefined = prot.capacityIncludeUndefined !== false;
+        routeFinderState.mustUseNodes            = toSet(prot.mustUseNodes);
+        routeFinderState.mustUseLinks            = toSet(prot.mustUseLinks);
+
+        // Capture protection filter snapshots for graph builder
+        var protExcludedNodes = routeFinderState.excludedNodes;
+        var protExcludedLinks = routeFinderState.excludedLinks;
+        var protVisibleOnly   = routeFinderState.visibleOnly;
+
+        // Build adjacency list for protection pathfinding
+        var adj = new Map();
+        var validNodeIds = new Set();
+        if (typeof state !== 'undefined' && state.nodes) {
+          state.nodes.forEach(function(n) {
+            if (protExcludedNodes.has(n.id)) return;
+            if (protVisibleOnly && typeof isNodeVisible === 'function' && !isNodeVisible(n)) return;
+            validNodeIds.add(n.id);
+            adj.set(n.id, []);
+          });
+          state.edges.forEach(function(e) {
+            if (primaryLinkIds.has(e.id) || physicalDiversityExcluded.has(e.id)) return;
+            if (protVisibleOnly && e.hidden) return;
+            if (protExcludedLinks.has(e.id)) return;
+            if (!validNodeIds.has(e.a) || !validNodeIds.has(e.b)) return;
+            var lat = parseFloat(e.latencyMs) || parseFloat(e.latency) || (routeFinderState.minLatency || 0.001);
+            adj.get(e.a).push({ to: e.b, edgeId: e.id, latency: lat, cost: lat });
+            adj.get(e.b).push({ to: e.a, edgeId: e.id, latency: lat, cost: lat });
+          });
+        }
+
+        // Self-contained Dijkstra (no dependency on UI state)
+        function headlessDijkstra(adjacency, start, end) {
+          if (!adjacency.has(start) || !adjacency.has(end)) return null;
+          var dist = new Map(), prev = new Map(), visited = new Set();
+          adjacency.forEach(function(_, id) { dist.set(id, Infinity); });
+          dist.set(start, 0);
+          prev.set(start, null);
+          var pq = [{ id: start, d: 0 }];
+          while (pq.length > 0) {
+            pq.sort(function(a, b) { return a.d - b.d; });
+            var cur = pq.shift();
+            if (visited.has(cur.id)) continue;
+            visited.add(cur.id);
+            if (cur.id === end) break;
+            (adjacency.get(cur.id) || []).forEach(function(edge) {
+              if (visited.has(edge.to)) return;
+              var nd = dist.get(cur.id) + edge.cost;
+              if (nd < dist.get(edge.to)) {
+                dist.set(edge.to, nd);
+                prev.set(edge.to, { from: cur.id, edge: edge });
+                pq.push({ id: edge.to, d: nd });
+              }
+            });
+          }
+          if (dist.get(end) === Infinity) return null;
+          var path = [], segs = [], totalLatency = 0, c = end;
+          while (c !== null) {
+            path.unshift(c);
+            var pi = prev.get(c);
+            if (pi && pi.edge) {
+              segs.unshift({ edgeId: pi.edge.edgeId, latency: pi.edge.latency, cost: pi.edge.cost });
+              totalLatency += pi.edge.latency;
+            }
+            c = pi ? pi.from : null;
+          }
+          return { path: path, segments: segs, totalCost: dist.get(end), totalLatency: totalLatency };
+        }
+
+        // Route through any must-use waypoints from protection params
+        var mustUseArr = (prot.mustUseNodes || []).filter(function(id) {
+          return id !== params.originNodeId && id !== params.destNodeId;
+        });
+        var waypoints = [params.originNodeId].concat(mustUseArr).concat([params.destNodeId]);
+        var protResult = null;
+
+        if (waypoints.length === 2) {
+          protResult = headlessDijkstra(adj, waypoints[0], waypoints[1]);
+        } else {
+          var fullPath = [], fullSegs = [], totalCost = 0, totalLatency = 0, failed = false;
+          for (var wi = 0; wi < waypoints.length - 1; wi++) {
+            var wseg = headlessDijkstra(adj, waypoints[wi], waypoints[wi + 1]);
+            if (!wseg) { failed = true; break; }
+            fullPath     = wi === 0 ? wseg.path : fullPath.concat(wseg.path.slice(1));
+            fullSegs     = fullSegs.concat(wseg.segments);
+            totalCost    += wseg.totalCost;
+            totalLatency += wseg.totalLatency;
+          }
+          if (!failed && fullPath.length > 0) {
+            protResult = { path: fullPath, segments: fullSegs, totalCost: totalCost, totalLatency: totalLatency };
+          }
+        }
+
+        if (protResult && protResult.segments.length > 0) {
+          var protLinkIds = protResult.segments
+            .filter(function(s) { return !!s.edgeId; })
+            .map(function(s) { return s.edgeId; });
+          var isDiverse = !protLinkIds.some(function(id) { return primaryLinkIds.has(id); });
+          protectionPath = {
+            nodes:        protResult.path,
+            links:        protLinkIds,
+            totalLatency: Math.round(protResult.totalLatency * 1000) / 1000,
+            totalCost:    protResult.totalCost,
+            hopCount:     protResult.path.length,
+            isDiverse:    isDiverse,
+            summary:      summarizePath(protResult.path, protResult.segments)
+          };
+        }
+      }
+
+      // Restore routeFinderState to pre-call snapshot
+      Object.assign(routeFinderState, saved);
+
+      return { success: true, primaryRoutes: primaryRoutes, protectionPath: protectionPath, error: null };
+
+    } catch (err) {
+      // Always restore state even on error
+      Object.assign(routeFinderState, saved);
+      return { success: false, primaryRoutes: [], protectionPath: null, error: err.message };
+    }
+  }
+
+  // Expose headless pathfinder globally for AI agent tool calls and external scripts
+  window.runPathfinderHeadless = runPathfinderHeadless;
+
+  // Console smoke-test: run window._pfTest() in browser DevTools to verify
+  window._pfTest = function() {
+    var nodes = (typeof state !== 'undefined' && state.nodes) ? state.nodes : [];
+    if (nodes.length < 2) { console.log('[_pfTest] Need at least 2 nodes on the diagram'); return null; }
+    var result = runPathfinderHeadless({
+      originNodeId:        nodes[0].id,
+      destNodeId:          nodes[nodes.length - 1].id,
+      k:                   3,
+      calculateProtection: true
+    });
+    console.log('[_pfTest] runPathfinderHeadless result:', result);
+    return result;
+  };
 
   // Display route results
   function displayRouteResults() {
@@ -43753,7 +44536,7 @@ function handlePathKmlImport(e) {
   // ============== EXTERNAL SUBMARINE CABLE DATABASE ==============
 
   // URL to the external submarine cable database
-  const SUBMARINE_CABLE_DB_URL = './data/submarine_cables_db.json';
+  const SUBMARINE_CABLE_DB_URL = '../data/submarine_cables_db.json';
 
   // Cache for loaded cable data
   let submarineCableCache = null;
@@ -50906,11 +51689,17 @@ function handlePathKmlImport(e) {
       // KML Studio requests the list of available Neximap objects for its right panel
       if (event.data.type === 'kml-request-neximap-objects') {
         const objects = {
-          nodes: state.nodes.map(n => ({
-            id: n.id, name: n.name || n.code || ('N-' + n.id),
-            code: n.code, hasGeo: (n.gpsLat != null && n.gpsLon != null && !isNaN(n.gpsLat) && !isNaN(n.gpsLon)),
-            lat: n.gpsLat, lon: n.gpsLon
-          })),
+          nodes: state.nodes.map(n => {
+            const _connEdges = state.edges.filter(e => e.a === n.id || e.b === n.id);
+            const _csSysIds = new Set(_connEdges.map(e => e.cableSystemId).filter(id => id != null));
+            return {
+              id: n.id, name: n.name || n.code || ('N-' + n.id),
+              code: n.code, hasGeo: (n.gpsLat != null && n.gpsLon != null && !isNaN(n.gpsLat) && !isNaN(n.gpsLon)),
+              lat: n.gpsLat, lon: n.gpsLon,
+              linkCount: _connEdges.length,
+              cableSystemCount: _csSysIds.size
+            };
+          }),
           links: state.edges.map(e => ({
             id: e.id, name: e.name || e.code || ('L-' + e.id),
             code: e.code,
@@ -50926,7 +51715,7 @@ function handlePathKmlImport(e) {
           }))
         };
         if (event.source) {
-          event.source.postMessage({ type: 'neximap-objects-response', objects }, MSG_ORIGIN);
+          event.source.postMessage({ type: 'neximap-objects', links: objects.links, nodes: objects.nodes, containers: objects.containers }, MSG_ORIGIN);
         }
       }
 
@@ -51261,6 +52050,18 @@ function handlePathKmlImport(e) {
 
     console.log('[NexiMap] KML Studio integration loaded');
   })();
+
+  // Expose core canvas functions globally for the AI Agent dispatcher
+  window.makeNode = makeNode;
+  window.makeEdge = makeEdge;
+  window.commit = commit;
+  window.showToast = showToast;
+  window.updateNodeGroupMembership = updateNodeGroupMembership;
+  window.refreshAllMemberships = refreshAllMemberships;
+  window.applyHeatMapMode = applyHeatMapMode;
+  window.clearRouteHighlights = clearRouteHighlights;
+  window.openCSVisorWithDefaults = openCSVisorWithDefaults;
+  window.openDCVisorWithDefaults = openDCVisorWithDefaults;
 
   showToast('Welcome to NexiMap Studio — double-click to create a node.');
 })();
@@ -52510,16 +53311,26 @@ function handlePathKmlImport(e) {
     </div>
   </div>
   <div id="dcVisorToolbar">
-    <div style="display:flex; gap:8px; align-items:center;">
-      <input type="text" id="dcVisorSearch" placeholder="Search facilities..." style="flex:1; padding:6px 10px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px;" />
-      <select id="dcVisorTypeFilter" style="padding:6px 10px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px; background:white; max-width:120px;">
+    <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+      <input type="text" id="dcVisorSearch" placeholder="Search facilities..." style="flex:1; min-width:120px; padding:5px 8px; border:1px solid #d0d0d0; border-radius:4px; font-size:11px;" />
+      <select id="dcVisorTypeFilter" style="padding:5px 8px; border:1px solid #d0d0d0; border-radius:4px; font-size:11px; background:white; max-width:110px;">
         <option value="">All Types</option>
         <option value="datacenter">Datacenters</option>
         <option value="cable_station">Cable Stations</option>
       </select>
-      <select id="dcVisorRegionFilter" style="padding:6px 10px; border:1px solid #d0d0d0; border-radius:4px; font-size:12px; background:white; max-width:140px;">
-        <option value="">All Corridors</option>
+      <select id="dcVisorRegionFilter" style="padding:5px 8px; border:1px solid #d0d0d0; border-radius:4px; font-size:11px; background:white; max-width:140px;">
+        <option value="">All Regions</option>
       </select>
+    </div>
+    <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:4px;">
+      <select id="dcVisorCountryFilter" style="padding:5px 8px; border:1px solid #d0d0d0; border-radius:4px; font-size:11px; background:white; flex:1; min-width:110px; max-width:170px;">
+        <option value="">All Countries</option>
+      </select>
+      <input type="text" id="dcVisorCityFilter" placeholder="City..." style="flex:1; min-width:70px; max-width:100px; padding:5px 8px; border:1px solid #d0d0d0; border-radius:4px; font-size:11px;" />
+      <select id="dcVisorOwnerFilter" style="padding:5px 8px; border:1px solid #d0d0d0; border-radius:4px; font-size:11px; background:white; flex:1; min-width:110px; max-width:170px;">
+        <option value="">All Owners</option>
+      </select>
+      <input type="text" id="dcVisorNetworkFilter" placeholder="Network..." style="flex:1; min-width:80px; max-width:110px; padding:5px 8px; border:1px solid #d0d0d0; border-radius:4px; font-size:11px;" />
     </div>
     <div style="display:flex; gap:6px; align-items:center; margin-top:4px;">
       <button class="btn" id="btnDCVisorSelectAll" style="padding:4px 8px; font-size:11px;" title="Select all visible">&#x2713; All</button>
@@ -52558,12 +53369,59 @@ function handlePathKmlImport(e) {
       <!-- Dynamic list -->
     </div>
   </div>
+  <!-- DC Metadata Detail Panel -->
+  <div id="dcVisorDetailPanel">
+    <div id="dcVisorDetailHeader">
+      <span id="dcVisorDetailTitle">&#x1F3E2; Datacenter Details</span>
+      <button id="dcVisorDetailClose" title="Close">&#x2715;</button>
+    </div>
+    <div id="dcVisorDetailBody">
+      <div style="color:#888;font-size:12px;padding:4px 0">Click a datacenter in the list to see its details here.</div>
+    </div>
+  </div>
   <div id="dcVisorFooter">
     <span id="dcVisorDCCount">0 datacenters</span>
     <span>Click to show on map &#x2022; Double-click to zoom</span>
   </div>
 </aside>
-
+<!-- Nexi AI Agent Panel -->
+<div id="aiAgentPanel">
+  <div id="aiAgentHeader" onmousedown="startDragPanel('aiAgentPanel', event)">
+    <div class="nexi-hdr-avatar"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div>
+    <div class="nexi-hdr-info">
+      <div class="nexi-hdr-title">Nexi</div>
+      <div class="nexi-hdr-sub">Neximap AI Expert Assistant</div>
+    </div>
+    <div class="nexi-hdr-status"></div>
+    <div id="aiAgentHeaderBtns">
+      <button title="Clear chat" onclick="nexiClearChat()">Clear</button>
+      <button title="Close" onclick="toggleAiAgent()">&#x2715;</button>
+    </div>
+  </div>
+  <div id="aiAgentMessages">
+    <div class="nexi-welcome" id="nexiWelcome">
+      <div class="nexi-welcome-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div>
+      <h3>Hi, I'm Nexi</h3>
+      <p>Your AI expert for network routes, submarine cables, pricing, and more.</p>
+      <div class="nexi-welcome-grid">
+        <div class="nexi-wcard" onclick="nexiQuickSend('Find the best latency path from London to Singapore')"><div class="nexi-wcard-title">Find Routes</div><div class="nexi-wcard-desc">Optimal paths between cities</div></div>
+        <div class="nexi-wcard" onclick="nexiQuickSend('Show me submarine cables in the Mediterranean')"><div class="nexi-wcard-title">Explore Cables</div><div class="nexi-wcard-desc">Browse cable systems</div></div>
+        <div class="nexi-wcard" onclick="nexiQuickSend('What is the price for 100G between NYC and Frankfurt?')"><div class="nexi-wcard-title">Check Pricing</div><div class="nexi-wcard-desc">Bandwidth pricing between PoPs</div></div>
+        <div class="nexi-wcard" onclick="nexiQuickSend('Show Equinix datacenters in Frankfurt')"><div class="nexi-wcard-title">Datacenters</div><div class="nexi-wcard-desc">Find DCs by region or provider</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="nexi-suggestions" id="nexiSuggestions">
+    <span class="nexi-chip" onclick="nexiQuickSend('Show cables in the Atlantic')">Atlantic cables</span>
+    <span class="nexi-chip" onclick="nexiQuickSend('Find path London to Tokyo best latency')">London-Tokyo</span>
+    <span class="nexi-chip" onclick="nexiQuickSend('Show Equinix datacenters in Europe')">Equinix EU</span>
+  </div>
+  <div id="aiAgentInputRow">
+    <textarea id="aiAgentInput" placeholder="Ask Nexi about routes, cables, pricing..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSendMessage();}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px';"></textarea>
+    <button id="btnAiSend" onclick="aiSendMessage()">&#x27A4;</button>
+  </div>
+  <div class="nexi-powered">Powered by Claude AI</div>
+</div>
 <!-- Help Center Modal -->
 <div id="helpCenterModal">
   <div id="helpCenterContent">
@@ -54007,7 +54865,7 @@ function handlePathKmlImport(e) {
   // Load PeeringDB facilities database + cable stations from separate file
   async function loadDCDatabase() {
     try {
-      const resp = await fetch('data/peeringdb_facilities.json');
+      const resp = await fetch('../data/peeringdb_facilities.json');
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const data = await resp.json();
       window._dcDatabase = { facilities: data.facilities || [], meta: data.meta || {}, loaded: true };
@@ -54027,9 +54885,9 @@ function handlePathKmlImport(e) {
   async function mergeCableStationsDatabase() {
     try {
       // Try cable_stations_db.json first (comprehensive), fall back to cable_stations.json
-      let resp = await fetch('data/cable_stations_db.json');
+      let resp = await fetch('../data/cable_stations_db.json');
       if (!resp.ok) {
-        resp = await fetch('data/cable_stations.json');
+        resp = await fetch('../data/cable_stations.json');
       }
       if (!resp.ok) {
         console.warn(`[DC] No cable stations file found (HTTP ${resp.status}), skipping.`);
@@ -54325,7 +55183,742 @@ function handlePathKmlImport(e) {
     });
   })();
 
+  // ── Nexi AI Agent Panel — Cloudflare Worker Integration ───────────────────
+  var NEXI_WORKER_URL = 'https://neximap-ai-agent.fcoroyse-spam.workers.dev/';
+  var nexiState = { history: [], hasMessages: false, isLoading: false };
+  var NEXI_TOOL_LABELS = {
+    switch_view:'Switch View', show_route_price:'Route Pricing', create_network_diagram:'Network Diagram',
+    open_cable_visor:'Cable Visor', open_pathfinder:'Pathfinder',
+    open_kml_studio:'KML Studio', open_datacenter_visor:'Datacenter Visor',
+    filter_by_tag:'Tag Filter', filter_by_cable_system:'Cable Filter',
+    filter_by_nodes_or_containers:'Node Filter', filter_map:'Map Filter',
+    show_route_map:'Route Map', get_link_info:'Link Info',
+    clear_all_filters:'Clear Filters', get_network_summary:'Network Summary'
+  };
+
+  function toggleAiAgent() {
+    var panel = document.getElementById('aiAgentPanel');
+    if (!panel) return;
+    var visible = panel.classList.toggle('show');
+    var btn = document.getElementById('btnAiAgent');
+    if (btn) btn.classList.toggle('active', visible);
+    if (visible) {
+      setTimeout(function(){ var inp = document.getElementById('aiAgentInput'); if(inp) inp.focus(); }, 300);
+    }
+  }
+
+  function nexiRenderMd(t) {
+    if (!t) return '';
+    return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+      .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+      .replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>')
+      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,'<em>$1</em>')
+      .replace(/`([^`]+)`/g,'<code>$1</code>')
+      .replace(/^- (.+)$/gm,'<li>$1</li>')
+      .replace(/((?:<li>.*?<\/li>)+)/g,'<ul>$1</ul>')
+      .replace(/\n\n/g,'<br><br>')
+      .replace(/\n/g,'<br>');
+  }
+
+  function nexiAddMsg(role, content, isHtml) {
+    var msgs = document.getElementById('aiAgentMessages');
+    if (!msgs) return;
+    var div = document.createElement('div');
+    div.className = 'ai-msg ' + role;
+    if (isHtml) div.innerHTML = content;
+    else div.textContent = content;
+    msgs.appendChild(div);
+    setTimeout(function(){ msgs.scrollTop = msgs.scrollHeight; }, 40);
+  }
+
+  function nexiShowTyping() {
+    var msgs = document.getElementById('aiAgentMessages');
+    if (!msgs || document.getElementById('nexiTyping')) return;
+    var el = document.createElement('div');
+    el.className = 'nexi-typing';
+    el.id = 'nexiTyping';
+    el.innerHTML = '<div class="nexi-typing-bubble"><div class="nexi-typing-dot"></div><div class="nexi-typing-dot"></div><div class="nexi-typing-dot"></div></div>';
+    msgs.appendChild(el);
+    setTimeout(function(){ msgs.scrollTop = msgs.scrollHeight; }, 40);
+  }
+
+  function nexiHideTyping() {
+    var el = document.getElementById('nexiTyping');
+    if (el) el.remove();
+  }
+
+  function nexiBuildActionCard(action) {
+    var label = NEXI_TOOL_LABELS[action.tool] || action.tool;
+    var params = '';
+    if (action.parameters) {
+      Object.keys(action.parameters).forEach(function(k) {
+        var v = action.parameters[k];
+        if (Array.isArray(v)) v = v.join(', ');
+        params += '<span class="nexi-action-param"><span class="nexi-action-param-k">' + k + ':</span> <span class="nexi-action-param-v">' + v + '</span></span>';
+      });
+    }
+    return '<div class="nexi-action-card">' +
+      '<div class="nexi-action-hdr">' + label + '</div>' +
+      (params ? '<div class="nexi-action-params">' + params + '</div>' : '') +
+      '<button class="nexi-action-exec" data-tool="' + action.tool + '" data-params=\'' + JSON.stringify(action.parameters||{}).replace(/'/g,'&#39;') + '\' onclick="nexiExecAction(this)">Execute in Neximap</button>' +
+      '</div>';
+  }
+
+  function nexiExecAction(btn) {
+    if (btn.classList.contains('executed')) return;
+    var tool = btn.getAttribute('data-tool');
+    var params = {};
+    try { params = JSON.parse(btn.getAttribute('data-params')); } catch(e){}
+    btn.classList.add('executed');
+    btn.textContent = 'Executed';
+    // Dispatch tool actions to Neximap
+    console.log('[Nexi] Executing:', tool, params);
+    nexiDispatchAction(tool, params);
+  }
+
+  // Find a node by fuzzy city/PoP name match
+  function nexiFindNodeByName(name) {
+    if (!name || !state || !state.nodes) return null;
+    var q = name.toLowerCase().trim();
+    // Exact match first
+    var exact = state.nodes.find(function(n){ return (n.name||'').toLowerCase() === q; });
+    if (exact) return exact;
+    // Starts-with match
+    var starts = state.nodes.find(function(n){ return (n.name||'').toLowerCase().indexOf(q) === 0; });
+    if (starts) return starts;
+    // Contains match
+    var contains = state.nodes.find(function(n){ return (n.name||'').toLowerCase().indexOf(q) >= 0; });
+    if (contains) return contains;
+    // Code match
+    var code = state.nodes.find(function(n){ return (n.code||'').toLowerCase() === q; });
+    return code || null;
+  }
+
+  function nexiDispatchAction(tool, params) {
+    // Route tool calls to actual Neximap functions
+    try {
+      switch (tool) {
+
+        case 'open_cable_visor':
+          if (typeof showCableVisor === 'function') showCableVisor();
+          break;
+
+        case 'open_datacenter_visor':
+          if (typeof showDCVisor === 'function') showDCVisor();
+          break;
+
+        case 'open_pathfinder':
+          if (typeof toggleRouteFinder === 'function') {
+            // Open the pathfinder panel if not already open
+            if (!window.routeFinderState || !window.routeFinderState.active) toggleRouteFinder();
+            // Set origin/destination if provided
+            var originSel = document.getElementById('routeOriginSelect');
+            var destSel = document.getElementById('routeDestSelect');
+            if (params.origin && originSel) {
+              var oNode = nexiFindNodeByName(params.origin);
+              if (oNode) { originSel.value = oNode.id; originSel.dispatchEvent(new Event('change')); }
+            }
+            if (params.destination && destSel) {
+              var dNode = nexiFindNodeByName(params.destination);
+              if (dNode) { destSel.value = dNode.id; destSel.dispatchEvent(new Event('change')); }
+            }
+            // Auto-calculate if both are set or explicitly requested
+            if (params.run_calculation || (params.origin && params.destination)) {
+              setTimeout(function(){ if (typeof calculateRoutes === 'function') calculateRoutes(); }, 300);
+            }
+          }
+          break;
+
+        case 'open_kml_studio':
+          if (typeof openKMLStudio === 'function') openKMLStudio();
+          else window.open('kml-studio.html','_blank');
+          break;
+
+        case 'show_route_price':
+          // Open pathfinder with origin/destination and trigger calculation
+          if (typeof toggleRouteFinder === 'function') {
+            if (!window.routeFinderState || !window.routeFinderState.active) toggleRouteFinder();
+            var rpOriginSel = document.getElementById('routeOriginSelect');
+            var rpDestSel = document.getElementById('routeDestSelect');
+            if (params.origin && rpOriginSel) {
+              var rpO = nexiFindNodeByName(params.origin);
+              if (rpO) { rpOriginSel.value = rpO.id; rpOriginSel.dispatchEvent(new Event('change')); }
+            }
+            if (params.destination && rpDestSel) {
+              var rpD = nexiFindNodeByName(params.destination);
+              if (rpD) { rpDestSel.value = rpD.id; rpDestSel.dispatchEvent(new Event('change')); }
+            }
+            setTimeout(function(){ if (typeof calculateRoutes === 'function') calculateRoutes(); }, 300);
+          }
+          break;
+
+        case 'show_route_map':
+          // Open pathfinder with first/last waypoint as origin/destination
+          if (params.waypoints && params.waypoints.length >= 2 && typeof toggleRouteFinder === 'function') {
+            if (!window.routeFinderState || !window.routeFinderState.active) toggleRouteFinder();
+            var rmOriginSel = document.getElementById('routeOriginSelect');
+            var rmDestSel = document.getElementById('routeDestSelect');
+            var rmO = nexiFindNodeByName(params.waypoints[0]);
+            var rmD = nexiFindNodeByName(params.waypoints[params.waypoints.length - 1]);
+            if (rmO && rmOriginSel) { rmOriginSel.value = rmO.id; rmOriginSel.dispatchEvent(new Event('change')); }
+            if (rmD && rmDestSel) { rmDestSel.value = rmD.id; rmDestSel.dispatchEvent(new Event('change')); }
+            setTimeout(function(){ if (typeof calculateRoutes === 'function') calculateRoutes(); }, 300);
+          }
+          break;
+
+        case 'get_link_info':
+          // Open pathfinder between the two points
+          if (params.point_a && params.point_b && typeof toggleRouteFinder === 'function') {
+            if (!window.routeFinderState || !window.routeFinderState.active) toggleRouteFinder();
+            var liOriginSel = document.getElementById('routeOriginSelect');
+            var liDestSel = document.getElementById('routeDestSelect');
+            var liA = nexiFindNodeByName(params.point_a);
+            var liB = nexiFindNodeByName(params.point_b);
+            if (liA && liOriginSel) { liOriginSel.value = liA.id; liOriginSel.dispatchEvent(new Event('change')); }
+            if (liB && liDestSel) { liDestSel.value = liB.id; liDestSel.dispatchEvent(new Event('change')); }
+            setTimeout(function(){ if (typeof calculateRoutes === 'function') calculateRoutes(); }, 300);
+          }
+          break;
+
+        case 'filter_by_tag':
+          if (params.tags && params.tags.length && state && state.tagFilter) {
+            // Open unified filter panel
+            if (typeof toggleUnifiedFilterPanel === 'function') toggleUnifiedFilterPanel();
+            // Clear if requested or by default
+            if (params.clear_existing !== false) state.tagFilter.selectedTags.clear();
+            params.tags.forEach(function(t) { state.tagFilter.selectedTags.add(t); });
+            state.tagFilter.mode = (params.match_mode === 'all') ? 'include' : 'include';
+            if (typeof updateFilterButtonState === 'function') updateFilterButtonState();
+            if (typeof updateTagFilterList === 'function') updateTagFilterList();
+            if (typeof render === 'function') render();
+          }
+          break;
+
+        case 'filter_by_cable_system':
+          if (params.cable_systems && params.cable_systems.length && state && state.cableSystemFilter) {
+            if (typeof toggleUnifiedFilterPanel === 'function') toggleUnifiedFilterPanel();
+            state.cableSystemFilter.selectedSystems.clear();
+            params.cable_systems.forEach(function(s) { state.cableSystemFilter.selectedSystems.add(s); });
+            state.cableSystemFilter.mode = 'selected';
+            if (typeof updateFilterButtonState === 'function') updateFilterButtonState();
+            if (typeof updateCableSystemFilterList === 'function') updateCableSystemFilterList();
+            if (typeof render === 'function') render();
+          }
+          break;
+
+        case 'filter_by_nodes_or_containers':
+          if (state) {
+            if (typeof toggleUnifiedFilterPanel === 'function') toggleUnifiedFilterPanel();
+            // Filter by node names
+            if (params.node_names && params.node_names.length && state.nodeFilter) {
+              state.nodeFilter.selectedNodes.clear();
+              params.node_names.forEach(function(name) {
+                var n = nexiFindNodeByName(name);
+                if (n) state.nodeFilter.selectedNodes.add(n.id);
+              });
+              state.nodeFilter.mode = 'selected';
+              if (typeof updateNodeFilterList === 'function') updateNodeFilterList();
+            }
+            // Filter by container names
+            if (params.container_names && params.container_names.length && state.containerFilter) {
+              state.containerFilter.selectedGroups.clear();
+              params.container_names.forEach(function(name) {
+                var q = name.toLowerCase();
+                var g = state.groups.find(function(gr){ return (gr.name||'').toLowerCase().indexOf(q) >= 0; });
+                if (g) state.containerFilter.selectedGroups.add(g.id);
+              });
+              state.containerFilter.mode = 'selected';
+            }
+            if (typeof updateFilterButtonState === 'function') updateFilterButtonState();
+            if (typeof render === 'function') render();
+          }
+          break;
+
+        case 'filter_map':
+          // General filter — open the unified filter panel and apply what we can
+          if (typeof toggleUnifiedFilterPanel === 'function') toggleUnifiedFilterPanel();
+          // Apply tag-based region/technology/provider filters if they match existing tags
+          if (state && state.tagFilter) {
+            var filterTags = [];
+            if (params.region) filterTags.push(params.region);
+            if (params.technology) filterTags.push(params.technology);
+            if (params.provider) filterTags.push(params.provider);
+            if (filterTags.length) {
+              state.tagFilter.selectedTags.clear();
+              filterTags.forEach(function(t) { state.tagFilter.selectedTags.add(t); });
+              state.tagFilter.mode = 'include';
+              if (typeof updateFilterButtonState === 'function') updateFilterButtonState();
+              if (typeof updateTagFilterList === 'function') updateTagFilterList();
+              if (typeof render === 'function') render();
+            }
+          }
+          break;
+
+        case 'clear_all_filters':
+          var clearBtn = document.getElementById('btnClearAllFilters');
+          if (clearBtn) clearBtn.click();
+          break;
+
+        case 'get_network_summary':
+          // Log summary — the AI response text already contains the answer
+          console.log('[Nexi] Network summary:', { nodes: state.nodes.length, links: state.edges.length, groups: state.groups.length });
+          break;
+
+        case 'create_network_diagram':
+          // Open data table as the closest match for viewing/creating network data
+          if (typeof showDataTable === 'function') showDataTable();
+          break;
+
+        case 'switch_view':
+          if (params.view === 'geo') {
+            if (typeof toggleGeoView === 'function') toggleGeoView(true);
+          } else if (params.view === 'map') {
+            if (typeof toggleMapLibreView === 'function') toggleMapLibreView(true);
+          } else {
+            if (typeof toggleGeoView === 'function') toggleGeoView(false);
+            if (typeof toggleMapLibreView === 'function') toggleMapLibreView(false);
+          }
+          break;
+
+        default:
+          console.log('[Nexi] Unhandled tool:', tool, params);
+      }
+    } catch(e) { console.warn('[Nexi] Dispatch error:', e); }
+  }
+
+  function nexiQuickSend(text) {
+    var input = document.getElementById('aiAgentInput');
+    if (input) { input.value = text; input.dispatchEvent(new Event('input')); }
+    aiSendMessage();
+  }
+
+  function getCurrentDiagramState() {
+    return {
+      nodes: (state.nodes || []).map(function(n) {
+        return {
+          id: String(n.id),
+          label: n.name || ('Node' + n.id),
+          x: Math.round(n.x || 0),
+          y: Math.round(n.y || 0),
+          type: n.nodeType || 'city',
+          tags: n.tags || [],
+          datacenter: n.datacenter || null,
+          address: n.address || null
+        };
+      }),
+      links: (state.edges || []).map(function(e) {
+        return {
+          id: String(e.id),
+          source: String(e.a),
+          target: String(e.b),
+          label: e.tag || e.code || '',
+          latency_ms: e.latencyMs || 0,
+          bandwidth_gbps: 0,
+          price_usd: (e.leaseMRC && e.leaseMRC['10G']) ? e.leaseMRC['10G'] : 0,
+          tags: e.filterTags || [],
+          technology: 'fiber'
+        };
+      }),
+      selected_node_id: (state.selected && state.selected.type === 'node') ? String(state.selected.id) : null,
+      selected_link_id: (state.selected && state.selected.type === 'edge') ? String(state.selected.id) : null
+    };
+  }
+
+  /**
+   * dispatchCanvasTool — executes Phase 2 canvas-action tools locally.
+   * Called by nexiHandleWorkerResponse when the Worker returns needs_tool.
+   */
+  function dispatchCanvasTool(toolName, params) {
+    try {
+      switch (toolName) {
+
+        case 'create_node': {
+          var cx = typeof params.x === 'number' ? params.x : (150 + Math.random() * 500);
+          var cy = typeof params.y === 'number' ? params.y : (150 + Math.random() * 350);
+          var nid = state.nextNode++;
+          var node = makeNode(nid, Math.round(cx), Math.round(cy));
+          if (params.label) node.name = params.label;
+          if (params.type) node.nodeType = params.type;
+          if (Array.isArray(params.tags)) node.tags = params.tags;
+          if (params.datacenter) node.datacenter = params.datacenter;
+          if (params.address) node.address = params.address;
+          state.nodes.push(node);
+          if (typeof updateNodeGroupMembership === 'function') updateNodeGroupMembership(node);
+          commit(); render();
+          if (typeof showToast === 'function') showToast('Created node: ' + node.name);
+          return { success: true, action: 'created', nodeId: String(nid), label: node.name };
+        }
+
+        case 'create_link': {
+          var srcN = state.nodes.find(function(n) { return String(n.id) === String(params.sourceNodeId); });
+          var dstN = state.nodes.find(function(n) { return String(n.id) === String(params.targetNodeId); });
+          if (!srcN || !dstN) return { success: false, error: 'Source or target node not found' };
+          var eid = state.nextEdge++;
+          var edge = makeEdge(eid, srcN.id, dstN.id);
+          if (params.label) edge.tag = params.label;
+          if (typeof params.latency_ms === 'number') edge.latencyMs = params.latency_ms;
+          if (Array.isArray(params.tags)) edge.filterTags = params.tags;
+          state.edges.push(edge);
+          commit(); render();
+          if (typeof showToast === 'function') showToast('Created link: ' + (params.label || ('L-' + eid)));
+          return { success: true, action: 'created', linkId: String(eid) };
+        }
+
+        case 'edit_node': {
+          var node = state.nodes.find(function(n) { return String(n.id) === String(params.nodeId); });
+          if (!node) return { success: false, error: 'Node not found: ' + params.nodeId };
+          if (params.label !== undefined) node.name = params.label;
+          if (params.type !== undefined) node.nodeType = params.type;
+          if (typeof params.x === 'number') node.x = params.x;
+          if (typeof params.y === 'number') node.y = params.y;
+          if (Array.isArray(params.tags)) node.tags = params.tags;
+          if (params.datacenter !== undefined) node.datacenter = params.datacenter;
+          if (params.address !== undefined) node.address = params.address;
+          commit(); render();
+          return { success: true, nodeId: String(node.id) };
+        }
+
+        case 'edit_link': {
+          var edge = state.edges.find(function(e) { return String(e.id) === String(params.linkId); });
+          if (!edge) return { success: false, error: 'Link not found: ' + params.linkId };
+          if (params.label !== undefined) edge.tag = params.label;
+          if (typeof params.latency_ms === 'number') edge.latencyMs = params.latency_ms;
+          if (Array.isArray(params.tags)) edge.filterTags = params.tags;
+          commit(); render();
+          return { success: true, linkId: String(edge.id) };
+        }
+
+        case 'delete_node': {
+          var idx = state.nodes.findIndex(function(n) { return String(n.id) === String(params.nodeId); });
+          if (idx < 0) return { success: false, error: 'Node not found: ' + params.nodeId };
+          var nid2 = state.nodes[idx].id;
+          state.nodes.splice(idx, 1);
+          state.edges = state.edges.filter(function(e) { return e.a !== nid2 && e.b !== nid2; });
+          if (typeof refreshAllMemberships === 'function') refreshAllMemberships();
+          commit(); render();
+          return { success: true };
+        }
+
+        case 'delete_link': {
+          var idx = state.edges.findIndex(function(e) { return String(e.id) === String(params.linkId); });
+          if (idx < 0) return { success: false, error: 'Link not found: ' + params.linkId };
+          state.edges.splice(idx, 1);
+          commit(); render();
+          return { success: true };
+        }
+
+        case 'create_full_mesh': {
+          var meshNodeIds = params.nodeIds || [];
+          var created = 0;
+          for (var mi = 0; mi < meshNodeIds.length; mi++) {
+            for (var mj = mi + 1; mj < meshNodeIds.length; mj++) {
+              var meshSrc = state.nodes.find(function(n) { return String(n.id) === String(meshNodeIds[mi]); });
+              var meshDst = state.nodes.find(function(n) { return String(n.id) === String(meshNodeIds[mj]); });
+              if (!meshSrc || !meshDst) continue;
+              var meshEid = state.nextEdge++;
+              var meshEdge = makeEdge(meshEid, meshSrc.id, meshDst.id);
+              if (typeof params.default_latency_ms === 'number') meshEdge.latencyMs = params.default_latency_ms;
+              state.edges.push(meshEdge);
+              created++;
+            }
+          }
+          commit(); render();
+          if (typeof showToast === 'function') showToast('Created ' + created + ' mesh links');
+          return { success: true, linksCreated: created };
+        }
+
+        case 'assign_datacenter': {
+          var dcNode = state.nodes.find(function(n) { return String(n.id) === String(params.nodeId); });
+          if (!dcNode) return { success: false, error: 'Node not found: ' + params.nodeId };
+          dcNode.datacenter = params.datacenter_name;
+          commit(); render();
+          return { success: true };
+        }
+
+        case 'show_heatmap': {
+          var heatMode = params.mode;
+          if (heatMode === 'bandwidth') heatMode = 'capacity';
+          else if (heatMode === 'cost') heatMode = 'price';
+          else if (heatMode === 'latency') heatMode = 'capacity';
+          if (typeof applyHeatMapMode === 'function') applyHeatMapMode(heatMode);
+          return { success: true, mode: heatMode };
+        }
+
+        case 'highlight_path': {
+          var nodeSeq = params.node_sequence || [];
+          if (typeof clearRouteHighlights === 'function') clearRouteHighlights();
+          var svgEl = document.querySelector('svg');
+          if (svgEl) {
+            nodeSeq.forEach(function(nidStr) {
+              var el = svgEl.querySelector('g.node[data-node-id="' + nidStr + '"]');
+              if (el) el.classList.add('route-path-node');
+            });
+            for (var pi = 0; pi < nodeSeq.length - 1; pi++) {
+              var srcId = nodeSeq[pi], dstId = nodeSeq[pi + 1];
+              var foundEdge = state.edges.find(function(e) {
+                return (String(e.a) === String(srcId) && String(e.b) === String(dstId)) ||
+                       (String(e.b) === String(srcId) && String(e.a) === String(dstId));
+              });
+              if (foundEdge) {
+                var edgeEl = svgEl.querySelector('g.edge[data-edge-id="' + foundEdge.id + '"]');
+                if (edgeEl) edgeEl.classList.add(params.is_protection ? 'route-path-protection' : 'route-path-1');
+              }
+            }
+          }
+          return { success: true };
+        }
+
+        case 'geolocate_node': {
+          var geoNode = state.nodes.find(function(n) {
+            return String(n.id) === String(params.node_id) ||
+                   (n.name && n.name.toLowerCase() === String(params.node_id).toLowerCase()) ||
+                   (n.code && n.code.toLowerCase() === String(params.node_id).toLowerCase());
+          });
+          if (!geoNode) return { status: 'error', message: 'Node not found: ' + params.node_id };
+          var resolvedLat = (typeof params.lat === 'number') ? params.lat : null;
+          var resolvedLon = (typeof params.lon === 'number') ? params.lon : null;
+          if (resolvedLat === null && params.city_name) {
+            var cityMatch = lookupCityGPS(params.city_name);
+            if (cityMatch) { resolvedLat = cityMatch.lat; resolvedLon = cityMatch.lon; }
+          }
+          if (resolvedLat === null && (params.city_name || geoNode.address)) {
+            var geoQuery = params.city_name || geoNode.address;
+            return fetch(GEOCODING_API + '?' + new URLSearchParams({ q: geoQuery }).toString())
+              .then(function(r) { return r.json(); })
+              .then(function(results) {
+                var lat2 = null, lon2 = null;
+                if (results && results.length > 0) { lat2 = parseFloat(results[0].lat); lon2 = parseFloat(results[0].lon); }
+                if (lat2 === null || isNaN(lat2)) return { status: 'error', message: 'Could not resolve coordinates for: ' + geoQuery };
+                geoNode.gpsLat = lat2; geoNode.gpsLon = lon2;
+                if (typeof gpsToCanvas === 'function') { var pos = gpsToCanvas(lat2, lon2); if (pos) { geoNode.x = Math.round(pos.x); geoNode.y = Math.round(pos.y); } }
+                if (typeof updateGpsFields === 'function') updateGpsFields(geoNode);
+                commit(); render();
+                if (typeof showToast === 'function') showToast('Geolocated: ' + geoNode.name);
+                return { status: 'ok', node_id: String(geoNode.id), gpsLat: lat2, gpsLon: lon2 };
+              })
+              .catch(function() { return { status: 'error', message: 'Geocoding request failed' }; });
+          }
+          if (resolvedLat === null) return { status: 'error', message: 'Could not resolve coordinates' };
+          geoNode.gpsLat = resolvedLat; geoNode.gpsLon = resolvedLon;
+          if (typeof gpsToCanvas === 'function') { var pos2 = gpsToCanvas(resolvedLat, resolvedLon); if (pos2) { geoNode.x = Math.round(pos2.x); geoNode.y = Math.round(pos2.y); } }
+          if (typeof updateGpsFields === 'function') updateGpsFields(geoNode);
+          commit(); render();
+          if (typeof showToast === 'function') showToast('Geolocated: ' + geoNode.name);
+          return { status: 'ok', node_id: String(geoNode.id), gpsLat: resolvedLat, gpsLon: resolvedLon };
+        }
+
+        default:
+          return { success: false, error: 'Unknown tool: ' + toolName };
+      }
+    } catch (e) {
+      console.error('[dispatchCanvasTool] Error:', e);
+      return { success: false, error: e.message };
+    }
+  }
+
+  function aiSendMessage() {
+    var input = document.getElementById('aiAgentInput');
+    if (!input) return;
+    var text = input.value.trim();
+    if (!text || nexiState.isLoading) return;
+
+    // Remove welcome + suggestions on first message
+    if (!nexiState.hasMessages) {
+      nexiState.hasMessages = true;
+      var welcome = document.getElementById('nexiWelcome');
+      if (welcome) welcome.remove();
+      var sugg = document.getElementById('nexiSuggestions');
+      if (sugg) sugg.style.display = 'none';
+    }
+
+    nexiAddMsg('user', text);
+    nexiState.history.push({ role: 'user', content: text });
+    input.value = '';
+    input.style.height = 'auto';
+    nexiShowTyping();
+    nexiState.isLoading = true;
+
+    var diagramState = getCurrentDiagramState();
+
+    fetch(NEXI_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: text,
+        conversation_history: nexiState.history.slice(0, -1),
+        diagram_state: diagramState,
+        tool_result: null
+      })
+    })
+    .then(function(r) {
+      if (!r.ok) throw new Error('Worker returned ' + r.status);
+      return r.json();
+    })
+    .then(function(data) {
+      return nexiHandleWorkerResponse(data);
+    })
+    .catch(function(err) {
+      nexiHideTyping();
+      nexiState.isLoading = false;
+      nexiAddMsg('system', 'Connection error: ' + err.message + '. Please check your network and try again.');
+    });
+  }
+
+  /**
+   * Handle a worker response — may be a final answer or a client-side tool
+   * request that requires a round-trip through the frontend before narration.
+   */
+  function nexiHandleWorkerResponse(data) {
+    if (data.type === 'needs_tool') {
+      var tool_calls = data.tool_calls || (data.tool_call ? [data.tool_call] : []);
+      if (!tool_calls.length) return Promise.resolve();
+      var partial_messages = data.partial_messages;
+
+      // Execute ALL tool calls and collect results (may be async for geolocate_node)
+      var toolPromises = tool_calls.map(function(tc) {
+        var result;
+        if (tc.name === 'run_pathfinder') {
+          result = typeof runPathfinderHeadless === 'function'
+            ? runPathfinderHeadless(tc.params || {})
+            : { success: false, error: 'runPathfinderHeadless not available' };
+        } else if ([
+          'create_node', 'create_link', 'edit_node', 'edit_link',
+          'delete_node', 'delete_link', 'create_full_mesh',
+          'assign_datacenter', 'show_heatmap', 'highlight_path', 'geolocate_node'
+        ].indexOf(tc.name) >= 0) {
+          result = dispatchCanvasTool(tc.name, tc.params || {});
+        } else {
+          // Legacy UI tools — dispatch via existing nexiDispatchAction
+          if (typeof nexiDispatchAction === 'function') nexiDispatchAction(tc.name, tc.params || {});
+          result = { status: 'ok', tool: tc.name };
+        }
+        return Promise.resolve(result).then(function(r) { return { tool_use_id: tc.id, content: r }; });
+      });
+
+      // Post ALL tool results back to the Worker in one round-trip
+      return Promise.all(toolPromises).then(function(toolResults) {
+        return fetch(NEXI_WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: null,
+            conversation_history: partial_messages,
+            diagram_state: getCurrentDiagramState(),
+            tool_result: toolResults
+          })
+        });
+      }).then(function(r2) {
+        if (!r2.ok) throw new Error('Worker returned ' + r2.status);
+        return r2.json();
+      }).then(function(data2) {
+        return nexiHandleWorkerResponse(data2);
+      });
+    }
+
+    // Final response (data.type === 'final' or legacy format)
+    nexiHideTyping();
+    nexiState.isLoading = false;
+    var html = '';
+    var textContent = data.text || '';
+    if (textContent) html += nexiRenderMd(textContent);
+    if (data.actions && data.actions.length > 0) {
+      data.actions.forEach(function(a) { html += nexiBuildActionCard(a); });
+    }
+    if (html) nexiAddMsg('assistant', html, true);
+    else nexiAddMsg('assistant', '(No response)');
+    nexiState.history.push({ role: 'assistant', content: textContent });
+  }
+
+  function nexiClearChat() {
+    nexiState.history = [];
+    nexiState.hasMessages = false;
+    var msgs = document.getElementById('aiAgentMessages');
+    if (msgs) {
+      msgs.innerHTML = '';
+      // Rebuild welcome
+      var w = document.createElement('div');
+      w.className = 'nexi-welcome';
+      w.id = 'nexiWelcome';
+      w.innerHTML = '<div class="nexi-welcome-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div><h3>Hi, I\'m Nexi</h3><p>Your AI expert for network routes, submarine cables, pricing, and more.</p><div class="nexi-welcome-grid"><div class="nexi-wcard" onclick="nexiQuickSend(\'Find the best latency path from London to Singapore\')"><div class="nexi-wcard-title">Find Routes</div><div class="nexi-wcard-desc">Optimal paths between cities</div></div><div class="nexi-wcard" onclick="nexiQuickSend(\'Show me submarine cables in the Mediterranean\')"><div class="nexi-wcard-title">Explore Cables</div><div class="nexi-wcard-desc">Browse cable systems</div></div><div class="nexi-wcard" onclick="nexiQuickSend(\'What is the price for 100G between NYC and Frankfurt?\')"><div class="nexi-wcard-title">Check Pricing</div><div class="nexi-wcard-desc">Bandwidth pricing between PoPs</div></div><div class="nexi-wcard" onclick="nexiQuickSend(\'Show Equinix datacenters in Frankfurt\')"><div class="nexi-wcard-title">Datacenters</div><div class="nexi-wcard-desc">Find DCs by region or provider</div></div></div>';
+      msgs.appendChild(w);
+    }
+    var sugg = document.getElementById('nexiSuggestions');
+    if (sugg) sugg.style.display = '';
+  }
+  function startDragPanel(panelId, e) {
+    var panel = document.getElementById(panelId);
+    if (!panel || e.button !== 0) return;
+    var sx = e.clientX - panel.offsetLeft;
+    var sy = e.clientY - panel.offsetTop;
+    function mv(ev) {
+      panel.style.left = Math.max(0, ev.clientX - sx) + 'px';
+      panel.style.top = Math.max(0, ev.clientY - sy) + 'px';
+      panel.style.right = 'auto';
+    }
+    function up() {
+      document.removeEventListener('mousemove', mv);
+      document.removeEventListener('mouseup', up);
+    }
+    document.addEventListener('mousemove', mv);
+    document.addEventListener('mouseup', up);
+    e.preventDefault();
+  }
+  // Expose AI Agent functions to global scope (needed for inline onclick handlers)
+  window.toggleAiAgent = toggleAiAgent;
+  window.aiSendMessage = aiSendMessage;
+  window.nexiQuickSend = nexiQuickSend;
+  window.nexiClearChat = nexiClearChat;
+  window.nexiExecAction = nexiExecAction;
+  window.startDragPanel = startDragPanel;
+  // ── End AI Agent Panel ──────────────────────────────────────────────────────
   console.log('[NexiMap] Main script fully loaded');
+})();
+</script>
+<script>
+// Shape dropdown UI
+(function() {
+  var dropBtn = document.getElementById('btnShapeDropdown');
+  var dropPanel = document.getElementById('shapeDropdownPanel');
+  var dropIcon = document.getElementById('shapeDropdownIcon');
+  var shapeInnerSVG = {
+    circle:    '<circle cx="12" cy="12" r="9"/>',
+    square:    '<rect x="4" y="4" width="16" height="16"/>',
+    triangle:  '<polygon points="12,3 22,21 2,21"/>',
+    rectangle: '<rect x="2" y="6" width="20" height="12"/>',
+    ellipse:   '<ellipse cx="12" cy="12" rx="10" ry="6"/>',
+    hexagon:   '<polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/>'
+  };
+  function closeDropdown() {
+    dropPanel.classList.remove('open');
+    dropBtn.classList.remove('active');
+  }
+  function setDropShape(shape) {
+    if (shapeInnerSVG[shape]) dropIcon.innerHTML = shapeInnerSVG[shape];
+    dropBtn.title = 'Node Shape: ' + shape.charAt(0).toUpperCase() + shape.slice(1);
+    dropPanel.querySelectorAll('.shape-dropdown-item').forEach(function(item) {
+      item.classList.toggle('active', item.dataset.shape === shape);
+    });
+  }
+  if (!dropBtn || !dropPanel) return;
+  dropBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var isOpen = dropPanel.classList.contains('open');
+    dropPanel.classList.toggle('open', !isOpen);
+    dropBtn.classList.toggle('active', !isOpen);
+  });
+  dropPanel.querySelectorAll('.shape-dropdown-item').forEach(function(item) {
+    item.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var shape = item.dataset.shape;
+      var hiddenBtn = document.querySelector('.shape-tool[data-shape="' + shape + '"]');
+      if (hiddenBtn) hiddenBtn.click();
+      setDropShape(shape);
+      closeDropdown();
+    });
+  });
+  document.addEventListener('click', function() { closeDropdown(); });
 })();
 </script>
 </body>
