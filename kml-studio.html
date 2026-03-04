@@ -7945,19 +7945,34 @@ function handleNxpDrop(dragData, objectType, objectId, objectName) {
         const folder = projectData.folders.find(f => f.id === folderId);
         if (!folder) { toast('Folder not found', 'error'); return; }
 
-        const lineCoords = [];
+        const lineLayers = [];
         folder.items.forEach(itemId => {
             const layer = projectData.layers[itemId];
             if (layer && layer.type === 'line' && layer.coords && layer.coords.length > 0) {
-                layer.coords.forEach(c => lineCoords.push([c[0], c[1]]));
+                lineLayers.push({ type: 'line', coords: layer.coords });
             }
         });
-        if (lineCoords.length === 0) {
+        if (lineLayers.length === 0) {
             toast('No line geometry found in folder \u201c' + folder.name + '\u201d', 'error');
             return;
         }
-        sendAssignmentToNeximap('link', objectId, objectName, 'folder', { folderName: folder.name, lineCoords });
-        toast('Folder \u201c' + folder.name + '\u201d assigned to Link \u201c' + objectName + '\u201d', 'info');
+        const linkObj = neximapObjects.links.find(l => l.id === objectId);
+        const hasExistingLinkGeo = !!(linkObj && linkObj.hasGeo);
+        const totalPts = lineLayers.reduce((sum, l) => sum + l.coords.length, 0);
+        showNxpAssignConfirm({
+            title: (hasExistingLinkGeo ? 'Replace' : 'Add') + ' Geometry for Link \u201c' + objectName + '\u201d',
+            body: (hasExistingLinkGeo
+                ? '<strong>\u26a0\ufe0f This link already has geometry.</strong> Confirming will replace it.<br><br>'
+                : 'Add route geometry to this link?<br><br>') +
+                'Folder: <strong>' + esc(folder.name) + '</strong><br>' +
+                'Line segments: <strong>' + lineLayers.length + '</strong> (' + totalPts + ' points)',
+            confirmLabel: hasExistingLinkGeo ? 'Replace Geometry' : 'Add Geometry',
+            confirmDanger: hasExistingLinkGeo,
+            onConfirm: () => {
+                sendAssignmentToNeximap('link', objectId, objectName, 'folder', { layers: lineLayers });
+                toast('Folder \u201c' + folder.name + '\u201d assigned to Link \u201c' + objectName + '\u201d', 'info');
+            }
+        });
 
     } else {
         if (dragData.startsWith('FOLDER:')) {
@@ -7970,11 +7985,63 @@ function handleNxpDrop(dragData, objectType, objectId, objectName) {
             toast('Only KML pins (Point geometry) can be assigned to ' + objectType + 's', 'warning');
             return;
         }
-        sendAssignmentToNeximap(objectType, objectId, objectName, 'pin', {
-            pinName: layer.name, lat: layer.coords[0][0], lng: layer.coords[0][1]
+        const lat = layer.coords[0][0];
+        const lng = layer.coords[0][1];
+        let hasExistingPinGeo = false;
+        if (objectType === 'node') {
+            const nodeObj = neximapObjects.nodes.find(n => n.id === objectId);
+            hasExistingPinGeo = !!(nodeObj && nodeObj.hasGeo);
+        } else if (objectType === 'container') {
+            const contObj = neximapObjects.containers.find(c => c.id === objectId);
+            hasExistingPinGeo = !!(contObj && contObj.hasGeo);
+        }
+        const typeLabel = objectType.charAt(0).toUpperCase() + objectType.slice(1);
+        showNxpAssignConfirm({
+            title: (hasExistingPinGeo ? 'Replace' : 'Add') + ' Location for ' + typeLabel + ' \u201c' + objectName + '\u201d',
+            body: (hasExistingPinGeo
+                ? '<strong>\u26a0\ufe0f This ' + objectType + ' already has a location.</strong> Confirming will replace it.<br><br>'
+                : 'Assign this pin\u2019s location to the ' + objectType + '?<br><br>') +
+                'Pin: <strong>' + esc(layer.name) + '</strong><br>' +
+                'Coordinates: <strong>' + lat.toFixed(5) + ', ' + lng.toFixed(5) + '</strong>',
+            confirmLabel: hasExistingPinGeo ? 'Replace Location' : 'Assign Location',
+            confirmDanger: hasExistingPinGeo,
+            onConfirm: () => {
+                sendAssignmentToNeximap(objectType, objectId, objectName, 'pin', { lat, lng });
+                toast('Pin \u201c' + layer.name + '\u201d assigned to ' + typeLabel + ' \u201c' + objectName + '\u201d', 'info');
+            }
         });
-        toast('Pin \u201c' + layer.name + '\u201d assigned to ' + objectType.charAt(0).toUpperCase() + objectType.slice(1) + ' \u201c' + objectName + '\u201d', 'info');
     }
+}
+
+function showNxpAssignConfirm({ title, body, confirmLabel, confirmDanger, onConfirm }) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9999;display:flex;justify-content:center;align-items:center;';
+    const dlg = document.createElement('div');
+    dlg.style.cssText = 'background:#fff;border-radius:10px;padding:24px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.3);font-family:system-ui,sans-serif;';
+    const titleEl = document.createElement('div');
+    titleEl.style.cssText = 'font-size:15px;font-weight:700;margin-bottom:12px;';
+    titleEl.textContent = title;
+    const bodyEl = document.createElement('div');
+    bodyEl.style.cssText = 'font-size:13px;color:#374151;line-height:1.6;margin-bottom:20px;';
+    bodyEl.innerHTML = body;
+    const btns = document.createElement('div');
+    btns.style.cssText = 'display:flex;justify-content:flex-end;gap:8px;';
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.style.cssText = 'padding:8px 16px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer;font-size:13px;';
+    cancelBtn.onclick = () => overlay.remove();
+    const confirmBtn = document.createElement('button');
+    confirmBtn.textContent = confirmLabel;
+    confirmBtn.style.cssText = 'padding:8px 16px;border:none;border-radius:6px;background:' + (confirmDanger ? '#dc2626' : '#2563eb') + ';color:#fff;cursor:pointer;font-size:13px;font-weight:600;';
+    confirmBtn.onclick = () => { overlay.remove(); onConfirm(); };
+    btns.appendChild(cancelBtn);
+    btns.appendChild(confirmBtn);
+    dlg.appendChild(titleEl);
+    dlg.appendChild(bodyEl);
+    dlg.appendChild(btns);
+    overlay.appendChild(dlg);
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
 }
 
 function sendAssignmentToNeximap(targetType, targetId, targetName, entityType, data) {
@@ -7984,7 +8051,7 @@ function sendAssignmentToNeximap(targetType, targetId, targetName, entityType, d
     }
     try {
         neximapParent.postMessage({ type: 'kml-assign-to-neximap',
-            assignment: { targetType, targetId, targetName, entityType, data } }, '*');
+            assignments: [{ targetType, targetId, targetName, entityType, ...data }] }, '*');
     } catch (e) {
         toast('Failed to send assignment: ' + e.message, 'error');
     }

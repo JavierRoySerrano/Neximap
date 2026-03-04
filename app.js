@@ -42058,6 +42058,7 @@ function handlePathKmlImport(e) {
         }
       });
       if (applied > 0) {
+        commit();
         showToast('Applied ' + applied + ' assignment(s) from KML Studio');
         render();
         updateInspector();
