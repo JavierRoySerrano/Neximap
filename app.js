@@ -43906,10 +43906,17 @@ function handlePathKmlImport(e) {
             var cityGps = lookupCityGPS(cityLookupName);
             if (cityGps) {
               autoGpsLat = cityGps.lat; autoGpsLon = cityGps.lon;
-              if (typeof gpsToCanvas === 'function') {
-                var geoPos = gpsToCanvas(cityGps.lat, cityGps.lon);
-                if (geoPos) { cx = geoPos.x; cy = geoPos.y; }
-              }
+              // Map GPS to canvas using a Europe-centric regional projection
+              // Default world bounds make nearby cities cluster too tightly
+              // Scale: 1 degree longitude ≈ 40px, 1 degree latitude ≈ 60px (rough Mercator feel)
+              var cW = state.canvasWidth || 1123, cH = state.canvasHeight || 794;
+              var refLat = 48.0, refLon = 5.0; // roughly center of Western Europe
+              var pxPerLon = 40, pxPerLat = 60;
+              cx = (cW / 2) + (cityGps.lon - refLon) * pxPerLon;
+              cy = (cH / 2) - (cityGps.lat - refLat) * pxPerLat;
+              // Clamp to canvas bounds with padding
+              cx = Math.max(60, Math.min(cx, cW - 60));
+              cy = Math.max(60, Math.min(cy, cH - 60));
             }
             if (cx === null) {
               // Spread nodes avoiding overlap with existing nodes
