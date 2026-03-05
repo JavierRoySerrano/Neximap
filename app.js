@@ -43656,6 +43656,7 @@ function handlePathKmlImport(e) {
   }
 
   function nexiDispatchAction(tool, params) {
+    console.log('[nexiDispatchAction]', tool, params);
     // Route tool calls to actual Neximap functions
     try {
       switch (tool) {
@@ -43895,6 +43896,7 @@ function handlePathKmlImport(e) {
    * Called by nexiHandleWorkerResponse when the Worker returns needs_tool.
    */
   function dispatchCanvasTool(toolName, params) {
+    console.log('[dispatchCanvasTool]', toolName, params);
     try {
       switch (toolName) {
 

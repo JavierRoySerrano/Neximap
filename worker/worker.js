@@ -137,7 +137,7 @@ const NEXIMAP_TOOLS = [
   // ── Legacy UI-action tools (kept for backward compatibility) ──
   {
     name: 'open_cable_visor',
-    description: 'Open the Cable Visor panel to browse submarine cable systems on the map.',
+    description: 'Open the Cable Visor panel — an interactive MAP showing submarine cable routes from the TeleGeography database. This is NOT the Cable System List (use open_cable_system_list for the sidebar list of cable systems in the diagram).',
     input_schema: {
       type: 'object',
       properties: { cable_name: { type: 'string', description: 'Optional: filter by cable name' } },
@@ -146,7 +146,7 @@ const NEXIMAP_TOOLS = [
   },
   {
     name: 'open_datacenter_visor',
-    description: 'Open the Datacenter Visor to browse and add datacenters to the map.',
+    description: 'Open the Datacenter Visor panel — an interactive MAP showing datacenter locations worldwide. This is NOT the Datacenter List (use open_datacenter_list for the sidebar list of facility containers in the diagram).',
     input_schema: {
       type: 'object',
       properties: { search: { type: 'string', description: 'Optional search term' } },
