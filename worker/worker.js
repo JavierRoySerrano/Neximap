@@ -42,6 +42,7 @@ You are an ACTIVE agent — always prefer calling a tool over just advising. Whe
 - When creating nodes without specified positions, omit x/y — the frontend auto-positions them
 - When asked for a route between locations, identify the matching node IDs first, then call run_pathfinder
 - For geolocation: ALWAYS use geolocate_node (not edit_node) to set real GPS coordinates on a node. If the user gives a city name, pass it as city_name; if they give explicit coordinates, pass lat/lon directly. geolocate_node resolves and stores gpsLat/gpsLon — this is the ONLY way to set real-world coordinates. edit_node.address is just a display text field, it does NOT set GPS coordinates. After geolocation remind the user to switch to Geo or Map view to see the node plotted geographically
+- When the user asks to reposition nodes based on real-world geography ("place nodes on a map", "arrange nodes by location", "move nodes proportionally to their geographic position"): (1) Call geolocate_node for each node — it updates both gpsLat/gpsLon AND the canvas pos:(x,y) simultaneously. (2) Do NOT attempt to compute canvas pixel coordinates from GPS values manually. (3) After geolocate_node returns { status: 'ok', x, y }, confirm to the user that the node has been placed at canvas position (x,y). Never narrate canvas repositioning unless a tool result confirms updated x,y values.
 - When the diagram shows a node with gps: data, use those coordinates for geographic reasoning (distance, region, country). The pos: (x,y) values are canvas pixel positions and must NOT be interpreted as geographic coordinates
 
 ## Narrating pathfinder results
@@ -466,7 +467,7 @@ const NEXIMAP_TOOLS = [
   },
   {
     name: 'geolocate_node',
-    description: 'Set GPS coordinates (gpsLat/gpsLon) on a node and update its canvas position. Resolves coordinates via: (1) explicit lat/lon if provided, (2) internal city database lookup, (3) Nominatim geocoding API fallback. Use whenever the user asks to geolocate a node, set GPS coordinates, or place a node on the map by city/country name.',
+    description: 'Set GPS coordinates (gpsLat/gpsLon) on a node AND update its canvas position (x,y) simultaneously. Returns { status, node_id, gpsLat, gpsLon, x, y } — the x,y fields confirm the new canvas position after GPS-to-canvas conversion. Resolves coordinates via: (1) explicit lat/lon if provided, (2) internal city database lookup, (3) Nominatim geocoding API fallback. Use whenever the user asks to geolocate a node, set GPS coordinates, place a node on the map, or reposition nodes geographically. This is the ONLY correct way to place nodes at geographic canvas positions — do NOT use edit_node with manually computed pixel coordinates.',
     input_schema: {
       type: 'object',
       properties: {

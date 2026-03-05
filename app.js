@@ -44053,21 +44053,21 @@ function handlePathKmlImport(e) {
                 if (results && results.length > 0) { lat2 = parseFloat(results[0].lat); lon2 = parseFloat(results[0].lon); }
                 if (lat2 === null || isNaN(lat2)) return { status: 'error', message: 'Could not resolve coordinates for: ' + geoQuery };
                 geoNode.gpsLat = lat2; geoNode.gpsLon = lon2;
-                if (typeof gpsToCanvas === 'function') { var pos = gpsToCanvas(lat2, lon2); if (pos) { geoNode.x = Math.round(pos.x); geoNode.y = Math.round(pos.y); } }
+                var pos = gpsToCanvas(lat2, lon2); if (pos) { geoNode.x = Math.round(pos.x); geoNode.y = Math.round(pos.y); }
                 if (typeof updateGpsFields === 'function') updateGpsFields(geoNode);
                 commit(); render();
                 if (typeof showToast === 'function') showToast('Geolocated: ' + geoNode.name);
-                return { status: 'ok', node_id: String(geoNode.id), gpsLat: lat2, gpsLon: lon2 };
+                return { status: 'ok', node_id: String(geoNode.id), gpsLat: lat2, gpsLon: lon2, x: geoNode.x, y: geoNode.y };
               })
               .catch(function() { return { status: 'error', message: 'Geocoding request failed' }; });
           }
           if (resolvedLat === null) return { status: 'error', message: 'Could not resolve coordinates' };
           geoNode.gpsLat = resolvedLat; geoNode.gpsLon = resolvedLon;
-          if (typeof gpsToCanvas === 'function') { var pos2 = gpsToCanvas(resolvedLat, resolvedLon); if (pos2) { geoNode.x = Math.round(pos2.x); geoNode.y = Math.round(pos2.y); } }
+          var pos2 = gpsToCanvas(resolvedLat, resolvedLon); if (pos2) { geoNode.x = Math.round(pos2.x); geoNode.y = Math.round(pos2.y); }
           if (typeof updateGpsFields === 'function') updateGpsFields(geoNode);
           commit(); render();
           if (typeof showToast === 'function') showToast('Geolocated: ' + geoNode.name);
-          return { status: 'ok', node_id: String(geoNode.id), gpsLat: resolvedLat, gpsLon: resolvedLon };
+          return { status: 'ok', node_id: String(geoNode.id), gpsLat: resolvedLat, gpsLon: resolvedLon, x: geoNode.x, y: geoNode.y };
         }
 
         default:
