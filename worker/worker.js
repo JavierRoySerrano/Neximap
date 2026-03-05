@@ -125,8 +125,10 @@ Links (${diagramState.links.length}):
 ${linkLines || '  (none)'}
 
 Selected: ${selectedStr}
+Active view: ${diagramState.active_view || 'main'} (main = schematic diagram, geo = static world map, map = interactive OpenStreetMap)
 
-When the user refers to a city or location name, match it to the closest node label, then use the node ID in tool parameters. Use node IDs (not labels) in all tool calls.`;
+When the user refers to a city or location name, match it to the closest node label, then use the node ID in tool parameters. Use node IDs (not labels) in all tool calls.
+Do NOT tell the user they are in a different view than what is shown in "Active view" above. Only suggest switching views if it would be helpful.`;
 }
 
 // ─── TOOLS ───────────────────────────────────────────────────────────────────

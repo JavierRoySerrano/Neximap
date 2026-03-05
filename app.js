@@ -43883,7 +43883,10 @@ function handlePathKmlImport(e) {
         };
       }),
       selected_node_id: (state.selected && state.selected.type === 'node') ? String(state.selected.id) : null,
-      selected_link_id: (state.selected && state.selected.type === 'edge') ? String(state.selected.id) : null
+      selected_link_id: (state.selected && state.selected.type === 'edge') ? String(state.selected.id) : null,
+      active_view: (window.mapLibreState && window.mapLibreState.active) ? 'map'
+                 : (window.geoViewState && window.geoViewState.active) ? 'geo'
+                 : 'main'
     };
   }
 
