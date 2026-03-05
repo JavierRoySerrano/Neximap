@@ -44150,7 +44150,7 @@ function handlePathKmlImport(e) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         message: text,
-        conversation_history: nexiState.history.slice(0, -1),
+        conversation_history: nexiState.history.slice(-21, -1),
         diagram_state: diagramState,
         tool_result: null
       })

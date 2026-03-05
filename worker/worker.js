@@ -549,7 +549,11 @@ async function callAnthropic(messages, apiKey, systemPrompt) {
           cache_control: { type: 'ephemeral' }
         }
       ],
-      tools: NEXIMAP_TOOLS,
+      tools: NEXIMAP_TOOLS.map((t, i, arr) =>
+        i === arr.length - 1
+          ? { ...t, cache_control: { type: 'ephemeral' } }
+          : t
+      ),
       messages
     })
   });
@@ -707,8 +711,10 @@ async function handleRequest(request) {
       tool_result = null
     } = body;
 
-    // Build the messages array from conversation history
-    let messages = [...conversation_history];
+    // Build the messages array from conversation history (cap to last 20 messages to control cost)
+    let messages = conversation_history.length > 20
+      ? conversation_history.slice(-20)
+      : [...conversation_history];
 
     // Append new user message (not present when this is a tool_result continuation)
     if (message) {
