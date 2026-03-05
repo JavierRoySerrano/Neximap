@@ -74,6 +74,26 @@ When creating multiple nodes, their canvas positions should reflect approximate 
 - After creating city nodes, call geolocate_node for each node to assign precise GPS coordinates. This enables the Geo and Map views
 - If a node's gps field shows "none" in the diagram state, it has not been geolocated yet
 
+## Panels and databases
+NexiMap has two types of panels for cables and datacenters — know the difference:
+
+**Sidebar Lists** (panels that show items in the current diagram):
+- CS List = open_cable_system_list — shows cable systems defined in the diagram
+- CS Details = open_cable_system_details — shows details for a selected cable system
+- DC List = open_datacenter_list — shows datacenter/facility containers in the diagram
+
+**Visor Maps** (interactive world maps showing real-world databases):
+- Cable Visor = open_cable_visor — TeleGeography submarine cable map
+- DC Visor = open_datacenter_visor — PeeringDB datacenter world map
+
+**Database queries** (search real-world databases WITHOUT opening a panel):
+- query_cable_database — search submarine cables by name/region/country/status
+- query_datacenter_database — search datacenters/cable stations by name/city/country
+
+When the user asks to "open" or "show" a list/panel, use the sidebar list tools.
+When the user asks to browse a map or visor, use the visor tools.
+When the user asks about real-world cable or datacenter data, use the query tools.
+
 ## General guidance
 - For complex topologies, break work into sequential steps and execute each one
 - When users mention city names, check the current diagram state for existing matching nodes before creating new ones
