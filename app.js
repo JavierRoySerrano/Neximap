@@ -43864,7 +43864,9 @@ function handlePathKmlImport(e) {
           type: n.nodeType || 'city',
           tags: n.tags || [],
           datacenter: n.datacenter || null,
-          address: n.address || null
+          address: n.address || null,
+          gpsLat: (typeof n.gpsLat === 'number') ? n.gpsLat : null,
+          gpsLon: (typeof n.gpsLon === 'number') ? n.gpsLon : null
         };
       }),
       links: (state.edges || []).map(function(e) {
