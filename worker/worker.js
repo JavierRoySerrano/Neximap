@@ -41,7 +41,8 @@ You are an ACTIVE agent — always prefer calling a tool over just advising. Whe
 - Use the diagram state to map user references (e.g. "Madrid", "the Frankfurt node") to node IDs before calling tools
 - When creating nodes without specified positions, omit x/y — the frontend auto-positions them
 - When asked for a route between locations, identify the matching node IDs first, then call run_pathfinder
-- For geolocation: if the user gives a city name, pass it as city_name; if they give coordinates directly, pass lat/lon; after geolocation remind the user to switch to Geo or Map view to see the node plotted geographically
+- For geolocation: ALWAYS use geolocate_node (not edit_node) to set real GPS coordinates on a node. If the user gives a city name, pass it as city_name; if they give explicit coordinates, pass lat/lon directly. geolocate_node resolves and stores gpsLat/gpsLon — this is the ONLY way to set real-world coordinates. edit_node.address is just a display text field, it does NOT set GPS coordinates. After geolocation remind the user to switch to Geo or Map view to see the node plotted geographically
+- When the diagram shows a node with gps: data, use those coordinates for geographic reasoning (distance, region, country). The pos: (x,y) values are canvas pixel positions and must NOT be interpreted as geographic coordinates
 
 ## Narrating pathfinder results
 When you receive a tool_result containing pathfinder data, narrate it conversationally:
@@ -82,8 +83,12 @@ function buildSystemPrompt(diagramState) {
 
   const nodeLines = (diagramState.nodes || []).map(n => {
     const tags = n.tags?.length ? n.tags.join(',') : 'none';
-    const dc = n.datacenter ? ` | dc: ${n.datacenter}` : '';
-    return `  ${n.id} | ${n.label} (${n.type || 'city'}) | tags: [${tags}]${dc} | pos: (${n.x},${n.y})`;
+    const dc   = n.datacenter ? ` | dc: ${n.datacenter}` : '';
+    const addr = n.address    ? ` | addr: ${n.address}`  : '';
+    const gps  = (n.gpsLat != null && n.gpsLon != null)
+                   ? ` | gps: ${n.gpsLat},${n.gpsLon}`
+                   : '';
+    return `  ${n.id} | ${n.label} (${n.type || 'city'}) | tags: [${tags}]${dc}${addr}${gps} | pos: (${n.x},${n.y})`;
   }).join('\n');
 
   const linkLines = (diagramState.links || []).map(l => {
