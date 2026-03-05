@@ -43896,8 +43896,37 @@ function handlePathKmlImport(e) {
       switch (toolName) {
 
         case 'create_node': {
-          var cx = typeof params.x === 'number' ? params.x : (150 + Math.random() * 500);
-          var cy = typeof params.y === 'number' ? params.y : (150 + Math.random() * 350);
+          var cx = null, cy = null;
+          var autoGpsLat = null, autoGpsLon = null;
+          if (typeof params.x === 'number' && typeof params.y === 'number') {
+            cx = params.x; cy = params.y;
+          } else {
+            // Try to resolve geographic position from label/city_name
+            var cityLookupName = params.label || '';
+            var cityGps = lookupCityGPS(cityLookupName);
+            if (cityGps) {
+              autoGpsLat = cityGps.lat; autoGpsLon = cityGps.lon;
+              if (typeof gpsToCanvas === 'function') {
+                var geoPos = gpsToCanvas(cityGps.lat, cityGps.lon);
+                if (geoPos) { cx = geoPos.x; cy = geoPos.y; }
+              }
+            }
+            if (cx === null) {
+              // Spread nodes avoiding overlap with existing nodes
+              var baseX = 150, baseY = 150;
+              var spacing = 120;
+              var existingCount = state.nodes.length;
+              // Place in a grid pattern with some spread
+              var cols = Math.max(4, Math.ceil(Math.sqrt(existingCount + 1)));
+              var col = existingCount % cols;
+              var row = Math.floor(existingCount / cols);
+              cx = baseX + col * spacing + (Math.random() * 30 - 15);
+              cy = baseY + row * spacing + (Math.random() * 30 - 15);
+              // Ensure within canvas bounds
+              cx = Math.min(cx, (state.canvasWidth || 1123) - 60);
+              cy = Math.min(cy, (state.canvasHeight || 794) - 60);
+            }
+          }
           var nid = state.nextNode++;
           var node = makeNode(nid, Math.round(cx), Math.round(cy));
           if (params.label) node.name = params.label;
@@ -43905,11 +43934,14 @@ function handlePathKmlImport(e) {
           if (Array.isArray(params.tags)) node.tags = params.tags;
           if (params.datacenter) node.datacenter = params.datacenter;
           if (params.address) node.address = params.address;
+          if (autoGpsLat !== null) { node.gpsLat = autoGpsLat; node.gpsLon = autoGpsLon; }
           state.nodes.push(node);
           if (typeof updateNodeGroupMembership === 'function') updateNodeGroupMembership(node);
           commit(); render();
           if (typeof showToast === 'function') showToast('Created node: ' + node.name);
-          return { success: true, action: 'created', nodeId: String(nid), label: node.name };
+          var result = { success: true, action: 'created', nodeId: String(nid), label: node.name };
+          if (autoGpsLat !== null) { result.gpsLat = autoGpsLat; result.gpsLon = autoGpsLon; result.auto_geolocated = true; }
+          return result;
         }
 
         case 'create_link': {

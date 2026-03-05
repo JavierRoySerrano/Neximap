@@ -66,6 +66,14 @@ NexiMap has three canvas views:
 To switch views, ALWAYS use the \`switch_view\` tool with \`view: "main"\`, \`"geo"\`, or \`"map"\`.
 NEVER use \`show_route_map\` to switch views — it opens the Route Finder panel with waypoints, not the map view.
 
+## Node positioning guidelines
+When creating multiple nodes, their canvas positions should reflect approximate real-world geographic relationships:
+- Cities further apart geographically should be placed further apart on the canvas
+- European cities should cluster together, Asian cities together, etc.
+- Use the create_node tool WITHOUT x/y parameters — the frontend will auto-resolve geographic positions from the city label using its built-in city GPS database
+- After creating city nodes, call geolocate_node for each node to assign precise GPS coordinates. This enables the Geo and Map views
+- If a node's gps field shows "none" in the diagram state, it has not been geolocated yet
+
 ## General guidance
 - For complex topologies, break work into sequential steps and execute each one
 - When users mention city names, check the current diagram state for existing matching nodes before creating new ones
@@ -88,7 +96,7 @@ function buildSystemPrompt(diagramState) {
     const addr = n.address    ? ` | addr: ${n.address}`  : '';
     const gps  = (n.gpsLat != null && n.gpsLon != null)
                    ? ` | gps: ${n.gpsLat},${n.gpsLon}`
-                   : '';
+                   : ' | gps: none';
     return `  ${n.id} | ${n.label} (${n.type || 'city'}) | tags: [${tags}]${dc}${addr}${gps} | pos: (${n.x},${n.y})`;
   }).join('\n');
 
@@ -563,13 +571,15 @@ async function callAnthropic(messages, apiKey, systemPrompt) {
 async function agentLoop(messages, apiKey, diagramState, incomingToolResult) {
   // If this is a tool_result continuation, prepend it before the first call
   if (incomingToolResult) {
+    // Support both single object and array of tool results from the frontend
+    const toolResults = Array.isArray(incomingToolResult) ? incomingToolResult : [incomingToolResult];
     messages.push({
       role: 'user',
-      content: [{
+      content: toolResults.map(tr => ({
         type: 'tool_result',
-        tool_use_id: incomingToolResult.tool_use_id,
-        content: JSON.stringify(incomingToolResult.content)
-      }]
+        tool_use_id: tr.tool_use_id,
+        content: JSON.stringify(tr.content)
+      }))
     });
   }
 
