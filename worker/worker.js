@@ -610,46 +610,57 @@ async function agentLoop(messages, apiKey, diagramState, incomingToolResult) {
 
       const toolUses = claude.content.filter(b => b.type === 'tool_use');
 
+      // Separate client-side and server-side tools
+      const clientTools = [];
+      const serverToolResults = [];
+
       for (const tool of toolUses) {
-        // Client-side tool → return to frontend
         if (CLIENT_SIDE_TOOLS.has(tool.name)) {
-          return {
-            type: 'needs_tool',
-            tool_call: { id: tool.id, name: tool.name, params: tool.input },
-            partial_messages: messages
-          };
-        }
-
-        // Server-side tool → compute result here
-        let toolResultContent;
-
-        if (tool.name === 'get_diagram_stats') {
-          const d = diagramState || { nodes: [], links: [] };
-          toolResultContent = {
-            node_count: d.nodes.length,
-            link_count: d.links.length,
-            total_bandwidth_gbps: d.links.reduce((s, l) => s + (l.bandwidth_gbps || 0), 0),
-            avg_latency_ms: d.links.length > 0
-              ? Math.round(d.links.reduce((s, l) => s + (l.latency_ms || 0), 0) / d.links.length * 10) / 10
-              : 0,
-            technologies: [...new Set(d.links.map(l => l.technology).filter(Boolean))],
-            tag_summary: {}
-          };
+          clientTools.push({ id: tool.id, name: tool.name, params: tool.input });
         } else {
-          toolResultContent = { status: 'ok', message: 'Acknowledged by server.' };
-        }
-
-        messages.push({
-          role: 'user',
-          content: [{
+          // Server-side tool → compute result here
+          let toolResultContent;
+          if (tool.name === 'get_diagram_stats') {
+            const d = diagramState || { nodes: [], links: [] };
+            toolResultContent = {
+              node_count: d.nodes.length,
+              link_count: d.links.length,
+              total_bandwidth_gbps: d.links.reduce((s, l) => s + (l.bandwidth_gbps || 0), 0),
+              avg_latency_ms: d.links.length > 0
+                ? Math.round(d.links.reduce((s, l) => s + (l.latency_ms || 0), 0) / d.links.length * 10) / 10
+                : 0,
+              technologies: [...new Set(d.links.map(l => l.technology).filter(Boolean))],
+              tag_summary: {}
+            };
+          } else {
+            toolResultContent = { status: 'ok', message: 'Acknowledged by server.' };
+          }
+          serverToolResults.push({
             type: 'tool_result',
             tool_use_id: tool.id,
             content: JSON.stringify(toolResultContent)
-          }]
-        });
+          });
+        }
       }
 
-      // Continue loop with updated messages
+      // If there are client-side tools, return ALL of them to the frontend
+      // Include server-side results so the frontend can send them back together
+      if (clientTools.length > 0) {
+        // Append any server-side results first so the conversation stays valid
+        if (serverToolResults.length > 0) {
+          messages.push({ role: 'user', content: serverToolResults });
+        }
+        return {
+          type: 'needs_tool',
+          tool_calls: clientTools,
+          partial_messages: messages
+        };
+      }
+
+      // All tools were server-side — append results and continue the loop
+      if (serverToolResults.length > 0) {
+        messages.push({ role: 'user', content: serverToolResults });
+      }
       continue;
     }
 
