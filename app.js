@@ -44112,6 +44112,76 @@ function handlePathKmlImport(e) {
           return { status: 'ok', node_id: String(geoNode.id), gpsLat: resolvedLat, gpsLon: resolvedLon, x: geoNode.x, y: geoNode.y };
         }
 
+        case 'open_cable_system_list': {
+          var cableNav = document.getElementById('cableNavigator');
+          if (cableNav) {
+            cableNav.style.display = 'flex';
+            var btnCN = document.getElementById('btnToggleCableNavigator');
+            if (btnCN) btnCN.classList.add('active');
+            if (typeof updateCableNavigatorList === 'function') updateCableNavigatorList();
+          }
+          return { status: 'ok', message: 'Cable System List panel opened' };
+        }
+
+        case 'open_cable_system_details': {
+          var csInspPanel = document.getElementById('cableSystemInspectorPanel');
+          if (params.cable_system_id) {
+            if (typeof selectCableSystem === 'function') selectCableSystem(params.cable_system_id);
+          }
+          if (csInspPanel) {
+            csInspPanel.style.display = 'flex';
+            var btnCI = document.getElementById('btnToggleCableInspector');
+            if (btnCI) btnCI.classList.add('active');
+            if (typeof updateCableSystemInspector === 'function') updateCableSystemInspector();
+          }
+          return { status: 'ok', message: 'Cable System Details panel opened' };
+        }
+
+        case 'open_datacenter_list': {
+          var dcNav = document.getElementById('dcNavigator');
+          if (dcNav) {
+            dcNav.style.display = 'flex';
+            var btnDN = document.getElementById('btnToggleDCNavigator');
+            if (btnDN) btnDN.classList.add('active');
+            if (window._dcDatabase && !window._dcDatabase.loaded && typeof loadDCDatabase === 'function') loadDCDatabase();
+            if (typeof renderDCList === 'function') renderDCList();
+          }
+          return { status: 'ok', message: 'Datacenter/Facility List panel opened' };
+        }
+
+        case 'query_cable_database': {
+          // Query the TeleGeography cable database loaded in Cable Visor
+          var cableDb = (typeof cableVisorState !== 'undefined' && cableVisorState.cableDatabase)
+                      ? cableVisorState.cableDatabase : null;
+          if (!cableDb || !cableDb.cables) {
+            // Try to load it
+            if (typeof loadCableVisorData === 'function') {
+              return loadCableVisorData().then(function() {
+                cableDb = cableVisorState.cableDatabase;
+                if (!cableDb || !cableDb.cables) return { status: 'error', message: 'Cable database not available. Open the Cable Visor first to load data.' };
+                return queryCableDb(cableDb, params);
+              });
+            }
+            return { status: 'error', message: 'Cable database not loaded. Open the Cable Visor first.' };
+          }
+          return queryCableDb(cableDb, params);
+        }
+
+        case 'query_datacenter_database': {
+          var dcDb = window._dcDatabase;
+          if (!dcDb || !dcDb.loaded || !dcDb.facilities) {
+            if (typeof loadDCDatabase === 'function') {
+              return loadDCDatabase().then(function() {
+                dcDb = window._dcDatabase;
+                if (!dcDb || !dcDb.loaded) return { status: 'error', message: 'Datacenter database not available.' };
+                return queryDcDb(dcDb, params);
+              });
+            }
+            return { status: 'error', message: 'Datacenter database not loaded.' };
+          }
+          return queryDcDb(dcDb, params);
+        }
+
         default:
           return { success: false, error: 'Unknown tool: ' + toolName };
       }
@@ -44119,6 +44189,115 @@ function handlePathKmlImport(e) {
       console.error('[dispatchCanvasTool] Error:', e);
       return { success: false, error: e.message };
     }
+  }
+
+  // Helper: query cable database
+  function queryCableDb(db, params) {
+    var results = Object.values(db.cables);
+    var search = (params.search || '').toLowerCase();
+    var region = (params.region || '').toLowerCase();
+    var country = (params.country || '').toLowerCase();
+    var status = (params.status || '').toLowerCase();
+    var limit = params.limit || 10;
+
+    if (search) {
+      results = results.filter(function(c) {
+        return (c.name || '').toLowerCase().indexOf(search) >= 0 ||
+               (c.shortName || '').toLowerCase().indexOf(search) >= 0;
+      });
+    }
+    if (region) {
+      results = results.filter(function(c) {
+        return (c.region || '').toLowerCase().indexOf(region) >= 0;
+      });
+    }
+    if (country) {
+      results = results.filter(function(c) {
+        var lps = c.landingPoints || [];
+        return lps.some(function(lp) {
+          return (lp.country || '').toLowerCase().indexOf(country) >= 0;
+        });
+      });
+    }
+    if (status) {
+      results = results.filter(function(c) {
+        return (c.status || '').toLowerCase().indexOf(status) >= 0;
+      });
+    }
+
+    results = results.slice(0, limit);
+    return {
+      status: 'ok',
+      count: results.length,
+      cables: results.map(function(c) {
+        return {
+          id: c.id,
+          name: c.name,
+          short_name: c.shortName || '',
+          status: c.status || 'unknown',
+          rfs_year: c.rfsYear || c.rfs || null,
+          length_km: c.lengthKm || null,
+          region: c.region || '',
+          owners: (c.owners || []).slice(0, 5).map(function(o) { return o.name || o; }),
+          landing_points: (c.landingPoints || []).slice(0, 20).map(function(lp) {
+            return { name: lp.name || '', country: lp.country || '', city: lp.city || '' };
+          })
+        };
+      })
+    };
+  }
+
+  // Helper: query datacenter/facility database
+  function queryDcDb(db, params) {
+    var results = db.facilities || [];
+    var search = (params.search || '').toLowerCase();
+    var city = (params.city || '').toLowerCase();
+    var country = (params.country || '').toLowerCase();
+    var facType = (params.facility_type || '').toLowerCase();
+    var limit = params.limit || 10;
+
+    if (search) {
+      results = results.filter(function(f) {
+        return (f.name || '').toLowerCase().indexOf(search) >= 0 ||
+               (f.org_name || '').toLowerCase().indexOf(search) >= 0;
+      });
+    }
+    if (city) {
+      results = results.filter(function(f) {
+        return (f.city || '').toLowerCase().indexOf(city) >= 0;
+      });
+    }
+    if (country) {
+      results = results.filter(function(f) {
+        return (f.country || '').toLowerCase().indexOf(country) >= 0 ||
+               (f.country_code || '').toLowerCase() === country;
+      });
+    }
+    if (facType) {
+      results = results.filter(function(f) {
+        return (f.facility_type || '').toLowerCase() === facType;
+      });
+    }
+
+    results = results.slice(0, limit);
+    return {
+      status: 'ok',
+      count: results.length,
+      facilities: results.map(function(f) {
+        return {
+          id: f.id,
+          name: f.name || '',
+          org_name: f.org_name || '',
+          facility_type: f.facility_type || 'datacenter',
+          city: f.city || '',
+          country: f.country || '',
+          region: f.region || '',
+          lat: f.latitude || f.lat || null,
+          lon: f.longitude || f.lon || null,
+          carrier_count: f.net_count || f.carrier_count || 0
+        };
+      })
+    };
   }
 
   function aiSendMessage() {
@@ -44189,7 +44368,9 @@ function handlePathKmlImport(e) {
         } else if ([
           'create_node', 'create_link', 'edit_node', 'edit_link',
           'delete_node', 'delete_link', 'create_full_mesh',
-          'assign_datacenter', 'show_heatmap', 'highlight_path', 'geolocate_node'
+          'assign_datacenter', 'show_heatmap', 'highlight_path', 'geolocate_node',
+          'open_cable_system_list', 'open_cable_system_details', 'open_datacenter_list',
+          'query_cable_database', 'query_datacenter_database'
         ].indexOf(tc.name) >= 0) {
           result = dispatchCanvasTool(tc.name, tc.params || {});
         } else {

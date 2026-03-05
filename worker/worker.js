@@ -488,6 +488,57 @@ const NEXIMAP_TOOLS = [
       },
       required: ['node_id']
     }
+  },
+  {
+    name: 'open_cable_system_list',
+    description: 'Open the Cable System List panel (CS List) in the sidebar, showing all cable systems defined in the current diagram.',
+    input_schema: { type: 'object', properties: {}, required: [] }
+  },
+  {
+    name: 'open_cable_system_details',
+    description: 'Open the Cable System Details/Inspector panel (CS Details) for a specific cable system. Shows landing points, geometry, FA match status, and metadata.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        cable_system_id: { type: 'number', description: 'Cable system ID to inspect (from diagram state). If omitted, opens the panel for the currently selected cable system.' }
+      },
+      required: []
+    }
+  },
+  {
+    name: 'open_datacenter_list',
+    description: 'Open the Datacenter/Facility List panel (DC List) in the sidebar. Shows all datacenter containers and cable stations in the diagram, with filtering by type, country, and region.',
+    input_schema: { type: 'object', properties: {}, required: [] }
+  },
+  {
+    name: 'query_cable_database',
+    description: 'Search the TeleGeography submarine cable database for cable systems by name, region, landing country, or status. Returns matching cables with metadata (name, RFS year, length, owners, landing points). Use this when the user asks about real-world submarine cables.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        search: { type: 'string', description: 'Cable name or keyword to search for' },
+        region: { type: 'string', description: 'Filter by region (e.g. "Europe", "Asia", "Trans-Atlantic")' },
+        country: { type: 'string', description: 'Filter by landing country name' },
+        status: { type: 'string', enum: ['active', 'planned', 'under construction', 'decommissioned'], description: 'Filter by cable status' },
+        limit: { type: 'number', description: 'Max results to return (default 10)' }
+      },
+      required: []
+    }
+  },
+  {
+    name: 'query_datacenter_database',
+    description: 'Search the datacenter/facility database (PeeringDB + cable stations) for datacenters and cable landing stations by name, city, country, or operator. Returns matching facilities with metadata (name, city, country, lat/lon, carrier count). Use this when the user asks about real-world datacenters or cable landing stations.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        search: { type: 'string', description: 'Facility name or keyword to search for' },
+        city: { type: 'string', description: 'Filter by city name' },
+        country: { type: 'string', description: 'Filter by country name or code' },
+        facility_type: { type: 'string', enum: ['datacenter', 'cable_station'], description: 'Filter by facility type' },
+        limit: { type: 'number', description: 'Max results to return (default 10)' }
+      },
+      required: []
+    }
   }
 ];
 
@@ -525,7 +576,12 @@ const CLIENT_SIDE_TOOLS = new Set([
   'get_network_summary',
   'show_route_price',
   'create_network_diagram',
-  'switch_view'
+  'switch_view',
+  'open_cable_system_list',
+  'open_cable_system_details',
+  'open_datacenter_list',
+  'query_cable_database',
+  'query_datacenter_database'
 ]);
 
 // ─── ANTHROPIC API CALL ──────────────────────────────────────────────────────
