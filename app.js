@@ -13070,11 +13070,9 @@ function loadProjectObject(obj) {
   })();
 
   function showCableVisor() {
-    console.log('[showCableVisor] called');
     const panel = document.getElementById('cableVisorPanel');
-    if (!panel) { console.warn('[showCableVisor] panel element not found!'); return; }
+    if (!panel) return;
     panel.classList.add('show');
-    console.log('[showCableVisor] panel.classList =', panel.classList.toString());
 
     // Initialize draggable on first show
     initCableVisorDraggable();
@@ -16471,11 +16469,9 @@ function loadProjectObject(obj) {
   };
 
   function showDCVisor() {
-    console.log('[showDCVisor] called');
     const panel = document.getElementById('dcVisorPanel');
-    if (!panel) { console.warn('[showDCVisor] panel element not found!'); return; }
+    if (!panel) return;
     panel.classList.add('show');
-    console.log('[showDCVisor] panel.classList =', panel.classList.toString());
 
     // Initialize draggable on first show
     initDCVisorDraggable();
@@ -43668,7 +43664,6 @@ function handlePathKmlImport(e) {
   }
 
   function nexiDispatchAction(tool, params) {
-    console.log('[nexiDispatchAction]', tool, params);
     // Route tool calls to actual Neximap functions
     try {
       switch (tool) {
@@ -43910,7 +43905,6 @@ function handlePathKmlImport(e) {
    * Called by nexiHandleWorkerResponse when the Worker returns needs_tool.
    */
   function dispatchCanvasTool(toolName, params) {
-    console.log('[dispatchCanvasTool]', toolName, params);
     try {
       switch (toolName) {
 
