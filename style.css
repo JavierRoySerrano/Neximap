@@ -2214,7 +2214,7 @@
     svg { display:block; user-select:none; }
     #svgContainer svg { background:#fff; }
     .tool-btn svg { background: none; }
-    #svgContainer { display: block; min-width: max-content; min-height: max-content; }
+    #svgContainer { display: block; min-width: max-content; min-height: max-content; margin: 0 auto; }
     .grid { stroke:#e8e8e8; stroke-width:1; }
 
     .group-rect { rx:8; ry:8; }
