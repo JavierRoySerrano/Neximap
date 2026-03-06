@@ -6178,9 +6178,9 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
     <span>Filters</span>
   </button>
-  <button id="mobBtnGeo" onclick="mobileNavAction('geo')" title="Geo View">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M12 2v20"/><path d="M2 12h20"/></svg>
-    <span>Geo</span>
+  <button id="mobBtnMap" onclick="mobileNavAction('map')" title="Dynamic Map">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+    <span>Map</span>
   </button>
   <button id="mobBtnMore" onclick="mobileNavAction('more')" title="More">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="19" r="1.5" fill="currentColor"/></svg>
@@ -6272,9 +6272,9 @@
     DC Visor
   </button>
   <div class="sheet-section">Views</div>
-  <button class="sheet-item" onclick="mobileSheetAction('btnMapLibre')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-    Dynamic Map
+  <button class="sheet-item" onclick="mobileSheetAction('btnGeoView')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M12 2v20"/><path d="M2 12h20"/></svg>
+    Geo View
   </button>
   <button class="sheet-item" onclick="mobileSheetAction('btnKMLStudio')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10A15 15 0 0 1 12 2z"/><path d="M2 12h20"/></svg>
@@ -6331,10 +6331,10 @@
       var btn = document.getElementById('btnUnifiedFilter');
       if (btn) btn.click();
       toggleMobileActive('mobBtnFilters');
-    } else if (action === 'geo') {
-      var btn = document.getElementById('btnGeoView');
+    } else if (action === 'map') {
+      var btn = document.getElementById('btnMapLibre');
       if (btn) btn.click();
-      toggleMobileActive('mobBtnGeo');
+      toggleMobileActive('mobBtnMap');
     } else if (action === 'more') {
       var sheet = document.getElementById('mobileMoreSheet');
       var backdrop = document.getElementById('mobileSheetBackdrop');
