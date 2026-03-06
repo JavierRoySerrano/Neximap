@@ -19,6 +19,22 @@
       flex-wrap: wrap;
     }
 
+    /* Row 2 toolbar buttons: labels below icons */
+    .toolbar-row .tool-btn {
+      flex-direction: column;
+      height: auto;
+      min-height: auto;
+      max-height: none;
+      padding: 4px 6px 2px;
+      gap: 1px;
+    }
+    .toolbar-row .tool-btn > span:not(.filter-badge) {
+      font-size: 9px !important;
+      margin-left: 0 !important;
+      margin-top: 1px;
+      line-height: 1;
+    }
+
     /* MapLibre container styles */
     #maplibreContainer {
       position: absolute;
