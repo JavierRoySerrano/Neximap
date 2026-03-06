@@ -801,10 +801,14 @@
     <!-- Brush (Format Painter) -->
     <button class="tool-btn" id="btnBrush" type="button" title="Format Painter - Copy and apply formatting">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Eyedropper / pipette -->
-        <path d="M20 4a2.83 2.83 0 0 0-4 0L9 11l4 4 7-7a2.83 2.83 0 0 0 0-4z"/>
-        <path d="M9 11l-4.5 4.5a2.12 2.12 0 0 0 0 3l1 1a2.12 2.12 0 0 0 3 0L13 15"/>
-        <path d="M4.5 19.5L2 22"/>
+        <!-- Paintbrush head (bristles) -->
+        <rect x="14" y="2" width="8" height="6" rx="1"/>
+        <!-- Handle connecting to bristles -->
+        <path d="M14 5H10a2 2 0 0 0-2 2v2"/>
+        <!-- Brush handle (vertical) -->
+        <rect x="6" y="9" width="4" height="8" rx="1"/>
+        <!-- Brush tip -->
+        <path d="M7 17v3a2 2 0 0 0 2 0v-3"/>
       </svg>
     </button>
 
@@ -812,13 +816,13 @@
     <div style="position:relative;">
       <button class="tool-btn" id="btnApplyStyle" type="button" title="Apply Saved Style to Selection">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <!-- Style palette / swatches -->
-          <rect x="3" y="3" width="8" height="8" rx="1.5"/>
-          <rect x="13" y="3" width="8" height="8" rx="1.5" fill="currentColor" opacity="0.15"/>
-          <rect x="3" y="13" width="8" height="8" rx="1.5" fill="currentColor" opacity="0.15"/>
-          <rect x="13" y="13" width="8" height="8" rx="1.5"/>
-          <!-- Check mark overlay -->
-          <path d="M15 16l2 2 4-4" stroke-width="2.5"/>
+          <!-- Color palette shape -->
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-1 0-.83.67-1.5 1.5-1.5H16c3.31 0 6-2.69 6-6 0-5.52-4.48-9.5-10-9.5z"/>
+          <!-- Color dots on palette -->
+          <circle cx="7.5" cy="11" r="1.5" fill="currentColor"/>
+          <circle cx="10.5" cy="7" r="1.5" fill="currentColor"/>
+          <circle cx="15" cy="7" r="1.5" fill="currentColor"/>
+          <circle cx="17.5" cy="11" r="1.5" fill="currentColor"/>
         </svg>
       </button>
       <div class="menu" id="applyStyleMenu" hidden style="min-width:240px; max-width:320px; max-height:400px; overflow-y:auto;">
