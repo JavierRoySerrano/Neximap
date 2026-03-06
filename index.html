@@ -801,14 +801,15 @@
     <!-- Brush (Format Painter) -->
     <button class="tool-btn" id="btnBrush" type="button" title="Format Painter - Copy and apply formatting">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Paintbrush head (bristles) -->
-        <rect x="14" y="2" width="8" height="6" rx="1"/>
-        <!-- Handle connecting to bristles -->
-        <path d="M14 5H10a2 2 0 0 0-2 2v2"/>
-        <!-- Brush handle (vertical) -->
-        <rect x="6" y="9" width="4" height="8" rx="1"/>
-        <!-- Brush tip -->
-        <path d="M7 17v3a2 2 0 0 0 2 0v-3"/>
+        <!-- Brush bristles (flat, angled) -->
+        <path d="M19 3L14 8" stroke-width="5" stroke="#999" opacity="0.3"/>
+        <path d="M19 3L14 8" stroke-width="2.5"/>
+        <!-- Ferrule (metal band) -->
+        <path d="M14 8L12.5 9.5" stroke-width="3"/>
+        <!-- Handle -->
+        <path d="M12.5 9.5L4 18" stroke-width="2"/>
+        <!-- Handle end -->
+        <path d="M4 18L2.5 19.5" stroke-width="3" stroke-linecap="round"/>
       </svg>
     </button>
 
@@ -816,13 +817,15 @@
     <div style="position:relative;">
       <button class="tool-btn" id="btnApplyStyle" type="button" title="Apply Saved Style to Selection">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <!-- Color palette shape -->
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-1 0-.83.67-1.5 1.5-1.5H16c3.31 0 6-2.69 6-6 0-5.52-4.48-9.5-10-9.5z"/>
-          <!-- Color dots on palette -->
-          <circle cx="7.5" cy="11" r="1.5" fill="currentColor"/>
-          <circle cx="10.5" cy="7" r="1.5" fill="currentColor"/>
-          <circle cx="15" cy="7" r="1.5" fill="currentColor"/>
-          <circle cx="17.5" cy="11" r="1.5" fill="currentColor"/>
+          <!-- Document/card -->
+          <rect x="4" y="2" width="16" height="20" rx="2"/>
+          <!-- Style lines on card -->
+          <line x1="8" y1="7" x2="16" y2="7" stroke-width="2.5" opacity="0.4"/>
+          <line x1="8" y1="11" x2="14" y2="11" stroke-width="1.5" opacity="0.3"/>
+          <line x1="8" y1="14" x2="15" y2="14" stroke-width="1.5" opacity="0.3"/>
+          <!-- Checkmark badge -->
+          <circle cx="18" cy="18" r="4.5" fill="#fff" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M15.5 18l2 2 3.5-3.5" stroke-width="2"/>
         </svg>
       </button>
       <div class="menu" id="applyStyleMenu" hidden style="min-width:240px; max-width:320px; max-height:400px; overflow-y:auto;">
