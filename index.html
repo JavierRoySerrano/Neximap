@@ -6123,43 +6123,243 @@
       <span style="font-weight:600; font-size:16px; color:#5a67d8;">NexiMap</span>
       <span style="font-weight:400; font-size:16px; color:#666;">Studio</span>
     </div>
-    <button class="menu-item" style="display:block; width:100%; text-align:left; padding:10px 20px; font-size:14px;" onclick="document.getElementById('btnFile').click(); this.closest('#mobileMenuOverlay').hidden=true">File</button>
-    <button class="menu-item" style="display:block; width:100%; text-align:left; padding:10px 20px; font-size:14px;" onclick="document.getElementById('btnEditMenu').click(); this.closest('#mobileMenuOverlay').hidden=true">Edit</button>
-    <button class="menu-item" style="display:block; width:100%; text-align:left; padding:10px 20px; font-size:14px;" onclick="document.getElementById('btnViewMenu').click(); this.closest('#mobileMenuOverlay').hidden=true">View</button>
-    <button class="menu-item" style="display:block; width:100%; text-align:left; padding:10px 20px; font-size:14px;" onclick="document.getElementById('btnDataMenu').click(); this.closest('#mobileMenuOverlay').hidden=true">Data</button>
-    <button class="menu-item" style="display:block; width:100%; text-align:left; padding:10px 20px; font-size:14px;" onclick="document.getElementById('btnSettingsMenu').click(); this.closest('#mobileMenuOverlay').hidden=true">Settings</button>
-    <button class="menu-item" style="display:block; width:100%; text-align:left; padding:10px 20px; font-size:14px;" onclick="document.getElementById('btnHelp').click(); this.closest('#mobileMenuOverlay').hidden=true">Help</button>
+    <!-- File section -->
+    <div style="padding:6px 20px; font-size:10px; font-weight:600; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">File</div>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('miNew').click(); this.closest('#mobileMenuOverlay').hidden=true">New</button>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('miOpen').click(); this.closest('#mobileMenuOverlay').hidden=true">Open...</button>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('miSave').click(); this.closest('#mobileMenuOverlay').hidden=true">Save</button>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('miSaveAs').click(); this.closest('#mobileMenuOverlay').hidden=true">Save As...</button>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('miExportSVG').click(); this.closest('#mobileMenuOverlay').hidden=true">Export as SVG...</button>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('miExportPNG').click(); this.closest('#mobileMenuOverlay').hidden=true">Export as PNG...</button>
+    <div style="border-bottom:1px solid #e8e8e8; margin:6px 20px;"></div>
+    <!-- Edit section -->
+    <div style="padding:6px 20px; font-size:10px; font-weight:600; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Edit</div>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('miUndo').click(); this.closest('#mobileMenuOverlay').hidden=true">Undo</button>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('miRedo').click(); this.closest('#mobileMenuOverlay').hidden=true">Redo</button>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('miCopy').click(); this.closest('#mobileMenuOverlay').hidden=true">Copy</button>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('miPaste').click(); this.closest('#mobileMenuOverlay').hidden=true">Paste</button>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('miDelete').click(); this.closest('#mobileMenuOverlay').hidden=true">Delete</button>
+    <div style="border-bottom:1px solid #e8e8e8; margin:6px 20px;"></div>
+    <!-- View section -->
+    <div style="padding:6px 20px; font-size:10px; font-weight:600; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">View</div>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('miZoomIn').click(); this.closest('#mobileMenuOverlay').hidden=true">Zoom In</button>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('miZoomOut').click(); this.closest('#mobileMenuOverlay').hidden=true">Zoom Out</button>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('miFitView').click(); this.closest('#mobileMenuOverlay').hidden=true">Fit to View</button>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('btnGridToggle').click(); this.closest('#mobileMenuOverlay').hidden=true">Toggle Grid</button>
+    <div style="border-bottom:1px solid #e8e8e8; margin:6px 20px;"></div>
+    <!-- Data section -->
+    <div style="padding:6px 20px; font-size:10px; font-weight:600; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Data</div>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('btnDataMenu').click(); this.closest('#mobileMenuOverlay').hidden=true">Data Menu</button>
+    <div style="border-bottom:1px solid #e8e8e8; margin:6px 20px;"></div>
+    <!-- Settings section -->
+    <div style="padding:6px 20px; font-size:10px; font-weight:600; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Settings</div>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('btnSettingsMenu').click(); this.closest('#mobileMenuOverlay').hidden=true">Settings</button>
+    <div style="border-bottom:1px solid #e8e8e8; margin:6px 20px;"></div>
+    <!-- Help -->
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('btnHelp').click(); this.closest('#mobileMenuOverlay').hidden=true">Help</button>
   </div>
 </div>
 
 <!-- Mobile Bottom Toolbar (hidden on desktop, shown via CSS on mobile) -->
 <div class="mobile-toolbar" id="mobileToolbar">
-  <button onclick="document.getElementById('btnMainView').click()" title="Canvas">
+  <button id="mobBtnCanvas" onclick="mobileNavAction('canvas')" title="Canvas">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="2" fill="currentColor"/><circle cx="16" cy="8" r="2" fill="currentColor"/><circle cx="12" cy="16" r="2" fill="currentColor"/><line x1="8" y1="10" x2="12" y2="14"/><line x1="16" y1="10" x2="12" y2="14"/></svg>
     <span>Canvas</span>
   </button>
-  <button onclick="document.getElementById('btnZoomFit').click()" title="Fit View">
+  <button id="mobBtnFit" onclick="mobileNavAction('fit')" title="Fit View">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
     <span>Fit</span>
   </button>
-  <button onclick="document.getElementById('btnToggleInspector').click()" title="Inspector">
+  <button id="mobBtnInspector" onclick="mobileNavAction('inspector')" title="Inspector">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="7" x2="20" y2="7"/><circle cx="8" cy="7" r="2" fill="currentColor"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="14" cy="12" r="2" fill="currentColor"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="10" cy="17" r="2" fill="currentColor"/></svg>
     <span>Inspector</span>
   </button>
-  <button onclick="document.getElementById('btnUnifiedFilter').click()" title="Filters">
+  <button id="mobBtnFilters" onclick="mobileNavAction('filters')" title="Filters">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
     <span>Filters</span>
   </button>
-  <button onclick="document.getElementById('btnGeoView').click()" title="Geo View">
+  <button id="mobBtnGeo" onclick="mobileNavAction('geo')" title="Geo View">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M12 2v20"/><path d="M2 12h20"/></svg>
     <span>Geo</span>
   </button>
-  <button onclick="document.getElementById('btnHamburger').click()" title="More">
+  <button id="mobBtnMore" onclick="mobileNavAction('more')" title="More">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="19" r="1.5" fill="currentColor"/></svg>
     <span>More</span>
   </button>
 </div>
 
+<!-- Mobile "More" bottom sheet -->
+<div class="mobile-sheet-backdrop" id="mobileSheetBackdrop" onclick="closeMobileMoreSheet()"></div>
+<div class="mobile-more-sheet" id="mobileMoreSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">More Tools</div>
+  <div class="sheet-section">Tools</div>
+  <button class="sheet-item" onclick="mobileSheetAction('btnRouteFinder')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="6" r="3"/><circle cx="19" cy="18" r="3"/><path d="M8 6h4a4 4 0 0 1 4 4v0a4 4 0 0 1-4 4H8"/></svg>
+    Path Finder
+  </button>
+  <button class="sheet-item" onclick="mobileSheetAction('btnToggleLibrary')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Shape Library
+  </button>
+  <button class="sheet-item" onclick="mobileSheetAction('btnLabelManager')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+    Tag Manager
+  </button>
+  <button class="sheet-item" onclick="mobileSheetAction('btnToggleMultilinkManager')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><line x1="9" y1="6" x2="15" y2="6"/><line x1="9" y1="18" x2="15" y2="18"/><line x1="6" y1="9" x2="6" y2="15"/><line x1="18" y1="9" x2="18" y2="15"/></svg>
+    ML Groups
+  </button>
+  <div class="sheet-section">Cable Systems</div>
+  <button class="sheet-item" onclick="mobileSheetAction('btnToggleCableNavigator')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+    CS List
+  </button>
+  <button class="sheet-item" onclick="mobileSheetAction('btnToggleCableInspector')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    CS Details
+  </button>
+  <button class="sheet-item" onclick="mobileSheetAction('btnToggleDCNavigator')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><circle cx="6" cy="6" r="1" fill="currentColor"/><circle cx="6" cy="18" r="1" fill="currentColor"/></svg>
+    DC List
+  </button>
+  <div class="sheet-section">Visors</div>
+  <button class="sheet-item" onclick="closeMobileMoreSheet(); if(typeof openCSVisorWithDefaults==='function') openCSVisorWithDefaults();">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><ellipse cx="12" cy="12" rx="4" ry="10"/></svg>
+    CS Visor
+  </button>
+  <button class="sheet-item" onclick="closeMobileMoreSheet(); if(typeof openDCVisorWithDefaults==='function') openDCVisorWithDefaults();">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+    DC Visor
+  </button>
+  <div class="sheet-section">Views</div>
+  <button class="sheet-item" onclick="mobileSheetAction('btnMapLibre')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+    Dynamic Map
+  </button>
+  <button class="sheet-item" onclick="mobileSheetAction('btnKMLStudio')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10A15 15 0 0 1 12 2z"/><path d="M2 12h20"/></svg>
+    KML Studio
+  </button>
+</div>
+
 <script src="app.js"></script>
+<script>
+/* === Mobile navigation logic (loaded after app.js) === */
+(function() {
+  function isMobile() { return window.innerWidth <= 768; }
+
+  // Hide inspector on mobile after app.js has initialized
+  function hideInspectorOnMobile() {
+    if (isMobile()) {
+      var insp = document.getElementById('inspector');
+      if (insp) insp.style.display = 'none';
+      var dBtn = document.getElementById('btnToggleInspector');
+      if (dBtn) dBtn.classList.remove('primary', 'active');
+    }
+  }
+  // Run immediately (app.js already loaded), on load, and with a delayed fallback
+  hideInspectorOnMobile();
+  window.addEventListener('load', hideInspectorOnMobile);
+  setTimeout(hideInspectorOnMobile, 500);
+
+  // Mobile nav actions
+  window.mobileNavAction = function(action) {
+    closeMobileMoreSheet();
+
+    if (action === 'canvas') {
+      closeMobilePanels();
+      clearMobileActive();
+      document.getElementById('mobBtnCanvas').classList.add('active');
+    } else if (action === 'fit') {
+      var btn = document.getElementById('btnZoomFit');
+      if (btn) btn.click();
+    } else if (action === 'inspector') {
+      var insp = document.getElementById('inspector');
+      if (insp) {
+        var isVisible = insp.style.display !== 'none' && insp.style.display !== '';
+        if (isVisible) {
+          insp.style.display = 'none';
+          document.getElementById('mobBtnInspector').classList.remove('active');
+        } else {
+          // Use the desktop toggle to keep app.js state in sync
+          var dBtn = document.getElementById('btnToggleInspector');
+          if (dBtn) dBtn.click();
+          document.getElementById('mobBtnInspector').classList.add('active');
+        }
+      }
+    } else if (action === 'filters') {
+      var btn = document.getElementById('btnUnifiedFilter');
+      if (btn) btn.click();
+      toggleMobileActive('mobBtnFilters');
+    } else if (action === 'geo') {
+      var btn = document.getElementById('btnGeoView');
+      if (btn) btn.click();
+      toggleMobileActive('mobBtnGeo');
+    } else if (action === 'more') {
+      var sheet = document.getElementById('mobileMoreSheet');
+      var backdrop = document.getElementById('mobileSheetBackdrop');
+      if (sheet.classList.contains('open')) {
+        closeMobileMoreSheet();
+      } else {
+        sheet.classList.add('open');
+        backdrop.classList.add('open');
+        document.getElementById('mobBtnMore').classList.add('active');
+      }
+    }
+  };
+
+  window.closeMobileMoreSheet = function() {
+    var sheet = document.getElementById('mobileMoreSheet');
+    var backdrop = document.getElementById('mobileSheetBackdrop');
+    if (sheet) sheet.classList.remove('open');
+    if (backdrop) backdrop.classList.remove('open');
+    var btn = document.getElementById('mobBtnMore');
+    if (btn) btn.classList.remove('active');
+  };
+
+  window.mobileSheetAction = function(btnId) {
+    closeMobileMoreSheet();
+    var btn = document.getElementById(btnId);
+    if (btn) btn.click();
+  };
+
+  function closeMobilePanels() {
+    ['inspector','unifiedFilterPanel','shapeLibraryPanel','cableNavigator','cableSystemInspectorPanel'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  }
+
+  function clearMobileActive() {
+    document.querySelectorAll('#mobileToolbar button').forEach(function(b) {
+      b.classList.remove('active');
+    });
+  }
+
+  function toggleMobileActive(btnId) {
+    var btn = document.getElementById(btnId);
+    if (btn) btn.classList.toggle('active');
+  }
+
+  // Observe inspector display changes to sync bottom-nav active state
+  var inspObserver = new MutationObserver(function() {
+    if (!isMobile()) return;
+    var insp = document.getElementById('inspector');
+    var btn = document.getElementById('mobBtnInspector');
+    if (!insp || !btn) return;
+    var isVisible = insp.style.display !== 'none' && insp.style.display !== '';
+    if (isVisible && insp.offsetWidth > 0) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+  var insp = document.getElementById('inspector');
+  if (insp) {
+    inspObserver.observe(insp, { attributes: true, attributeFilter: ['style'] });
+  }
+})();
+</script>
 </body>
 </html>

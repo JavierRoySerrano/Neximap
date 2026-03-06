@@ -2056,6 +2056,66 @@
         box-shadow: 0 -4px 20px rgba(0,0,0,0.15) !important;
       }
     }
+
+    /* --- Mobile "More" bottom sheet --- */
+    .mobile-more-sheet {
+      display: none;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 52px;
+      max-height: 65vh;
+      background: #fff;
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+      z-index: 400;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .mobile-more-sheet.open { display: block; }
+    .mobile-more-sheet .sheet-handle {
+      width: 36px; height: 4px; background: #d0d0d0; border-radius: 2px;
+      margin: 10px auto 6px;
+    }
+    .mobile-more-sheet .sheet-title {
+      padding: 4px 20px 10px; font-size: 14px; font-weight: 600; color: #333;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .mobile-more-sheet .sheet-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 20px; border-bottom: 1px solid #f0f0f0;
+      cursor: pointer; font-size: 14px; color: #333;
+      background: none; border-left: none; border-right: none; border-top: none;
+      width: 100%; text-align: left;
+    }
+    .mobile-more-sheet .sheet-item:hover,
+    .mobile-more-sheet .sheet-item:active { background: #f5f5f5; }
+    .mobile-more-sheet .sheet-item svg { width: 22px; height: 22px; flex-shrink: 0; color: #666; }
+    .mobile-more-sheet .sheet-section {
+      padding: 10px 20px 4px; font-size: 10px; font-weight: 600;
+      color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    /* Backdrop for mobile sheets */
+    .mobile-sheet-backdrop {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 52px;
+      background: rgba(0,0,0,0.3);
+      z-index: 399;
+    }
+    .mobile-sheet-backdrop.open { display: block; }
+
+    /* Mobile menu drawer items */
+    #mobileMenuOverlay button:active { background: #f0f0f0 !important; }
+
+    /* Bottom nav active state */
+    .mobile-toolbar button.active {
+      color: #0096D6;
+      background: #e8f4fc;
+    }
+    .mobile-toolbar button.active svg {
+      stroke: #0096D6;
+    }
     /* Visor toolbar action menus */
     .visor-action-menu {
       position: absolute;
