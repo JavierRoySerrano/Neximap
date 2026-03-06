@@ -6189,6 +6189,13 @@
   </button>
 </div>
 
+<!-- Mobile floating zoom controls -->
+<div class="mobile-zoom-controls" id="mobileZoomControls">
+  <button onclick="document.getElementById('btnZoomIn').click()" title="Zoom In">+</button>
+  <button onclick="document.getElementById('btnZoomOut').click()" title="Zoom Out">&minus;</button>
+  <button onclick="document.getElementById('btnZoomFit').click()" title="Fit to View" style="font-size:14px;">&#x2922;</button>
+</div>
+
 <!-- Nexi minimized floating button -->
 <div id="nexiFab" style="display:none; position:fixed; bottom:70px; right:16px; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#7C3AED,#5B21B6); box-shadow:0 4px 16px rgba(124,58,237,0.4); cursor:pointer; z-index:9999; align-items:center; justify-content:center;" title="Open Nexi">
   <svg width="34" height="34" viewBox="60 15 80 80" fill="none"><polygon points="100,20 132,38 132,74 100,92 68,74 68,38" fill="#7C3AED" stroke="#C4B5FD" stroke-width="3"/><ellipse cx="100" cy="58" rx="23" ry="20" fill="white" stroke="#7C3AED" stroke-width="2"/><circle cx="91" cy="55" r="6.5" fill="#E879F9"/><circle cx="109" cy="55" r="6.5" fill="#E879F9"/><circle cx="93" cy="53" r="2" fill="white" opacity="0.9"/><circle cx="111" cy="53" r="2" fill="white" opacity="0.9"/><path d="M 90 66 Q 100 75 110 66" stroke="#7C3AED" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>
@@ -6294,6 +6301,17 @@
 (function() {
   function isMobile() { return window.innerWidth <= 768; }
 
+  // Collapse non-identity inspector sections on mobile for cleaner view
+  function collapseInspectorSections() {
+    if (!isMobile()) return;
+    document.querySelectorAll('#inspector .inspector-section').forEach(function(sec) {
+      var ds = sec.getAttribute('data-section') || '';
+      if (ds.indexOf('-identity') === -1) {
+        sec.classList.add('collapsed');
+      }
+    });
+  }
+
   // Hide inspector on mobile after app.js has initialized
   function hideInspectorOnMobile() {
     if (isMobile()) {
@@ -6331,7 +6349,7 @@
           var dBtn = document.getElementById('btnToggleInspector');
           if (dBtn) dBtn.click();
           document.getElementById('mobBtnInspector').classList.add('active');
-        }
+          collapseInspectorSections();
       }
     } else if (action === 'filters') {
       var btn = document.getElementById('btnUnifiedFilter');
@@ -6466,6 +6484,227 @@
       restoreNexi();
     });
   }
+})();
+
+/* === Touch gesture layer for mobile canvas === */
+(function() {
+  function isMobile() { return window.innerWidth <= 768; }
+
+  // Wait for app.js to initialize
+  window.addEventListener('load', function() {
+    var svgEl = document.getElementById('svg');
+    var wrap = document.getElementById('wrap');
+    if (!svgEl || !wrap) return;
+
+    var touchState = {
+      type: null,        // 'pan', 'drag', 'pinch', null
+      startX: 0, startY: 0,
+      startScrollX: 0, startScrollY: 0,
+      lastTap: 0,        // for double-tap detection
+      lastTapX: 0, lastTapY: 0,
+      pinchStartDist: 0,
+      pinchStartZoom: 1,
+      pinchCenterX: 0, pinchCenterY: 0,
+      moved: false,
+      target: null
+    };
+
+    function dist(t1, t2) {
+      var dx = t1.clientX - t2.clientX, dy = t1.clientY - t2.clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function isNodeOrEdge(el) {
+      if (!el) return false;
+      // Walk up from touch target to find a draggable SVG group (node or edge)
+      var node = el.closest ? el.closest('g[data-id]') : null;
+      return !!node;
+    }
+
+    function synthMouse(type, touch, target, button) {
+      var ev = new MouseEvent(type, {
+        bubbles: true, cancelable: true,
+        clientX: touch.clientX, clientY: touch.clientY,
+        screenX: touch.screenX, screenY: touch.screenY,
+        button: button || 0, buttons: type === 'mouseup' ? 0 : 1,
+        view: window
+      });
+      (target || touch.target).dispatchEvent(ev);
+    }
+
+    svgEl.addEventListener('touchstart', function(e) {
+      if (!isMobile()) return;
+
+      if (e.touches.length === 2) {
+        // Pinch zoom start
+        e.preventDefault();
+        touchState.type = 'pinch';
+        touchState.pinchStartDist = dist(e.touches[0], e.touches[1]);
+        touchState.pinchStartZoom = window.state ? window.state.zoom : 1;
+        touchState.pinchCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        touchState.pinchCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        // Cancel any ongoing single-finger action
+        if (touchState.type === 'drag') {
+          synthMouse('mouseup', e.touches[0], touchState.target);
+        }
+        touchState.type = 'pinch';
+        return;
+      }
+
+      if (e.touches.length === 1) {
+        var touch = e.touches[0];
+        touchState.startX = touch.clientX;
+        touchState.startY = touch.clientY;
+        touchState.startScrollX = wrap.scrollLeft;
+        touchState.startScrollY = wrap.scrollTop;
+        touchState.moved = false;
+        touchState.target = touch.target;
+
+        if (isNodeOrEdge(touch.target)) {
+          // Touching a node/edge — start drag via synthetic mousedown
+          e.preventDefault();
+          touchState.type = 'drag';
+          synthMouse('mousedown', touch, touch.target);
+        } else {
+          // Empty canvas — will become pan
+          e.preventDefault();
+          touchState.type = 'pan';
+        }
+      }
+    }, { passive: false });
+
+    svgEl.addEventListener('touchmove', function(e) {
+      if (!isMobile()) return;
+      e.preventDefault();
+
+      if (touchState.type === 'pinch' && e.touches.length >= 2) {
+        var newDist = dist(e.touches[0], e.touches[1]);
+        var scale = newDist / touchState.pinchStartDist;
+        var newZoom = Math.max(0.1, Math.min(5, touchState.pinchStartZoom * scale));
+
+        // Calculate pinch center relative to wrap
+        var wrapRect = wrap.getBoundingClientRect();
+        var cx = touchState.pinchCenterX - wrapRect.left;
+        var cy = touchState.pinchCenterY - wrapRect.top;
+
+        // Use the zoom function pattern from app.js
+        var oldZoom = window.state.zoom;
+        var pointX = (wrap.scrollLeft + cx) / oldZoom;
+        var pointY = (wrap.scrollTop + cy) / oldZoom;
+
+        window.state.zoom = newZoom;
+        // Call updateViewBox if available
+        if (typeof updateViewBox === 'function') {
+          updateViewBox();
+        } else {
+          // Trigger via zoom button workaround — set state and dispatch
+          var svgC = document.getElementById('svgContainer');
+          var scaledW = window.state.canvasWidth * newZoom;
+          var scaledH = window.state.canvasHeight * newZoom;
+          svgEl.setAttribute('viewBox', '0 0 ' + window.state.canvasWidth + ' ' + window.state.canvasHeight);
+          svgEl.setAttribute('width', scaledW);
+          svgEl.setAttribute('height', scaledH);
+          if (svgC) { svgC.style.width = scaledW + 'px'; svgC.style.height = scaledH + 'px'; }
+          var zoomEl = document.getElementById('zoomLevel');
+          if (zoomEl) zoomEl.textContent = Math.round(newZoom * 100) + '%';
+        }
+
+        wrap.scrollLeft = pointX * newZoom - cx;
+        wrap.scrollTop = pointY * newZoom - cy;
+        return;
+      }
+
+      if (e.touches.length !== 1) return;
+      var touch = e.touches[0];
+      var dx = touch.clientX - touchState.startX;
+      var dy = touch.clientY - touchState.startY;
+
+      if (!touchState.moved && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+        touchState.moved = true;
+      }
+
+      if (touchState.type === 'pan') {
+        // Pan the canvas by scrolling #wrap
+        wrap.scrollLeft = touchState.startScrollX - dx;
+        wrap.scrollTop = touchState.startScrollY - dy;
+      } else if (touchState.type === 'drag' && touchState.moved) {
+        // Drag the node via synthetic mousemove
+        synthMouse('mousemove', touch, document);
+      }
+    }, { passive: false });
+
+    svgEl.addEventListener('touchend', function(e) {
+      if (!isMobile()) return;
+
+      if (touchState.type === 'pinch') {
+        // If still have 1 finger, switch to pan
+        if (e.touches.length === 1) {
+          touchState.type = 'pan';
+          touchState.startX = e.touches[0].clientX;
+          touchState.startY = e.touches[0].clientY;
+          touchState.startScrollX = wrap.scrollLeft;
+          touchState.startScrollY = wrap.scrollTop;
+          touchState.moved = false;
+        } else {
+          touchState.type = null;
+        }
+        return;
+      }
+
+      var touch = e.changedTouches[0];
+
+      if (touchState.type === 'drag') {
+        synthMouse('mouseup', touch, document);
+        if (!touchState.moved) {
+          // Tap on a node — synthesize click for selection
+          synthMouse('click', touch, touchState.target);
+        }
+      } else if (touchState.type === 'pan' && !touchState.moved) {
+        // Tap on empty canvas
+        var now = Date.now();
+        var tapDist = Math.abs(touch.clientX - touchState.lastTapX) + Math.abs(touch.clientY - touchState.lastTapY);
+
+        if (now - touchState.lastTap < 350 && tapDist < 40) {
+          // Double tap — zoom in centered on tap point
+          var wrapRect = wrap.getBoundingClientRect();
+          var cx = touch.clientX - wrapRect.left;
+          var cy = touch.clientY - wrapRect.top;
+          var oldZoom = window.state.zoom;
+          var newZoom = Math.min(5, oldZoom * 1.5);
+          var pointX = (wrap.scrollLeft + cx) / oldZoom;
+          var pointY = (wrap.scrollTop + cy) / oldZoom;
+          window.state.zoom = newZoom;
+          var svgC = document.getElementById('svgContainer');
+          var scaledW = window.state.canvasWidth * newZoom;
+          var scaledH = window.state.canvasHeight * newZoom;
+          svgEl.setAttribute('viewBox', '0 0 ' + window.state.canvasWidth + ' ' + window.state.canvasHeight);
+          svgEl.setAttribute('width', scaledW);
+          svgEl.setAttribute('height', scaledH);
+          if (svgC) { svgC.style.width = scaledW + 'px'; svgC.style.height = scaledH + 'px'; }
+          var zoomEl = document.getElementById('zoomLevel');
+          if (zoomEl) zoomEl.textContent = Math.round(newZoom * 100) + '%';
+          wrap.scrollLeft = pointX * newZoom - cx;
+          wrap.scrollTop = pointY * newZoom - cy;
+          touchState.lastTap = 0; // reset so triple-tap doesn't fire again
+        } else {
+          touchState.lastTap = now;
+          touchState.lastTapX = touch.clientX;
+          touchState.lastTapY = touch.clientY;
+          // Single tap on empty canvas — deselect (synthetic click)
+          synthMouse('mousedown', touch, svgEl);
+          synthMouse('mouseup', touch, svgEl);
+          synthMouse('click', touch, svgEl);
+        }
+      }
+
+      touchState.type = null;
+    }, { passive: false });
+
+    // Prevent #wrap from doing its own touch scroll (we handle it)
+    wrap.addEventListener('touchmove', function(e) {
+      if (isMobile()) e.preventDefault();
+    }, { passive: false });
+  });
 })();
 </script>
 </body>

@@ -1977,6 +1977,36 @@
         border-radius: 0 !important;
         z-index: 99999 !important;
       }
+      /* Inspector mobile: larger touch targets, bigger text */
+      #inspector .inspector-section-header {
+        padding: 14px 16px !important;
+        font-size: 13px !important;
+        min-height: 44px;
+        box-sizing: border-box;
+      }
+      #inspector .inspector-section-content {
+        padding: 12px 16px !important;
+      }
+      #inspector .inspector-section-content .row {
+        margin-bottom: 12px !important;
+      }
+      #inspector input, #inspector select, #inspector textarea {
+        font-size: 14px !important;
+        min-height: 38px !important;
+        padding: 8px 10px !important;
+      }
+      #inspector button {
+        min-height: 38px !important;
+        font-size: 13px !important;
+      }
+      #inspector label {
+        font-size: 12px !important;
+      }
+      /* Start with sections collapsed on mobile except identity */
+      #inspector .inspector-section:not([data-section$="-identity"]) {
+        /* Will be collapsed via JS on mobile */
+      }
+
       /* Shape library: bottom sheet */
       #shapeLibraryPanel {
         position: fixed !important;
@@ -1991,6 +2021,9 @@
         z-index: 200;
       }
     }
+
+    /* Floating zoom controls (hidden on desktop, shown via media query) */
+    .mobile-zoom-controls { display: none; }
 
     /* --- Mobile bottom toolbar --- */
     .mobile-toolbar {
@@ -2038,10 +2071,39 @@
       #layout { margin-bottom: 52px; }
       /* Touch-friendly: prevent text selection on toolbar buttons */
       .mobile-toolbar button { user-select: none; -webkit-user-select: none; }
-      /* Ensure canvas is touch-scrollable */
-      #wrap { -webkit-overflow-scrolling: touch; }
-      /* SVG container centered on mobile too */
-      #svgContainer { margin: 0 auto; }
+      /* Disable browser touch gestures on canvas — we handle them in JS */
+      #wrap { -webkit-overflow-scrolling: touch; touch-action: none; }
+      #svgContainer { margin: 0 auto; touch-action: none; }
+      svg { touch-action: none; }
+      /* Floating zoom controls for mobile */
+      .mobile-zoom-controls {
+        display: flex !important;
+        flex-direction: column;
+        position: fixed;
+        right: 12px;
+        bottom: 120px;
+        z-index: 300;
+        gap: 4px;
+      }
+      .mobile-zoom-controls button {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 1px solid #d0d0d0;
+        background: rgba(255,255,255,0.95);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+      }
+      .mobile-zoom-controls button:active {
+        background: #e8e8e8;
+      }
       /* All dropdown menus: ensure they don't overflow screen */
       .menu { max-width: 90vw !important; max-height: 70vh !important; overflow-y: auto !important; }
       /* Unified filter panel: bottom sheet on mobile */
