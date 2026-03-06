@@ -6506,7 +6506,9 @@
       pinchStartZoom: 1,
       pinchCenterX: 0, pinchCenterY: 0,
       moved: false,
-      target: null
+      target: null,
+      singleTapTimer: null,
+      pendingTapTouch: null
     };
 
     function dist(t1, t2) {
@@ -6660,22 +6662,37 @@
           synthMouse('click', touch, touchState.target);
         }
       } else if (touchState.type === 'pan' && !touchState.moved) {
-        // Tap on empty canvas
+        // Tap on empty canvas — use delayed single-tap to allow double-tap detection
         var now = Date.now();
         var tapDist = Math.abs(touch.clientX - touchState.lastTapX) + Math.abs(touch.clientY - touchState.lastTapY);
 
-        if (now - touchState.lastTap < 350 && tapDist < 40) {
-          // Double tap on empty canvas — create node (matches desktop dblclick)
-          synthMouse('dblclick', touch, svgEl);
-          touchState.lastTap = 0; // reset so triple-tap doesn't fire again
-        } else {
-          touchState.lastTap = now;
-          touchState.lastTapX = touch.clientX;
-          touchState.lastTapY = touch.clientY;
-          // Single tap on empty canvas — deselect (synthetic click)
+        if (now - touchState.lastTap < 400 && tapDist < 40) {
+          // Double tap — cancel pending single-tap and create node
+          if (touchState.singleTapTimer) {
+            clearTimeout(touchState.singleTapTimer);
+            touchState.singleTapTimer = null;
+          }
+          touchState.lastTap = 0;
+          // Fire full click sequence then dblclick so app.js sees proper event flow
           synthMouse('mousedown', touch, svgEl);
           synthMouse('mouseup', touch, svgEl);
           synthMouse('click', touch, svgEl);
+          synthMouse('dblclick', touch, svgEl);
+        } else {
+          // Potential first tap — save and delay to wait for possible second tap
+          touchState.lastTap = now;
+          touchState.lastTapX = touch.clientX;
+          touchState.lastTapY = touch.clientY;
+          // Save touch data for delayed single-tap (Touch object won't persist)
+          var tapData = { clientX: touch.clientX, clientY: touch.clientY, screenX: touch.screenX, screenY: touch.screenY, target: touch.target };
+          if (touchState.singleTapTimer) clearTimeout(touchState.singleTapTimer);
+          touchState.singleTapTimer = setTimeout(function() {
+            touchState.singleTapTimer = null;
+            // Single tap confirmed — deselect
+            synthMouse('mousedown', tapData, svgEl);
+            synthMouse('mouseup', tapData, svgEl);
+            synthMouse('click', tapData, svgEl);
+          }, 400);
         }
       }
 
