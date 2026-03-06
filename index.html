@@ -801,10 +801,10 @@
     <!-- Brush (Format Painter) -->
     <button class="tool-btn" id="btnBrush" type="button" title="Format Painter - Copy and apply formatting">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="2" width="14" height="8" rx="2"></rect>
-        <path d="M16 6h2a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H2"></path>
-        <line x1="10" y1="11" x2="10" y2="17"></line>
-        <rect x="7" y="17" width="6" height="3" rx="1"></rect>
+        <!-- Eyedropper / pipette -->
+        <path d="M20 4a2.83 2.83 0 0 0-4 0L9 11l4 4 7-7a2.83 2.83 0 0 0 0-4z"/>
+        <path d="M9 11l-4.5 4.5a2.12 2.12 0 0 0 0 3l1 1a2.12 2.12 0 0 0 3 0L13 15"/>
+        <path d="M4.5 19.5L2 22"/>
       </svg>
     </button>
 
@@ -812,15 +812,13 @@
     <div style="position:relative;">
       <button class="tool-btn" id="btnApplyStyle" type="button" title="Apply Saved Style to Selection">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <!-- Magic wand -->
-          <path d="M15 4l-9 9 3 3 9-9-3-3z"/>
-          <path d="M14.5 4.5l3 3"/>
-          <!-- Sparkles -->
-          <path d="M3 11l1-1-1-1-1 1 1 1z" fill="currentColor" stroke="none"/>
-          <path d="M7 7l1-1-1-1-1 1 1 1z" fill="currentColor" stroke="none"/>
-          <path d="M11 3l1-1-1-1-1 1 1 1z" fill="currentColor" stroke="none"/>
-          <path d="M19 11v2M18 12h2" stroke-width="1.5"/>
-          <path d="M5 19v2M4 20h2" stroke-width="1.5"/>
+          <!-- Style palette / swatches -->
+          <rect x="3" y="3" width="8" height="8" rx="1.5"/>
+          <rect x="13" y="3" width="8" height="8" rx="1.5" fill="currentColor" opacity="0.15"/>
+          <rect x="3" y="13" width="8" height="8" rx="1.5" fill="currentColor" opacity="0.15"/>
+          <rect x="13" y="13" width="8" height="8" rx="1.5"/>
+          <!-- Check mark overlay -->
+          <path d="M15 16l2 2 4-4" stroke-width="2.5"/>
         </svg>
       </button>
       <div class="menu" id="applyStyleMenu" hidden style="min-width:240px; max-width:320px; max-height:400px; overflow-y:auto;">
@@ -1020,8 +1018,8 @@
         <!-- KML Studio Button / Drop Zone -->
         <button class="tool-btn" id="btnKMLStudio" type="button" title="KML Studio - Open geographic editor (drag entities here to open in KML Studio)">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <!-- Drop zone box with dashed border -->
-            <rect x="2" y="2" width="20" height="20" rx="3" stroke="#8b5cf6" stroke-dasharray="3,2" fill="#f5f3ff" opacity="0.6"/>
+            <!-- Drop zone box with solid border -->
+            <rect x="2" y="2" width="20" height="20" rx="3" stroke="#8b5cf6" fill="#f5f3ff" opacity="0.6"/>
             <!-- Globe/geo element -->
             <circle cx="12" cy="10" r="5" stroke="#8b5cf6" fill="none" stroke-width="1.5"/>
             <ellipse cx="12" cy="10" rx="5" ry="2" stroke="#8b5cf6" fill="none" stroke-width="1"/>

@@ -10,16 +10,21 @@
       flex-shrink: 0;
     }
 
-    /* Toolbar rows - constrain to viewport width */
+    /* Toolbar rows - constrain to viewport width, equal width */
     .toolbar-row {
       width: 100%;
       box-sizing: border-box;
       max-width: 100vw;
       flex-shrink: 0;
       flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+    /* Make groups stretch evenly to fill the row */
+    .toolbar-row > div:not(.tool-sep) {
+      flex: 1 1 auto;
     }
 
-    /* Row 2 toolbar buttons: labels below icons */
+    /* Row 2 (toolbar-row) buttons: labels below icons, consistent spacing */
     .toolbar-row .tool-btn {
       flex-direction: column;
       height: auto;
@@ -33,6 +38,10 @@
       margin-left: 0 !important;
       margin-top: 1px;
       line-height: 1;
+    }
+    /* Consistent gap for button groups inside toolbar rows */
+    .toolbar-row > div > div {
+      gap: 4px !important;
     }
 
     /* MapLibre container styles */
