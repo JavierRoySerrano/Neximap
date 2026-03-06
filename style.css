@@ -1869,8 +1869,9 @@
       .menu-item { padding: 4px 8px; font-size: 12px; }
       /* Version badge and Studio text: hide */
       #appVersionBadge { display: none; }
-      /* Reduce canvas padding */
-      #wrap { padding: 10px; }
+      /* Reduce canvas padding, enable touch gestures */
+      #wrap { padding: 10px; touch-action: none; }
+      #wrap svg { touch-action: none; }
       /* Panels: constrain width */
       #inspector { width: 280px; min-width: 240px; right: 10px; top: 10px; }
       #cableNavigator { width: 240px; min-width: 200px; left: 10px; top: 10px; }

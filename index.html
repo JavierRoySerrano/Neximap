@@ -6486,223 +6486,293 @@
   }
 })();
 
-/* === Touch gesture layer for mobile canvas === */
+/* === Touch gesture layer for mobile canvas (clean rewrite) === */
+/*
+ * Gesture map:
+ *   1-finger tap on empty canvas → deselect (delayed 350ms for double-tap check)
+ *   1-finger double-tap on empty canvas → create node (via window.createNode)
+ *   1-finger tap on node/edge → select it
+ *   1-finger drag on empty canvas → pan (scroll #wrap)
+ *   1-finger drag on node → move node (synthetic mouse events)
+ *   2-finger pinch → zoom in/out
+ *   2-finger drag → pan
+ */
 (function() {
-  function isMobile() { return window.innerWidth <= 768; }
+  var MOBILE_MAX = 1024; // touch gestures up to tablet size
+  var TAP_THRESHOLD = 10; // px moved before it becomes a drag
+  var DOUBLETAP_TIME = 400; // ms window for double-tap
 
-  // Wait for app.js to initialize
   window.addEventListener('load', function() {
     var svgEl = document.getElementById('svg');
     var wrap = document.getElementById('wrap');
     if (!svgEl || !wrap) return;
 
-    var touchState = {
-      type: null,        // 'pan', 'drag', 'pinch', null
-      startX: 0, startY: 0,
-      startScrollX: 0, startScrollY: 0,
-      lastTap: 0,        // for double-tap detection
-      lastTapX: 0, lastTapY: 0,
-      pinchStartDist: 0,
-      pinchStartZoom: 1,
-      pinchCenterX: 0, pinchCenterY: 0,
-      moved: false,
-      target: null,
-      singleTapTimer: null,
-      pendingTapTouch: null
-    };
+    // ---- State ----
+    var gesture = null; // 'pan' | 'drag' | 'pinch' | null
+    var startX, startY, startScrollX, startScrollY;
+    var hasMoved = false;
+    var touchTarget = null;
+    var lastTapTime = 0, lastTapX = 0, lastTapY = 0;
+    var singleTapTimer = null;
+    var pinchStartDist, pinchStartZoom, pinchCX, pinchCY;
 
-    function dist(t1, t2) {
-      var dx = t1.clientX - t2.clientX, dy = t1.clientY - t2.clientY;
+    // ---- Helpers ----
+    function isTouchDevice() { return window.innerWidth <= MOBILE_MAX; }
+
+    function fingerDist(a, b) {
+      var dx = a.clientX - b.clientX, dy = a.clientY - b.clientY;
       return Math.sqrt(dx * dx + dy * dy);
     }
 
-    function isNodeOrEdge(el) {
-      if (!el) return false;
-      // Walk up from touch target to find a draggable SVG group (node or edge)
-      var node = el.closest ? el.closest('g[data-id]') : null;
-      return !!node;
+    function findInteractiveTarget(el) {
+      // Walk up DOM to find a node/edge group with data-id
+      if (!el || !el.closest) return null;
+      return el.closest('g[data-id]');
     }
 
-    function synthMouse(type, touch, target, button) {
-      var ev = new MouseEvent(type, {
-        bubbles: true, cancelable: true,
-        clientX: touch.clientX, clientY: touch.clientY,
-        screenX: touch.screenX, screenY: touch.screenY,
-        button: button || 0, buttons: type === 'mouseup' ? 0 : 1,
-        view: window
+    function fireMouseEvent(type, clientX, clientY, target) {
+      var evt = new MouseEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+        clientX: clientX,
+        clientY: clientY,
+        screenX: clientX,
+        screenY: clientY,
+        button: 0,
+        buttons: (type === 'mouseup' || type === 'click' || type === 'dblclick') ? 0 : 1
       });
-      (target || touch.target).dispatchEvent(ev);
+      target.dispatchEvent(evt);
     }
 
-    // Apply zoom by directly updating SVG attributes (updateViewBox is inside app.js closure)
+    // Convert touch client coords to SVG canvas coords
+    function touchToSVG(clientX, clientY) {
+      if (window.getMouse) {
+        return window.getMouse({ clientX: clientX, clientY: clientY });
+      }
+      // Fallback: manual calculation
+      var pt = svgEl.createSVGPoint();
+      pt.x = clientX;
+      pt.y = clientY;
+      var ctm = svgEl.getScreenCTM();
+      if (!ctm) return { x: 0, y: 0 };
+      return pt.matrixTransform(ctm.inverse());
+    }
+
     function applyZoom(newZoom) {
-      window.state.zoom = newZoom;
-      var svgC = document.getElementById('svgContainer');
-      var scaledW = window.state.canvasWidth * newZoom;
-      var scaledH = window.state.canvasHeight * newZoom;
-      svgEl.setAttribute('viewBox', '0 0 ' + window.state.canvasWidth + ' ' + window.state.canvasHeight);
-      svgEl.setAttribute('width', scaledW);
-      svgEl.setAttribute('height', scaledH);
-      if (svgC) { svgC.style.width = scaledW + 'px'; svgC.style.height = scaledH + 'px'; }
+      if (!window.state) return;
+      window.state.zoom = Math.max(0.1, Math.min(5, newZoom));
+      var z = window.state.zoom;
+      var cw = window.state.canvasWidth, ch = window.state.canvasHeight;
+      var sw = cw * z, sh = ch * z;
+      svgEl.setAttribute('viewBox', '0 0 ' + cw + ' ' + ch);
+      svgEl.setAttribute('width', sw);
+      svgEl.setAttribute('height', sh);
+      var cont = document.getElementById('svgContainer');
+      if (cont) { cont.style.width = sw + 'px'; cont.style.height = sh + 'px'; }
       var zoomEl = document.getElementById('zoomLevel');
-      if (zoomEl) zoomEl.textContent = Math.round(newZoom * 100) + '%';
+      if (zoomEl) zoomEl.textContent = Math.round(z * 100) + '%';
       var zoomBtn = document.getElementById('btnZoomLevel');
       if (zoomBtn) {
-        var span = zoomBtn.querySelector('span');
-        if (span) span.textContent = Math.round(newZoom * 100) + '%';
+        var sp = zoomBtn.querySelector('span');
+        if (sp) sp.textContent = Math.round(z * 100) + '%';
       }
     }
 
-    // Listen on wrap (not just svgEl) so touches on the grey padding area also work
-    var touchTarget = wrap;
+    // ---- TOUCHSTART ----
+    wrap.addEventListener('touchstart', function(e) {
+      if (!isTouchDevice()) return;
 
-    touchTarget.addEventListener('touchstart', function(e) {
-      if (!isMobile()) return;
-
+      // --- Two fingers: pinch/zoom ---
       if (e.touches.length === 2) {
-        // Cancel any ongoing single-finger drag before switching to pinch
-        if (touchState.type === 'drag') {
-          synthMouse('mouseup', e.touches[0], touchState.target);
-        }
-        // Pinch zoom start
         e.preventDefault();
-        touchState.type = 'pinch';
-        touchState.pinchStartDist = dist(e.touches[0], e.touches[1]);
-        touchState.pinchStartZoom = window.state ? window.state.zoom : 1;
-        touchState.pinchCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-        touchState.pinchCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        // If we were dragging a node, cancel it
+        if (gesture === 'drag') {
+          fireMouseEvent('mouseup', startX, startY, document);
+        }
+        // Cancel pending single-tap
+        if (singleTapTimer) { clearTimeout(singleTapTimer); singleTapTimer = null; }
+
+        gesture = 'pinch';
+        pinchStartDist = fingerDist(e.touches[0], e.touches[1]);
+        pinchStartZoom = window.state ? window.state.zoom : 1;
+        pinchCX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        pinchCY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        // Also record for panning during pinch
+        startScrollX = wrap.scrollLeft;
+        startScrollY = wrap.scrollTop;
+        startX = pinchCX;
+        startY = pinchCY;
         return;
       }
 
+      // --- One finger ---
       if (e.touches.length === 1) {
-        var touch = e.touches[0];
-        touchState.startX = touch.clientX;
-        touchState.startY = touch.clientY;
-        touchState.startScrollX = wrap.scrollLeft;
-        touchState.startScrollY = wrap.scrollTop;
-        touchState.moved = false;
-        touchState.target = touch.target;
+        e.preventDefault();
+        var t = e.touches[0];
+        startX = t.clientX;
+        startY = t.clientY;
+        startScrollX = wrap.scrollLeft;
+        startScrollY = wrap.scrollTop;
+        hasMoved = false;
+        touchTarget = t.target;
 
-        if (isNodeOrEdge(touch.target)) {
-          // Touching a node/edge — start drag via synthetic mousedown
-          e.preventDefault();
-          touchState.type = 'drag';
-          synthMouse('mousedown', touch, touch.target);
+        var interactive = findInteractiveTarget(t.target);
+        if (interactive) {
+          // Finger is on a node or edge → prepare for drag
+          gesture = 'drag';
+          fireMouseEvent('mousedown', t.clientX, t.clientY, interactive);
         } else {
-          // Empty canvas or grey area — will become pan
-          e.preventDefault();
-          touchState.type = 'pan';
+          // Finger on empty canvas or grey area → prepare for pan
+          gesture = 'pan';
         }
       }
     }, { passive: false });
 
-    touchTarget.addEventListener('touchmove', function(e) {
-      if (!isMobile()) return;
+    // ---- TOUCHMOVE ----
+    wrap.addEventListener('touchmove', function(e) {
+      if (!isTouchDevice()) return;
       e.preventDefault();
 
-      if (touchState.type === 'pinch' && e.touches.length >= 2) {
-        var newDist = dist(e.touches[0], e.touches[1]);
-        var scale = newDist / touchState.pinchStartDist;
-        var newZoom = Math.max(0.1, Math.min(5, touchState.pinchStartZoom * scale));
+      // --- Pinch zoom + pan ---
+      if (gesture === 'pinch' && e.touches.length >= 2) {
+        var newDist = fingerDist(e.touches[0], e.touches[1]);
+        var scale = newDist / pinchStartDist;
+        var newZoom = pinchStartZoom * scale;
 
-        // Calculate pinch center relative to wrap
+        // Zoom centered on pinch midpoint
         var wrapRect = wrap.getBoundingClientRect();
-        var cx = touchState.pinchCenterX - wrapRect.left;
-        var cy = touchState.pinchCenterY - wrapRect.top;
-
-        // Calculate scroll position to keep pinch center stable
-        var oldZoom = window.state.zoom;
-        var pointX = (wrap.scrollLeft + cx) / oldZoom;
-        var pointY = (wrap.scrollTop + cy) / oldZoom;
+        var cx = pinchCX - wrapRect.left;
+        var cy = pinchCY - wrapRect.top;
+        var oldZ = window.state.zoom;
+        var ptX = (wrap.scrollLeft + cx) / oldZ;
+        var ptY = (wrap.scrollTop + cy) / oldZ;
 
         applyZoom(newZoom);
 
-        wrap.scrollLeft = pointX * newZoom - cx;
-        wrap.scrollTop = pointY * newZoom - cy;
+        var z = window.state.zoom;
+        wrap.scrollLeft = ptX * z - cx;
+        wrap.scrollTop = ptY * z - cy;
+
+        // Also pan if pinch center moves
+        var newCX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        var newCY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        var panDX = newCX - startX;
+        var panDY = newCY - startY;
+        wrap.scrollLeft -= panDX;
+        wrap.scrollTop -= panDY;
+        startX = newCX;
+        startY = newCY;
         return;
       }
 
       if (e.touches.length !== 1) return;
-      var touch = e.touches[0];
-      var dx = touch.clientX - touchState.startX;
-      var dy = touch.clientY - touchState.startY;
+      var t = e.touches[0];
+      var dx = t.clientX - startX;
+      var dy = t.clientY - startY;
 
-      if (!touchState.moved && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
-        touchState.moved = true;
+      if (!hasMoved && (Math.abs(dx) > TAP_THRESHOLD || Math.abs(dy) > TAP_THRESHOLD)) {
+        hasMoved = true;
       }
+      if (!hasMoved) return;
 
-      if (touchState.type === 'pan' && touchState.moved) {
-        // Pan the canvas by scrolling #wrap
-        wrap.scrollLeft = touchState.startScrollX - dx;
-        wrap.scrollTop = touchState.startScrollY - dy;
-      } else if (touchState.type === 'drag' && touchState.moved) {
-        // Drag the node via synthetic mousemove
-        synthMouse('mousemove', touch, document);
+      if (gesture === 'pan') {
+        wrap.scrollLeft = startScrollX - dx;
+        wrap.scrollTop = startScrollY - dy;
+      } else if (gesture === 'drag') {
+        fireMouseEvent('mousemove', t.clientX, t.clientY, document);
       }
     }, { passive: false });
 
-    touchTarget.addEventListener('touchend', function(e) {
-      if (!isMobile()) return;
+    // ---- TOUCHEND ----
+    wrap.addEventListener('touchend', function(e) {
+      if (!isTouchDevice()) return;
 
-      if (touchState.type === 'pinch') {
-        // If still have 1 finger, switch to pan
+      // --- Pinch end ---
+      if (gesture === 'pinch') {
         if (e.touches.length === 1) {
-          touchState.type = 'pan';
-          touchState.startX = e.touches[0].clientX;
-          touchState.startY = e.touches[0].clientY;
-          touchState.startScrollX = wrap.scrollLeft;
-          touchState.startScrollY = wrap.scrollTop;
-          touchState.moved = false;
+          // One finger remains → switch to pan
+          gesture = 'pan';
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+          startScrollX = wrap.scrollLeft;
+          startScrollY = wrap.scrollTop;
+          hasMoved = false;
         } else {
-          touchState.type = null;
+          gesture = null;
         }
         return;
       }
 
-      var touch = e.changedTouches[0];
+      var t = e.changedTouches[0];
+      var cx = t.clientX, cy = t.clientY;
 
-      if (touchState.type === 'drag') {
-        synthMouse('mouseup', touch, document);
-        if (!touchState.moved) {
-          // Tap on a node — synthesize click for selection
-          synthMouse('click', touch, touchState.target);
-        }
-      } else if (touchState.type === 'pan' && !touchState.moved) {
-        // Tap on empty canvas — use delayed single-tap to allow double-tap detection
-        var now = Date.now();
-        var tapDist = Math.abs(touch.clientX - touchState.lastTapX) + Math.abs(touch.clientY - touchState.lastTapY);
-
-        if (now - touchState.lastTap < 400 && tapDist < 40) {
-          // Double tap — cancel pending single-tap and create node
-          if (touchState.singleTapTimer) {
-            clearTimeout(touchState.singleTapTimer);
-            touchState.singleTapTimer = null;
+      // --- Node/edge drag end ---
+      if (gesture === 'drag') {
+        fireMouseEvent('mouseup', cx, cy, document);
+        if (!hasMoved) {
+          // It was a tap, not a drag → select the node/edge
+          var interactive = findInteractiveTarget(touchTarget);
+          if (interactive) {
+            fireMouseEvent('mouseup', cx, cy, interactive);
           }
-          touchState.lastTap = 0;
-          // Fire full click sequence then dblclick so app.js sees proper event flow
-          synthMouse('mousedown', touch, svgEl);
-          synthMouse('mouseup', touch, svgEl);
-          synthMouse('click', touch, svgEl);
-          synthMouse('dblclick', touch, svgEl);
-        } else {
-          // Potential first tap — save and delay to wait for possible second tap
-          touchState.lastTap = now;
-          touchState.lastTapX = touch.clientX;
-          touchState.lastTapY = touch.clientY;
-          // Save touch data for delayed single-tap (Touch object won't persist)
-          var tapData = { clientX: touch.clientX, clientY: touch.clientY, screenX: touch.screenX, screenY: touch.screenY, target: touch.target };
-          if (touchState.singleTapTimer) clearTimeout(touchState.singleTapTimer);
-          touchState.singleTapTimer = setTimeout(function() {
-            touchState.singleTapTimer = null;
-            // Single tap confirmed — deselect
-            synthMouse('mousedown', tapData, svgEl);
-            synthMouse('mouseup', tapData, svgEl);
-            synthMouse('click', tapData, svgEl);
-          }, 400);
         }
+        gesture = null;
+        return;
       }
 
-      touchState.type = null;
+      // --- Empty canvas tap (pan that didn't move) ---
+      if (gesture === 'pan' && !hasMoved) {
+        var now = Date.now();
+        var tapDist = Math.abs(cx - lastTapX) + Math.abs(cy - lastTapY);
+
+        if (now - lastTapTime < DOUBLETAP_TIME && tapDist < 50) {
+          // === DOUBLE TAP → create node ===
+          if (singleTapTimer) { clearTimeout(singleTapTimer); singleTapTimer = null; }
+          lastTapTime = 0;
+
+          // Direct node creation via exposed global function
+          if (window.createNode && window.state && !window.state.placingGroup) {
+            var svgCoords = touchToSVG(cx, cy);
+            window.createNode(svgCoords.x, svgCoords.y);
+          }
+        } else {
+          // === FIRST TAP → wait for possible double-tap ===
+          lastTapTime = now;
+          lastTapX = cx;
+          lastTapY = cy;
+
+          if (singleTapTimer) clearTimeout(singleTapTimer);
+          singleTapTimer = setTimeout(function() {
+            singleTapTimer = null;
+            // Confirmed single tap → deselect
+            if (window.state) {
+              window.state.selected = null;
+              if (window.state.selection) {
+                window.state.selection.nodes.clear();
+                window.state.selection.edges.clear();
+                window.state.selection.groups.clear();
+              }
+              if (typeof window.render === 'function') window.render();
+              if (typeof window.updateInspector === 'function') window.updateInspector();
+            }
+          }, DOUBLETAP_TIME);
+        }
+        gesture = null;
+        return;
+      }
+
+      // Pan that moved — nothing to do (scroll already happened)
+      gesture = null;
+    }, { passive: false });
+
+    // ---- TOUCHCANCEL ----
+    wrap.addEventListener('touchcancel', function(e) {
+      if (gesture === 'drag') {
+        fireMouseEvent('mouseup', startX, startY, document);
+      }
+      if (singleTapTimer) { clearTimeout(singleTapTimer); singleTapTimer = null; }
+      gesture = null;
     }, { passive: false });
   });
 })();

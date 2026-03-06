@@ -4599,6 +4599,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     const m = pt.matrixTransform(svg.getScreenCTM().inverse());
     return { x: m.x, y: m.y };
   }
+  window.getMouse = getMouse;
 
   const findNode = (id) => state.nodes.find(n => n.id === id);
   const findEdge = (id) => state.edges.find(e => e.id === id);
@@ -8543,6 +8544,7 @@ if (groupTitleFontInline) {
     commit(); render();
     showToast(`Created node ${node.name}.`);
   }
+  window.createNode = createNode;
 
   function createEdge(a, b, skipSelection = false) {
     // Allow multiple links between same nodes - no uniqueness check
