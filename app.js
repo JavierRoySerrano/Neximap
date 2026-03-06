@@ -4688,7 +4688,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     if (typeof snap.canvasWidth === 'number') state.canvasWidth = snap.canvasWidth;
     if (typeof snap.canvasHeight === 'number') state.canvasHeight = snap.canvasHeight;
     if (typeof snap.showCanvasBorder === 'boolean') state.showCanvasBorder = snap.showCanvasBorder;
-    svg.setAttribute('viewBox', `0 0 ${state.canvasWidth} ${state.canvasHeight}`);
+    updateViewBox();
     syncGlobalToggles();
 
     // Clear transient UI state
@@ -11622,7 +11622,7 @@ function loadProjectObject(obj) {
   if (tglShowLinkTag) tglShowLinkTag.checked = state.ui.showLinkTag !== false;
   if (tglShowContainerTitle) tglShowContainerTitle.checked = state.ui.showContainerTitle !== false;
 
-  svg.setAttribute('viewBox', `0 0 ${state.canvasWidth} ${state.canvasHeight}`);
+  updateViewBox();
 
   // Restore style presets
   state.stylePresets = obj.stylePresets || { node:{}, edge:{}, group:{} };
@@ -40660,9 +40660,11 @@ function handlePathKmlImport(e) {
     state.gridSize = parseInt(document.getElementById('dpGridSize').value) || 40;
 
     // Update canvas size
-    const svg = document.getElementById('svg');
-    if (svg) {
-      svg.setAttribute('viewBox', `0 0 ${state.canvasWidth} ${state.canvasHeight}`);
+    if (typeof updateViewBox === 'function') {
+      updateViewBox();
+    } else {
+      const svg = document.getElementById('svg');
+      if (svg) svg.setAttribute('viewBox', `0 0 ${state.canvasWidth} ${state.canvasHeight}`);
     }
 
     // Sync with UI checkboxes if they exist

@@ -2539,7 +2539,7 @@
     .muted kbd { background:#f0f0f0; padding:2px 5px; border-radius:3px; font-size:10px; border:1px solid #d0d0d0; }
 
     svg { display:block; user-select:none; }
-    #svgContainer svg { background:#fff; min-width: max-content; min-height: max-content; }
+    #svgContainer svg { background:#fff; }
     .tool-btn svg { background: none; }
     #svgContainer { display: block; min-width: max-content; min-height: max-content; margin: 0 auto; }
     .grid { stroke:#e8e8e8; stroke-width:1; }
