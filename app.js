@@ -42348,6 +42348,14 @@ function handlePathKmlImport(e) {
   window.clearRouteHighlights = clearRouteHighlights;
   window.openCSVisorWithDefaults = openCSVisorWithDefaults;
   window.openDCVisorWithDefaults = openDCVisorWithDefaults;
+  window.showCableVisor = showCableVisor;
+  window.showDCVisor = showDCVisor;
+  window.showCableSystemInVisor = showCableSystemInVisor;
+  window.selectCableSystem = selectCableSystem;
+  window.updateCableNavigatorList = updateCableNavigatorList;
+  window.updateCableSystemInspector = updateCableSystemInspector;
+  window.loadCableVisorData = loadCableVisorData;
+  window.cableVisorState = cableVisorState;
 
   showToast('Welcome to NexiMap Studio — double-click to create a node.');
   requestAnimationFrame(function(){var btn=document.getElementById('btnZoomFit');if(btn)btn.click();});
@@ -43666,11 +43674,13 @@ function handlePathKmlImport(e) {
       switch (tool) {
 
         case 'open_cable_visor':
-          if (typeof showCableVisor === 'function') showCableVisor();
+          if (typeof window.showCableVisor === 'function') window.showCableVisor();
+          else console.warn('[nexiDispatchAction] showCableVisor not available on window');
           break;
 
         case 'open_datacenter_visor':
-          if (typeof showDCVisor === 'function') showDCVisor();
+          if (typeof window.showDCVisor === 'function') window.showDCVisor();
+          else console.warn('[nexiDispatchAction] showDCVisor not available on window');
           break;
 
         case 'open_pathfinder':
@@ -44124,7 +44134,7 @@ function handlePathKmlImport(e) {
             cableNav.style.display = 'flex';
             var btnCN = document.getElementById('btnToggleCableNavigator');
             if (btnCN) btnCN.classList.add('active');
-            if (typeof updateCableNavigatorList === 'function') updateCableNavigatorList();
+            if (typeof window.updateCableNavigatorList === 'function') window.updateCableNavigatorList();
           }
           return { status: 'ok', message: 'Cable System List panel opened' };
         }
@@ -44132,13 +44142,13 @@ function handlePathKmlImport(e) {
         case 'open_cable_system_details': {
           var csInspPanel = document.getElementById('cableSystemInspectorPanel');
           if (params.cable_system_id) {
-            if (typeof selectCableSystem === 'function') selectCableSystem(params.cable_system_id);
+            if (typeof window.selectCableSystem === 'function') window.selectCableSystem(params.cable_system_id);
           }
           if (csInspPanel) {
             csInspPanel.style.display = 'flex';
             var btnCI = document.getElementById('btnToggleCableInspector');
             if (btnCI) btnCI.classList.add('active');
-            if (typeof updateCableSystemInspector === 'function') updateCableSystemInspector();
+            if (typeof window.updateCableSystemInspector === 'function') window.updateCableSystemInspector();
           }
           return { status: 'ok', message: 'Cable System Details panel opened' };
         }
@@ -44149,21 +44159,22 @@ function handlePathKmlImport(e) {
             dcNav.style.display = 'flex';
             var btnDN = document.getElementById('btnToggleDCNavigator');
             if (btnDN) btnDN.classList.add('active');
-            if (window._dcDatabase && !window._dcDatabase.loaded && typeof loadDCDatabase === 'function') loadDCDatabase();
-            if (typeof renderDCList === 'function') renderDCList();
+            if (window._dcDatabase && !window._dcDatabase.loaded && typeof window.loadDCDatabase === 'function') window.loadDCDatabase();
+            if (typeof window.renderDCList === 'function') window.renderDCList();
           }
           return { status: 'ok', message: 'Datacenter/Facility List panel opened' };
         }
 
         case 'query_cable_database': {
           // Query the TeleGeography cable database loaded in Cable Visor
-          var cableDb = (typeof cableVisorState !== 'undefined' && cableVisorState.cableDatabase)
-                      ? cableVisorState.cableDatabase : null;
+          var cvState = window.cableVisorState;
+          var cableDb = (cvState && cvState.cableDatabase) ? cvState.cableDatabase : null;
           if (!cableDb || !cableDb.cables) {
             // Try to load it
-            if (typeof loadCableVisorData === 'function') {
-              return loadCableVisorData().then(function() {
-                cableDb = cableVisorState.cableDatabase;
+            if (typeof window.loadCableVisorData === 'function') {
+              return window.loadCableVisorData().then(function() {
+                cvState = window.cableVisorState;
+                cableDb = cvState && cvState.cableDatabase;
                 if (!cableDb || !cableDb.cables) return { status: 'error', message: 'Cable database not available. Open the Cable Visor first to load data.' };
                 return queryCableDb(cableDb, params);
               });
@@ -44176,8 +44187,8 @@ function handlePathKmlImport(e) {
         case 'query_datacenter_database': {
           var dcDb = window._dcDatabase;
           if (!dcDb || !dcDb.loaded || !dcDb.facilities) {
-            if (typeof loadDCDatabase === 'function') {
-              return loadDCDatabase().then(function() {
+            if (typeof window.loadDCDatabase === 'function') {
+              return window.loadDCDatabase().then(function() {
                 dcDb = window._dcDatabase;
                 if (!dcDb || !dcDb.loaded) return { status: 'error', message: 'Datacenter database not available.' };
                 return queryDcDb(dcDb, params);
