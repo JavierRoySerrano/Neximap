@@ -6665,26 +6665,8 @@
         var tapDist = Math.abs(touch.clientX - touchState.lastTapX) + Math.abs(touch.clientY - touchState.lastTapY);
 
         if (now - touchState.lastTap < 350 && tapDist < 40) {
-          // Double tap — zoom in centered on tap point
-          var wrapRect = wrap.getBoundingClientRect();
-          var cx = touch.clientX - wrapRect.left;
-          var cy = touch.clientY - wrapRect.top;
-          var oldZoom = window.state.zoom;
-          var newZoom = Math.min(5, oldZoom * 1.5);
-          var pointX = (wrap.scrollLeft + cx) / oldZoom;
-          var pointY = (wrap.scrollTop + cy) / oldZoom;
-          window.state.zoom = newZoom;
-          var svgC = document.getElementById('svgContainer');
-          var scaledW = window.state.canvasWidth * newZoom;
-          var scaledH = window.state.canvasHeight * newZoom;
-          svgEl.setAttribute('viewBox', '0 0 ' + window.state.canvasWidth + ' ' + window.state.canvasHeight);
-          svgEl.setAttribute('width', scaledW);
-          svgEl.setAttribute('height', scaledH);
-          if (svgC) { svgC.style.width = scaledW + 'px'; svgC.style.height = scaledH + 'px'; }
-          var zoomEl = document.getElementById('zoomLevel');
-          if (zoomEl) zoomEl.textContent = Math.round(newZoom * 100) + '%';
-          wrap.scrollLeft = pointX * newZoom - cx;
-          wrap.scrollTop = pointY * newZoom - cy;
+          // Double tap on empty canvas — create node (matches desktop dblclick)
+          synthMouse('dblclick', touch, svgEl);
           touchState.lastTap = 0; // reset so triple-tap doesn't fire again
         } else {
           touchState.lastTap = now;
