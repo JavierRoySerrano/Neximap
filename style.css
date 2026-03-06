@@ -1823,8 +1823,8 @@
     .nexi-chip:hover { background: rgba(0,229,255,0.12); border-color: rgba(0,229,255,0.4); color: #00E5FF; }
     /* Nexi welcome */
     .nexi-welcome { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 20px; text-align: center; }
-    .nexi-welcome-icon { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, #7C3AED, #5B21B6); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(124,58,237,0.4); overflow: hidden; }
-    .nexi-welcome-icon svg { width: 64px; height: 64px; }
+    .nexi-welcome-icon { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #7C3AED, #5B21B6); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; box-shadow: 0 6px 28px rgba(124,58,237,0.5); border: 3px solid #C4B5FD; }
+    .nexi-welcome-icon svg { width: 100px; height: 100px; }
     .nexi-welcome h3 { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 4px; }
     .nexi-welcome p { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.5; max-width: 280px; margin-bottom: 16px; }
     .nexi-welcome-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }
