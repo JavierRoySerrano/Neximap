@@ -39,6 +39,13 @@
       gap: 0 !important;
       width: 100%;
     }
+    /* First and last groups: flush outer buttons to row edges */
+    .toolbar-row > div:not(.tool-sep):first-child > div {
+      justify-content: space-between;
+    }
+    .toolbar-row > div:not(.tool-sep):last-child > div {
+      justify-content: space-between;
+    }
 
     /* Row 2 (toolbar-row) buttons: labels below icons */
     .toolbar-row .tool-btn {
