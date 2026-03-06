@@ -1765,8 +1765,8 @@
     #aiAgentPanel { position: absolute; right: 24px; top: 40px; width: 400px; height: 580px; background: rgba(12,16,28,0.97); border: 1px solid rgba(0,229,255,0.18); border-radius: 16px; box-shadow: 0 12px 48px rgba(0,0,0,0.5), 0 0 1px rgba(0,229,255,0.3), inset 0 1px 0 rgba(255,255,255,0.04); z-index: 160; display: none; flex-direction: column; overflow: hidden; resize: both; min-width: 320px; min-height: 340px; backdrop-filter: blur(20px); }
     #aiAgentPanel.show { display: flex; }
     #aiAgentHeader { display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: linear-gradient(180deg, rgba(0,229,255,0.08) 0%, transparent 100%); border-bottom: 1px solid rgba(0,229,255,0.1); cursor: move; user-select: none; }
-    .nexi-hdr-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #00B4D8, #0077B6); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 10px rgba(0,180,216,0.3); }
-    .nexi-hdr-avatar svg { width: 18px; height: 18px; fill: #fff; }
+    .nexi-hdr-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #7C3AED, #5B21B6); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 10px rgba(124,58,237,0.4); }
+    .nexi-hdr-avatar svg { width: 28px; height: 28px; }
     .nexi-hdr-info { flex: 1; }
     .nexi-hdr-title { font-size: 14px; font-weight: 600; color: #fff; letter-spacing: 0.3px; margin: 0; }
     .nexi-hdr-sub { font-size: 10px; color: rgba(0,229,255,0.7); letter-spacing: 0.3px; margin-top: 1px; }
@@ -1797,6 +1797,9 @@
     #btnAiSend:hover { background: linear-gradient(135deg, #00C4E8, #0087C6); box-shadow: 0 2px 12px rgba(0,180,216,0.4); }
     #btnAiSend:disabled { opacity: 0.3; cursor: default; }
     .nexi-powered { text-align: center; font-size: 9.5px; color: rgba(255,255,255,0.18); padding: 4px 0 8px; letter-spacing: 0.3px; }
+    /* Nexi floating fab */
+    #nexiFab:hover { box-shadow: 0 6px 24px rgba(124,58,237,0.6); transform: scale(1.08); }
+    #nexiFab { transition: box-shadow 0.2s, transform 0.2s; }
     /* Nexi tool action cards */
     .nexi-action-card { margin-top: 6px; padding: 8px 10px; border-radius: 10px; background: rgba(0,229,255,0.06); border: 1px solid rgba(0,229,255,0.12); }
     .nexi-action-hdr { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; font-weight: 600; color: #00E5FF; font-size: 11px; letter-spacing: 0.3px; text-transform: uppercase; }
@@ -1820,8 +1823,8 @@
     .nexi-chip:hover { background: rgba(0,229,255,0.12); border-color: rgba(0,229,255,0.4); color: #00E5FF; }
     /* Nexi welcome */
     .nexi-welcome { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 20px; text-align: center; }
-    .nexi-welcome-icon { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #00B4D8, #0077B6); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(0,180,216,0.3); }
-    .nexi-welcome-icon svg { width: 28px; height: 28px; fill: #fff; }
+    .nexi-welcome-icon { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, #7C3AED, #5B21B6); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(124,58,237,0.4); overflow: hidden; }
+    .nexi-welcome-icon svg { width: 64px; height: 64px; }
     .nexi-welcome h3 { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 4px; }
     .nexi-welcome p { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.5; max-width: 280px; margin-bottom: 16px; }
     .nexi-welcome-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }

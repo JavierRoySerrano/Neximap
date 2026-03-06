@@ -69,7 +69,7 @@
     <button class="menu-item" id="btnDataMenu" type="button">Data</button>
     <button class="menu-item" id="btnSettingsMenu" type="button">Settings</button>
     <button class="menu-item" id="btnHelp" type="button">Help</button>
-    <div style="margin-left:auto; display:flex; align-items:center; padding-right:8px;"><button id="btnAiAgent" onclick="toggleAiAgent()" title="Open AI Agent" style="display:flex; align-items:center; gap:6px; padding:4px 12px; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; letter-spacing:0.3px; white-space:nowrap;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg> AI Agent</button></div>
+    <div style="margin-left:auto; display:flex; align-items:center; padding-right:8px;"><button id="btnAiAgent" onclick="toggleAiAgent()" title="Open AI Agent" style="display:flex; align-items:center; gap:6px; padding:4px 12px; background:linear-gradient(135deg,#7C3AED,#5B21B6); color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; letter-spacing:0.3px; white-space:nowrap;"><svg width="16" height="16" viewBox="60 15 80 80" fill="none"><polygon points="100,20 132,38 132,74 100,92 68,74 68,38" fill="#7C3AED" stroke="#A78BFA" stroke-width="2"/><ellipse cx="100" cy="58" rx="23" ry="20" fill="#0A0A1A" stroke="#6D28D9" stroke-width="1.2"/><circle cx="91" cy="55" r="6" fill="#E879F9"/><circle cx="109" cy="55" r="6" fill="#E879F9"/><circle cx="93" cy="53" r="2" fill="white" opacity="0.85"/><circle cx="111" cy="53" r="2" fill="white" opacity="0.85"/><path d="M 90 66 Q 100 75 110 66" stroke="#E879F9" stroke-width="2" fill="none" stroke-linecap="round"/></svg> Nexi</button></div>
     <div class="menu" id="fileMenu" hidden>
       <div class="item" id="miNew">New <span style="opacity:0.5;float:right">Ctrl+N</span></div>
       <div class="item" id="miOpen">Open… <span style="opacity:0.5;float:right">Ctrl+O</span></div>
@@ -5362,7 +5362,7 @@
 <!-- Nexi AI Agent Panel -->
 <div id="aiAgentPanel">
   <div id="aiAgentHeader" onmousedown="startDragPanel('aiAgentPanel', event)">
-    <div class="nexi-hdr-avatar"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div>
+    <div class="nexi-hdr-avatar"><svg viewBox="60 15 80 80"><polygon points="100,20 132,38 132,74 100,92 68,74 68,38" fill="#7C3AED" stroke="#A78BFA" stroke-width="2"/><ellipse cx="100" cy="58" rx="23" ry="20" fill="#0A0A1A" stroke="#6D28D9" stroke-width="1.2"/><circle cx="91" cy="55" r="6" fill="#E879F9"/><circle cx="109" cy="55" r="6" fill="#E879F9"/><circle cx="93" cy="53" r="2" fill="white" opacity="0.85"/><circle cx="111" cy="53" r="2" fill="white" opacity="0.85"/><path d="M 90 66 Q 100 75 110 66" stroke="#E879F9" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
     <div class="nexi-hdr-info">
       <div class="nexi-hdr-title">Nexi</div>
       <div class="nexi-hdr-sub">Neximap AI Expert Assistant</div>
@@ -5370,12 +5370,13 @@
     <div class="nexi-hdr-status"></div>
     <div id="aiAgentHeaderBtns">
       <button title="Clear chat" onclick="nexiClearChat()">Clear</button>
+      <button title="Minimize" onclick="minimizeNexi()">&#x2014;</button>
       <button title="Close" onclick="toggleAiAgent()">&#x2715;</button>
     </div>
   </div>
   <div id="aiAgentMessages">
     <div class="nexi-welcome" id="nexiWelcome">
-      <div class="nexi-welcome-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div>
+      <div class="nexi-welcome-icon"><svg viewBox="0 0 200 220"><defs><linearGradient id="nxBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#7C3AED"/><stop offset="100%" style="stop-color:#5B21B6"/></linearGradient><linearGradient id="nxChestGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#0A0A1A"/><stop offset="100%" style="stop-color:#1E1040"/></linearGradient><radialGradient id="nxEyeGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:#E879F9"/><stop offset="100%" style="stop-color:#7C3AED"/></radialGradient><radialGradient id="nxCoreGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:#F0ABFC"/><stop offset="60%" style="stop-color:#A855F7"/><stop offset="100%" style="stop-color:#6D28D9"/></radialGradient><filter id="nxGlow"><feGaussianBlur stdDeviation="2.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><line x1="80" y1="44" x2="62" y2="12" stroke="#E879F9" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/><circle cx="62" cy="10" r="5" fill="#E879F9" filter="url(#nxGlow)"/><circle cx="62" cy="10" r="2.2" fill="#FDF4FF"/><line x1="120" y1="44" x2="138" y2="12" stroke="#818CF8" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/><circle cx="138" cy="10" r="5" fill="#818CF8" filter="url(#nxGlow)"/><circle cx="138" cy="10" r="2.2" fill="#EEF2FF"/><polygon points="100,20 132,38 132,74 100,92 68,74 68,38" fill="url(#nxBodyGrad)" stroke="#A78BFA" stroke-width="1.8"/><ellipse cx="100" cy="58" rx="23" ry="20" fill="url(#nxChestGrad)" stroke="#6D28D9" stroke-width="1.2"/><circle cx="91" cy="55" r="6.5" fill="url(#nxEyeGlow)" filter="url(#nxGlow)"/><circle cx="109" cy="55" r="6.5" fill="url(#nxEyeGlow)" filter="url(#nxGlow)"/><circle cx="93" cy="53" r="2" fill="white" opacity="0.85"/><circle cx="111" cy="53" r="2" fill="white" opacity="0.85"/><path d="M 90 66 Q 100 75 110 66" stroke="#E879F9" stroke-width="2" fill="none" stroke-linecap="round" filter="url(#nxGlow)"/><rect x="91" y="92" width="18" height="8" rx="3" fill="#6D28D9" stroke="#A78BFA" stroke-width="0.9"/><path d="M 74 112 L 74 148 Q 74 157 83 159 L 117 159 Q 126 157 126 148 L 126 112 Q 126 103 117 101 L 83 101 Q 74 103 74 112 Z" fill="url(#nxBodyGrad)" stroke="#A78BFA" stroke-width="1.5"/><rect x="85" y="119" width="30" height="26" rx="4" fill="url(#nxChestGrad)" stroke="#7C3AED" stroke-width="1"/><circle cx="100" cy="132" r="9" fill="none" stroke="#A855F7" stroke-width="1" opacity="0.8"/><ellipse cx="100" cy="132" rx="4.5" ry="9" fill="none" stroke="#C4B5FD" stroke-width="0.8" opacity="0.7"/><line x1="91" y1="132" x2="109" y2="132" stroke="#C4B5FD" stroke-width="0.8" opacity="0.7"/><circle cx="100" cy="132" r="2.5" fill="url(#nxCoreGlow)" filter="url(#nxGlow)"/><path d="M 74 114 Q 54 120 50 132 Q 47 143 57 147 Q 64 149 70 141 L 74 128 Z" fill="url(#nxBodyGrad)" stroke="#A78BFA" stroke-width="1.2"/><path d="M 126 114 Q 146 120 150 132 Q 153 143 143 147 Q 136 149 130 141 L 126 128 Z" fill="url(#nxBodyGrad)" stroke="#A78BFA" stroke-width="1.2"/><rect x="83" y="159" width="10" height="6" rx="2" fill="#5B21B6" stroke="#A78BFA" stroke-width="0.8"/><line x1="88" y1="165" x2="88" y2="177" stroke="#E879F9" stroke-width="1.5" stroke-linecap="round" filter="url(#nxGlow)" opacity="0.9"/><rect x="107" y="159" width="10" height="6" rx="2" fill="#5B21B6" stroke="#A78BFA" stroke-width="0.8"/><line x1="112" y1="165" x2="112" y2="177" stroke="#E879F9" stroke-width="1.5" stroke-linecap="round" filter="url(#nxGlow)" opacity="0.9"/><path d="M 55 38 Q 100 8 145 38" stroke="#7C3AED" stroke-width="1.2" fill="none" opacity="0.35" stroke-dasharray="3,3"/></svg></div>
       <h3>Hi, I'm Nexi</h3>
       <p>Your AI expert for network routes, submarine cables, pricing, and more.</p>
       <div class="nexi-welcome-grid">
@@ -6188,6 +6189,11 @@
   </button>
 </div>
 
+<!-- Nexi minimized floating button -->
+<div id="nexiFab" style="display:none; position:fixed; bottom:70px; right:16px; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#7C3AED,#5B21B6); box-shadow:0 4px 16px rgba(124,58,237,0.4); cursor:pointer; z-index:9999; align-items:center; justify-content:center;" title="Open Nexi">
+  <svg width="32" height="32" viewBox="60 15 80 80" fill="none"><polygon points="100,20 132,38 132,74 100,92 68,74 68,38" fill="#7C3AED" stroke="#A78BFA" stroke-width="2"/><ellipse cx="100" cy="58" rx="23" ry="20" fill="#0A0A1A" stroke="#6D28D9" stroke-width="1.2"/><circle cx="91" cy="55" r="6" fill="#E879F9"/><circle cx="109" cy="55" r="6" fill="#E879F9"/><circle cx="93" cy="53" r="2" fill="white" opacity="0.85"/><circle cx="111" cy="53" r="2" fill="white" opacity="0.85"/><path d="M 90 66 Q 100 75 110 66" stroke="#E879F9" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+</div>
+
 <!-- Mobile "More" bottom sheet -->
 <div class="mobile-sheet-backdrop" id="mobileSheetBackdrop" onclick="closeMobileMoreSheet()"></div>
 <div class="mobile-more-sheet" id="mobileMoreSheet">
@@ -6397,6 +6403,68 @@
   var insp = document.getElementById('inspector');
   if (insp) {
     inspObserver.observe(insp, { attributes: true, attributeFilter: ['style'] });
+  }
+})();
+
+/* === Nexi minimize / restore / draggable fab === */
+(function() {
+  window.minimizeNexi = function() {
+    var panel = document.getElementById('aiAgentPanel');
+    var fab = document.getElementById('nexiFab');
+    if (panel) panel.classList.remove('show');
+    var btn = document.getElementById('btnAiAgent');
+    if (btn) btn.classList.remove('active');
+    if (fab) fab.style.display = 'flex';
+  };
+
+  window.restoreNexi = function() {
+    var fab = document.getElementById('nexiFab');
+    if (fab) fab.style.display = 'none';
+    var panel = document.getElementById('aiAgentPanel');
+    if (panel) panel.classList.add('show');
+    var btn = document.getElementById('btnAiAgent');
+    if (btn) btn.classList.add('active');
+    setTimeout(function(){ var inp = document.getElementById('aiAgentInput'); if(inp) inp.focus(); }, 300);
+  };
+
+  // Make the fab draggable
+  var fab = document.getElementById('nexiFab');
+  if (fab) {
+    var isDragging = false, wasDragged = false, startX, startY, origX, origY;
+
+    fab.addEventListener('pointerdown', function(e) {
+      isDragging = true; wasDragged = false;
+      startX = e.clientX; startY = e.clientY;
+      var rect = fab.getBoundingClientRect();
+      origX = rect.left; origY = rect.top;
+      fab.setPointerCapture(e.pointerId);
+      fab.style.transition = 'none';
+      e.preventDefault();
+    });
+
+    fab.addEventListener('pointermove', function(e) {
+      if (!isDragging) return;
+      var dx = e.clientX - startX, dy = e.clientY - startY;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) wasDragged = true;
+      if (!wasDragged) return;
+      var newX = Math.max(0, Math.min(window.innerWidth - 52, origX + dx));
+      var newY = Math.max(0, Math.min(window.innerHeight - 52, origY + dy));
+      fab.style.left = newX + 'px';
+      fab.style.top = newY + 'px';
+      fab.style.right = 'auto';
+      fab.style.bottom = 'auto';
+    });
+
+    fab.addEventListener('pointerup', function(e) {
+      isDragging = false;
+      fab.style.transition = '';
+      if (wasDragged) { e.stopPropagation(); return; }
+    });
+
+    fab.addEventListener('click', function(e) {
+      if (wasDragged) { e.stopPropagation(); e.preventDefault(); wasDragged = false; return; }
+      restoreNexi();
+    });
   }
 })();
 </script>
