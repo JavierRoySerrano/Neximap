@@ -19386,8 +19386,7 @@ function loadProjectObject(obj) {
     });
   }
 
-  // Initialize inspector button state
-  if (btnToggleInspector) btnToggleInspector.classList.add('active');
+  // Inspector starts hidden — user opens it via toolbar button or keyboard 'I'
 
   // ============== CANVAS SIZE CONTROLS ==============
 
