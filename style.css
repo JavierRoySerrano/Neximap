@@ -1869,9 +1869,8 @@
       .menu-item { padding: 4px 8px; font-size: 12px; }
       /* Version badge and Studio text: hide */
       #appVersionBadge { display: none; }
-      /* Reduce canvas padding, enable touch gestures */
-      #wrap { padding: 10px; touch-action: none; }
-      #wrap svg { touch-action: none; }
+      /* Reduce canvas padding */
+      #wrap { padding: 10px; touch-action: pan-x pan-y; }
       /* Panels: constrain width */
       #inspector { width: 280px; min-width: 240px; right: 10px; top: 10px; }
       #cableNavigator { width: 240px; min-width: 200px; left: 10px; top: 10px; }
@@ -2072,10 +2071,11 @@
       #layout { margin-bottom: 52px; }
       /* Touch-friendly: prevent text selection on toolbar buttons */
       .mobile-toolbar button { user-select: none; -webkit-user-select: none; }
-      /* Disable browser touch gestures on canvas — we handle them in JS */
-      #wrap { -webkit-overflow-scrolling: touch; touch-action: none; }
-      #svgContainer { margin: 0 auto; touch-action: none; }
-      svg { touch-action: none; }
+      /* Enable smooth touch scrolling on canvas */
+      #wrap { -webkit-overflow-scrolling: touch; }
+      #svgContainer { margin: 0 auto; }
+      /* Prevent browser pinch-zoom on the canvas (we handle it in JS) */
+      #wrap { touch-action: pan-x pan-y; }
       /* Floating zoom controls for mobile */
       .mobile-zoom-controls {
         display: flex !important;
