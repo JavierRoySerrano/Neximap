@@ -6193,7 +6193,46 @@
 <div class="mobile-more-sheet" id="mobileMoreSheet">
   <div class="sheet-handle"></div>
   <div class="sheet-title">More Tools</div>
-  <div class="sheet-section">Tools</div>
+  <div class="sheet-section">Edit</div>
+  <button class="sheet-item" onclick="mobileSheetAction('btnUndo')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+    Undo
+  </button>
+  <button class="sheet-item" onclick="mobileSheetAction('btnRedo')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg>
+    Redo
+  </button>
+  <button class="sheet-item" onclick="mobileSheetAction('btnDelete')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+    Delete Selected
+  </button>
+  <div class="sheet-section">Drawing</div>
+  <button class="sheet-item" onclick="mobileSheetAction('btnAddGroup')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="4 2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    Add Container
+  </button>
+  <button class="sheet-item" onclick="mobileSheetAction('btnAddRegion')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="1" width="22" height="22" rx="3" stroke-dasharray="4 2"/><rect x="5" y="5" width="6" height="6" rx="1"/><rect x="13" y="13" width="6" height="6" rx="1"/></svg>
+    Add Region
+  </button>
+  <button class="sheet-item" onclick="mobileSheetAction('btnCreateLink')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    Create Link
+  </button>
+  <div class="sheet-section">Zoom</div>
+  <button class="sheet-item" onclick="mobileSheetAction('btnZoomIn')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+    Zoom In
+  </button>
+  <button class="sheet-item" onclick="mobileSheetAction('btnZoomOut')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+    Zoom Out
+  </button>
+  <button class="sheet-item" onclick="mobileSheetAction('btnGridToggle')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+    Toggle Grid
+  </button>
+  <div class="sheet-section">Panels</div>
   <button class="sheet-item" onclick="mobileSheetAction('btnRouteFinder')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="6" r="3"/><circle cx="19" cy="18" r="3"/><path d="M8 6h4a4 4 0 0 1 4 4v0a4 4 0 0 1-4 4H8"/></svg>
     Path Finder
