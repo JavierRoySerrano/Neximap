@@ -1793,8 +1793,8 @@
     #aiAgentInput { flex: 1; padding: 9px 12px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.05); color: #fff; border-radius: 12px; font-size: 12.5px; resize: none; height: 40px; font-family: inherit; transition: border-color 0.2s; }
     #aiAgentInput::placeholder { color: rgba(255,255,255,0.25); }
     #aiAgentInput:focus { outline: none; border-color: rgba(0,229,255,0.35); box-shadow: 0 0 0 3px rgba(0,229,255,0.06); }
-    #btnAiSend { width: 38px; height: 38px; background: linear-gradient(135deg, #00B4D8, #0077B6); color: #fff; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
-    #btnAiSend:hover { background: linear-gradient(135deg, #00C4E8, #0087C6); box-shadow: 0 2px 12px rgba(0,180,216,0.4); }
+    #btnAiSend { width: 38px; height: 38px; background: linear-gradient(135deg, #7C3AED, #5B21B6); color: #fff; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+    #btnAiSend:hover { background: linear-gradient(135deg, #8B5CF6, #6D28D9); box-shadow: 0 2px 12px rgba(124,58,237,0.5); }
     #btnAiSend:disabled { opacity: 0.3; cursor: default; }
     .nexi-powered { text-align: center; font-size: 9.5px; color: rgba(255,255,255,0.18); padding: 4px 0 8px; letter-spacing: 0.3px; }
     /* Nexi floating fab */
