@@ -10,7 +10,7 @@
       flex-shrink: 0;
     }
 
-    /* Toolbar rows - full width, justified, matching canvas side margins */
+    /* Toolbar rows - full width, matching canvas side margins */
     .toolbar-row {
       width: 100%;
       box-sizing: border-box;
@@ -21,21 +21,23 @@
       padding-right: 20px !important;
       gap: 0;
     }
-    /* Groups stretch proportionally to fill the row */
+    /* Groups stretch proportionally via inline flex (set per group) */
     .toolbar-row > div:not(.tool-sep) {
-      flex: 1 1 0;
+      min-width: 0;
     }
-    /* Separators: thin visual divider, no extra spacing */
+    /* Separators: thin visual divider, zero spacing impact */
     .toolbar-row > .tool-sep {
       flex: 0 0 1px;
       margin: 0;
       align-self: stretch;
     }
-    /* Button container inside each group: spread buttons evenly */
+    /* Button container: space-around so half-gaps at edges combine
+       with adjacent groups to form uniform full gaps */
     .toolbar-row > div:not(.tool-sep) > div {
       display: flex;
-      justify-content: space-evenly;
+      justify-content: space-around;
       gap: 0 !important;
+      width: 100%;
     }
 
     /* Row 2 (toolbar-row) buttons: labels below icons */
