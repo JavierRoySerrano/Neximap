@@ -13070,9 +13070,11 @@ function loadProjectObject(obj) {
   })();
 
   function showCableVisor() {
+    console.log('[showCableVisor] called');
     const panel = document.getElementById('cableVisorPanel');
-    if (!panel) return;
+    if (!panel) { console.warn('[showCableVisor] panel element not found!'); return; }
     panel.classList.add('show');
+    console.log('[showCableVisor] panel.classList =', panel.classList.toString());
 
     // Initialize draggable on first show
     initCableVisorDraggable();
@@ -16469,9 +16471,11 @@ function loadProjectObject(obj) {
   };
 
   function showDCVisor() {
+    console.log('[showDCVisor] called');
     const panel = document.getElementById('dcVisorPanel');
-    if (!panel) return;
+    if (!panel) { console.warn('[showDCVisor] panel element not found!'); return; }
     panel.classList.add('show');
+    console.log('[showDCVisor] panel.classList =', panel.classList.toString());
 
     // Initialize draggable on first show
     initDCVisorDraggable();
