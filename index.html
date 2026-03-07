@@ -3204,6 +3204,12 @@
   </aside>
 
   <!-- Route Finder Panel (Inspector Style) -->
+  <!-- Floating Calculation Mode badge (outside the panel) -->
+  <div id="routeCalcModeBadge" style="display:none;">
+    <span>🧭 Calculation Mode</span>
+    <button id="btnCalcModeBadgeClose" title="Exit Calculation Mode">✕</button>
+  </div>
+
   <aside id="routeFinderPanel">
     <div id="routeFinderHeader">
       <h3>🛤️ Route Finder</h3>
@@ -3212,34 +3218,48 @@
       </div>
     </div>
     <div id="routeFinderContent">
-      <!-- Mode Indicator -->
-      <div style="padding:10px 12px; background:linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-bottom:1px solid #93c5fd;">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="font-size:16px;">🧭</span>
-          <div>
-            <div style="font-weight:600; font-size:12px; color:#1e40af;">Calculation Mode Active</div>
-            <div style="font-size:11px; color:#3b82f6;">Click nodes or use dropdowns to select endpoints</div>
+      <!-- Endpoint Selection Section (open by default) -->
+      <div class="inspector-section" data-section="route-endpoints">
+        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>Endpoints</span>
+          <span class="section-icon">▼</span>
+        </div>
+        <div class="inspector-section-content">
+          <div class="row">
+            <label style="color:#166534; font-weight:600;">🟢 Origin (A-Node)</label>
+            <select id="routeOriginSelect" style="width:100%; padding:8px; border:2px solid #86efac; border-radius:4px; background:#f0fff4; font-size:12px;">
+              <option value="">-- Click a node or select from list --</option>
+            </select>
+          </div>
+          <div class="row">
+            <label style="color:#991b1b; font-weight:600;">🔴 Destination (B-Node)</label>
+            <select id="routeDestSelect" style="width:100%; padding:8px; border:2px solid #fca5a5; border-radius:4px; background:#fef2f2; font-size:12px;">
+              <option value="">-- Click a node or select from list --</option>
+            </select>
+          </div>
+          <div class="row" style="display:flex; gap:8px; margin-top:12px;">
+            <button class="btn" id="btnSwapEndpoints" style="flex:1;">⇄ Swap</button>
+            <button class="btn primary" id="btnCalculateRoutes" style="flex:1;" disabled>🔍 Calculate</button>
+          </div>
+          <!-- Active Filters Indicator -->
+          <div id="activeFiltersIndicator" style="display:none; margin-top:10px; padding:8px; background:#fef3c7; border:1px solid #fcd34d; border-radius:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="font-size:11px; color:#92400e;">
+                <span style="font-weight:600;">⚠️ Active Filters:</span>
+                <span id="activeFiltersText"></span>
+              </div>
+            </div>
+          </div>
+          <div class="row" style="margin-top:8px;">
+            <button class="btn" id="btnResetAllFilters" style="width:100%; font-size:11px; padding:6px; background:#fee2e2; border-color:#fca5a5; color:#991b1b;">
+              🧹 Reset All Filters
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- Visibility Filter -->
-      <div style="padding:10px 12px; background:#f8fafc; border-bottom:1px solid #e2e8f0;">
-        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:12px;">
-          <input type="checkbox" id="routeVisibleOnly" style="width:16px; height:16px; accent-color:#5a67d8;">
-          <span style="color:#475569;">Calculate using <strong>visible elements only</strong></span>
-        </label>
-        <div style="font-size:10px; color:#94a3b8; margin-top:4px; margin-left:24px;">Respects current tag filters and visibility settings</div>
-
-        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:12px; margin-top:8px;">
-          <input type="checkbox" id="routeSkipImplicitTransit" style="width:16px; height:16px; accent-color:#5a67d8;">
-          <span style="color:#475569;">Skip <strong>implicit container transit</strong></span>
-        </label>
-        <div style="font-size:10px; color:#94a3b8; margin-top:4px; margin-left:24px;">Don't use dashed-line connections through containers/regions</div>
-      </div>
-
-      <!-- Cost Optimization Section -->
-      <div class="inspector-section" data-section="route-cost-optimization">
+      <!-- Cost Optimization Section (collapsed, below Endpoints) -->
+      <div class="inspector-section collapsed" data-section="route-cost-optimization">
         <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
           <span>💰 Cost Optimization</span>
           <span class="section-icon">▼</span>
@@ -3321,45 +3341,7 @@
         </div>
       </div>
 
-      <!-- Endpoint Selection Section -->
-      <div class="inspector-section" data-section="route-endpoints">
-        <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
-          <span>Endpoints</span>
-          <span class="section-icon">▼</span>
-        </div>
-        <div class="inspector-section-content">
-          <div class="row">
-            <label style="color:#166534; font-weight:600;">🟢 Origin (A-Node)</label>
-            <select id="routeOriginSelect" style="width:100%; padding:8px; border:2px solid #86efac; border-radius:4px; background:#f0fff4; font-size:12px;">
-              <option value="">-- Click a node or select from list --</option>
-            </select>
-          </div>
-          <div class="row">
-            <label style="color:#991b1b; font-weight:600;">🔴 Destination (B-Node)</label>
-            <select id="routeDestSelect" style="width:100%; padding:8px; border:2px solid #fca5a5; border-radius:4px; background:#fef2f2; font-size:12px;">
-              <option value="">-- Click a node or select from list --</option>
-            </select>
-          </div>
-          <div class="row" style="display:flex; gap:8px; margin-top:12px;">
-            <button class="btn" id="btnSwapEndpoints" style="flex:1;">⇄ Swap</button>
-            <button class="btn primary" id="btnCalculateRoutes" style="flex:1;" disabled>🔍 Calculate</button>
-          </div>
-          <!-- Active Filters Indicator -->
-          <div id="activeFiltersIndicator" style="display:none; margin-top:10px; padding:8px; background:#fef3c7; border:1px solid #fcd34d; border-radius:6px;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <div style="font-size:11px; color:#92400e;">
-                <span style="font-weight:600;">⚠️ Active Filters:</span>
-                <span id="activeFiltersText"></span>
-              </div>
-            </div>
-          </div>
-          <div class="row" style="margin-top:8px;">
-            <button class="btn" id="btnResetAllFilters" style="width:100%; font-size:11px; padding:6px; background:#fee2e2; border-color:#fca5a5; color:#991b1b;">
-              🧹 Reset All Filters
-            </button>
-          </div>
-        </div>
-      </div>
+      <!-- (Endpoints section moved above Cost Optimization) -->
 
       <!-- Restrictions Section -->
       <div class="inspector-section collapsed" data-section="route-restrictions">
@@ -3966,10 +3948,25 @@
       <!-- Settings Section -->
       <div class="inspector-section collapsed" data-section="route-settings">
         <div class="inspector-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
-          <span>Settings</span>
+          <span>⚙ Settings</span>
           <span class="section-icon">▼</span>
         </div>
         <div class="inspector-section-content">
+          <div class="row">
+            <label class="toggle-item" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="routeVisibleOnly" style="width:16px; height:16px; accent-color:#5a67d8;">
+              <span style="font-weight:500;">Calculate using visible elements only</span>
+            </label>
+            <div class="hint">Respects current tag filters and visibility settings</div>
+          </div>
+          <div class="row">
+            <label class="toggle-item" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="routeSkipImplicitTransit" checked style="width:16px; height:16px; accent-color:#5a67d8;">
+              <span style="font-weight:500;">Skip implicit container transit</span>
+            </label>
+            <div class="hint">Don't use dashed-line connections through containers/regions</div>
+          </div>
+          <hr style="border:none; border-top:1px solid #e5e7eb; margin:10px 0;">
           <div class="row">
             <label class="toggle-item" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
               <input type="checkbox" id="routeEnableContainerTransit" checked style="accent-color:#0096D6;" />

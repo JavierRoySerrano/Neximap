@@ -23557,7 +23557,7 @@ function loadProjectObject(obj) {
     capacityIncludeUndefined: true,  // Include links with all capacity fields = 0
 
     // Implicit transit option (at top of panel)
-    skipImplicitTransit: false,      // Skip implicit container/region transit connections
+    skipImplicitTransit: true,       // Skip implicit container/region transit connections (default on)
 
     // Pick mode for exclusions/must-use
     pickMode: null,            // null, 'excludeNode', 'excludeLink', 'mustUseNode', 'mustUseLink', 'mustUseMLG', 'excludeMLG', 'diverseFromLink'
@@ -23619,7 +23619,7 @@ function loadProjectObject(obj) {
       capacityMin400G: 0,
       capacityMinTbps: 0,
       capacityIncludeUndefined: true,
-      skipImplicitTransit: false,
+      skipImplicitTransit: true,
       diverseFromLinks: new Set()
     }
     // ============== END PROTECTION PATH SETTINGS ==============
@@ -24980,9 +24980,17 @@ function loadProjectObject(obj) {
       return;
     }
 
+    // Show floating badge
+    const badge = document.getElementById('routeCalcModeBadge');
+    if (badge) badge.style.display = '';
+
     // Update button state
     const btn = document.getElementById('btnRouteFinder');
     if (btn) btn.classList.add('primary');
+
+    // Sync skip implicit transit checkbox (default on)
+    const skipCb = document.getElementById('routeSkipImplicitTransit');
+    if (skipCb) skipCb.checked = routeFinderState.skipImplicitTransit;
 
     // Clear any current selection
     clearSelection();
@@ -25059,11 +25067,11 @@ function loadProjectObject(obj) {
     routeFinderState.storedRoutesForProtection = null;
     routeFinderState.storedActiveRouteIndex = 0;
 
-    // Hide panel
+    // Hide panel and badge
     const panel = document.getElementById('routeFinderPanel');
-    if (panel) {
-      panel.classList.remove('visible');
-    }
+    if (panel) panel.classList.remove('visible');
+    const badge = document.getElementById('routeCalcModeBadge');
+    if (badge) badge.style.display = 'none';
 
     // Update button state
     const btn = document.getElementById('btnRouteFinder');
@@ -26963,7 +26971,7 @@ function loadProjectObject(obj) {
       var protectionPath = null;
       if (params.calculateProtection && primaryRoutes.length > 0) {
         var prot = Object.assign({
-          visibleOnly: false, skipImplicitTransit: false,
+          visibleOnly: false, skipImplicitTransit: true,
           nodeTagMode: 'any', nodeTagFilter: [],
           linkTagMode: 'any', linkTagFilter: [],
           capacityMode: 'total', capacityMinTotal: 0,
@@ -28113,6 +28121,12 @@ function loadProjectObject(obj) {
 
   if (btnExitRouteFinder) {
     btnExitRouteFinder.addEventListener('click', exitCalculationMode);
+  }
+
+  // Floating calc-mode badge close button
+  const btnCalcModeBadgeClose = document.getElementById('btnCalcModeBadgeClose');
+  if (btnCalcModeBadgeClose) {
+    btnCalcModeBadgeClose.addEventListener('click', exitCalculationMode);
   }
 
   if (routeOriginSelect) {
@@ -29809,7 +29823,7 @@ function loadProjectObject(obj) {
       capacityMin400G: 0,
       capacityMinTbps: 0,
       capacityIncludeUndefined: true,
-      skipImplicitTransit: false,
+      skipImplicitTransit: true,
       diverseFromLinks: new Set()
     };
 
@@ -29837,10 +29851,10 @@ function loadProjectObject(obj) {
     routeFinderState.capacityMinTbps = 0;
     routeFinderState.capacityIncludeUndefined = true;
 
-    // Reset skip implicit transit
-    routeFinderState.skipImplicitTransit = false;
+    // Reset skip implicit transit (default on)
+    routeFinderState.skipImplicitTransit = true;
     const routeSkipImplicitTransit = document.getElementById('routeSkipImplicitTransit');
-    if (routeSkipImplicitTransit) routeSkipImplicitTransit.checked = false;
+    if (routeSkipImplicitTransit) routeSkipImplicitTransit.checked = true;
 
     // Reset visible only
     routeFinderState.visibleOnly = false;
