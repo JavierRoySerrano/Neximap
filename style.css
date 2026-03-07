@@ -1793,6 +1793,11 @@
     #aiAgentInput { flex: 1; padding: 9px 12px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.05); color: #fff; border-radius: 12px; font-size: 12.5px; resize: none; height: 40px; font-family: inherit; transition: border-color 0.2s; }
     #aiAgentInput::placeholder { color: rgba(255,255,255,0.25); }
     #aiAgentInput:focus { outline: none; border-color: rgba(0,229,255,0.35); box-shadow: 0 0 0 3px rgba(0,229,255,0.06); }
+    #btnAiMic { width: 38px; height: 38px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+    #btnAiMic:hover { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); }
+    #btnAiMic.listening { background: rgba(239,68,68,0.2); color: #ef4444; border-color: rgba(239,68,68,0.4); animation: mic-pulse 1.5s infinite; }
+    @keyframes mic-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); } 50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); } }
+    #btnAiMic.unsupported { display: none; }
     #btnAiSend { width: 38px; height: 38px; background: linear-gradient(135deg, #7C3AED, #5B21B6); color: #fff; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
     #btnAiSend:hover { background: linear-gradient(135deg, #8B5CF6, #6D28D9); box-shadow: 0 2px 12px rgba(124,58,237,0.5); }
     #btnAiSend:disabled { opacity: 0.3; cursor: default; }

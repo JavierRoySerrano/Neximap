@@ -5394,6 +5394,9 @@
   </div>
   <div id="aiAgentInputRow">
     <textarea id="aiAgentInput" placeholder="Ask Nexi about routes, cables, pricing..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSendMessage();}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px';"></textarea>
+    <button id="btnAiMic" onclick="toggleVoiceInput()" title="Voice input">
+      <svg id="micIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
     <button id="btnAiSend" onclick="aiSendMessage()">&#x27A4;</button>
   </div>
   <div class="nexi-powered">Powered by Claude AI</div>
@@ -6725,6 +6728,99 @@
       restoreNexi();
     });
   }
+})();
+
+/* === Voice input for Nexi chat === */
+(function() {
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var micBtn = document.getElementById('btnAiMic');
+  if (!SpeechRecognition || !micBtn) {
+    if (micBtn) micBtn.classList.add('unsupported');
+    return;
+  }
+
+  var recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.lang = navigator.language || 'en-US';
+
+  var isListening = false;
+  var finalTranscript = '';
+
+  window.toggleVoiceInput = function() {
+    if (isListening) {
+      recognition.stop();
+    } else {
+      finalTranscript = '';
+      try { recognition.start(); } catch(e) { /* already started */ }
+    }
+  };
+
+  recognition.onstart = function() {
+    isListening = true;
+    micBtn.classList.add('listening');
+    micBtn.title = 'Listening... tap to stop';
+  };
+
+  recognition.onend = function() {
+    isListening = false;
+    micBtn.classList.remove('listening');
+    micBtn.title = 'Voice input';
+    // If we got a final transcript, put it in the input
+    if (finalTranscript.trim()) {
+      var input = document.getElementById('aiAgentInput');
+      if (input) {
+        // Append to existing text (don't overwrite)
+        var existing = input.value.trim();
+        input.value = existing ? existing + ' ' + finalTranscript.trim() : finalTranscript.trim();
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 80) + 'px';
+        input.focus();
+      }
+    }
+  };
+
+  recognition.onresult = function(e) {
+    var interim = '';
+    finalTranscript = '';
+    for (var i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) {
+        finalTranscript += e.results[i][0].transcript;
+      } else {
+        interim += e.results[i][0].transcript;
+      }
+    }
+    // Show interim results in the input as preview
+    var input = document.getElementById('aiAgentInput');
+    if (input && (interim || finalTranscript)) {
+      var existing = input.getAttribute('data-pre-voice') || '';
+      if (!input.hasAttribute('data-pre-voice')) {
+        input.setAttribute('data-pre-voice', input.value);
+        existing = input.value;
+      }
+      var preview = existing ? existing.trim() + ' ' : '';
+      input.value = preview + (finalTranscript || interim);
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 80) + 'px';
+    }
+  };
+
+  recognition.onerror = function(e) {
+    isListening = false;
+    micBtn.classList.remove('listening');
+    micBtn.title = 'Voice input';
+    if (e.error === 'not-allowed') {
+      alert('Microphone access denied. Please allow microphone access in your browser settings.');
+    }
+  };
+
+  // Clean up data attribute when recognition ends
+  var origOnEnd = recognition.onend;
+  recognition.onend = function() {
+    var input = document.getElementById('aiAgentInput');
+    if (input) input.removeAttribute('data-pre-voice');
+    origOnEnd();
+  };
 })();
 
 /* === Touch gesture layer for mobile canvas === */
