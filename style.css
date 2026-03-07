@@ -2076,6 +2076,14 @@
         cursor: grab;
         touch-action: none;
       }
+      /* Override all !important positioning while dragging a panel */
+      .mob-dragging {
+        right: auto !important;
+        bottom: auto !important;
+        width: auto !important;
+        max-width: 90vw !important;
+        max-height: 70vh !important;
+      }
 
       /* Inspector mobile: larger touch targets, bigger text */
       #inspector .inspector-section-header {

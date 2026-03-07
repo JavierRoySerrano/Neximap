@@ -7432,7 +7432,7 @@
       header.addEventListener('touchstart', function(e) {
         if (e.touches.length !== 1) return;
         if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
-        e.preventDefault(); // Block scroll immediately
+        e.preventDefault();
         var touch = e.touches[0];
         var rect = panel.getBoundingClientRect();
         startX = touch.clientX;
@@ -7441,6 +7441,7 @@
         startTop = rect.top;
         dragging = true;
         panel.style.transition = 'none';
+        panel.classList.add('mob-dragging');
       }, { passive: false });
 
       document.addEventListener('touchmove', function(e) {
@@ -7452,20 +7453,16 @@
         var dy = touch.clientY - startY;
         var winW = window.innerWidth;
         var winH = window.innerHeight;
-        var rect = panel.getBoundingClientRect();
-        var pw = rect.width;
-        var ph = rect.height;
 
-        // Constrain: keep at least 60px visible on each axis
         var minVisible = 60;
+        var pw = panel.offsetWidth || 300;
         var newLeft = Math.max(-pw + minVisible, Math.min(startLeft + dx, winW - minVisible));
         var newTop = Math.max(TOP_BOUND, Math.min(startTop + dy, winH - BOTTOM_BAR - 44));
 
-        panel.style.position = 'fixed';
-        panel.style.left = newLeft + 'px';
-        panel.style.top = newTop + 'px';
-        panel.style.right = 'auto';
-        panel.style.bottom = 'auto';
+        panel.style.setProperty('left', newLeft + 'px', 'important');
+        panel.style.setProperty('top', newTop + 'px', 'important');
+        panel.style.setProperty('right', 'auto', 'important');
+        panel.style.setProperty('bottom', 'auto', 'important');
       }, { passive: false });
 
       document.addEventListener('touchend', function() {
