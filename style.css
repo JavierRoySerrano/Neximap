@@ -1911,14 +1911,12 @@
         display: flex !important;
       }
 
-      /* Landscape mobile: show toolbar rows, hide mobile bottom bar */
+      /* --- Mobile landscape top toolbar --- */
       @media (orientation: landscape) {
-        .toolbar-row { display: flex !important; }
-        .toolbar-row > div:not(.tool-sep) > span { display: none; }
-        .toolbar-row .tool-btn { padding: 2px 3px 0; }
-        .toolbar-row .tool-btn > span:not(.filter-badge) { display: none !important; }
-        .mobile-toolbar { display: none !important; }
-        .mobile-zoom-controls { display: none !important; }
+        .mob-landscape-bar { display: flex !important; }
+        .mobile-zoom-controls { bottom: 64px; right: 8px; }
+        /* Reduce header height in landscape */
+        header { min-height: 0 !important; padding: 2px 8px !important; }
       }
 
       /* Canvas: minimal padding, full screen */
@@ -2184,8 +2182,68 @@
       .mob-sheet-shape-grid button:active { background: #e8f4fc; }
       .mob-sheet-shape-grid button svg { width: 24px; height: 24px; }
 
-      /* All dropdown menus: ensure they don't overflow screen */
-      .menu { max-width: 90vw !important; max-height: 70vh !important; overflow-y: auto !important; }
+      /* --- Mobile landscape top toolbar --- */
+      .mob-landscape-bar {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 44px;
+        background: #fff;
+        border-bottom: 1px solid #e0e0e0;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        z-index: 500;
+        align-items: center;
+        padding: 0 6px;
+        gap: 4px;
+      }
+      .mob-landscape-bar .mlb-btn {
+        display: flex; align-items: center; justify-content: center;
+        min-width: 40px; height: 36px; border: none;
+        background: #f5f5f5; border-radius: 8px; cursor: pointer;
+        color: #333; padding: 0 8px; gap: 5px; font-size: 12px;
+        white-space: nowrap;
+      }
+      .mob-landscape-bar .mlb-btn:active { background: #e0e0e0; }
+      .mob-landscape-bar .mlb-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+      .mob-landscape-bar .mlb-btn.active { background: #e8f4fc; color: #0096D6; }
+      .mob-landscape-bar .mlb-sep {
+        width: 1px; height: 24px; background: #e0e0e0; flex-shrink: 0;
+      }
+      /* Expandable panel from landscape bar */
+      .mlb-panel {
+        display: none;
+        position: fixed;
+        top: 45px;
+        left: 0; right: 0;
+        background: #fff;
+        border-bottom: 1px solid #e0e0e0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        z-index: 499;
+        padding: 8px;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: center;
+      }
+      .mlb-panel.open { display: flex; }
+      .mlb-panel .mlb-panel-btn {
+        display: flex; flex-direction: column; align-items: center;
+        gap: 3px; padding: 8px 10px; border: 1px solid #e5e7eb;
+        background: #fafafa; border-radius: 10px; cursor: pointer;
+        min-width: 52px; font-size: 10px; color: #555;
+      }
+      .mlb-panel .mlb-panel-btn:active { background: #e8f4fc; border-color: #0096D6; }
+      .mlb-panel .mlb-panel-btn svg { width: 22px; height: 22px; }
+
+      /* All dropdown menus: reposition for mobile as centered popups */
+      .menu {
+        max-width: 90vw !important; max-height: 60vh !important; overflow-y: auto !important;
+        position: fixed !important; left: 50% !important; top: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        z-index: 1000 !important;
+        right: auto !important; bottom: auto !important;
+      }
       /* Unified filter panel: bottom sheet on mobile */
       #unifiedFilterPanel {
         position: fixed !important;
