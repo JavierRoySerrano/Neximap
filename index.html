@@ -7398,23 +7398,22 @@
   });
 
   // === Mobile panel/visor touch-drag ===
-  // Makes panel headers draggable by touch, constrained between top toolbar and bottom toolbar
+  // Drag any panel/visor by its header. Free X+Y movement, constrained to viewport.
   (function() {
-    if (!('ontouchstart' in window)) return; // Desktop: skip
+    if (!('ontouchstart' in window)) return;
 
     var TOP_BOUND = 88;    // header (42px) + toolbar (44px) + 2px
     var BOTTOM_BAR = 52;   // bottom toolbar height
 
-    // List of panel header → panel pairs
     var panelDefs = [
       { headerId: 'inspectorHeader', panelId: 'inspector' },
       { headerId: 'cableNavigatorHeader', panelId: 'cableNavigator' },
       { headerId: 'cableInspectorHeader', panelId: 'cableSystemInspectorPanel' },
       { headerId: 'cableVisorHeader', panelId: 'cableVisorPanel' },
-      { headerId: 'dcNavigatorHeader', panelId: 'dcNavigator' }
+      { headerId: 'dcNavigatorHeader', panelId: 'dcNavigator' },
+      { headerId: 'dcVisorHeader', panelId: 'dcVisorPanel' }
     ];
 
-    // Also add shape library (header has no ID, use querySelector)
     var slPanel = document.getElementById('shapeLibraryPanel');
     var slHeader = slPanel ? slPanel.querySelector('.library-header') : null;
     if (slHeader && slPanel) {
@@ -7427,50 +7426,46 @@
       if (!header || !panel) return;
 
       var dragging = false;
-      var startY = 0, startTop = 0, startBottom = 0;
-      var usesBottom = false; // whether the panel uses bottom positioning
+      var startX = 0, startY = 0;
+      var startLeft = 0, startTop = 0;
 
       header.addEventListener('touchstart', function(e) {
         if (e.touches.length !== 1) return;
         if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+        e.preventDefault(); // Block scroll immediately
         var touch = e.touches[0];
         var rect = panel.getBoundingClientRect();
+        startX = touch.clientX;
         startY = touch.clientY;
-        // Determine if panel uses bottom or top positioning
-        var cs = window.getComputedStyle(panel);
-        if (cs.bottom !== 'auto' && cs.top === 'auto') {
-          usesBottom = true;
-          startBottom = parseInt(cs.bottom) || 0;
-        } else {
-          usesBottom = false;
-          startTop = rect.top;
-        }
+        startLeft = rect.left;
+        startTop = rect.top;
         dragging = true;
         panel.style.transition = 'none';
-      }, { passive: true });
+      }, { passive: false });
 
       document.addEventListener('touchmove', function(e) {
         if (!dragging) return;
         if (e.touches.length !== 1) return;
-        var touch = e.touches[0];
-        var dy = touch.clientY - startY;
-        var winH = window.innerHeight;
-
-        if (usesBottom) {
-          var newBottom = startBottom - dy;
-          var maxBottom = winH - TOP_BOUND - 44; // at least show 44px header
-          newBottom = Math.max(BOTTOM_BAR, Math.min(newBottom, maxBottom));
-          panel.style.bottom = newBottom + 'px';
-          panel.style.top = 'auto';
-        } else {
-          var newTop = startTop + dy;
-          var maxTop = winH - BOTTOM_BAR - 44;
-          newTop = Math.max(TOP_BOUND, Math.min(newTop, maxTop));
-          panel.style.top = newTop + 'px';
-          panel.style.bottom = 'auto';
-          panel.style.right = 'auto';
-        }
         e.preventDefault();
+        var touch = e.touches[0];
+        var dx = touch.clientX - startX;
+        var dy = touch.clientY - startY;
+        var winW = window.innerWidth;
+        var winH = window.innerHeight;
+        var rect = panel.getBoundingClientRect();
+        var pw = rect.width;
+        var ph = rect.height;
+
+        // Constrain: keep at least 60px visible on each axis
+        var minVisible = 60;
+        var newLeft = Math.max(-pw + minVisible, Math.min(startLeft + dx, winW - minVisible));
+        var newTop = Math.max(TOP_BOUND, Math.min(startTop + dy, winH - BOTTOM_BAR - 44));
+
+        panel.style.position = 'fixed';
+        panel.style.left = newLeft + 'px';
+        panel.style.top = newTop + 'px';
+        panel.style.right = 'auto';
+        panel.style.bottom = 'auto';
       }, { passive: false });
 
       document.addEventListener('touchend', function() {

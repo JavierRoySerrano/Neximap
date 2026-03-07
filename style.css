@@ -2072,7 +2072,7 @@
       }
       /* Draggable panel headers on mobile */
       #inspectorHeader, #cableNavigatorHeader, #cableInspectorHeader,
-      #cableVisorHeader, #dcNavigatorHeader, .library-header {
+      #cableVisorHeader, #dcNavigatorHeader, #dcVisorHeader, .library-header {
         cursor: grab;
         touch-action: none;
       }
