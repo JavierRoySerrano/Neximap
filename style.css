@@ -2181,6 +2181,8 @@
       #svgContainer { margin: 0 auto; }
       /* Prevent browser pinch-zoom on the canvas (we handle it in JS) */
       #wrap { touch-action: manipulation; }
+      /* Hide resize handles on mobile — only show glow ring for selection */
+      .node-resize-handle { display: none !important; }
       /* Floating zoom controls for mobile */
       .mobile-zoom-controls {
         display: flex !important;

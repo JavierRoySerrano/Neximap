@@ -9096,6 +9096,10 @@ if (groupTitleFontInline) {
   });
 
   window.addEventListener('mouseup', () => {
+    // Skip if a mobile touch drag is in progress — the touch handler
+    // will send its own mouseup when the finger lifts
+    if (window._touchDragActive) return;
+
     // finalize marquee selection
     if (state.marquee) {
       const box = { x: state.marquee.x, y: state.marquee.y, w: state.marquee.w, h: state.marquee.h };

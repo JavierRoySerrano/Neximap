@@ -7078,8 +7078,11 @@
     // === Touch drag for nodes & containers ===
     // No long-press delay. Touch a node → move finger → node follows.
     // Touch empty canvas → scrolls normally.
-    var touchDragState = null; // { target, startX, startY, dragging, nodeId/groupId }
+    var touchDragState = null; // { resolved, startX, startY, dragging }
     var DRAG_THRESHOLD = 8; // px before drag starts
+    // Global flag: prevents app.js window.mouseup from killing state.dragging
+    // while a touch drag is in progress
+    window._touchDragActive = false;
 
     function isDraggableTarget(el) {
       if (!el) return false;
@@ -7228,6 +7231,7 @@
             // Begin actual drag — set up state.dragging using the START position
             if (beginDrag(touchDragState.resolved, touchDragState.startX, touchDragState.startY)) {
               touchDragState.dragging = true;
+              window._touchDragActive = true;
               svgEl.style.cursor = 'grabbing';
               if (navigator.vibrate) navigator.vibrate(20);
               if (window.render) window.render();
@@ -7249,15 +7253,35 @@
       if (touchDragState) {
         var touch = e.changedTouches[0];
         if (touchDragState.dragging) {
-          // Commit final position
+          // Commit final position — clear flag THEN send mouseup so app.js processes it
+          window._touchDragActive = false;
           synthMouse('mousemove', touch, svgEl);
           synthMouse('mouseup', touch, svgEl);
           svgEl.style.cursor = '';
           touchDragState = null;
           return; // Don't process as tap
         }
-        // Finger lifted without dragging — treat as tap/select
+        // Finger lifted without dragging — treat as tap (select this node only)
+        var resolved = touchDragState.resolved;
         touchDragState = null;
+        if (resolved && window.state) {
+          // Single-select this element, deselect everything else
+          if (window.state.selection) {
+            window.state.selection.nodes.clear();
+            window.state.selection.edges.clear();
+            window.state.selection.groups.clear();
+          }
+          if (resolved.type === 'node') {
+            window.state.selected = { type: 'node', id: resolved.id };
+            if (window.state.selection) window.state.selection.nodes.add(resolved.id);
+          } else if (resolved.type === 'group') {
+            window.state.selected = { type: 'group', id: resolved.id };
+            if (window.state.selection) window.state.selection.groups.add(resolved.id);
+          }
+          if (window.render) window.render();
+          if (window.updateInspector) window.updateInspector();
+          return; // Don't process double-tap
+        }
       }
       // Double-tap detection for node creation
       if (e.touches.length === 0 && e.changedTouches.length === 1 && !pinching) {
@@ -7289,6 +7313,7 @@
     wrap.addEventListener('touchcancel', function() {
       pinching = false;
       if (touchDragState && touchDragState.dragging) {
+        window._touchDragActive = false;
         if (window.state) window.state.dragging = null;
         svgEl.style.cursor = '';
       }
