@@ -42353,6 +42353,7 @@ function handlePathKmlImport(e) {
   window.commit = commit;
   window.showToast = showToast;
   window.updateNodeGroupMembership = updateNodeGroupMembership;
+  window.checkAndAutoExpandCanvas = checkAndAutoExpandCanvas;
   window.refreshAllMemberships = refreshAllMemberships;
   window.applyHeatMapMode = applyHeatMapMode;
   window.clearRouteHighlights = clearRouteHighlights;
