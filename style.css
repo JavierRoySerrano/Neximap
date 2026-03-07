@@ -2208,7 +2208,7 @@
       .mob-landscape-bar {
         display: none;
         position: fixed;
-        top: 0;
+        top: 35px;
         left: 0;
         right: 0;
         height: 44px;
@@ -2237,7 +2237,7 @@
       .mlb-panel {
         display: none;
         position: fixed;
-        top: 45px;
+        top: 80px;
         left: 0; right: 0;
         background: #fff;
         border-bottom: 1px solid #e0e0e0;
@@ -2281,6 +2281,11 @@
         box-shadow: 0 -4px 20px rgba(0,0,0,0.15) !important;
       }
     }
+
+    /* Hide mobile-only elements on desktop (base state) */
+    .mob-landscape-bar { display: none; }
+    .mlb-panel { display: none; }
+    .mob-draw-popup { display: none; }
 
     /* --- Mobile "More" bottom sheet --- */
     .mobile-more-sheet {
