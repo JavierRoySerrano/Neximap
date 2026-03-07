@@ -6334,9 +6334,15 @@
       closeMobilePanels();
       clearMobileActive();
       document.getElementById('mobBtnCanvas').classList.add('active');
+      // Scroll canvas into view
+      var wrap = document.getElementById('wrap');
+      if (wrap) wrap.scrollIntoView({ behavior: 'smooth' });
     } else if (action === 'fit') {
       var btn = document.getElementById('btnZoomFit');
       if (btn) btn.click();
+      // Fit is a momentary action — flash active then revert to canvas
+      clearMobileActive();
+      document.getElementById('mobBtnCanvas').classList.add('active');
     } else if (action === 'inspector') {
       var insp = document.getElementById('inspector');
       if (insp) {
@@ -6531,6 +6537,15 @@
       }
     }
 
+    // Double-tap detector for node creation
+    // Mobile browsers don't reliably synthesize dblclick from touch,
+    // so we detect it ourselves from consecutive single-finger taps.
+    var lastTapTime = 0;
+    var lastTapX = 0;
+    var lastTapY = 0;
+    var DOUBLE_TAP_DELAY = 350; // ms
+    var DOUBLE_TAP_RADIUS = 30; // px
+
     wrap.addEventListener('touchstart', function(e) {
       if (e.touches.length === 2) {
         pinching = true;
@@ -6578,6 +6593,33 @@
     wrap.addEventListener('touchend', function(e) {
       if (pinching && e.touches.length < 2) {
         pinching = false;
+        return;
+      }
+      // Double-tap detection for node creation (single finger only)
+      if (e.touches.length === 0 && e.changedTouches.length === 1 && !pinching) {
+        var touch = e.changedTouches[0];
+        var now = Date.now();
+        var dx = touch.clientX - lastTapX;
+        var dy = touch.clientY - lastTapY;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (now - lastTapTime < DOUBLE_TAP_DELAY && dist < DOUBLE_TAP_RADIUS) {
+          // Double-tap detected — create node at tap position
+          lastTapTime = 0; // reset so triple-tap doesn't fire again
+          if (window.createNode && window.getMouse) {
+            var pt = svgEl.createSVGPoint();
+            pt.x = touch.clientX;
+            pt.y = touch.clientY;
+            var ctm = svgEl.getScreenCTM();
+            if (ctm) {
+              var svgPt = pt.matrixTransform(ctm.inverse());
+              window.createNode(svgPt.x, svgPt.y);
+            }
+          }
+        } else {
+          lastTapTime = now;
+          lastTapX = touch.clientX;
+          lastTapY = touch.clientY;
+        }
       }
     }, { passive: true });
 
