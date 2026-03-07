@@ -6740,18 +6740,26 @@
   }
 
   var recognition = new SpeechRecognition();
-  recognition.continuous = false;
+  recognition.continuous = true;      // Don't stop on silence
   recognition.interimResults = true;
   recognition.lang = navigator.language || 'en-US';
 
   var isListening = false;
-  var finalTranscript = '';
+  var preVoiceText = '';              // Text in input before voice started
+  var committedText = '';             // Finalized speech accumulated so far
+
+  function resizeInput(input) {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 80) + 'px';
+  }
 
   window.toggleVoiceInput = function() {
     if (isListening) {
       recognition.stop();
     } else {
-      finalTranscript = '';
+      var input = document.getElementById('aiAgentInput');
+      preVoiceText = input ? input.value : '';
+      committedText = '';
       try { recognition.start(); } catch(e) { /* already started */ }
     }
   };
@@ -6766,42 +6774,39 @@
     isListening = false;
     micBtn.classList.remove('listening');
     micBtn.title = 'Voice input';
-    // If we got a final transcript, put it in the input
-    if (finalTranscript.trim()) {
-      var input = document.getElementById('aiAgentInput');
-      if (input) {
-        // Append to existing text (don't overwrite)
-        var existing = input.value.trim();
-        input.value = existing ? existing + ' ' + finalTranscript.trim() : finalTranscript.trim();
-        input.style.height = 'auto';
-        input.style.height = Math.min(input.scrollHeight, 80) + 'px';
-        input.focus();
-      }
+    // Final state: preVoiceText + committedText is already in the input
+    // (set by onresult). Just focus and resize.
+    var input = document.getElementById('aiAgentInput');
+    if (input) {
+      // Ensure final value is clean (no interim leftovers)
+      var base = preVoiceText.trim();
+      var voice = committedText.trim();
+      input.value = base ? base + ' ' + voice : voice;
+      resizeInput(input);
+      input.focus();
     }
   };
 
   recognition.onresult = function(e) {
-    var interim = '';
-    finalTranscript = '';
-    for (var i = e.resultIndex; i < e.results.length; i++) {
+    // Build full transcript from all results
+    var finalParts = '';
+    var interimParts = '';
+    for (var i = 0; i < e.results.length; i++) {
       if (e.results[i].isFinal) {
-        finalTranscript += e.results[i][0].transcript;
+        finalParts += e.results[i][0].transcript;
       } else {
-        interim += e.results[i][0].transcript;
+        interimParts += e.results[i][0].transcript;
       }
     }
-    // Show interim results in the input as preview
+    committedText = finalParts;
+
+    // Update input with: original text + finalized speech + interim preview
     var input = document.getElementById('aiAgentInput');
-    if (input && (interim || finalTranscript)) {
-      var existing = input.getAttribute('data-pre-voice') || '';
-      if (!input.hasAttribute('data-pre-voice')) {
-        input.setAttribute('data-pre-voice', input.value);
-        existing = input.value;
-      }
-      var preview = existing ? existing.trim() + ' ' : '';
-      input.value = preview + (finalTranscript || interim);
-      input.style.height = 'auto';
-      input.style.height = Math.min(input.scrollHeight, 80) + 'px';
+    if (input) {
+      var base = preVoiceText.trim();
+      var display = (finalParts + interimParts).trim();
+      input.value = base ? base + ' ' + display : display;
+      resizeInput(input);
     }
   };
 
@@ -6812,14 +6817,6 @@
     if (e.error === 'not-allowed') {
       alert('Microphone access denied. Please allow microphone access in your browser settings.');
     }
-  };
-
-  // Clean up data attribute when recognition ends
-  var origOnEnd = recognition.onend;
-  recognition.onend = function() {
-    var input = document.getElementById('aiAgentInput');
-    if (input) input.removeAttribute('data-pre-voice');
-    origOnEnd();
   };
 })();
 
