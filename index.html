@@ -7075,13 +7075,11 @@
     var DOUBLE_TAP_DELAY = 350; // ms
     var DOUBLE_TAP_RADIUS = 30; // px
 
-    // === Long-press drag support for nodes & containers ===
-    var longPressTimer = null;
-    var longPressDragging = false;
-    var longPressTarget = null;
-    var LONG_PRESS_MS = 300;
-    var LONG_PRESS_MOVE_THRESHOLD = 10;
-    var lpStartX = 0, lpStartY = 0;
+    // === Touch drag for nodes & containers ===
+    // No long-press delay. Touch a node → move finger → node follows.
+    // Touch empty canvas → scrolls normally.
+    var touchDragState = null; // { target, startX, startY, dragging, nodeId/groupId }
+    var DRAG_THRESHOLD = 8; // px before drag starts
 
     function isDraggableTarget(el) {
       if (!el) return false;
@@ -7091,51 +7089,58 @@
       return false;
     }
 
-    // Find what node/group is at the touch point and set up state.dragging directly
-    function initDragState(clientX, clientY, targetEl) {
-      if (!window.state || !window.getMouse) return false;
-      var fakeEv = { clientX: clientX, clientY: clientY };
-      var m = window.getMouse(fakeEv);
-
-      // Check if touching a node
-      var nodeGroup = targetEl.closest ? targetEl.closest('g.node') : null;
+    // Resolve the node/group ID from a touch target element
+    function resolveDragTarget(el, clientX, clientY) {
+      if (!window.state || !window.getMouse) return null;
+      var nodeGroup = el.closest ? el.closest('g.node') : null;
       if (nodeGroup) {
         var nid = parseInt(nodeGroup.getAttribute('data-node-id'));
         var n = window.state.nodes.find(function(nd) { return nd.id === nid; });
-        if (n) {
-          // Select the node
-          if (window.state.selection) {
-            window.state.selection.nodes.clear();
-            window.state.selection.edges.clear();
-            window.state.selection.groups.clear();
-            window.state.selection.nodes.add(n.id);
-          }
-          window.state.selected = { type: 'node', id: n.id };
-          window.state.dragging = { type: 'node', id: n.id, dx: n.x - m.x, dy: n.y - m.y, origX: n.x, origY: n.y };
-          return true;
-        }
+        if (n) return { type: 'node', id: n.id };
       }
-
-      // Check if touching a group/container
-      var groupEl = targetEl.closest ? targetEl.closest('.group-rect') : null;
-      if (!groupEl && targetEl.classList && targetEl.classList.contains('group-rect')) groupEl = targetEl;
+      var groupEl = el.closest ? el.closest('.group-rect') : null;
+      if (!groupEl && el.classList && el.classList.contains('group-rect')) groupEl = el;
       if (groupEl) {
-        // Find the group by checking which group rect contains this point
+        var m = window.getMouse({ clientX: clientX, clientY: clientY });
         var groups = window.state.groups;
         for (var i = groups.length - 1; i >= 0; i--) {
           var g = groups[i];
           if (m.x >= g.x && m.x <= g.x + g.w && m.y >= g.y && m.y <= g.y + g.h) {
-            if (window.state.selection) {
-              window.state.selection.nodes.clear();
-              window.state.selection.edges.clear();
-              window.state.selection.groups.clear();
-              window.state.selection.groups.add(g.id);
-            }
-            window.state.selected = { type: 'group', id: g.id };
-            window.state.dragging = { type: 'group', id: g.id, dx: g.x - m.x, dy: g.y - m.y, origX: g.x, origY: g.y };
-            return true;
+            return { type: 'group', id: g.id };
           }
         }
+      }
+      return null;
+    }
+
+    // Set up state.dragging for a resolved target
+    function beginDrag(resolved, clientX, clientY) {
+      var m = window.getMouse({ clientX: clientX, clientY: clientY });
+      if (resolved.type === 'node') {
+        var n = window.state.nodes.find(function(nd) { return nd.id === resolved.id; });
+        if (!n) return false;
+        if (window.state.selection) {
+          window.state.selection.nodes.clear();
+          window.state.selection.edges.clear();
+          window.state.selection.groups.clear();
+          window.state.selection.nodes.add(n.id);
+        }
+        window.state.selected = { type: 'node', id: n.id };
+        window.state.dragging = { type: 'node', id: n.id, dx: n.x - m.x, dy: n.y - m.y, origX: n.x, origY: n.y };
+        return true;
+      }
+      if (resolved.type === 'group') {
+        var g = window.state.groups.find(function(gg) { return gg.id === resolved.id; });
+        if (!g) return false;
+        if (window.state.selection) {
+          window.state.selection.nodes.clear();
+          window.state.selection.edges.clear();
+          window.state.selection.groups.clear();
+          window.state.selection.groups.add(g.id);
+        }
+        window.state.selected = { type: 'group', id: g.id };
+        window.state.dragging = { type: 'group', id: g.id, dx: g.x - m.x, dy: g.y - m.y, origX: g.x, origY: g.y };
+        return true;
       }
       return false;
     }
@@ -7150,18 +7155,12 @@
       (target || touch.target).dispatchEvent(evt);
     }
 
-    function cancelLongPress() {
-      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
-    }
-
-    function showDragFeedback(show) {
-      svgEl.style.cursor = show ? 'grabbing' : '';
-      if (show && navigator.vibrate) navigator.vibrate(30);
-    }
-
+    // touchstart: if touching a node/container, capture the gesture
+    // { passive: false } is CRITICAL — allows preventDefault to block scroll
     wrap.addEventListener('touchstart', function(e) {
       if (e.touches.length === 2) {
-        cancelLongPress();
+        // Cancel any pending single-finger drag
+        touchDragState = null;
         pinching = true;
         pinchStartDist = fingerDist(e.touches[0], e.touches[1]);
         pinchStartZoom = window.state ? window.state.zoom : 1;
@@ -7171,28 +7170,25 @@
         panStartY = pinchCY;
         return;
       }
-      // Single finger: start long-press timer if on a draggable element
       if (e.touches.length === 1) {
         var touch = e.touches[0];
-        lpStartX = touch.clientX;
-        lpStartY = touch.clientY;
-        longPressTarget = touch.target;
-        cancelLongPress();
-        if (isDraggableTarget(touch.target)) {
-          longPressTimer = setTimeout(function() {
-            longPressTimer = null;
-            // Directly set up state.dragging instead of synthetic mousedown
-            // (the original DOM element may have been replaced by render())
-            if (initDragState(lpStartX, lpStartY, longPressTarget)) {
-              longPressDragging = true;
-              showDragFeedback(true);
-              if (window.render) window.render();
-            }
-          }, LONG_PRESS_MS);
+        var resolved = isDraggableTarget(touch.target) ? resolveDragTarget(touch.target, touch.clientX, touch.clientY) : null;
+        if (resolved) {
+          // Touching a node/container — capture the gesture immediately
+          e.preventDefault(); // BLOCK scroll from the very first touch
+          touchDragState = {
+            resolved: resolved,
+            startX: touch.clientX,
+            startY: touch.clientY,
+            dragging: false
+          };
+        } else {
+          touchDragState = null;
         }
       }
-    }, { passive: true });
+    }, { passive: false });
 
+    // touchmove: if we captured a node touch, start/continue drag
     wrap.addEventListener('touchmove', function(e) {
       if (pinching && e.touches.length >= 2) {
         e.preventDefault();
@@ -7221,43 +7217,47 @@
         panStartY = newCY;
         return;
       }
-      // Single finger
-      if (e.touches.length === 1) {
+      if (e.touches.length === 1 && touchDragState) {
+        e.preventDefault(); // Keep blocking scroll during the entire gesture
         var touch = e.touches[0];
-        if (longPressDragging) {
-          e.preventDefault();
+        if (!touchDragState.dragging) {
+          // Check if we passed the drag threshold
+          var dx = touch.clientX - touchDragState.startX;
+          var dy = touch.clientY - touchDragState.startY;
+          if (Math.sqrt(dx*dx + dy*dy) >= DRAG_THRESHOLD) {
+            // Begin actual drag — set up state.dragging using the START position
+            if (beginDrag(touchDragState.resolved, touchDragState.startX, touchDragState.startY)) {
+              touchDragState.dragging = true;
+              svgEl.style.cursor = 'grabbing';
+              if (navigator.vibrate) navigator.vibrate(20);
+              if (window.render) window.render();
+            }
+          }
+        }
+        if (touchDragState.dragging) {
           // Drive app.js drag via mousemove on svg
           synthMouse('mousemove', touch, svgEl);
-          return;
-        }
-        if (longPressTimer) {
-          var dx = touch.clientX - lpStartX;
-          var dy = touch.clientY - lpStartY;
-          if (Math.sqrt(dx*dx + dy*dy) > LONG_PRESS_MOVE_THRESHOLD) {
-            cancelLongPress();
-          }
         }
       }
     }, { passive: false });
 
     wrap.addEventListener('touchend', function(e) {
-      cancelLongPress();
       if (pinching && e.touches.length < 2) {
         pinching = false;
         return;
       }
-      if (longPressDragging) {
+      if (touchDragState) {
         var touch = e.changedTouches[0];
-        // End the drag: clear state.dragging and send mouseup
-        if (window.state && window.state.dragging) {
-          // Commit final position via one last mousemove + mouseup
+        if (touchDragState.dragging) {
+          // Commit final position
           synthMouse('mousemove', touch, svgEl);
           synthMouse('mouseup', touch, svgEl);
+          svgEl.style.cursor = '';
+          touchDragState = null;
+          return; // Don't process as tap
         }
-        longPressDragging = false;
-        showDragFeedback(false);
-        longPressTarget = null;
-        return;
+        // Finger lifted without dragging — treat as tap/select
+        touchDragState = null;
       }
       // Double-tap detection for node creation
       if (e.touches.length === 0 && e.changedTouches.length === 1 && !pinching) {
@@ -7288,12 +7288,11 @@
 
     wrap.addEventListener('touchcancel', function() {
       pinching = false;
-      cancelLongPress();
-      if (longPressDragging) {
-        longPressDragging = false;
-        showDragFeedback(false);
+      if (touchDragState && touchDragState.dragging) {
         if (window.state) window.state.dragging = null;
+        svgEl.style.cursor = '';
       }
+      touchDragState = null;
     }, { passive: true });
   });
 
