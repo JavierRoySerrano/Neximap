@@ -1884,6 +1884,14 @@
 
     /* --- MOBILE: below 768px --- */
     @media (max-width: 768px) {
+      /* Prevent browser pinch-zoom on the whole page */
+      html, body { touch-action: pan-y; overflow: hidden; }
+      /* Fixed UI elements must not zoom */
+      header, .mobile-toolbar, .mob-landscape-bar, .mobile-zoom-controls,
+      .mlb-panel, .mob-draw-popup {
+        touch-action: manipulation;
+      }
+
       /* Show hamburger, hide desktop menu items */
       .hamburger-btn { display: flex !important; align-items: center; }
       .menu-item { display: none !important; }
@@ -1911,12 +1919,26 @@
         display: flex !important;
       }
 
+      /* Header fixed on mobile so it never scrolls/zooms away */
+      header {
+        position: fixed !important;
+        top: 0; left: 0; right: 0;
+        z-index: 600 !important;
+      }
+      /* Push canvas below fixed header */
+      #wrap { margin-top: 42px; }
+
       /* --- Mobile landscape top toolbar --- */
       @media (orientation: landscape) {
         .mob-landscape-bar { display: flex !important; }
         .mobile-zoom-controls { bottom: 64px; right: 8px; }
-        /* Reduce header height in landscape */
-        header { min-height: 0 !important; padding: 2px 8px !important; }
+        /* Compact header in landscape */
+        header { min-height: 0 !important; padding: 2px 8px !important; height: 34px; }
+        /* Landscape bar sits below header */
+        .mob-landscape-bar { top: 35px; }
+        .mlb-panel { top: 80px; }
+        /* Adjust canvas top margin for header + landscape bar */
+        #wrap { margin-top: 80px; }
       }
 
       /* Canvas: minimal padding, full screen */
