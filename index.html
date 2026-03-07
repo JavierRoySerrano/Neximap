@@ -6481,6 +6481,19 @@
   if (insp) {
     inspObserver.observe(insp, { attributes: true, attributeFilter: ['style'] });
   }
+
+  // Hide mobile zoom controls when map/geo view is active (they only work on SVG canvas)
+  var mapContainer = document.getElementById('maplibreContainer');
+  if (mapContainer) {
+    var mapObserver = new MutationObserver(function() {
+      if (!isMobile()) return;
+      var zc = document.getElementById('mobileZoomControls');
+      if (!zc) return;
+      var mapActive = mapContainer.classList.contains('active');
+      zc.style.display = mapActive ? 'none' : '';
+    });
+    mapObserver.observe(mapContainer, { attributes: true, attributeFilter: ['class'] });
+  }
 })();
 
 /* === Nexi minimize / restore / draggable fab === */
