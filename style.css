@@ -1888,7 +1888,7 @@
       html, body { touch-action: pan-y; overflow: hidden; }
       /* Fixed UI elements must not zoom */
       header, .mobile-toolbar, .mob-landscape-bar, .mobile-zoom-controls,
-      .mlb-panel, .mob-draw-popup {
+      .mlb-panel, .mob-draw-popup, .mob-grid-popup {
         touch-action: manipulation;
       }
 
@@ -1925,19 +1925,22 @@
         top: 0; left: 0; right: 0;
         z-index: 600 !important;
       }
-      /* Push canvas below fixed header */
-      #wrap { margin-top: 42px; }
+      /* Push canvas below fixed header + top toolbar */
+      #wrap { margin-top: 88px; }
 
-      /* --- Mobile landscape top toolbar --- */
+      /* --- Mobile top toolbar (both orientations) --- */
+      .mob-landscape-bar { display: flex !important; top: 42px; }
+      .mlb-panel { top: 88px; }
+
+      /* Landscape-specific tweaks */
       @media (orientation: landscape) {
-        .mob-landscape-bar { display: flex !important; }
         .mobile-zoom-controls { bottom: 64px; right: 8px; }
         /* Compact header in landscape */
         header { min-height: 0 !important; padding: 2px 8px !important; height: 34px; }
-        /* Landscape bar sits below header */
+        /* Adjust positions for smaller header */
         .mob-landscape-bar { top: 35px; }
         .mlb-panel { top: 80px; }
-        /* Adjust canvas top margin for header + landscape bar */
+        .mob-grid-popup { top: 80px; }
         #wrap { margin-top: 80px; }
       }
 
@@ -2122,7 +2125,7 @@
         flex-direction: column;
         position: fixed;
         right: 12px;
-        bottom: 120px;
+        bottom: 72px;
         z-index: 300;
         gap: 4px;
       }
@@ -2204,11 +2207,48 @@
       .mob-sheet-shape-grid button:active { background: #e8f4fc; }
       .mob-sheet-shape-grid button svg { width: 24px; height: 24px; }
 
-      /* --- Mobile landscape top toolbar --- */
+      /* --- Mobile grid popup --- */
+      .mob-grid-popup {
+        display: none;
+        position: fixed;
+        top: 88px;
+        right: 8px;
+        background: #fff;
+        border: 1px solid #d0d0d0;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        min-width: 200px;
+        z-index: 1000;
+        padding: 10px 14px;
+      }
+      .mob-grid-popup.open { display: block; }
+      .mob-grid-sizes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .mob-grid-size-btn {
+        flex: 1 1 0;
+        min-width: 50px;
+        padding: 8px 4px;
+        border: 1px solid #e5e7eb;
+        background: #fafafa;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 12px;
+        color: #555;
+        text-align: center;
+        line-height: 1.3;
+      }
+      .mob-grid-size-btn:active { background: #e8f4fc; border-color: #0096D6; }
+      .mob-grid-size-btn.active { background: #e8f4fc; border-color: #0096D6; color: #0096D6; font-weight: 600; }
+      .mob-grid-sizes.disabled .mob-grid-size-btn { opacity: 0.4; pointer-events: none; }
+
+      /* --- Mobile top toolbar (buttons bar) --- */
       .mob-landscape-bar {
         display: none;
         position: fixed;
-        top: 35px;
+        top: 42px;
         left: 0;
         right: 0;
         height: 44px;
@@ -2233,11 +2273,11 @@
       .mob-landscape-bar .mlb-sep {
         width: 1px; height: 24px; background: #e0e0e0; flex-shrink: 0;
       }
-      /* Expandable panel from landscape bar */
+      /* Expandable panel from top toolbar */
       .mlb-panel {
         display: none;
         position: fixed;
-        top: 80px;
+        top: 88px;
         left: 0; right: 0;
         background: #fff;
         border-bottom: 1px solid #e0e0e0;
@@ -2286,6 +2326,7 @@
     .mob-landscape-bar { display: none; }
     .mlb-panel { display: none; }
     .mob-draw-popup { display: none; }
+    .mob-grid-popup { display: none; }
 
     /* --- Mobile "More" bottom sheet --- */
     .mobile-more-sheet {

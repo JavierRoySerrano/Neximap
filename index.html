@@ -6149,7 +6149,7 @@
     <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('miZoomIn').click(); this.closest('#mobileMenuOverlay').hidden=true">Zoom In</button>
     <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('miZoomOut').click(); this.closest('#mobileMenuOverlay').hidden=true">Zoom Out</button>
     <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('miFitView').click(); this.closest('#mobileMenuOverlay').hidden=true">Fit to View</button>
-    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="document.getElementById('btnGridToggle').click(); this.closest('#mobileMenuOverlay').hidden=true">Toggle Grid</button>
+    <button style="display:block; width:100%; text-align:left; padding:10px 20px 10px 32px; font-size:14px; background:none; border:none; cursor:pointer; color:#333;" onclick="event.stopPropagation(); mobileSheetAction('btnGridToggle'); this.closest('#mobileMenuOverlay').hidden=true">Grid Options</button>
     <div style="border-bottom:1px solid #e8e8e8; margin:6px 20px;"></div>
     <!-- Data section -->
     <div style="padding:6px 20px; font-size:10px; font-weight:600; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Data</div>
@@ -6345,6 +6345,22 @@
   </button>
 </div>
 
+<!-- Mobile grid popup -->
+<div class="mob-grid-popup" id="mobGridPopup">
+  <label style="display:flex; align-items:center; gap:8px; padding:6px 0; font-size:14px; color:#333; cursor:pointer;">
+    <input type="checkbox" id="mobGridEnabled" checked style="width:18px; height:18px; accent-color:#0096D6;" onchange="document.getElementById('gridEnabled').checked=this.checked; document.getElementById('gridEnabled').dispatchEvent(new Event('change')); updateMobGridState();" />
+    Show Grid
+  </label>
+  <div style="border-top:1px solid #e8e8e8; margin:4px 0;"></div>
+  <div class="mob-grid-sizes" id="mobGridSizes">
+    <button class="mob-grid-size-btn" data-size="10" onclick="mobSetGridSize(10)">Fine<br><span style="font-size:10px; color:#999;">10px</span></button>
+    <button class="mob-grid-size-btn" data-size="20" onclick="mobSetGridSize(20)">Small<br><span style="font-size:10px; color:#999;">20px</span></button>
+    <button class="mob-grid-size-btn active" data-size="40" onclick="mobSetGridSize(40)">Medium<br><span style="font-size:10px; color:#999;">40px</span></button>
+    <button class="mob-grid-size-btn" data-size="60" onclick="mobSetGridSize(60)">Large<br><span style="font-size:10px; color:#999;">60px</span></button>
+    <button class="mob-grid-size-btn" data-size="100" onclick="mobSetGridSize(100)">XL<br><span style="font-size:10px; color:#999;">100px</span></button>
+  </div>
+</div>
+
 <!-- Mobile floating zoom controls -->
 <div class="mobile-zoom-controls" id="mobileZoomControls">
   <button onclick="document.getElementById('btnZoomIn').click()" title="Zoom In" style="font-size:22px; font-weight:bold;">+</button>
@@ -6413,9 +6429,9 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
     Zoom Out
   </button>
-  <button class="sheet-item" onclick="mobileSheetAction('btnGridToggle')">
+  <button class="sheet-item" onclick="event.stopPropagation(); mobileSheetAction('btnGridToggle')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
-    Toggle Grid
+    Grid Options
   </button>
   <div class="sheet-section">Panels</div>
   <button class="sheet-item" onclick="mobileSheetAction('btnRouteFinder')">
@@ -6617,9 +6633,60 @@
     // Clear stale inline display on panels that use class-based visibility
     var sl = document.getElementById('shapeLibraryPanel');
     if (sl) sl.style.display = '';
+    // Grid toggle: open mobile grid popup
+    if (btnId === 'btnGridToggle') {
+      var popup = document.getElementById('mobGridPopup');
+      if (popup) {
+        popup.classList.toggle('open');
+        updateMobGridState();
+      }
+      return;
+    }
     var btn = document.getElementById(btnId);
     if (btn) btn.click();
   };
+
+  // --- Mobile grid popup functions ---
+  window.updateMobGridState = function() {
+    var cb = document.getElementById('mobGridEnabled');
+    var desktopCb = document.getElementById('gridEnabled');
+    var sizes = document.getElementById('mobGridSizes');
+    if (cb && desktopCb) cb.checked = desktopCb.checked;
+    if (sizes) {
+      if (desktopCb && !desktopCb.checked) {
+        sizes.classList.add('disabled');
+      } else {
+        sizes.classList.remove('disabled');
+      }
+    }
+    // Sync active size from desktop state
+    var activeDesktop = document.querySelector('#gridMenu .grid-size.active');
+    if (activeDesktop) {
+      var activeSize = activeDesktop.dataset.size;
+      document.querySelectorAll('.mob-grid-size-btn').forEach(function(b) {
+        b.classList.toggle('active', b.dataset.size === activeSize);
+      });
+    }
+  };
+  window.mobSetGridSize = function(size) {
+    // Click the matching desktop grid-size item
+    var item = document.querySelector('#gridMenu .grid-size[data-size="' + size + '"]');
+    if (item) item.click();
+    // Update mobile UI
+    document.querySelectorAll('.mob-grid-size-btn').forEach(function(b) {
+      b.classList.toggle('active', parseInt(b.dataset.size) === size);
+    });
+  };
+  // Close grid popup when clicking elsewhere
+  document.addEventListener('click', function() {
+    var popup = document.getElementById('mobGridPopup');
+    if (popup) popup.classList.remove('open');
+  });
+  // Prevent clicks inside popup from closing it
+  (function() {
+    var popup = document.getElementById('mobGridPopup');
+    if (popup) popup.addEventListener('click', function(e) { e.stopPropagation(); });
+  })();
 
   // Shape SVG lookup for updating icons
   var mobShapeSVGs = {
