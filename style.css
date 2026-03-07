@@ -2060,14 +2060,14 @@
         border-radius: 18px 18px 0 0 !important;
         resize: none !important;
       }
-      /* Route Finder panel — left-edge tab strip on mobile */
+      /* Route Finder panel — narrow left-edge strip on mobile */
       #routeFinderPanel {
         position: fixed !important;
         left: 0 !important;
         top: 88px !important;
         bottom: auto !important;
         width: auto !important;
-        max-width: 75vw !important;
+        max-width: 72vw !important;
         max-height: calc(100vh - 144px) !important;
         border-radius: 0 12px 12px 0 !important;
         z-index: 200;
@@ -2076,13 +2076,25 @@
         overflow-y: auto !important;
         right: auto !important;
       }
-      /* Hide the header bar on mobile — badge + X handle close */
-      #routeFinderPanel #routeFinderHeader { display: none !important; }
-      /* Compact section headers on mobile Route Finder */
-      #routeFinderPanel .inspector-section-header {
-        padding: 8px 12px !important;
+      /* Compact draggable header on mobile */
+      #routeFinderPanel #routeFinderHeader {
+        padding: 6px 10px !important;
+        min-height: 32px !important;
+      }
+      #routeFinderPanel #routeFinderHeader h3 {
         font-size: 12px !important;
-        min-height: 34px !important;
+      }
+      /* Compact tab-style section headers */
+      #routeFinderPanel .inspector-section-header {
+        padding: 7px 10px !important;
+        font-size: 11px !important;
+        min-height: 30px !important;
+        gap: 4px !important;
+      }
+      /* When collapsed, sections are just a compact tab line */
+      #routeFinderPanel .inspector-section.collapsed .inspector-section-header {
+        border-bottom: none !important;
+        background: #f8fafc;
       }
       #routeFinderPanel .inspector-section-content {
         padding: 8px 10px !important;

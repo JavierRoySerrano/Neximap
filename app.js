@@ -8559,7 +8559,9 @@ if (groupTitleFontInline) {
     const node = makeNode(id, x, y);
     state.nodes.push(node);
     updateNodeGroupMembership(node);
-    select({type:'node', id});
+    if (!linkMode) {
+      select({type:'node', id});
+    }
     commit(); render();
     showToast(`Created node ${node.name}.`);
   }
@@ -24985,6 +24987,17 @@ function loadProjectObject(obj) {
     if (panel) {
       panel.classList.add('visible');
       console.log('[ROUTE FINDER] Panel should now be visible');
+      // On mobile: collapse all sections except Endpoints
+      if (window.innerWidth <= 768) {
+        panel.querySelectorAll('.inspector-section').forEach(function(sec) {
+          var ds = sec.getAttribute('data-section') || '';
+          if (ds === 'route-endpoints') {
+            sec.classList.remove('collapsed');
+          } else if (ds.startsWith('route-')) {
+            sec.classList.add('collapsed');
+          }
+        });
+      }
     } else {
       console.error('[ROUTE FINDER] ERROR: Panel element not found!');
       showToast('Error: Route Finder panel not found');
