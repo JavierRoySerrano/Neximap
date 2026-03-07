@@ -6175,7 +6175,7 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="7" x2="20" y2="7"/><circle cx="8" cy="7" r="2" fill="currentColor"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="14" cy="12" r="2" fill="currentColor"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="10" cy="17" r="2" fill="currentColor"/></svg>
     <span>Inspector</span>
   </button>
-  <button id="mobBtnFilters" onclick="mobileNavAction('filters')" title="Filters">
+  <button id="mobBtnFilters" onclick="event.stopPropagation(); mobileNavAction('filters')" title="Filters">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
     <span>Filters</span>
   </button>
@@ -6395,16 +6395,7 @@
           panel.hidden = true;
           document.getElementById('mobBtnFilters').classList.remove('active');
         } else {
-          // Click the desktop button to trigger all its setup logic
-          var btn = document.getElementById('btnUnifiedFilter');
-          if (btn) btn.click();
-          // Reposition for mobile: full-width panel at top of viewport
-          panel.style.left = '8px';
-          panel.style.right = '8px';
-          panel.style.top = '60px';
-          panel.style.width = 'auto';
-          panel.style.maxHeight = '60vh';
-          panel.style.overflow = 'auto';
+          panel.hidden = false;
           document.getElementById('mobBtnFilters').classList.add('active');
         }
       }
