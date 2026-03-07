@@ -6364,6 +6364,9 @@
       closeMobilePanels();
       clearMobileActive();
       document.getElementById('mobBtnCanvas').classList.add('active');
+      // Restore floating zoom controls
+      var zc = document.getElementById('mobileZoomControls');
+      if (zc) zc.style.display = '';
     } else if (action === 'fit') {
       var btn = document.getElementById('btnZoomFit');
       if (btn) btn.click();
@@ -6408,7 +6411,22 @@
     } else if (action === 'map') {
       var btn = document.getElementById('btnMapLibre');
       if (btn) btn.click();
-      toggleMobileActive('mobBtnMap');
+      // Sync mobile button state with actual map state (not independent toggle)
+      var mapActive = window.mapLibreState && window.mapLibreState.active;
+      var mobMap = document.getElementById('mobBtnMap');
+      var mobCanvas = document.getElementById('mobBtnCanvas');
+      if (mapActive) {
+        if (mobMap) mobMap.classList.add('active');
+        if (mobCanvas) mobCanvas.classList.remove('active');
+        // Hide floating zoom controls in map view (MapLibre has its own)
+        var zc = document.getElementById('mobileZoomControls');
+        if (zc) zc.style.display = 'none';
+      } else {
+        if (mobMap) mobMap.classList.remove('active');
+        if (mobCanvas) mobCanvas.classList.add('active');
+        var zc = document.getElementById('mobileZoomControls');
+        if (zc) zc.style.display = '';
+      }
     } else if (action === 'more') {
       var sheet = document.getElementById('mobileMoreSheet');
       var backdrop = document.getElementById('mobileSheetBackdrop');

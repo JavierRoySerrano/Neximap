@@ -2057,10 +2057,15 @@
       min-width: 44px;
       min-height: 44px;
     }
-    .mobile-toolbar button:hover,
     .mobile-toolbar button.active {
       background: #e8f4fc;
       color: #0096D6;
+    }
+    @media (hover: hover) {
+      .mobile-toolbar button:hover {
+        background: #e8f4fc;
+        color: #0096D6;
+      }
     }
     .mobile-toolbar button svg {
       width: 22px;
