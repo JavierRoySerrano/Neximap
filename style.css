@@ -1903,12 +1903,22 @@
         gap: 0 !important;
       }
 
-      /* Hide both toolbar rows completely */
+      /* Hide both toolbar rows completely (portrait mobile) */
       .toolbar-row { display: none !important; }
 
       /* Show mobile bottom toolbar */
       .mobile-toolbar {
         display: flex !important;
+      }
+
+      /* Landscape mobile: show toolbar rows, hide mobile bottom bar */
+      @media (orientation: landscape) {
+        .toolbar-row { display: flex !important; }
+        .toolbar-row > div:not(.tool-sep) > span { display: none; }
+        .toolbar-row .tool-btn { padding: 2px 3px 0; }
+        .toolbar-row .tool-btn > span:not(.filter-badge) { display: none !important; }
+        .mobile-toolbar { display: none !important; }
+        .mobile-zoom-controls { display: none !important; }
       }
 
       /* Canvas: minimal padding, full screen */
