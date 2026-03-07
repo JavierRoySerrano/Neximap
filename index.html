@@ -7059,23 +7059,68 @@
     var DOUBLE_TAP_DELAY = 350; // ms
     var DOUBLE_TAP_RADIUS = 30; // px
 
-    // === Long-press drag support ===
+    // === Long-press drag support for nodes & containers ===
     var longPressTimer = null;
     var longPressDragging = false;
     var longPressTarget = null;
-    var LONG_PRESS_MS = 500;
+    var LONG_PRESS_MS = 300;
     var LONG_PRESS_MOVE_THRESHOLD = 10;
     var lpStartX = 0, lpStartY = 0;
 
     function isDraggableTarget(el) {
-      // Check if the touch target is a node, group/container, or part of one
       if (!el) return false;
-      // Node shapes (g.node contains circles, text, etc)
       if (el.closest('g.node')) return true;
-      // Group/container rects
       if (el.closest('.group-rect') || el.classList.contains('group-rect')) return true;
-      // Node hit area circles
       if (el.classList.contains('node-circle') || el.classList.contains('node-circle-hit')) return true;
+      return false;
+    }
+
+    // Find what node/group is at the touch point and set up state.dragging directly
+    function initDragState(clientX, clientY, targetEl) {
+      if (!window.state || !window.getMouse) return false;
+      var fakeEv = { clientX: clientX, clientY: clientY };
+      var m = window.getMouse(fakeEv);
+
+      // Check if touching a node
+      var nodeGroup = targetEl.closest ? targetEl.closest('g.node') : null;
+      if (nodeGroup) {
+        var nid = parseInt(nodeGroup.getAttribute('data-node-id'));
+        var n = window.state.nodes.find(function(nd) { return nd.id === nid; });
+        if (n) {
+          // Select the node
+          if (window.state.selection) {
+            window.state.selection.nodes.clear();
+            window.state.selection.edges.clear();
+            window.state.selection.groups.clear();
+            window.state.selection.nodes.add(n.id);
+          }
+          window.state.selected = { type: 'node', id: n.id };
+          window.state.dragging = { type: 'node', id: n.id, dx: n.x - m.x, dy: n.y - m.y, origX: n.x, origY: n.y };
+          return true;
+        }
+      }
+
+      // Check if touching a group/container
+      var groupEl = targetEl.closest ? targetEl.closest('.group-rect') : null;
+      if (!groupEl && targetEl.classList && targetEl.classList.contains('group-rect')) groupEl = targetEl;
+      if (groupEl) {
+        // Find the group by checking which group rect contains this point
+        var groups = window.state.groups;
+        for (var i = groups.length - 1; i >= 0; i--) {
+          var g = groups[i];
+          if (m.x >= g.x && m.x <= g.x + g.w && m.y >= g.y && m.y <= g.y + g.h) {
+            if (window.state.selection) {
+              window.state.selection.nodes.clear();
+              window.state.selection.edges.clear();
+              window.state.selection.groups.clear();
+              window.state.selection.groups.add(g.id);
+            }
+            window.state.selected = { type: 'group', id: g.id };
+            window.state.dragging = { type: 'group', id: g.id, dx: g.x - m.x, dy: g.y - m.y, origX: g.x, origY: g.y };
+            return true;
+          }
+        }
+      }
       return false;
     }
 
@@ -7083,7 +7128,7 @@
       var evt = new MouseEvent(type, {
         bubbles: true, cancelable: true, view: window,
         clientX: touch.clientX, clientY: touch.clientY,
-        screenX: touch.screenX, screenY: touch.screenY,
+        screenX: touch.screenX || touch.clientX, screenY: touch.screenY || touch.clientY,
         button: 0, buttons: type === 'mouseup' ? 0 : 1
       });
       (target || touch.target).dispatchEvent(evt);
@@ -7095,7 +7140,6 @@
 
     function showDragFeedback(show) {
       svgEl.style.cursor = show ? 'grabbing' : '';
-      // Brief haptic feedback on supported devices
       if (show && navigator.vibrate) navigator.vibrate(30);
     }
 
@@ -7121,10 +7165,13 @@
         if (isDraggableTarget(touch.target)) {
           longPressTimer = setTimeout(function() {
             longPressTimer = null;
-            longPressDragging = true;
-            showDragFeedback(true);
-            // Send mousedown to the original target to initiate app.js drag
-            synthMouse('mousedown', { clientX: lpStartX, clientY: lpStartY, screenX: lpStartX, screenY: lpStartY, target: longPressTarget }, longPressTarget);
+            // Directly set up state.dragging instead of synthetic mousedown
+            // (the original DOM element may have been replaced by render())
+            if (initDragState(lpStartX, lpStartY, longPressTarget)) {
+              longPressDragging = true;
+              showDragFeedback(true);
+              if (window.render) window.render();
+            }
           }, LONG_PRESS_MS);
         }
       }
@@ -7137,7 +7184,6 @@
         var scale = newDist / pinchStartDist;
         var newZoom = pinchStartZoom * scale;
 
-        // Zoom centered on initial pinch midpoint
         var wrapRect = wrap.getBoundingClientRect();
         var cx = pinchCX - wrapRect.left;
         var cy = pinchCY - wrapRect.top;
@@ -7151,7 +7197,6 @@
         wrap.scrollLeft = ptX * z - cx;
         wrap.scrollTop = ptY * z - cy;
 
-        // Pan if pinch center moves
         var newCX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
         var newCY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
         wrap.scrollLeft -= (newCX - panStartX);
@@ -7164,12 +7209,11 @@
       if (e.touches.length === 1) {
         var touch = e.touches[0];
         if (longPressDragging) {
-          // In drag mode: prevent scroll and send mousemove to app.js
           e.preventDefault();
+          // Drive app.js drag via mousemove on svg
           synthMouse('mousemove', touch, svgEl);
           return;
         }
-        // Not yet in drag mode: cancel long-press if finger moved too far
         if (longPressTimer) {
           var dx = touch.clientX - lpStartX;
           var dy = touch.clientY - lpStartY;
@@ -7186,16 +7230,20 @@
         pinching = false;
         return;
       }
-      // End long-press drag
       if (longPressDragging) {
         var touch = e.changedTouches[0];
-        synthMouse('mouseup', touch, svgEl);
+        // End the drag: clear state.dragging and send mouseup
+        if (window.state && window.state.dragging) {
+          // Commit final position via one last mousemove + mouseup
+          synthMouse('mousemove', touch, svgEl);
+          synthMouse('mouseup', touch, svgEl);
+        }
         longPressDragging = false;
         showDragFeedback(false);
         longPressTarget = null;
-        return; // Don't process as tap
+        return;
       }
-      // Double-tap detection for node creation (single finger only)
+      // Double-tap detection for node creation
       if (e.touches.length === 0 && e.changedTouches.length === 1 && !pinching) {
         var touch = e.changedTouches[0];
         var now = Date.now();
@@ -7203,8 +7251,7 @@
         var dy = touch.clientY - lastTapY;
         var dist = Math.sqrt(dx * dx + dy * dy);
         if (now - lastTapTime < DOUBLE_TAP_DELAY && dist < DOUBLE_TAP_RADIUS) {
-          // Double-tap detected — create node at tap position
-          lastTapTime = 0; // reset so triple-tap doesn't fire again
+          lastTapTime = 0;
           if (window.createNode && window.getMouse) {
             var pt = svgEl.createSVGPoint();
             pt.x = touch.clientX;
@@ -7229,9 +7276,102 @@
       if (longPressDragging) {
         longPressDragging = false;
         showDragFeedback(false);
+        if (window.state) window.state.dragging = null;
       }
     }, { passive: true });
   });
+
+  // === Mobile panel/visor touch-drag ===
+  // Makes panel headers draggable by touch, constrained between top toolbar and bottom toolbar
+  (function() {
+    if (!('ontouchstart' in window)) return; // Desktop: skip
+
+    var TOP_BOUND = 88;    // header (42px) + toolbar (44px) + 2px
+    var BOTTOM_BAR = 52;   // bottom toolbar height
+
+    // List of panel header → panel pairs
+    var panelDefs = [
+      { headerId: 'inspectorHeader', panelId: 'inspector' },
+      { headerId: 'cableNavigatorHeader', panelId: 'cableNavigator' },
+      { headerId: 'cableInspectorHeader', panelId: 'cableSystemInspectorPanel' },
+      { headerId: 'cableVisorHeader', panelId: 'cableVisorPanel' },
+      { headerId: 'dcNavigatorHeader', panelId: 'dcNavigator' }
+    ];
+
+    // Also add shape library (header has no ID, use querySelector)
+    var slPanel = document.getElementById('shapeLibraryPanel');
+    var slHeader = slPanel ? slPanel.querySelector('.library-header') : null;
+    if (slHeader && slPanel) {
+      panelDefs.push({ header: slHeader, panel: slPanel });
+    }
+
+    panelDefs.forEach(function(def) {
+      var header = def.header || document.getElementById(def.headerId);
+      var panel = def.panel || document.getElementById(def.panelId);
+      if (!header || !panel) return;
+
+      var dragging = false;
+      var startY = 0, startTop = 0, startBottom = 0;
+      var usesBottom = false; // whether the panel uses bottom positioning
+
+      header.addEventListener('touchstart', function(e) {
+        if (e.touches.length !== 1) return;
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+        var touch = e.touches[0];
+        var rect = panel.getBoundingClientRect();
+        startY = touch.clientY;
+        // Determine if panel uses bottom or top positioning
+        var cs = window.getComputedStyle(panel);
+        if (cs.bottom !== 'auto' && cs.top === 'auto') {
+          usesBottom = true;
+          startBottom = parseInt(cs.bottom) || 0;
+        } else {
+          usesBottom = false;
+          startTop = rect.top;
+        }
+        dragging = true;
+        panel.style.transition = 'none';
+      }, { passive: true });
+
+      document.addEventListener('touchmove', function(e) {
+        if (!dragging) return;
+        if (e.touches.length !== 1) return;
+        var touch = e.touches[0];
+        var dy = touch.clientY - startY;
+        var winH = window.innerHeight;
+
+        if (usesBottom) {
+          var newBottom = startBottom - dy;
+          var maxBottom = winH - TOP_BOUND - 44; // at least show 44px header
+          newBottom = Math.max(BOTTOM_BAR, Math.min(newBottom, maxBottom));
+          panel.style.bottom = newBottom + 'px';
+          panel.style.top = 'auto';
+        } else {
+          var newTop = startTop + dy;
+          var maxTop = winH - BOTTOM_BAR - 44;
+          newTop = Math.max(TOP_BOUND, Math.min(newTop, maxTop));
+          panel.style.top = newTop + 'px';
+          panel.style.bottom = 'auto';
+          panel.style.right = 'auto';
+        }
+        e.preventDefault();
+      }, { passive: false });
+
+      document.addEventListener('touchend', function() {
+        if (dragging) {
+          dragging = false;
+          panel.style.transition = '';
+        }
+      }, { passive: true });
+
+      document.addEventListener('touchcancel', function() {
+        if (dragging) {
+          dragging = false;
+          panel.style.transition = '';
+        }
+      }, { passive: true });
+    });
+  })();
 })();
 </script>
 </body>

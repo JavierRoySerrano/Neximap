@@ -2015,6 +2015,13 @@
         border-radius: 0 !important;
         z-index: 99999 !important;
       }
+      /* Draggable panel headers on mobile */
+      #inspectorHeader, #cableNavigatorHeader, #cableInspectorHeader,
+      #cableVisorHeader, #dcNavigatorHeader, .library-header {
+        cursor: grab;
+        touch-action: none;
+      }
+
       /* Inspector mobile: larger touch targets, bigger text */
       #inspector .inspector-section-header {
         padding: 14px 16px !important;
