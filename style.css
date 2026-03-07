@@ -2052,14 +2052,40 @@
         position: fixed !important;
         left: 0 !important;
         right: 0 !important;
-        bottom: 0 !important;
+        bottom: 52px !important;
         top: auto !important;
         width: 100% !important;
-        height: 72vh !important;
+        height: 60vh !important;
         min-width: unset !important;
-        border-radius: 18px 18px 0 0 !important;
+        border-radius: 16px 16px 0 0 !important;
         resize: none !important;
+        z-index: 500 !important;
       }
+      /* Hide zoom controls when AI Agent is open */
+      .mobile-zoom-controls.mob-hide { display: none !important; }
+      /* Compact AI header on mobile */
+      #aiAgentPanel #aiAgentHeader {
+        padding: 8px 12px !important;
+        gap: 8px !important;
+      }
+      #aiAgentPanel .nexi-hdr-avatar { width: 28px; height: 28px; }
+      #aiAgentPanel .nexi-hdr-avatar svg { width: 22px; height: 22px; }
+      #aiAgentPanel .nexi-hdr-title { font-size: 13px; }
+      #aiAgentPanel .nexi-hdr-sub { display: none; }
+      /* Compact welcome screen on mobile */
+      #aiAgentPanel .nexi-welcome { padding: 12px 16px; }
+      #aiAgentPanel .nexi-welcome-icon { width: 64px; height: 64px; margin-bottom: 8px; }
+      #aiAgentPanel .nexi-welcome-icon svg { width: 52px; height: 52px; }
+      #aiAgentPanel .nexi-welcome h3 { font-size: 14px; margin-bottom: 2px; }
+      #aiAgentPanel .nexi-welcome p { font-size: 11px; margin-bottom: 10px; }
+      #aiAgentPanel .nexi-wcard { padding: 8px; }
+      #aiAgentPanel .nexi-wcard-title { font-size: 11px; }
+      #aiAgentPanel .nexi-wcard-desc { font-size: 9px; }
+      /* More space for chat input */
+      #aiAgentPanel #aiAgentInputRow { padding: 8px 10px 10px; }
+      #aiAgentPanel .nexi-powered { padding: 2px 0 4px; font-size: 8px; }
+      /* Draggable header */
+      #aiAgentHeader { cursor: grab; touch-action: none; }
       /* Route Finder panel — narrow left-edge strip on mobile */
       #routeFinderPanel {
         position: fixed !important;

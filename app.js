@@ -43634,6 +43634,11 @@ function handlePathKmlImport(e) {
     var visible = panel.classList.toggle('show');
     var btn = document.getElementById('btnAiAgent');
     if (btn) btn.classList.toggle('active', visible);
+    // Hide/show mobile zoom controls when AI panel toggles
+    if (window.innerWidth <= 768) {
+      var zc = document.getElementById('mobileZoomControls');
+      if (zc) zc.classList.toggle('mob-hide', visible);
+    }
     if (visible) {
       setTimeout(function(){ var inp = document.getElementById('aiAgentInput'); if(inp) inp.focus(); }, 300);
     }

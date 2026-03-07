@@ -6917,6 +6917,11 @@
     var btn = document.getElementById('btnAiAgent');
     if (btn) btn.classList.remove('active');
     if (fab) fab.style.display = 'flex';
+    // Restore mobile zoom controls
+    if (window.innerWidth <= 768) {
+      var zc = document.getElementById('mobileZoomControls');
+      if (zc) zc.classList.remove('mob-hide');
+    }
   };
 
   window.restoreNexi = function() {
@@ -7485,7 +7490,8 @@
       { headerId: 'dcNavigatorHeader', panelId: 'dcNavigator' },
       { headerId: 'dcVisorHeader', panelId: 'dcVisorPanel' },
       { headerId: 'routeFinderHeader', panelId: 'routeFinderPanel' },
-      { headerId: 'labelManagerHeader', panelId: 'labelManagerPanel' }
+      { headerId: 'labelManagerHeader', panelId: 'labelManagerPanel' },
+      { headerId: 'aiAgentHeader', panelId: 'aiAgentPanel' }
     ];
 
     var slPanel = document.getElementById('shapeLibraryPanel');
