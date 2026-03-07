@@ -6219,6 +6219,33 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
     Delete Selected
   </button>
+  <div class="sheet-section">Node Shape</div>
+  <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px; padding:4px 8px 8px;">
+    <button class="sheet-item" onclick="closeMobileMoreSheet(); var b=document.querySelector('.shape-dropdown-item[data-shape=circle]'); if(b)b.click();" style="flex-direction:column; padding:8px 4px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+      <span style="font-size:11px;">Circle</span>
+    </button>
+    <button class="sheet-item" onclick="closeMobileMoreSheet(); var b=document.querySelector('.shape-dropdown-item[data-shape=square]'); if(b)b.click();" style="flex-direction:column; padding:8px 4px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16"/></svg>
+      <span style="font-size:11px;">Square</span>
+    </button>
+    <button class="sheet-item" onclick="closeMobileMoreSheet(); var b=document.querySelector('.shape-dropdown-item[data-shape=triangle]'); if(b)b.click();" style="flex-direction:column; padding:8px 4px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,3 22,21 2,21"/></svg>
+      <span style="font-size:11px;">Triangle</span>
+    </button>
+    <button class="sheet-item" onclick="closeMobileMoreSheet(); var b=document.querySelector('.shape-dropdown-item[data-shape=rectangle]'); if(b)b.click();" style="flex-direction:column; padding:8px 4px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12"/></svg>
+      <span style="font-size:11px;">Rectangle</span>
+    </button>
+    <button class="sheet-item" onclick="closeMobileMoreSheet(); var b=document.querySelector('.shape-dropdown-item[data-shape=ellipse]'); if(b)b.click();" style="flex-direction:column; padding:8px 4px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg>
+      <span style="font-size:11px;">Ellipse</span>
+    </button>
+    <button class="sheet-item" onclick="closeMobileMoreSheet(); var b=document.querySelector('.shape-dropdown-item[data-shape=hexagon]'); if(b)b.click();" style="flex-direction:column; padding:8px 4px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/></svg>
+      <span style="font-size:11px;">Hexagon</span>
+    </button>
+  </div>
   <div class="sheet-section">Drawing</div>
   <button class="sheet-item" onclick="mobileSheetAction('btnAddGroup')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="4 2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
@@ -6331,12 +6358,12 @@
     closeMobileMoreSheet();
 
     if (action === 'canvas') {
+      // Switch back to main canvas view (deactivate map/geo if active)
+      var mainBtn = document.getElementById('btnMainView');
+      if (mainBtn) mainBtn.click();
       closeMobilePanels();
       clearMobileActive();
       document.getElementById('mobBtnCanvas').classList.add('active');
-      // Scroll canvas into view
-      var wrap = document.getElementById('wrap');
-      if (wrap) wrap.scrollIntoView({ behavior: 'smooth' });
     } else if (action === 'fit') {
       var btn = document.getElementById('btnZoomFit');
       if (btn) btn.click();
@@ -6359,9 +6386,25 @@
         }
       }
     } else if (action === 'filters') {
-      var btn = document.getElementById('btnUnifiedFilter');
-      if (btn) btn.click();
-      toggleMobileActive('mobBtnFilters');
+      var panel = document.getElementById('unifiedFilterPanel');
+      if (panel) {
+        if (!panel.hidden) {
+          panel.hidden = true;
+          document.getElementById('mobBtnFilters').classList.remove('active');
+        } else {
+          // Click the desktop button to trigger all its setup logic
+          var btn = document.getElementById('btnUnifiedFilter');
+          if (btn) btn.click();
+          // Reposition for mobile: full-width panel at top of viewport
+          panel.style.left = '8px';
+          panel.style.right = '8px';
+          panel.style.top = '60px';
+          panel.style.width = 'auto';
+          panel.style.maxHeight = '60vh';
+          panel.style.overflow = 'auto';
+          document.getElementById('mobBtnFilters').classList.add('active');
+        }
+      }
     } else if (action === 'map') {
       var btn = document.getElementById('btnMapLibre');
       if (btn) btn.click();
