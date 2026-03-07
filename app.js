@@ -5082,6 +5082,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
 
   function drawGroup(g) {
     const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
+    grp.setAttribute('data-group-id', g.id);
     const isSel = (state.selected?.type==='group' && state.selected?.id===g.id) || state.selection.groups.has(g.id);
     if (isSel) grp.classList.add('group-selected');
 
