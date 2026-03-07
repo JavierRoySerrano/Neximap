@@ -6204,6 +6204,27 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/></svg>
       </button>
     </div>
+    <div class="mob-draw-divider"></div>
+    <button class="mob-draw-item" id="mobDrawContainer" onclick="event.stopPropagation(); mobDrawSelect('container')">
+      <svg id="mobDrawContainerIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+      <span id="mobDrawContainerLabel">Container</span>
+      <svg class="mob-draw-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <!-- Container type expansion panel -->
+    <div id="mobContainerExpand" class="mob-shape-expand">
+      <button class="mob-shape-item" data-mob-container="group" onclick="event.stopPropagation(); mobPickContainer('group')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        <span style="font-size:9px;">Container</span>
+      </button>
+      <button class="mob-shape-item" data-mob-container="region" onclick="event.stopPropagation(); mobPickContainer('region')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+        <span style="font-size:9px;">Region</span>
+      </button>
+      <button class="mob-shape-item" data-mob-container="dc" onclick="event.stopPropagation(); mobPickContainer('dc')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="2" width="16" height="20" rx="1"/><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="17" cy="4.5" r="1" fill="currentColor"/><circle cx="17" cy="9.5" r="1" fill="currentColor"/><circle cx="17" cy="14.5" r="1" fill="currentColor"/><circle cx="17" cy="19.5" r="1" fill="currentColor"/></svg>
+        <span style="font-size:9px;">DC</span>
+      </button>
+    </div>
   </div>
   <button id="mobBtnInspector" onclick="mobileNavAction('inspector')" title="Inspector">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="7" x2="20" y2="7"/><circle cx="8" cy="7" r="2" fill="currentColor"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="14" cy="12" r="2" fill="currentColor"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="10" cy="17" r="2" fill="currentColor"/></svg>
@@ -6518,15 +6539,32 @@
     if (moreLabel) moreLabel.textContent = name;
   }
 
-  // Draw popup: Link action
+  // Container SVG/name lookup
+  var mobContainerSVGs = {
+    group:  '<rect x="3" y="3" width="18" height="18" rx="2"/>',
+    region: '<rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>',
+    dc:     '<rect x="4" y="2" width="16" height="20" rx="1"/><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="17" cy="4.5" r="1" fill="currentColor"/><circle cx="17" cy="9.5" r="1" fill="currentColor"/><circle cx="17" cy="14.5" r="1" fill="currentColor"/><circle cx="17" cy="19.5" r="1" fill="currentColor"/>'
+  };
+  var mobContainerNames = { group:'Container', region:'Region', dc:'DC' };
+  var mobContainerBtnIds = { group:'btnAddGroup', region:'btnAddRegion', dc:'btnAddDCContainer' };
+
+  // Draw popup actions
   window.mobDrawSelect = function(type) {
     if (type === 'link') {
       closeMobDrawPopup();
       var btn = document.getElementById('btnCreateLink');
       if (btn) btn.click();
     } else if (type === 'node') {
-      // Toggle shape expansion
+      // Toggle shape expansion, close container expansion
       var expand = document.getElementById('mobShapeExpand');
+      var cExpand = document.getElementById('mobContainerExpand');
+      if (cExpand) cExpand.classList.remove('open');
+      if (expand) expand.classList.toggle('open');
+    } else if (type === 'container') {
+      // Toggle container expansion, close shape expansion
+      var expand = document.getElementById('mobContainerExpand');
+      var sExpand = document.getElementById('mobShapeExpand');
+      if (sExpand) sExpand.classList.remove('open');
       if (expand) expand.classList.toggle('open');
     }
   };
@@ -6537,6 +6575,23 @@
     var hiddenBtn = document.querySelector('.shape-dropdown-item[data-shape="' + shape + '"]');
     if (hiddenBtn) hiddenBtn.click();
     updateMobShapeIcons(shape);
+    closeMobDrawPopup();
+  };
+
+  // Draw popup: pick a container type
+  window.mobPickContainer = function(type) {
+    var btnId = mobContainerBtnIds[type];
+    if (btnId) {
+      var btn = document.getElementById(btnId);
+      if (btn) btn.click();
+    }
+    // Update container icon in popup and Draw button
+    var svg = mobContainerSVGs[type] || mobContainerSVGs.group;
+    var name = mobContainerNames[type] || 'Container';
+    var cIcon = document.getElementById('mobDrawContainerIcon');
+    if (cIcon) cIcon.innerHTML = svg;
+    var cLabel = document.getElementById('mobDrawContainerLabel');
+    if (cLabel) cLabel.textContent = name;
     closeMobDrawPopup();
   };
 
@@ -6725,8 +6780,49 @@
     var DOUBLE_TAP_DELAY = 350; // ms
     var DOUBLE_TAP_RADIUS = 30; // px
 
+    // === Long-press drag support ===
+    var longPressTimer = null;
+    var longPressDragging = false;
+    var longPressTarget = null;
+    var LONG_PRESS_MS = 500;
+    var LONG_PRESS_MOVE_THRESHOLD = 10;
+    var lpStartX = 0, lpStartY = 0;
+
+    function isDraggableTarget(el) {
+      // Check if the touch target is a node, group/container, or part of one
+      if (!el) return false;
+      // Node shapes (g.node contains circles, text, etc)
+      if (el.closest('g.node')) return true;
+      // Group/container rects
+      if (el.closest('.group-rect') || el.classList.contains('group-rect')) return true;
+      // Node hit area circles
+      if (el.classList.contains('node-circle') || el.classList.contains('node-circle-hit')) return true;
+      return false;
+    }
+
+    function synthMouse(type, touch, target) {
+      var evt = new MouseEvent(type, {
+        bubbles: true, cancelable: true, view: window,
+        clientX: touch.clientX, clientY: touch.clientY,
+        screenX: touch.screenX, screenY: touch.screenY,
+        button: 0, buttons: type === 'mouseup' ? 0 : 1
+      });
+      (target || touch.target).dispatchEvent(evt);
+    }
+
+    function cancelLongPress() {
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+    }
+
+    function showDragFeedback(show) {
+      svgEl.style.cursor = show ? 'grabbing' : '';
+      // Brief haptic feedback on supported devices
+      if (show && navigator.vibrate) navigator.vibrate(30);
+    }
+
     wrap.addEventListener('touchstart', function(e) {
       if (e.touches.length === 2) {
+        cancelLongPress();
         pinching = true;
         pinchStartDist = fingerDist(e.touches[0], e.touches[1]);
         pinchStartZoom = window.state ? window.state.zoom : 1;
@@ -6734,6 +6830,24 @@
         pinchCY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
         panStartX = pinchCX;
         panStartY = pinchCY;
+        return;
+      }
+      // Single finger: start long-press timer if on a draggable element
+      if (e.touches.length === 1) {
+        var touch = e.touches[0];
+        lpStartX = touch.clientX;
+        lpStartY = touch.clientY;
+        longPressTarget = touch.target;
+        cancelLongPress();
+        if (isDraggableTarget(touch.target)) {
+          longPressTimer = setTimeout(function() {
+            longPressTimer = null;
+            longPressDragging = true;
+            showDragFeedback(true);
+            // Send mousedown to the original target to initiate app.js drag
+            synthMouse('mousedown', { clientX: lpStartX, clientY: lpStartY, screenX: lpStartX, screenY: lpStartY, target: longPressTarget }, longPressTarget);
+          }, LONG_PRESS_MS);
+        }
       }
     }, { passive: true });
 
@@ -6765,14 +6879,42 @@
         wrap.scrollTop -= (newCY - panStartY);
         panStartX = newCX;
         panStartY = newCY;
+        return;
       }
-      // Single finger: do NOT preventDefault — browser handles scroll/drag
+      // Single finger
+      if (e.touches.length === 1) {
+        var touch = e.touches[0];
+        if (longPressDragging) {
+          // In drag mode: prevent scroll and send mousemove to app.js
+          e.preventDefault();
+          synthMouse('mousemove', touch, svgEl);
+          return;
+        }
+        // Not yet in drag mode: cancel long-press if finger moved too far
+        if (longPressTimer) {
+          var dx = touch.clientX - lpStartX;
+          var dy = touch.clientY - lpStartY;
+          if (Math.sqrt(dx*dx + dy*dy) > LONG_PRESS_MOVE_THRESHOLD) {
+            cancelLongPress();
+          }
+        }
+      }
     }, { passive: false });
 
     wrap.addEventListener('touchend', function(e) {
+      cancelLongPress();
       if (pinching && e.touches.length < 2) {
         pinching = false;
         return;
+      }
+      // End long-press drag
+      if (longPressDragging) {
+        var touch = e.changedTouches[0];
+        synthMouse('mouseup', touch, svgEl);
+        longPressDragging = false;
+        showDragFeedback(false);
+        longPressTarget = null;
+        return; // Don't process as tap
       }
       // Double-tap detection for node creation (single finger only)
       if (e.touches.length === 0 && e.changedTouches.length === 1 && !pinching) {
@@ -6804,6 +6946,11 @@
 
     wrap.addEventListener('touchcancel', function() {
       pinching = false;
+      cancelLongPress();
+      if (longPressDragging) {
+        longPressDragging = false;
+        showDragFeedback(false);
+      }
     }, { passive: true });
   });
 })();
