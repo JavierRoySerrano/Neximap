@@ -2103,6 +2103,22 @@
         font-size: 11px;
         padding: 5px 12px 5px 10px;
       }
+      /* Label Manager (Tags) panel */
+      #labelManagerPanel {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        bottom: 52px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 60vh !important;
+        max-height: 60vh !important;
+        border-radius: 16px 16px 0 0 !important;
+        z-index: 200;
+        resize: none !important;
+        min-width: unset !important;
+      }
       /* DC Navigator panel */
       #dcNavigator {
         position: fixed !important;
@@ -2133,7 +2149,7 @@
       /* Draggable panel headers on mobile */
       #inspectorHeader, #cableNavigatorHeader, #cableInspectorHeader,
       #cableVisorHeader, #dcNavigatorHeader, #dcVisorHeader,
-      #routeFinderHeader, .library-header {
+      #routeFinderHeader, #labelManagerHeader, .library-header {
         cursor: grab;
         touch-action: none;
       }
@@ -2376,6 +2392,26 @@
       .mob-grid-size-btn:active { background: #e8f4fc; border-color: #0096D6; }
       .mob-grid-size-btn.active { background: #e8f4fc; border-color: #0096D6; color: #0096D6; font-weight: 600; }
       .mob-grid-sizes.disabled .mob-grid-size-btn { opacity: 0.4; pointer-events: none; }
+
+      /* --- Mobile Map Style popup --- */
+      .mob-map-style-options {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .mob-map-style-btn {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #e5e7eb;
+        background: #fafafa;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 13px;
+        color: #555;
+        text-align: left;
+      }
+      .mob-map-style-btn:active { background: #e8f4fc; border-color: #0096D6; }
+      .mob-map-style-btn.active { background: #e8f4fc; border-color: #0096D6; color: #0096D6; font-weight: 600; }
 
       /* --- Mobile top toolbar (buttons bar) --- */
       .mob-landscape-bar {

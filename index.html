@@ -6358,10 +6358,21 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><circle cx="6" cy="6" r="1" fill="currentColor"/><circle cx="6" cy="18" r="1" fill="currentColor"/></svg>
     DC List
   </button>
-  <button class="mlb-panel-btn" onclick="event.stopPropagation(); closeMlbPanels(); mobileSheetAction('btnGeoView');">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M12 2v20"/><path d="M2 12h20"/></svg>
-    Geo View
+  <button class="mlb-panel-btn" onclick="event.stopPropagation(); closeMlbPanels(); var p=document.getElementById('mobMapStylePopup'); if(p) p.classList.toggle('open');">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+    Map Style
   </button>
+</div>
+
+<!-- Mobile Map Style popup -->
+<div class="mob-grid-popup" id="mobMapStylePopup" style="right:8px; left:auto;">
+  <div style="font-weight:600; font-size:13px; color:#333; margin-bottom:8px;">Map Style</div>
+  <div class="mob-map-style-options">
+    <button class="mob-map-style-btn active" data-style="liberty" onclick="mobSetMapStyle('liberty')">Liberty</button>
+    <button class="mob-map-style-btn" data-style="bright" onclick="mobSetMapStyle('bright')">Bright</button>
+    <button class="mob-map-style-btn" data-style="positron" onclick="mobSetMapStyle('positron')">Positron</button>
+    <button class="mob-map-style-btn" data-style="darkMatter" onclick="mobSetMapStyle('darkMatter')">Dark Matter</button>
+  </div>
 </div>
 
 <!-- Mobile grid popup -->
@@ -6492,9 +6503,9 @@
     DC Visor
   </button>
   <div class="sheet-section">Views</div>
-  <button class="sheet-item" onclick="mobileSheetAction('btnGeoView')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M12 2v20"/><path d="M2 12h20"/></svg>
-    Geo View
+  <button class="sheet-item" onclick="closeMobileMoreSheet(); var p=document.getElementById('mobMapStylePopup'); if(p) p.classList.toggle('open');">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+    Map Style
   </button>
   <button class="sheet-item" onclick="mobileSheetAction('btnKMLStudio')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10A15 15 0 0 1 12 2z"/><path d="M2 12h20"/></svg>
@@ -6704,6 +6715,30 @@
   // Prevent clicks inside popup from closing it
   (function() {
     var popup = document.getElementById('mobGridPopup');
+    if (popup) popup.addEventListener('click', function(e) { e.stopPropagation(); });
+  })();
+
+  // --- Mobile Map Style popup functions ---
+  window.mobSetMapStyle = function(styleName) {
+    var styleMap = { liberty: 'mapStyleLiberty', bright: 'mapStyleBright', positron: 'mapStylePositron', darkMatter: 'mapStyleDarkMatter' };
+    var radioId = styleMap[styleName];
+    if (radioId) {
+      var radio = document.getElementById(radioId);
+      if (radio) { radio.checked = true; radio.dispatchEvent(new Event('change')); }
+    }
+    document.querySelectorAll('.mob-map-style-btn').forEach(function(b) {
+      b.classList.toggle('active', b.dataset.style === styleName);
+    });
+    var popup = document.getElementById('mobMapStylePopup');
+    if (popup) popup.classList.remove('open');
+  };
+  // Close map style popup when clicking elsewhere
+  (function() {
+    document.addEventListener('click', function() {
+      var popup = document.getElementById('mobMapStylePopup');
+      if (popup) popup.classList.remove('open');
+    });
+    var popup = document.getElementById('mobMapStylePopup');
     if (popup) popup.addEventListener('click', function(e) { e.stopPropagation(); });
   })();
 
@@ -7346,17 +7381,18 @@
         var resolved = touchDragState.resolved;
         touchDragState = null;
         if (resolved && resolved.type === 'node' && window.linkMode) {
-          // --- Link mode tap ---
+          // --- Link mode tap --- use setLinkSourceNode to sync local+window
           var nid = resolved.id;
+          var setSrc = window.setLinkSourceNode || function(v){ window.linkSourceNode = v; };
           if (window.linkSourceNode === nid) {
             // Tap same node → deselect source
-            window.linkSourceNode = null;
+            setSrc(null);
             if (window.state) { window.state.selected = null; window.state.connectFrom = null; }
             if (window.render) window.render();
             if (window.showToast) window.showToast('Source deselected. Tap a node to set origin.');
           } else if (window.linkSourceNode == null) {
             // No source yet → set this as source (orange)
-            window.linkSourceNode = nid;
+            setSrc(nid);
             if (window.state) window.state.selected = { type: 'node', id: nid };
             if (window.render) window.render();
             var nn = window.state && window.state.nodes.find(function(x){return x.id===nid;});
@@ -7364,7 +7400,7 @@
           } else {
             // Source exists → create link to this target
             var srcId = window.linkSourceNode;
-            window.linkSourceNode = null;
+            setSrc(null);
             if (window.createEdge) window.createEdge(srcId, nid, true);
             if (window.state) { window.state.selected = null; window.state.connectFrom = null; }
             if (window.state && window.state.selection) {
@@ -7448,7 +7484,8 @@
       { headerId: 'cableVisorHeader', panelId: 'cableVisorPanel' },
       { headerId: 'dcNavigatorHeader', panelId: 'dcNavigator' },
       { headerId: 'dcVisorHeader', panelId: 'dcVisorPanel' },
-      { headerId: 'routeFinderHeader', panelId: 'routeFinderPanel' }
+      { headerId: 'routeFinderHeader', panelId: 'routeFinderPanel' },
+      { headerId: 'labelManagerHeader', panelId: 'labelManagerPanel' }
     ];
 
     var slPanel = document.getElementById('shapeLibraryPanel');

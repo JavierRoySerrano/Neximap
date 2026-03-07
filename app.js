@@ -2030,6 +2030,12 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
   window.linkMode = linkMode;
   window.linkSourceNode = linkSourceNode;
 
+  // Setter for touch handler to update both local + window linkSourceNode
+  window.setLinkSourceNode = function(id) {
+    linkSourceNode = id;
+    window.linkSourceNode = id;
+  };
+
   function clearLinkMode() {
     linkMode = false;
     linkSourceNode = null;
@@ -6140,7 +6146,7 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     g.dataset.nodeId = n.id; // For context menu lookup
     const isSelected = (state.selected?.type==='node' && state.selected.id===n.id) || state.selection.nodes.has(n.id);
     const isLinkSource = linkMode && linkSourceNode === n.id;
-    const isInLinkMode = linkMode && isSelected; // In link mode, all selected nodes show as potential sources
+    const isInLinkMode = linkMode && isSelected;
 
     // Check if this node should be highlighted (cable system selection or temporary highlight)
     const nodeCSIds = n.cableSystemIds || [];
