@@ -2037,6 +2037,8 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     window.linkSourceNode = null;
     state.connectFrom = null;
     btnCreateLink.classList.remove('primary');
+    const linkBadge = document.getElementById('linkModeBadge');
+    if (linkBadge) linkBadge.style.display = 'none';
   }
 
   btnCreateLink.addEventListener('click', (ev) => {
@@ -2047,6 +2049,9 @@ document.getElementById('miSave').addEventListener('click', () => { closeAllMenu
     window.linkSourceNode = null;
     state.connectFrom = null;
     btnCreateLink.classList.toggle('primary', linkMode);
+    // Show/hide floating link mode badge
+    const linkBadge = document.getElementById('linkModeBadge');
+    if (linkBadge) linkBadge.style.display = linkMode ? '' : 'none';
     console.log(`[LINK MODE] ${linkMode ? 'ACTIVATED' : 'DEACTIVATED'} - linkMode=${linkMode}, linkSourceNode=${linkSourceNode}`);
     if (linkMode) {
       // Check if a node is already selected
@@ -28129,6 +28134,15 @@ function loadProjectObject(obj) {
     btnCalcModeBadgeClose.addEventListener('click', exitCalculationMode);
   }
 
+  // Floating link-mode badge close button
+  const btnLinkModeBadgeClose = document.getElementById('btnLinkModeBadgeClose');
+  if (btnLinkModeBadgeClose) {
+    btnLinkModeBadgeClose.addEventListener('click', () => {
+      clearLinkMode();
+      render();
+    });
+  }
+
   if (routeOriginSelect) {
     routeOriginSelect.addEventListener('change', () => {
       const val = parseInt(routeOriginSelect.value, 10);
@@ -42369,6 +42383,8 @@ function handlePathKmlImport(e) {
   window.showToast = showToast;
   window.updateNodeGroupMembership = updateNodeGroupMembership;
   window.checkAndAutoExpandCanvas = checkAndAutoExpandCanvas;
+  window.createEdge = createEdge;
+  window.clearLinkMode = clearLinkMode;
   window.refreshAllMemberships = refreshAllMemberships;
   window.applyHeatMapMode = applyHeatMapMode;
   window.clearRouteHighlights = clearRouteHighlights;

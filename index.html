@@ -3210,6 +3210,12 @@
     <button id="btnCalcModeBadgeClose" title="Exit Calculation Mode">✕</button>
   </div>
 
+  <!-- Floating Link Mode bar -->
+  <div id="linkModeBadge" style="display:none;">
+    <span id="linkModeBadgeText">🔗 Link Mode — tap origin node</span>
+    <button id="btnLinkModeBadgeClose" title="Exit Link Mode">✕</button>
+  </div>
+
   <aside id="routeFinderPanel">
     <div id="routeFinderHeader">
       <h3>🛤️ Route Finder</h3>
@@ -7336,9 +7342,42 @@
           touchDragState = null;
           return;
         }
-        // Tap without drag → single-select
+        // Tap without drag
         var resolved = touchDragState.resolved;
         touchDragState = null;
+        if (resolved && resolved.type === 'node' && window.linkMode) {
+          // --- Link mode tap ---
+          var nid = resolved.id;
+          if (window.linkSourceNode === nid) {
+            // Tap same node → deselect source
+            window.linkSourceNode = null;
+            if (window.state) { window.state.selected = null; window.state.connectFrom = null; }
+            if (window.render) window.render();
+            if (window.showToast) window.showToast('Source deselected. Tap a node to set origin.');
+          } else if (window.linkSourceNode == null) {
+            // No source yet → set this as source (orange)
+            window.linkSourceNode = nid;
+            if (window.state) window.state.selected = { type: 'node', id: nid };
+            if (window.render) window.render();
+            var nn = window.state && window.state.nodes.find(function(x){return x.id===nid;});
+            if (window.showToast) window.showToast('Source: ' + (nn && nn.name || 'N'+nid) + ' — tap target node');
+          } else {
+            // Source exists → create link to this target
+            var srcId = window.linkSourceNode;
+            window.linkSourceNode = null;
+            if (window.createEdge) window.createEdge(srcId, nid, true);
+            if (window.state) { window.state.selected = null; window.state.connectFrom = null; }
+            if (window.state && window.state.selection) {
+              window.state.selection.nodes.clear();
+              window.state.selection.edges.clear();
+              window.state.selection.groups.clear();
+            }
+            if (window.render) window.render();
+            if (window.showToast) window.showToast('Link created! Tap a node for next link.');
+          }
+          return;
+        }
+        // --- Normal selection tap ---
         if (resolved && window.state) {
           if (window.state.selection) {
             window.state.selection.nodes.clear();
