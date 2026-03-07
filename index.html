@@ -6532,8 +6532,6 @@
 
     wrap.addEventListener('touchstart', function(e) {
       if (e.touches.length === 2) {
-        // Two fingers → pinch-to-zoom. Prevent default to stop browser zoom.
-        e.preventDefault();
         pinching = true;
         pinchStartDist = fingerDist(e.touches[0], e.touches[1]);
         pinchStartZoom = window.state ? window.state.zoom : 1;
@@ -6542,8 +6540,7 @@
         panStartX = pinchCX;
         panStartY = pinchCY;
       }
-      // Single finger: do NOT preventDefault — let browser handle natively
-    }, { passive: false });
+    }, { passive: true });
 
     wrap.addEventListener('touchmove', function(e) {
       if (pinching && e.touches.length >= 2) {
@@ -6581,11 +6578,11 @@
       if (pinching && e.touches.length < 2) {
         pinching = false;
       }
-    }, { passive: false });
+    }, { passive: true });
 
     wrap.addEventListener('touchcancel', function() {
       pinching = false;
-    }, { passive: false });
+    }, { passive: true });
   });
 })();
 </script>

@@ -1870,7 +1870,7 @@
       /* Version badge and Studio text: hide */
       #appVersionBadge { display: none; }
       /* Reduce canvas padding */
-      #wrap { padding: 10px; touch-action: pan-x pan-y; }
+      #wrap { padding: 10px; touch-action: manipulation; }
       /* Panels: constrain width */
       #inspector { width: 280px; min-width: 240px; right: 10px; top: 10px; }
       #cableNavigator { width: 240px; min-width: 200px; left: 10px; top: 10px; }
@@ -2075,7 +2075,7 @@
       #wrap { -webkit-overflow-scrolling: touch; }
       #svgContainer { margin: 0 auto; }
       /* Prevent browser pinch-zoom on the canvas (we handle it in JS) */
-      #wrap { touch-action: pan-x pan-y; }
+      #wrap { touch-action: manipulation; }
       /* Floating zoom controls for mobile */
       .mobile-zoom-controls {
         display: flex !important;
