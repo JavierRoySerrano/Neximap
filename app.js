@@ -1012,58 +1012,65 @@
     let needsExpansion = false;
     let maxX = state.canvasWidth;
     let maxY = state.canvasHeight;
-    let minX = 0;
-    let minY = 0;
 
-    // Check nodes
+    // Only expand when objects actually overlap OUTSIDE the canvas boundary
     state.nodes.forEach(n => {
       const r = n.r || 24;
-      if (n.x + r + 50 > maxX) { maxX = n.x + r + 100; needsExpansion = true; }
-      if (n.y + r + 50 > maxY) { maxY = n.y + r + 100; needsExpansion = true; }
-      if (n.x - r < minX + 50) { minX = n.x - r - 100; needsExpansion = true; }
-      if (n.y - r < minY + 50) { minY = n.y - r - 100; needsExpansion = true; }
+      if (n.x + r > maxX) { maxX = n.x + r + 50; needsExpansion = true; }
+      if (n.y + r > maxY) { maxY = n.y + r + 50; needsExpansion = true; }
     });
-
-    // Check groups
     state.groups.forEach(g => {
-      if (g.x + g.w + 50 > maxX) { maxX = g.x + g.w + 100; needsExpansion = true; }
-      if (g.y + g.h + 50 > maxY) { maxY = g.y + g.h + 100; needsExpansion = true; }
-      if (g.x < minX + 50) { minX = g.x - 100; needsExpansion = true; }
-      if (g.y < minY + 50) { minY = g.y - 100; needsExpansion = true; }
+      if (g.x + g.w > maxX) { maxX = g.x + g.w + 50; needsExpansion = true; }
+      if (g.y + g.h > maxY) { maxY = g.y + g.h + 50; needsExpansion = true; }
     });
 
+    // No left/top auto-shift — only expand right/bottom
     if (!needsExpansion) return;
 
-    // Calculate shift needed for left/top expansion
-    const shiftX = minX < 0 ? -minX : 0;
-    const shiftY = minY < 0 ? -minY : 0;
-
-    if (shiftX > 0 || shiftY > 0) {
-      // Shift all elements to accommodate left/top expansion
-      state.nodes.forEach(n => {
-        n.x += shiftX;
-        n.y += shiftY;
-      });
-      state.groups.forEach(g => {
-        g.x += shiftX;
-        g.y += shiftY;
-      });
-      maxX += shiftX;
-      maxY += shiftY;
-    }
-
-    // Update canvas size
-    state.canvasWidth = Math.ceil(Math.max(state.canvasWidth, maxX));
-    state.canvasHeight = Math.ceil(Math.max(state.canvasHeight, maxY));
+    state.canvasWidth = Math.ceil(maxX);
+    state.canvasHeight = Math.ceil(maxY);
 
     updateViewBox();
 
-    // Update canvas size inputs
     const canvasWidthInput = document.getElementById('canvasWidth');
     const canvasHeightInput = document.getElementById('canvasHeight');
     if (canvasWidthInput) canvasWidthInput.value = state.canvasWidth;
     if (canvasHeightInput) canvasHeightInput.value = state.canvasHeight;
   }
+
+  // Manual canvas expansion in a given direction
+  window.expandCanvas = function(direction) {
+    const EXPAND_PX = 200;
+    const wrap = document.getElementById('wrap');
+    switch (direction) {
+      case 'right':
+        state.canvasWidth += EXPAND_PX;
+        break;
+      case 'bottom':
+        state.canvasHeight += EXPAND_PX;
+        break;
+      case 'left':
+        // Shift all elements right, then expand canvas
+        state.nodes.forEach(n => { n.x += EXPAND_PX; });
+        state.groups.forEach(g => { g.x += EXPAND_PX; });
+        state.canvasWidth += EXPAND_PX;
+        if (wrap) wrap.scrollLeft += EXPAND_PX * state.zoom;
+        break;
+      case 'top':
+        state.nodes.forEach(n => { n.y += EXPAND_PX; });
+        state.groups.forEach(g => { g.y += EXPAND_PX; });
+        state.canvasHeight += EXPAND_PX;
+        if (wrap) wrap.scrollTop += EXPAND_PX * state.zoom;
+        break;
+    }
+    updateViewBox();
+    const canvasWidthInput = document.getElementById('canvasWidth');
+    const canvasHeightInput = document.getElementById('canvasHeight');
+    if (canvasWidthInput) canvasWidthInput.value = state.canvasWidth;
+    if (canvasHeightInput) canvasHeightInput.value = state.canvasHeight;
+    commit();
+    render();
+  };
 
   // In-app clipboard (for copy/paste)
   let clipboard = null; // { nodes:[], groups:[], edges:[], bbox:{minX,minY} }

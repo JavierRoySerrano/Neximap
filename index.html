@@ -1331,6 +1331,22 @@
     </div>
   </div>
 
+  <!-- Canvas expand arrows -->
+  <div id="canvasExpandOverlay">
+    <button class="canvas-expand-btn expand-top" onclick="expandCanvas('top')" title="Expand canvas upward">
+      <svg width="18" height="10" viewBox="0 0 18 10"><polyline points="2,8 9,2 16,8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="canvas-expand-btn expand-bottom" onclick="expandCanvas('bottom')" title="Expand canvas downward">
+      <svg width="18" height="10" viewBox="0 0 18 10"><polyline points="2,2 9,8 16,2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="canvas-expand-btn expand-left" onclick="expandCanvas('left')" title="Expand canvas left">
+      <svg width="10" height="18" viewBox="0 0 10 18"><polyline points="8,2 2,9 8,16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="canvas-expand-btn expand-right" onclick="expandCanvas('right')" title="Expand canvas right">
+      <svg width="10" height="18" viewBox="0 0 10 18"><polyline points="2,2 8,9 2,16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
   <!-- Floating Projection Adjustment Panel (visible in Geo View) -->
   <div id="projectionPanel" style="
     position: absolute;

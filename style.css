@@ -594,6 +594,61 @@
     #wrap::-webkit-scrollbar-corner {
       background: #e0e0e0;
     }
+
+    /* Canvas expand overlay — sits over #wrap, inside #layout */
+    #canvasExpandOverlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 50;
+      overflow: hidden;
+    }
+    .canvas-expand-btn {
+      position: absolute;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      color: #999;
+      background: rgba(240,240,240,0.8);
+      backdrop-filter: blur(2px);
+      opacity: 0.45;
+      transition: opacity 0.2s, background 0.2s, color 0.2s;
+      pointer-events: auto;
+    }
+    .canvas-expand-btn:hover {
+      opacity: 1;
+      background: rgba(255,255,255,0.95);
+      color: #0096D6;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.15);
+    }
+    .canvas-expand-btn:active {
+      background: #e8f4fc;
+      color: #0077b6;
+    }
+    .expand-top {
+      top: 0; left: 50%; transform: translateX(-50%);
+      width: 44px; height: 20px;
+      border-radius: 0 0 6px 6px;
+    }
+    .expand-bottom {
+      bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 44px; height: 20px;
+      border-radius: 6px 6px 0 0;
+    }
+    .expand-left {
+      left: 0; top: 50%; transform: translateY(-50%);
+      width: 20px; height: 44px;
+      border-radius: 0 6px 6px 0;
+    }
+    .expand-right {
+      right: 0; top: 50%; transform: translateY(-50%);
+      width: 20px; height: 44px;
+      border-radius: 6px 0 0 6px;
+    }
+
     #inspector {
       position: absolute;
       right: 20px;
