@@ -6442,15 +6442,23 @@
 
   window.mobileSheetAction = function(btnId) {
     closeMobileMoreSheet();
+    // Clear stale inline display on panels that use class-based visibility
+    var sl = document.getElementById('shapeLibraryPanel');
+    if (sl) sl.style.display = '';
     var btn = document.getElementById(btnId);
     if (btn) btn.click();
   };
 
   function closeMobilePanels() {
-    ['inspector','unifiedFilterPanel','shapeLibraryPanel','cableNavigator','cableSystemInspectorPanel'].forEach(function(id) {
+    ['inspector','cableNavigator','cableSystemInspectorPanel'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
+    // These panels use hidden attribute or class toggle, not inline display
+    var fp = document.getElementById('unifiedFilterPanel');
+    if (fp) fp.hidden = true;
+    var sl = document.getElementById('shapeLibraryPanel');
+    if (sl) { sl.classList.remove('visible'); sl.style.display = ''; }
   }
 
   function clearMobileActive() {
