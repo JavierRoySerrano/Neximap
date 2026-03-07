@@ -2088,11 +2088,11 @@
         position: fixed;
         right: 12px;
         bottom: 120px;
+        z-index: 300;
+        gap: 4px;
       }
       .mobile-zoom-controls.hidden {
         display: none !important;
-        z-index: 300;
-        gap: 4px;
       }
       .mobile-zoom-controls button {
         width: 44px;
@@ -2113,6 +2113,62 @@
       .mobile-zoom-controls button:active {
         background: #e8e8e8;
       }
+
+      /* --- Draw popup (bottom nav) --- */
+      .mob-draw-popup {
+        display: none;
+        position: fixed;
+        bottom: 58px;
+        left: 8px;
+        background: #fff;
+        border: 1px solid #d0d0d0;
+        border-radius: 12px;
+        box-shadow: 0 -4px 16px rgba(0,0,0,0.15);
+        min-width: 170px;
+        z-index: 1000;
+        overflow: hidden;
+      }
+      .mob-draw-popup.open { display: flex; flex-direction: column; }
+      .mob-draw-item {
+        display: flex; align-items: center; gap: 10px;
+        padding: 12px 14px; border: none; background: none;
+        font-size: 14px; color: #333; cursor: pointer;
+        min-height: 44px;
+      }
+      .mob-draw-item:active { background: #f0f0f0; }
+      .mob-draw-item svg:first-child { width: 22px; height: 22px; flex-shrink: 0; }
+      .mob-draw-chevron { margin-left: auto; opacity: 0.4; }
+      .mob-draw-divider { height: 1px; background: #e5e7eb; margin: 0 8px; }
+      .mob-shape-expand {
+        display: none;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2px; padding: 6px 8px 8px;
+        border-top: 1px solid #e5e7eb;
+      }
+      .mob-shape-expand.open { display: grid; }
+      .mob-shape-item {
+        display: flex; flex-direction: column; align-items: center;
+        gap: 2px; padding: 8px 4px; border: none; background: none;
+        border-radius: 8px; cursor: pointer;
+      }
+      .mob-shape-item:active { background: #e8f4fc; }
+      .mob-shape-item svg { width: 26px; height: 26px; }
+
+      /* --- More sheet shape dropdown --- */
+      .mob-sheet-shape-grid {
+        display: none;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px; padding: 4px 8px 8px;
+      }
+      .mob-sheet-shape-grid.open { display: grid; }
+      .mob-sheet-shape-grid button {
+        display: flex; flex-direction: column; align-items: center;
+        gap: 2px; padding: 8px 4px; border: none; background: #f8f9fa;
+        border-radius: 8px; cursor: pointer; font-size: 11px; color: #333;
+      }
+      .mob-sheet-shape-grid button:active { background: #e8f4fc; }
+      .mob-sheet-shape-grid button svg { width: 24px; height: 24px; }
+
       /* All dropdown menus: ensure they don't overflow screen */
       .menu { max-width: 90vw !important; max-height: 70vh !important; overflow-y: auto !important; }
       /* Unified filter panel: bottom sheet on mobile */

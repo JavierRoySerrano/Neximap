@@ -6167,10 +6167,44 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="2" fill="currentColor"/><circle cx="16" cy="8" r="2" fill="currentColor"/><circle cx="12" cy="16" r="2" fill="currentColor"/><line x1="8" y1="10" x2="12" y2="14"/><line x1="16" y1="10" x2="12" y2="14"/></svg>
     <span>Canvas</span>
   </button>
-  <button id="mobBtnFit" onclick="mobileNavAction('fit')" title="Fit View">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-    <span>Fit</span>
+  <button id="mobBtnDraw" onclick="event.stopPropagation(); mobileNavAction('draw')" title="Draw">
+    <svg id="mobDrawIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+    <span id="mobDrawLabel">Draw</span>
   </button>
+  <!-- Draw popup (Link + Node shape selector) -->
+  <div id="mobDrawPopup" class="mob-draw-popup">
+    <button class="mob-draw-item" id="mobDrawLink" onclick="event.stopPropagation(); mobDrawSelect('link')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      <span>Link</span>
+    </button>
+    <div class="mob-draw-divider"></div>
+    <button class="mob-draw-item" id="mobDrawNode" onclick="event.stopPropagation(); mobDrawSelect('node')">
+      <svg id="mobDrawNodeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+      <span id="mobDrawNodeLabel">Circle</span>
+      <svg class="mob-draw-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <!-- Shape expansion panel -->
+    <div id="mobShapeExpand" class="mob-shape-expand">
+      <button class="mob-shape-item" data-mob-shape="circle" onclick="event.stopPropagation(); mobPickShape('circle')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+      </button>
+      <button class="mob-shape-item" data-mob-shape="square" onclick="event.stopPropagation(); mobPickShape('square')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16"/></svg>
+      </button>
+      <button class="mob-shape-item" data-mob-shape="triangle" onclick="event.stopPropagation(); mobPickShape('triangle')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,3 22,21 2,21"/></svg>
+      </button>
+      <button class="mob-shape-item" data-mob-shape="rectangle" onclick="event.stopPropagation(); mobPickShape('rectangle')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12"/></svg>
+      </button>
+      <button class="mob-shape-item" data-mob-shape="ellipse" onclick="event.stopPropagation(); mobPickShape('ellipse')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg>
+      </button>
+      <button class="mob-shape-item" data-mob-shape="hexagon" onclick="event.stopPropagation(); mobPickShape('hexagon')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/></svg>
+      </button>
+    </div>
+  </div>
   <button id="mobBtnInspector" onclick="mobileNavAction('inspector')" title="Inspector">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="7" x2="20" y2="7"/><circle cx="8" cy="7" r="2" fill="currentColor"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="14" cy="12" r="2" fill="currentColor"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="10" cy="17" r="2" fill="currentColor"/></svg>
     <span>Inspector</span>
@@ -6220,31 +6254,20 @@
     Delete Selected
   </button>
   <div class="sheet-section">Node Shape</div>
-  <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px; padding:4px 8px 8px;">
-    <button class="sheet-item" onclick="closeMobileMoreSheet(); var b=document.querySelector('.shape-dropdown-item[data-shape=circle]'); if(b)b.click();" style="flex-direction:column; padding:8px 4px;">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
-      <span style="font-size:11px;">Circle</span>
-    </button>
-    <button class="sheet-item" onclick="closeMobileMoreSheet(); var b=document.querySelector('.shape-dropdown-item[data-shape=square]'); if(b)b.click();" style="flex-direction:column; padding:8px 4px;">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16"/></svg>
-      <span style="font-size:11px;">Square</span>
-    </button>
-    <button class="sheet-item" onclick="closeMobileMoreSheet(); var b=document.querySelector('.shape-dropdown-item[data-shape=triangle]'); if(b)b.click();" style="flex-direction:column; padding:8px 4px;">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,3 22,21 2,21"/></svg>
-      <span style="font-size:11px;">Triangle</span>
-    </button>
-    <button class="sheet-item" onclick="closeMobileMoreSheet(); var b=document.querySelector('.shape-dropdown-item[data-shape=rectangle]'); if(b)b.click();" style="flex-direction:column; padding:8px 4px;">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12"/></svg>
-      <span style="font-size:11px;">Rectangle</span>
-    </button>
-    <button class="sheet-item" onclick="closeMobileMoreSheet(); var b=document.querySelector('.shape-dropdown-item[data-shape=ellipse]'); if(b)b.click();" style="flex-direction:column; padding:8px 4px;">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg>
-      <span style="font-size:11px;">Ellipse</span>
-    </button>
-    <button class="sheet-item" onclick="closeMobileMoreSheet(); var b=document.querySelector('.shape-dropdown-item[data-shape=hexagon]'); if(b)b.click();" style="flex-direction:column; padding:8px 4px;">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/></svg>
-      <span style="font-size:11px;">Hexagon</span>
-    </button>
+  <button class="sheet-item" id="moreSheetShapeBtn" onclick="event.stopPropagation(); document.getElementById('moreSheetShapeGrid').classList.toggle('open');" style="justify-content:space-between;">
+    <span style="display:flex; align-items:center; gap:8px;">
+      <svg id="moreSheetShapeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+      <span id="moreSheetShapeLabel">Circle</span>
+    </span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </button>
+  <div id="moreSheetShapeGrid" class="mob-sheet-shape-grid">
+    <button data-mob-shape="circle" onclick="event.stopPropagation(); moreSheetPickShape('circle')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg><span>Circle</span></button>
+    <button data-mob-shape="square" onclick="event.stopPropagation(); moreSheetPickShape('square')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16"/></svg><span>Square</span></button>
+    <button data-mob-shape="triangle" onclick="event.stopPropagation(); moreSheetPickShape('triangle')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,3 22,21 2,21"/></svg><span>Triangle</span></button>
+    <button data-mob-shape="rectangle" onclick="event.stopPropagation(); moreSheetPickShape('rectangle')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12"/></svg><span>Rectangle</span></button>
+    <button data-mob-shape="ellipse" onclick="event.stopPropagation(); moreSheetPickShape('ellipse')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg><span>Ellipse</span></button>
+    <button data-mob-shape="hexagon" onclick="event.stopPropagation(); moreSheetPickShape('hexagon')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/></svg><span>Hexagon</span></button>
   </div>
   <div class="sheet-section">Drawing</div>
   <button class="sheet-item" onclick="mobileSheetAction('btnAddGroup')">
@@ -6356,6 +6379,7 @@
   // Mobile nav actions
   window.mobileNavAction = function(action) {
     closeMobileMoreSheet();
+    if (action !== 'draw') closeMobDrawPopup();
 
     if (action === 'canvas') {
       // Switch back to main canvas view (deactivate map/geo if active)
@@ -6367,12 +6391,15 @@
       // Restore floating zoom controls
       var zc = document.getElementById('mobileZoomControls');
       if (zc) zc.classList.remove('hidden');
-    } else if (action === 'fit') {
-      var btn = document.getElementById('btnZoomFit');
-      if (btn) btn.click();
-      // Fit is a momentary action — flash active then revert to canvas
-      clearMobileActive();
-      document.getElementById('mobBtnCanvas').classList.add('active');
+    } else if (action === 'draw') {
+      var popup = document.getElementById('mobDrawPopup');
+      if (popup) {
+        popup.classList.toggle('open');
+        // Close shape expand when toggling popup
+        var expand = document.getElementById('mobShapeExpand');
+        if (expand) expand.classList.remove('open');
+      }
+      return; // Don't close other things
     } else if (action === 'inspector') {
       var insp = document.getElementById('inspector');
       if (insp) {
@@ -6438,6 +6465,8 @@
     if (backdrop) backdrop.classList.remove('open');
     var btn = document.getElementById('mobBtnMore');
     if (btn) btn.classList.remove('active');
+    var grid = document.getElementById('moreSheetShapeGrid');
+    if (grid) grid.classList.remove('open');
   };
 
   window.mobileSheetAction = function(btnId) {
@@ -6448,6 +6477,83 @@
     var btn = document.getElementById(btnId);
     if (btn) btn.click();
   };
+
+  // Shape SVG lookup for updating icons
+  var mobShapeSVGs = {
+    circle:    '<circle cx="12" cy="12" r="9"/>',
+    square:    '<rect x="4" y="4" width="16" height="16"/>',
+    triangle:  '<polygon points="12,3 22,21 2,21"/>',
+    rectangle: '<rect x="2" y="6" width="20" height="12"/>',
+    ellipse:   '<ellipse cx="12" cy="12" rx="10" ry="6"/>',
+    hexagon:   '<polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/>'
+  };
+  var mobShapeNames = {
+    circle:'Circle', square:'Square', triangle:'Triangle',
+    rectangle:'Rectangle', ellipse:'Ellipse', hexagon:'Hexagon'
+  };
+
+  function closeMobDrawPopup() {
+    var popup = document.getElementById('mobDrawPopup');
+    if (popup) popup.classList.remove('open');
+    var expand = document.getElementById('mobShapeExpand');
+    if (expand) expand.classList.remove('open');
+  }
+
+  // Update all shape icons (bottom nav Draw button, popup Node icon, More sheet)
+  function updateMobShapeIcons(shape) {
+    var svg = mobShapeSVGs[shape] || mobShapeSVGs.circle;
+    var name = mobShapeNames[shape] || 'Circle';
+    // Bottom nav Draw button icon
+    var drawIcon = document.getElementById('mobDrawIcon');
+    if (drawIcon) drawIcon.innerHTML = svg;
+    // Popup Node row icon + label
+    var nodeIcon = document.getElementById('mobDrawNodeIcon');
+    if (nodeIcon) nodeIcon.innerHTML = svg;
+    var nodeLabel = document.getElementById('mobDrawNodeLabel');
+    if (nodeLabel) nodeLabel.textContent = name;
+    // More sheet shape button
+    var moreIcon = document.getElementById('moreSheetShapeIcon');
+    if (moreIcon) moreIcon.innerHTML = svg;
+    var moreLabel = document.getElementById('moreSheetShapeLabel');
+    if (moreLabel) moreLabel.textContent = name;
+  }
+
+  // Draw popup: Link action
+  window.mobDrawSelect = function(type) {
+    if (type === 'link') {
+      closeMobDrawPopup();
+      var btn = document.getElementById('btnCreateLink');
+      if (btn) btn.click();
+    } else if (type === 'node') {
+      // Toggle shape expansion
+      var expand = document.getElementById('mobShapeExpand');
+      if (expand) expand.classList.toggle('open');
+    }
+  };
+
+  // Draw popup: pick a shape
+  window.mobPickShape = function(shape) {
+    // Click the desktop hidden shape button
+    var hiddenBtn = document.querySelector('.shape-dropdown-item[data-shape="' + shape + '"]');
+    if (hiddenBtn) hiddenBtn.click();
+    updateMobShapeIcons(shape);
+    closeMobDrawPopup();
+  };
+
+  // More sheet: pick a shape
+  window.moreSheetPickShape = function(shape) {
+    var hiddenBtn = document.querySelector('.shape-dropdown-item[data-shape="' + shape + '"]');
+    if (hiddenBtn) hiddenBtn.click();
+    updateMobShapeIcons(shape);
+    var grid = document.getElementById('moreSheetShapeGrid');
+    if (grid) grid.classList.remove('open');
+    closeMobileMoreSheet();
+  };
+
+  // Close draw popup when tapping elsewhere
+  document.addEventListener('click', function() {
+    closeMobDrawPopup();
+  });
 
   function closeMobilePanels() {
     ['inspector','cableNavigator','cableSystemInspectorPanel'].forEach(function(id) {
