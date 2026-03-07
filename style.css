@@ -1996,6 +1996,7 @@
         .mob-landscape-bar { top: 35px; }
         .mlb-panel { top: 80px; }
         .mob-grid-popup { top: 80px; }
+        #routeFinderPanel { top: 80px !important; }
         #wrap { margin-top: 80px; }
       }
 
@@ -2058,8 +2059,37 @@
         border-radius: 18px 18px 0 0 !important;
         resize: none !important;
       }
+      /* Route Finder panel */
+      #routeFinderPanel {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: 88px !important;
+        bottom: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: calc(100vh - 140px) !important;
+        border-radius: 0 0 16px 16px !important;
+        z-index: 200;
+        resize: none !important;
+      }
+      /* DC Navigator panel */
+      #dcNavigator {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        bottom: 52px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 60vh !important;
+        max-height: 60vh !important;
+        border-radius: 16px 16px 0 0 !important;
+        z-index: 200;
+        resize: none !important;
+      }
       /* Visor panels: full screen on mobile */
-      #cableVisorPanel {
+      #cableVisorPanel, #dcVisorPanel {
         position: fixed !important;
         left: 0 !important;
         top: 0 !important;
@@ -2072,7 +2102,8 @@
       }
       /* Draggable panel headers on mobile */
       #inspectorHeader, #cableNavigatorHeader, #cableInspectorHeader,
-      #cableVisorHeader, #dcNavigatorHeader, #dcVisorHeader, .library-header {
+      #cableVisorHeader, #dcNavigatorHeader, #dcVisorHeader,
+      #routeFinderHeader, .library-header {
         cursor: grab;
         touch-action: none;
       }
