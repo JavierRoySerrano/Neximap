@@ -2088,6 +2088,9 @@
         position: fixed;
         right: 12px;
         bottom: 120px;
+      }
+      .mobile-zoom-controls.hidden {
+        display: none !important;
         z-index: 300;
         gap: 4px;
       }
